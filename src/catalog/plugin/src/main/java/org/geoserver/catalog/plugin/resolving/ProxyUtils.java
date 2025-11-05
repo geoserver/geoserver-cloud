@@ -154,7 +154,7 @@ public class ProxyUtils {
      * @param orig The value to resolve; may be null.
      * @return The resolved value, or {@code orig} if unchanged.
      */
-    private Object resolvePatchPropertyValue(Object orig) {
+    public Object resolvePatchPropertyValue(Object orig) {
         if (orig instanceof Info info) {
             return resolve(info);
         }
@@ -248,7 +248,7 @@ public class ProxyUtils {
      *
      * @param <T>        The type of {@link Info}.
      * @param unresolved The {@link Info} object to resolve; may be null.
-     * @return The resolved {@link Info}, or null if unresolved and not failing.
+     * @return The resolved {@link Info}, or {@code unresolved} if unresolved and not failing.
      * @throws IllegalArgumentException if an unresolved proxy is encountered and {@code failOnNotFound} is true.
      */
     @SuppressWarnings("unchecked")
@@ -256,22 +256,19 @@ public class ProxyUtils {
         if (unresolved == null) {
             return null;
         }
-        T info = ModificationProxy.unwrap(unresolved);
+        T resolved = ModificationProxy.unwrap(unresolved);
         if (isResolvingProxy(unresolved)) {
-            info = resolveResolvingProxy(info);
+            resolved = resolveResolvingProxy(resolved);
         }
 
-        if (info == null) {
-            if (failOnNotFound) {
-                throw new IllegalArgumentException("Reference to %s not found".formatted(unresolved.getId()));
-            }
-            return null;
+        if (failOnNotFound && unresolved != null && (resolved == null || isResolvingProxy(resolved))) {
+            throw new IllegalArgumentException("Reference to %s not found".formatted(unresolved.getId()));
         }
 
-        if (!Proxy.isProxyClass(info.getClass())) {
-            info = (T) resolveInternal(info);
+        if (resolved != null && !Proxy.isProxyClass(resolved.getClass())) {
+            resolved = (T) resolveInternal(resolved);
         }
-        return info;
+        return resolved;
     }
 
     /**
@@ -347,10 +344,10 @@ public class ProxyUtils {
      *
      * @param <T>  The type of {@link CatalogInfo}.
      * @param info The {@link CatalogInfo} proxy to resolve; must not be null.
-     * @return The resolved {@link CatalogInfo}.
+     * @return The resolved {@link CatalogInfo}, or the original if unresolved.
      */
     @SuppressWarnings("unchecked")
-    private <T extends Info> T resolveCatalogInfo(T info) {
+    private <T extends Info> T resolveCatalogInfo(final T info) {
         Catalog actualCatalog = getCatalog();
         // Workaround for a bug in ResolvingProxy.resolve(), if info is a PublishedInfo
         // (as opposed
@@ -363,7 +360,12 @@ public class ProxyUtils {
             }
             return (T) l;
         }
-        return ResolvingProxy.resolve(actualCatalog, info);
+        T resolved = ResolvingProxy.resolve(actualCatalog, info);
+        if (resolved == null) {
+            // couldn't resolve, return the resolving proxy
+            resolved = info;
+        }
+        return resolved;
     }
 
     /**

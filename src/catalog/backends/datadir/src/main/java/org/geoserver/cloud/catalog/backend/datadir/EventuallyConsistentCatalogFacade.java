@@ -23,30 +23,71 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ForwardingExtendedCatalogFacade;
 import org.geoserver.ows.util.OwsUtils;
-import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
+ * Catalog facade decorator that ensures eventual consistency when processing distributed catalog
+ * events that may arrive out of order.
  *
+ * <p>In a distributed GeoServer Cloud deployment, catalog modification events are broadcast over a
+ * message bus to synchronize all nodes. Network latency and message delivery guarantees mean that
+ * events may arrive at each node in a different order than they were generated. This creates a
+ * consistency problem when catalog objects reference other objects:
  *
  * <ul>
- * <li>All {@code add(@NonNull )} methods check if the {@link CatalogInfo} being
- * added have unresolved ({@link ResolvingProxy}) references
- * <li>If so, the object is put in a pending list and not added
- * <li>Conversely, if during {@code add(@NonNull )}, there's a pending add
- * waiting for this new object, the {@code add(@NonNull )} proceeds and then the
- * pending object is added
+ *   <li>A LayerInfo references a ResourceInfo and a StyleInfo
+ *   <li>A ResourceInfo references a StoreInfo and a NamespaceInfo
+ *   <li>A StoreInfo references a WorkspaceInfo
  * </ul>
+ *
+ * <p>If an event to add a LayerInfo arrives before the event to add its referenced ResourceInfo,
+ * attempting to add the LayerInfo with unresolved references would fail or corrupt the catalog.
+ *
+ * <p><b>Solution:</b> This facade delegates all mutating operations ({@code add}, {@code update},
+ * {@code remove}) to an {@link EventualConsistencyEnforcer}, which defers operations with
+ * unresolved references until the referenced objects arrive. Query operations ({@code get*}
+ * methods) implement retry logic for REST API requests, allowing brief wait periods for pending
+ * operations to converge.
+ *
+ * <p><b>Example scenario:</b>
+ *
+ * <ol>
+ *   <li>Node A creates a Workspace, Store, Resource, and Layer
+ *   <li>Events arrive at Node B in order: Layer → Resource → Store → Workspace
+ *   <li>Layer add is deferred (missing Resource reference)
+ *   <li>Resource add is deferred (missing Store reference)
+ *   <li>Store add is deferred (missing Workspace reference)
+ *   <li>Workspace add succeeds, triggers Store add
+ *   <li>Store add succeeds, triggers Resource add
+ *   <li>Resource add succeeds, triggers Layer add
+ *   <li>Catalog converges to consistent state
+ * </ol>
+ *
+ * <p><b>Query retry behavior:</b>
+ *
+ * <p>Query methods (e.g., {@code getWorkspaceByName()}) implement retry logic to handle queries
+ * that occur while pending operations are resolving:
+ *
+ * <ul>
+ *   <li><b>Web requests (REST API, OWS services):</b> Retry when pending operations exist
+ *       ({@code !isConverged()}). Each retry invokes {@code forceResolve()} to attempt resolving
+ *       pending operations. If the catalog has converged (no pending operations), queries return
+ *       immediately as retrying cannot find anything new.
+ *   <li><b>Internal operations:</b> Never retry. Internal catalog access during startup or event
+ *       processing returns immediately to avoid blocking.
+ * </ul>
+ *
+ * <p>Retry intervals are configured via
+ * {@code geoserver.backend.data-directory.eventual-consistency.retries} (default: [25, 25, 50] ms).
  *
  * @since 1.9
  * @see EventualConsistencyEnforcer
  * @see RemoteEventDataDirectoryProcessor
+ * @see org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties.EventualConsistencyConfig
  */
 @Slf4j(topic = "org.geoserver.cloud.catalog.backend.datadir")
 public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalogFacade {
@@ -318,20 +359,31 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
             return ret;
         }
 
-        // do retry if it's a REST API request or there're pending updates
-        if (isWebRequest() && (isRestRequest() || !enforcer.isConverged())) {
+        // Retry logic when catalog has pending operations.
+        //
+        // Problem: Distributed catalog events may arrive out of order. An add event for a Layer
+        // might arrive before its referenced Resource. The add is deferred until the Resource
+        // arrives. Meanwhile, a client query for the Layer returns null even though it will
+        // exist momentarily. Retrying gives pending operations a chance to resolve.
+        //
+        // Retry strategy:
+        //
+        // 1. Web requests (REST API, OWS services):
+        //    - Retry when catalog has pending operations (!enforcer.isConverged())
+        //    - During retry, forceResolve() attempts to resolve pending operations
+        //    - If no pending operations exist, retrying is pointless (object genuinely doesn't exist)
+        //
+        // 2. Internal operations (catalog loading at startup, event processing):
+        //    - Never retry (filtered by isWebRequest())
+        //    - Would block initialization and event processing
+        //
+        // Note: The previous implementation (commit b60c8a2b9ec) had REST requests retry even
+        // when converged, but this was wasteful - if there are no pending operations, retrying
+        // can't find anything new.
+        if (isWebRequest() && !enforcer.isConverged()) {
             return doRetry(supplier, predicate, op, ret);
         }
         return ret;
-    }
-
-    private boolean isRestRequest() {
-        RequestAttributes atts = RequestContextHolder.getRequestAttributes();
-        if (atts instanceof ServletRequestAttributes webreq) {
-            String uri = webreq.getRequest().getRequestURI();
-            return uri.contains("/rest/");
-        }
-        return false;
     }
 
     private <T> T doRetry(Supplier<T> supplier, Predicate<T> predicate, Supplier<String> op, T ret) {

@@ -41,7 +41,7 @@ class InfoEventResolver {
 
         proxyUtils = new ProxyUtils(() -> rawCatalog, Optional.of(geoserverConfig));
 
-        BiConsumer<CatalogInfo, ResolvingProxy> onNotFound = (info, proxy) -> log.debug(
+        BiConsumer<Info, ResolvingProxy> onNotFound = (info, proxy) -> log.debug(
                 "Event object contains a reference to a non existing object ResolvingProxy(ref={})", proxy.getRef());
 
         configInfoResolver = CollectionPropertiesInitializer.<Info>instance()

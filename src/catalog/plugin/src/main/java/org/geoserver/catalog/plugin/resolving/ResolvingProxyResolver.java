@@ -79,7 +79,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     private final Supplier<Catalog> catalog;
     private final ProxyUtils proxyUtils;
 
-    private BiConsumer<CatalogInfo, ResolvingProxy> onNotFound;
+    private BiConsumer<Info, ResolvingProxy> onNotFound;
 
     /**
      * Constructs a resolver with a catalog supplier and default not-found behavior.
@@ -104,7 +104,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
      * @throws NullPointerException if {@code catalog} or {@code onNotFound} is null.
      */
     private ResolvingProxyResolver(
-            @NonNull Supplier<Catalog> catalog, @NonNull BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+            @NonNull Supplier<Catalog> catalog, @NonNull BiConsumer<Info, ResolvingProxy> onNotFound) {
         Objects.requireNonNull(catalog, "Catalog supplier must not be null");
         Objects.requireNonNull(onNotFound, "onNotFound consumer must not be null");
         this.catalog = catalog;
@@ -122,7 +122,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
      * @throws NullPointerException if {@code catalog} or {@code onNotFound} is null.
      */
     public static <I extends Info> ResolvingProxyResolver<I> of(
-            Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+            Catalog catalog, BiConsumer<Info, ResolvingProxy> onNotFound) {
         return new ResolvingProxyResolver<>(() -> catalog, onNotFound);
     }
 
@@ -136,7 +136,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
      * @throws NullPointerException if {@code catalog} or {@code onNotFound} is null.
      */
     public static <I extends Info> ResolvingProxyResolver<I> of(
-            Supplier<Catalog> catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+            Supplier<Catalog> catalog, BiConsumer<Info, ResolvingProxy> onNotFound) {
         return new ResolvingProxyResolver<>(catalog, onNotFound);
     }
 
@@ -202,7 +202,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
      * @return This resolver instance for chaining.
      * @throws NullPointerException if {@code onNotFound} is null.
      */
-    public ResolvingProxyResolver<T> onNotFound(BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+    public ResolvingProxyResolver<T> onNotFound(BiConsumer<Info, ResolvingProxy> onNotFound) {
         Objects.requireNonNull(onNotFound, "onNotFound consumer must not be null");
         this.onNotFound = onNotFound;
         return this;
@@ -242,9 +242,9 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
             if (isResolvingProxy) {
                 // may the object itself be a resolving proxy
                 Info resolved = doResolveProxy(info);
-                if (resolved == null && info instanceof CatalogInfo cinfo) {
+                if (resolved == null || isResolvingProxy(resolved)) {
                     log.debug("Proxy object {} not found, calling on-not-found consumer", info.getId());
-                    onNotFound.accept(cinfo, resolvingProxy);
+                    onNotFound.accept(info, resolvingProxy);
                     // if onNotFound didn't throw an exception, return the proxied value if the
                     // consumer didn't throw an exception
                     return orig;
@@ -291,7 +291,28 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
      * @return The resolved {@link Patch}.
      */
     private Patch resolveInternal(Patch patch) {
-        return proxyUtils.resolve(patch);
+        Patch resolved = new Patch();
+        for (Patch.Property p : patch.getPatches()) {
+            Object resolvedValue = proxyUtils.resolvePatchPropertyValue(p.getValue());
+            checkNotFounds(resolvedValue);
+            resolved.add(p.getName(), resolvedValue);
+        }
+        return resolved;
+    }
+
+    private void checkNotFounds(Object value) {
+        if (value instanceof Info info) {
+            final ResolvingProxy resolvingProxy = getResolvingProxy(info);
+            if (resolvingProxy != null) {
+                onNotFound.accept(info, resolvingProxy);
+            }
+        } else if (value instanceof Iterable it) {
+            for (Object v : it) {
+                checkNotFounds(v);
+            }
+        } else if (value instanceof Map map) {
+            checkNotFounds(map.values());
+        }
     }
 
     /**
@@ -308,10 +329,10 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Checks if an object is a {@link ResolvingProxy}.
      *
-     * @param unresolved The {@link CatalogInfo} to check; may be null.
+     * @param unresolved The {@link Info} to check; may be null.
      * @return {@code true} if it’s a {@link ResolvingProxy}, {@code false} otherwise.
      */
-    protected boolean isResolvingProxy(final CatalogInfo unresolved) {
+    protected boolean isResolvingProxy(final Info unresolved) {
         return getResolvingProxy(unresolved) != null;
     }
 
@@ -496,8 +517,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
          * @param catalog    The supplier of the {@link Catalog}; must not be null.
          * @param onNotFound The action for unresolved proxies; must not be null.
          */
-        public MemoizingProxyResolver(
-                @NonNull Supplier<Catalog> catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+        public MemoizingProxyResolver(@NonNull Supplier<Catalog> catalog, BiConsumer<Info, ResolvingProxy> onNotFound) {
             super(catalog, onNotFound);
         }
 
