@@ -764,6 +764,12 @@
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-app-schema-core</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
