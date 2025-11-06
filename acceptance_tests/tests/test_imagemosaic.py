@@ -7,7 +7,7 @@ Tests various workflows for creating ImageMosaic stores and layers:
 - Empty store creation with directory/file harvesting
 - XML-based store creation
 
-All tests use sample data from a shared mount volume at /mnt/geoserver_data
+All tests use sample data from a shared mount volume at /opt/geoserver_data
 that is accessible to both the test environment and GeoServer containers.
 """
 import os
@@ -31,7 +31,7 @@ def test_create_imagemosaic_local_files():
     assert response.status_code == 201
 
     # Use direct directory approach (like web UI) instead of individual file URLs
-    directory_path = "/mnt/geoserver_data/sampledata/ne/pyramid/"
+    directory_path = "/opt/geoserver_data/sampledata/ne/pyramid/"
 
     # Create ImageMosaic store directly from directory
     response = geoserver.put_request(
@@ -166,10 +166,10 @@ preparedStatements=false
 
     # Manually add individual granules from the sample data
     granule_paths = [
-        "/mnt/geoserver_data/sampledata/ne/pyramid/NE1_LR_LC_SR_W_DR_1_1.tif",
-        "/mnt/geoserver_data/sampledata/ne/pyramid/NE1_LR_LC_SR_W_DR_1_2.tif",
-        "/mnt/geoserver_data/sampledata/ne/pyramid/NE1_LR_LC_SR_W_DR_2_1.tif",
-        "/mnt/geoserver_data/sampledata/ne/pyramid/NE1_LR_LC_SR_W_DR_2_2.tif"
+        "/opt/geoserver_data/sampledata/ne/pyramid/NE1_LR_LC_SR_W_DR_1_1.tif",
+        "/opt/geoserver_data/sampledata/ne/pyramid/NE1_LR_LC_SR_W_DR_1_2.tif",
+        "/opt/geoserver_data/sampledata/ne/pyramid/NE1_LR_LC_SR_W_DR_2_1.tif",
+        "/opt/geoserver_data/sampledata/ne/pyramid/NE1_LR_LC_SR_W_DR_2_2.tif"
     ]
 
     for granule_path in granule_paths:
@@ -297,7 +297,7 @@ preparedStatements=false
         assert response.status_code == 201, f"Failed to create ImageMosaic store: {response.text}"
 
     # Step 3: Harvest granules from directory
-    harvest_path = "/mnt/geoserver_data/sampledata/ne/pyramid/"
+    harvest_path = "/opt/geoserver_data/sampledata/ne/pyramid/"
 
     response = geoserver.post_request(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/external.imagemosaic",
@@ -423,7 +423,7 @@ preparedStatements=false
         assert response.status_code == 201, f"Failed to create ImageMosaic store: {response.text}"
 
     # Step 3: Harvest single file
-    single_file_path = "/mnt/geoserver_data/sampledata/ne/NE1_LR_LC_SR_W_DR.tif"
+    single_file_path = "/opt/geoserver_data/sampledata/ne/NE1_LR_LC_SR_W_DR.tif"
 
     response = geoserver.post_request(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/external.imagemosaic",
@@ -489,7 +489,7 @@ def test_create_imagemosaic_via_xml_store_creation():
     </workspace>
     <type>ImageMosaic</type>
     <enabled>true</enabled>
-    <url>/mnt/geoserver_data/sampledata/ne/pyramid/</url>
+    <url>/opt/geoserver_data/sampledata/ne/pyramid/</url>
 </coverageStore>"""
 
     response = geoserver.post_request(
