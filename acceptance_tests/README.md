@@ -113,14 +113,14 @@ cd ../compose
 
 ### Accessing Sample Data
 
-When debugging, you may need to access the sample data that's available in the containers. The sample data is extracted to `/mnt/geoserver_data/sampledata` inside the containers. To access it from your local development environment:
+When debugging, you may need to access the sample data that's available in the containers. The sample data is extracted to `/opt/geoserver_data/sampledata` inside the containers. To access it from your local development environment:
 
 ```shell
 # Check what sample data is available
-./acceptance_datadir exec wms find /mnt/geoserver_data/sampledata
+./acceptance_datadir exec wms find /opt/geoserver_data/sampledata
 
 # Copy sample data to your local machine for testing
-docker cp $(./acceptance_datadir ps -q wms | head -1):/mnt/geoserver_data/sampledata ./local_sampledata
+docker cp $(./acceptance_datadir ps -q wms | head -1):/opt/geoserver_data/sampledata ./local_sampledata
 
 # Or mount the geoserver_data volume directly to a local directory
 # Add this to your docker-compose override file:
