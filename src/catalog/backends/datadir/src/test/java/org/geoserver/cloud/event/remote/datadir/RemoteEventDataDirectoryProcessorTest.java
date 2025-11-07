@@ -8,6 +8,8 @@ package org.geoserver.cloud.event.remote.datadir;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -19,7 +21,10 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.DataStoreInfo;
+import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.NamespaceInfoImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
@@ -308,5 +313,89 @@ class RemoteEventDataDirectoryProcessorTest {
 
         processor.onRemoteModifyEvent(event);
         assertThat(service.getTitle()).isEqualTo("new title");
+    }
+
+    @Test
+    void testOnRemoteDefaultWorkspaceEvent() {
+        WorkspaceInfoImpl workspace = new WorkspaceInfoImpl();
+        workspace.setId("ws1");
+        workspace.setName("workspace1");
+
+        DefaultWorkspaceSet event = DefaultWorkspaceSet.createLocal(100, workspace);
+
+        // Test local event is ignored
+        event.setRemote(false);
+        processor.onRemoteDefaultWorkspaceEvent(event);
+        verify(mockFacade, never()).setDefaultWorkspace(any());
+
+        // Test remote event with workspace - creates ResolvingProxy with the workspace ID
+        event.setRemote(true);
+        processor.onRemoteDefaultWorkspaceEvent(event);
+        verify(mockFacade, times(1)).setDefaultWorkspace(any(WorkspaceInfo.class));
+
+        // Test remote event with null workspace (unsetting default)
+        clearInvocations(mockFacade);
+        DefaultWorkspaceSet nullEvent = DefaultWorkspaceSet.createLocal(101, (WorkspaceInfo) null);
+        nullEvent.setRemote(true);
+        processor.onRemoteDefaultWorkspaceEvent(nullEvent);
+        verify(mockFacade, times(1)).setDefaultWorkspace(isNull());
+    }
+
+    @Test
+    void testOnRemoteDefaultNamespaceEvent() {
+        NamespaceInfoImpl namespace = new NamespaceInfoImpl();
+        namespace.setId("ns1");
+        namespace.setPrefix("ns");
+        namespace.setURI("http://example.com/ns");
+
+        DefaultNamespaceSet event = DefaultNamespaceSet.createLocal(100, namespace);
+
+        // Test local event is ignored
+        event.setRemote(false);
+        processor.onRemoteDefaultNamespaceEvent(event);
+        verify(mockFacade, never()).setDefaultNamespace(any());
+
+        // Test remote event with namespace - creates ResolvingProxy with the namespace ID
+        event.setRemote(true);
+        processor.onRemoteDefaultNamespaceEvent(event);
+        verify(mockFacade, times(1)).setDefaultNamespace(any());
+
+        // Test remote event with null namespace (unsetting default)
+        clearInvocations(mockFacade);
+        DefaultNamespaceSet nullEvent = DefaultNamespaceSet.createLocal(101, (NamespaceInfo) null);
+        nullEvent.setRemote(true);
+        processor.onRemoteDefaultNamespaceEvent(nullEvent);
+        verify(mockFacade, times(1)).setDefaultNamespace(isNull());
+    }
+
+    @Test
+    void testOnRemoteDefaultDataStoreEvent() {
+        WorkspaceInfoImpl workspace = new WorkspaceInfoImpl();
+        workspace.setId("ws1");
+        workspace.setName("workspace1");
+
+        DataStoreInfoImpl dataStore = new DataStoreInfoImpl(null);
+        dataStore.setId("ds1");
+        dataStore.setName("datastore1");
+        dataStore.setWorkspace(workspace);
+
+        DefaultDataStoreSet event = DefaultDataStoreSet.createLocal(100, workspace, dataStore);
+
+        // Test local event is ignored
+        event.setRemote(false);
+        processor.onRemoteDefaultDataStoreEvent(event);
+        verify(mockFacade, never()).setDefaultDataStore(any(), any());
+
+        // Test remote event with data store - creates ResolvingProxy for both workspace and store
+        event.setRemote(true);
+        processor.onRemoteDefaultDataStoreEvent(event);
+        verify(mockFacade, times(1)).setDefaultDataStore(any(WorkspaceInfo.class), any(DataStoreInfo.class));
+
+        // Test remote event with null data store (unsetting default)
+        clearInvocations(mockFacade);
+        DefaultDataStoreSet nullEvent = DefaultDataStoreSet.createLocal(101, workspace, null);
+        nullEvent.setRemote(true);
+        processor.onRemoteDefaultDataStoreEvent(nullEvent);
+        verify(mockFacade, times(1)).setDefaultDataStore(any(WorkspaceInfo.class), isNull());
     }
 }

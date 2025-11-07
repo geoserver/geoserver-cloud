@@ -105,24 +105,47 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
     }
 
     protected @Bean @Override ExtendedCatalogFacade catalogFacade() {
-        var memory = new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
-        if (converger.isEmpty()) {
-            return memory;
+        ExtendedCatalogFacade facade = new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
+        if (converger.isPresent()) {
+            log.info("Data directory catalog facade eventual consistency enforcement enabled");
+            facade = buildEventuallyConsistentCatalogFacade(facade, converger.orElseThrow());
+        } else {
+            log.info("Data directory catalog facade eventual consistency enforcement disabled");
         }
-        log.info("Data directory catalog facade eventual consistency enforcement enabled");
+        return facade;
+    }
 
+    /**
+     * Wraps the catalog facade with eventual consistency enforcement capabilities.
+     *
+     * <p>This method decorates the base catalog facade with an {@link EventuallyConsistentCatalogFacade}
+     * that provides resilience against out-of-order distributed event delivery in multi-node deployments.
+     * The wrapper manages deferred catalog operations when dependencies are not yet available and
+     * implements retry logic for query operations during convergence periods.
+     *
+     * <p>The retry behavior is configured via {@link EventualConsistencyConfig#getRetries()}, which
+     * specifies wait intervals in milliseconds between retry attempts. If not configured or empty,
+     * no retries are performed (though operations may still be deferred until dependencies arrive).
+     *
+     * <p>The enforcer is configured with a reference to the raw facade to enable direct access
+     * for resolving pending operations once dependencies become available.
+     *
+     * @param facade the base catalog facade to wrap
+     * @param tracker the enforcer that tracks pending operations and manages convergence state
+     * @return the facade wrapped with eventual consistency enforcement, or the original facade if
+     *     retries are not configured
+     */
+    private EventuallyConsistentCatalogFacade buildEventuallyConsistentCatalogFacade(
+            ExtendedCatalogFacade facade, EventualConsistencyEnforcer tracker) {
         int[] waitMillis = new int[] {}; // no retries
         EventualConsistencyConfig ecConfig = dataDirectoryConfig.getEventualConsistency();
-        if (ecConfig != null && ecConfig.isEnabled()) {
-            List<Integer> retries = ecConfig.getRetries();
-            if (retries != null && !retries.isEmpty()) {
-                waitMillis = retries.stream().mapToInt(Integer::intValue).toArray();
-                log.info("Data directory catalog facade eventual consistency retries in ms: {}", retries);
-            }
+        List<Integer> retries = ecConfig.getRetries();
+        if (retries != null && !retries.isEmpty()) {
+            waitMillis = retries.stream().mapToInt(Integer::intValue).toArray();
+            log.info("Data directory catalog facade eventual consistency retries in ms: {}", retries);
         }
-        EventualConsistencyEnforcer tracker = converger.orElseThrow();
-        tracker.setRawFacade(memory);
-        return new EventuallyConsistentCatalogFacade(memory, tracker, waitMillis);
+        tracker.setRawFacade(facade);
+        return new EventuallyConsistentCatalogFacade(facade, tracker, waitMillis);
     }
 
     protected @Bean @Override RepositoryGeoServerFacade geoserverFacade() {
