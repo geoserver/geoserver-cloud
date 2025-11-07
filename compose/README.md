@@ -50,6 +50,28 @@ You can pass additional docker compose parameters to either script. For example:
 ./datadir down
 ```
 
+## Monitoring with Prometheus and Grafana
+
+To enable monitoring, add the `monitoring.yml` overlay file:
+
+```bash
+./pgconfig -f monitoring.yml up -d
+# or
+./datadir -f monitoring.yml up -d
+```
+
+This adds:
+- **Prometheus** at http://localhost:9091 - Metrics collection with Eureka service discovery
+- **Grafana** at http://localhost:3000 - Dashboards and visualization (login: admin/admin)
+
+The monitoring setup automatically discovers all service instances via Eureka and supports scaling:
+
+```bash
+./pgconfig -f monitoring.yml up -d --scale wms=3 --scale wfs=2
+```
+
+Configuration files are organized in the `monitoring/` directory. See [monitoring/MONITORING.md](monitoring/MONITORING.md) for detailed documentation.
+
 ## Debugging from an IDE
 
 For debugging a specific service from your IDE while the rest of the cluster runs in Docker, use the `localports.yml` compose file. This file exposes the discovery and config service ports, allowing your local application to join the cluster.

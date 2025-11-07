@@ -1,0 +1,90 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'geoserver-cloud'
+
+scrape_configs:
+  # Eureka-based service discovery
+  # This discovers ALL registered instances in Eureka, including all replicas
+  # All GeoServer Cloud services register with Eureka automatically
+
+  - job_name: 'geoserver-cloud-services'
+    metrics_path: '/actuator/prometheus'
+    eureka_sd_configs:
+      - server: http://discovery:8761/eureka
+        refresh_interval: 30s
+    relabel_configs:
+      # Eureka returns port 8080 (app port), but actuator is on 8081
+      # So we need to replace the port in the address
+      - source_labels: [__address__]
+        regex: '([^:]+):.*'
+        target_label: __tmp_host
+        replacement: '${1}'
+      - source_labels: [__tmp_host]
+        target_label: __address__
+        replacement: '${1}:8081'
+      # Use the application name from Eureka as the service label
+      - source_labels: [__meta_eureka_app_name]
+        regex: '(.+)-service'
+        target_label: service
+        replacement: '${1}'
+      # If no '-service' suffix, use as-is
+      - source_labels: [__meta_eureka_app_name]
+        regex: '([^-]+)'
+        target_label: service
+        replacement: '${1}'
+      # Use instance ID from Eureka
+      - source_labels: [__meta_eureka_app_instance_id]
+        target_label: instance_id
+      # Keep the instance hostname/IP
+      - source_labels: [__meta_eureka_app_instance_hostname]
+        target_label: hostname
+      # Add application label (full name from Eureka)
+      - source_labels: [__meta_eureka_app_name]
+        target_label: application
+
+  # Discovery service itself (not registered in Eureka)
+  - job_name: 'discovery'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['discovery:8081']
+        labels:
+          service: 'discovery'
+          application: 'geoserver-cloud-discovery'
+
+  # Config service (may not be registered in Eureka)
+  - job_name: 'config'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['config:8081']
+        labels:
+          service: 'config'
+          application: 'geoserver-cloud-config'
+
+  # ACL service (separate application, may not be in Eureka or uses different port)
+  - job_name: 'acl'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['acl:8080']
+        labels:
+          service: 'acl'
+          application: 'geoserver-acl'
+
+  # RabbitMQ (built-in metrics endpoint)
+  - job_name: 'rabbitmq'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+        labels:
+          service: 'rabbitmq'
+          application: 'rabbitmq'
+
+  # PostgreSQL database (using postgres_exporter)
+  # Uncomment if you add postgres_exporter to your setup
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+  #       labels:
+  #         service: 'geodatabase'
+  #         application: 'postgresql'

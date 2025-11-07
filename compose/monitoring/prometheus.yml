@@ -1,0 +1,217 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'geoserver-cloud'
+
+scrape_configs:
+  # DNS-based service discovery for Docker Compose
+  # This will discover all replicas of each service automatically
+
+  # Gateway service
+  - job_name: 'gateway'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.gateway'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'gateway'
+      - target_label: application
+        replacement: 'geoserver-cloud-gateway'
+
+  # Discovery service (Eureka)
+  - job_name: 'discovery'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.discovery'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'discovery'
+      - target_label: application
+        replacement: 'geoserver-cloud-discovery'
+
+  # Config service
+  - job_name: 'config'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.config'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'config'
+      - target_label: application
+        replacement: 'geoserver-cloud-config'
+
+  # WFS service
+  - job_name: 'wfs'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.wfs'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'wfs'
+      - target_label: application
+        replacement: 'geoserver-cloud-wfs'
+
+  # WMS service
+  - job_name: 'wms'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.wms'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'wms'
+      - target_label: application
+        replacement: 'geoserver-cloud-wms'
+
+  # WCS service
+  - job_name: 'wcs'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.wcs'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'wcs'
+      - target_label: application
+        replacement: 'geoserver-cloud-wcs'
+
+  # WPS service
+  - job_name: 'wps'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.wps'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'wps'
+      - target_label: application
+        replacement: 'geoserver-cloud-wps'
+
+  # GWC (GeoWebCache) service
+  - job_name: 'gwc'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.gwc'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'gwc'
+      - target_label: application
+        replacement: 'geoserver-cloud-gwc'
+
+  # REST Config service
+  - job_name: 'restconfig'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.restconfig'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'restconfig'
+      - target_label: application
+        replacement: 'geoserver-cloud-rest'
+
+  # Web UI service
+  - job_name: 'webui'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.webui'
+        type: 'A'
+        port: 8081
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'webui'
+      - target_label: application
+        replacement: 'geoserver-cloud-webui'
+
+  # ACL service (uses port 8080 for actuator)
+  - job_name: 'acl'
+    metrics_path: '/actuator/prometheus'
+    dns_sd_configs:
+      - names:
+          - 'tasks.acl'
+        type: 'A'
+        port: 8080
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'acl'
+      - target_label: application
+        replacement: 'geoserver-acl'
+
+  # RabbitMQ (built-in metrics endpoint)
+  - job_name: 'rabbitmq'
+    metrics_path: '/metrics'
+    dns_sd_configs:
+      - names:
+          - 'tasks.rabbitmq'
+        type: 'A'
+        port: 15692
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'rabbitmq'
+      - target_label: application
+        replacement: 'rabbitmq'
+
+  # PostgreSQL database (using postgres_exporter)
+  # Uncomment if you add postgres_exporter to your setup
+  # - job_name: 'postgres'
+  #   dns_sd_configs:
+  #     - names:
+  #         - 'tasks.postgres-exporter'
+  #       type: 'A'
+  #       port: 9187
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: instance
+  #     - target_label: service
+  #       replacement: 'geodatabase'
+  #     - target_label: application
+  #       replacement: 'postgresql'

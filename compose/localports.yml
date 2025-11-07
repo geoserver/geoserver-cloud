@@ -17,6 +17,7 @@ services:
   wms:
     ports:
       - 9102:8080
+      - 8102:8081
   wcs:
     ports:
       - 9103:8080

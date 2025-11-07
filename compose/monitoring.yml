@@ -1,0 +1,54 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    # Don't set user to avoid permission issues with volumes
+    # Prometheus image runs as 'nobody' (uid 65534) by default
+    volumes:
+      # Use prometheus-eureka.yml for proper service discovery with multiple replicas
+      # Use prometheus.yml (DNS-based) as fallback if Eureka is not available
+      - ./monitoring/prometheus-eureka.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9091:9090"
+    restart: unless-stopped
+    depends_on:
+      - discovery
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  grafana:
+    image: grafana/grafana:latest
+    # Don't set user to avoid permission issues with volumes
+    # Grafana image runs as 'grafana' (uid 472) by default
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+volumes:
+  prometheus_data:
+  grafana_data:
