@@ -14,6 +14,7 @@ on:
       - "src/**"
       - "acceptance_tests/**"
       - "ci/**"
+      - "compose/**"
 
 # cancel in-progress jobs or runs for this workflow for the same pr or branch
 concurrency:
