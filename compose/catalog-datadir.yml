@@ -12,7 +12,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: $PWD/catalog-datadir
+      device: ${CATALOG_DATADIR_PATH:-$PWD/catalog-datadir}
 
 # Append the shared data directory to the geoserver_volumes anchor
 x-volume-mounts: &geoserver_volumes
