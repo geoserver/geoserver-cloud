@@ -43,7 +43,7 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config:
-    image: geoservercloud/geoserver-cloud-config:2.28.0.1
+    image: geoservercloud/geoserver-cloud-config:2.28.0.2
     user: 1000:1000 # set the userid:groupid the container runs as
     environment:
       # default to `native` loading the config embedded in /etc/geoserver
@@ -51,7 +51,7 @@ services:
       # the default repository https://github.com/geoserver/geoserver-cloud-config.git
       SPRING_PROFILES_ACTIVE: native
       # If using the `git` profile, get the config from this tag
-      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v2.28.0.1
+      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v2.28.0.2
     # Uncomment to bind to a local filesystem directory if using the 'native' profile
     #volumes:
     #  - ./config:/etc/geoserver
@@ -62,7 +62,7 @@ services:
           memory: 256M
 
   discovery:
-    image: "geoservercloud/geoserver-cloud-discovery:2.28.0.1"
+    image: "geoservercloud/geoserver-cloud-discovery:2.28.0.2"
     user: "1000:1000"
     depends_on:
       - config
@@ -77,7 +77,7 @@ services:
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/cloud/wms, http://localhost:9090/geoserver/cloud/wfs, etc)
   gateway:
-    image: geoservercloud/geoserver-cloud-gateway:2.28.0.1
+    image: geoservercloud/geoserver-cloud-gateway:2.28.0.2
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       discovery:
@@ -95,7 +95,7 @@ services:
 
   # GeoServer template service configuration
   geoserver_template:
-    image: geoservercloud/geoserver-cloud-webui:2.28.0.1
+    image: geoservercloud/geoserver-cloud-webui:2.28.0.2
     user: "1000:1000"
     environment:
       <<: *common_env
@@ -112,7 +112,7 @@ services:
 
   # GeoServer microservices
   wfs:
-    image: geoservercloud/geoserver-cloud-wfs:2.28.0.1
+    image: geoservercloud/geoserver-cloud-wfs:2.28.0.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -120,7 +120,7 @@ services:
       replicas: 1
 
   wms:
-    image: geoservercloud/geoserver-cloud-wms:2.28.0.1
+    image: geoservercloud/geoserver-cloud-wms:2.28.0.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -128,7 +128,7 @@ services:
       replicas: 1
 
   wcs:
-    image: geoservercloud/geoserver-cloud-wcs:2.28.0.1
+    image: geoservercloud/geoserver-cloud-wcs:2.28.0.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -136,7 +136,7 @@ services:
       replicas: 1
 
   wps:
-    image: geoservercloud/geoserver-cloud-wps:2.28.0.1
+    image: geoservercloud/geoserver-cloud-wps:2.28.0.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -144,7 +144,7 @@ services:
       replicas: 1
 
   restconfig:
-    image: geoservercloud/geoserver-cloud-rest:2.28.0.1
+    image: geoservercloud/geoserver-cloud-rest:2.28.0.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -152,7 +152,7 @@ services:
       replicas: 1
 
   webui:
-    image: geoservercloud/geoserver-cloud-webui:2.28.0.1
+    image: geoservercloud/geoserver-cloud-webui:2.28.0.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -160,7 +160,7 @@ services:
       replicas: 1
 
   gwc:
-    image: geoservercloud/geoserver-cloud-gwc:2.28.0.1
+    image: geoservercloud/geoserver-cloud-gwc:2.28.0.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
