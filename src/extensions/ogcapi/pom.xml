@@ -10,7 +10,6 @@
   <packaging>pom</packaging>
   <description>GeoServer OGC API extensions</description>
   <modules>
-    <module>core</module>
     <module>features</module>
   </modules>
 </project>
