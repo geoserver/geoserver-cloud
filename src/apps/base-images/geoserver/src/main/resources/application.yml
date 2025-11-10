@@ -1,0 +1,70 @@
+# Spring Boot application-specific config properties to be shared by all
+# GeoServer microservices. Imported from geoserver.yml, in order to separate
+# application from geoserver configuration.
+server:
+  tomcat:
+    # Maximum number of connections that the server accepts and processes at any given time.
+    # Once the limit has been reached, the operating system may still accept connections based on the "acceptCount" property.
+    max-connections: ${tomcat.max.connections:8192}
+    # Maximum queue length for incoming connection requests when all possible request processing threads are in use.
+    accept-count: ${tomcat.accept.count:100}
+    accesslog.enabled: ${tomcat.accesslog.enabled:false}
+    mbeanregistry.enabled: ${tomcat.mbeanregistry.enabled:false}
+    threads:
+      # Minimum amount of worker threads.
+      min-spare: ${tomcat.threads.min.spare:10}
+      # Maximum amount of worker threads.
+      max: ${tomcat.threads.max:200}
+
+spring:
+  rabbitmq:
+    host: ${rabbitmq.host:rabbitmq}
+    port: ${rabbitmq.port:5672}
+    username: ${rabbitmq.user:guest}
+    password: ${rabbitmq.password:guest}
+    virtual-host: ${rabbitmq.vhost:}
+  cloud:
+    bus:
+      enabled: true
+      id: ${info.instance-id} # use the same instance id for eureka (see service's' bootstrap.yml) and cloud-bus' rabbitmq instance id
+      trace.enabled: false #switch on tracing of acks (default off).
+    stream:
+      bindings:
+        springCloudBusOutput:
+          destination: geoserver
+        springCloudBusInput:
+          destination: geoserver
+  jackson:
+    default-property-inclusion: non-empty
+    serialization.indent-output: false #set to true if doing manual testing and want formatted output
+
+management:
+  endpoints:
+    enabled-by-default: true
+    web.exposure.include: "*"
+  endpoint:
+    info.enabled: true
+    metrics.enabled: true
+    shutdown.enabled: true
+    health:
+      enabled: true
+      probes.enabled: true
+      show-details: always
+  metrics:
+    binders:
+      processor.enabled: true
+      uptime.enabled: true
+      jvm.enabled: true
+    enable.all: true
+    enable.jvm: true
+    export:
+      atlas.enabled: false
+---
+# this profile is automatically included if any of the embedded
+# config_first or discovery_first profile groups are active
+spring.config.activate.on-profile: discovery_eureka
+# Should only be set in application.yml (i.e. not in bootstrap.yml).
+# Setting the value in bootstrap.yml will cause undesirable side effects like registering in eureka with an UNKNOWN status.
+# See https://cloud.spring.io/spring-cloud-netflix/2.0.x/multi/multi__service_discovery_eureka_clients.html#_eureka_s_health_checks
+eureka.client.healthcheck.enabled: true
+eureka.server.url: http://discovery:8761/eureka
