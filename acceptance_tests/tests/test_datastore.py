@@ -7,8 +7,6 @@ from tests.conftest import (
     PGSCHEMA,
 )
 
-WORKSPACE = "test_pg_datastore"
-
 
 def test_create_get_and_delete_datastore(geoserver_factory):
     workspace = "test_pg_datastore"

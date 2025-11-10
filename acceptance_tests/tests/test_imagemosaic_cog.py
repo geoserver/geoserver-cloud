@@ -58,56 +58,50 @@ preparedStatements=false
         with open(zip_file, "rb") as f:
             zip_data = f.read()
 
-        response = geoserver.rest_service.rest_client.put(
-            f"/rest/workspaces/{workspace}/coveragestores/{coverage}/file.imagemosaic?configure=none",
-            data=zip_data,
-            headers={"Content-Type": "application/zip"},
+        content, status = geoserver.create_imagemosaic_store_from_properties_zip(
+            workspace_name=workspace,
+            coveragestore_name=coverage,
+            properties_zip=zip_data,
         )
-        assert response.status_code == 201
+        assert status == 201, f"Failed to create ImageMosaic store: {content}"
+        assert content == ""
 
         # Add granules
         for uri in granules:
-            response = geoserver.rest_service.rest_client.post(
-                f"/rest/workspaces/{workspace}/coveragestores/{coverage}/remote.imagemosaic",
-                data=uri,
-                headers={"Content-Type": "text/plain"},
+            content, status = geoserver.publish_granule_to_coverage_store(
+                workspace_name=workspace,
+                coveragestore_name=coverage,
+                method="remote",
+                granule_path=uri,
             )
-            # Accept both 202 (Accepted) and 201 (Created) as valid responses
-            assert response.status_code in [201, 202]
+            assert status in [
+                201,
+                202,
+            ], f"Failed to publish granule {uri}: {content}"
 
         # Initialize the store (list available coverages)
-        response = geoserver.rest_service.rest_client.get(
-            f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages.xml?list=all"
+        content, status = geoserver.get_coverages(
+            workspace_name=workspace, coveragestore_name=coverage
         )
-        assert response.status_code == 200
-
+        assert status == 200
         # Verify coverage name in response
-        response_text = response.text
-        assert f"<coverageName>{coverage}</coverageName>" in response_text
+        assert content[0].get("name") == coverage
 
         # Configure the coverage
-        coverage_xml = f"""<coverage>
-    <name>{coverage}</name>
-    <title>{title}</title>
-    <nativeName>{coverage}</nativeName>
-    <enabled>true</enabled>
-</coverage>"""
-
-        response = geoserver.rest_service.rest_client.post(
-            f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages",
-            data=coverage_xml,
-            headers={"Content-Type": "text/xml"},
+        content, status = geoserver.create_coverage(
+            workspace_name=workspace,
+            coveragestore_name=coverage,
+            coverage_name=coverage,
+            title=title,
         )
-        assert response.status_code == 201
+        assert status == 201, f"Failed to create coverage: {content}"
+        assert content == coverage
 
         # Verify the coverage was created
-        response = geoserver.rest_service.rest_client.get(
-            f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages/{coverage}.json"
-        )
-        assert response.status_code == 200
+        coverage_data, code = geoserver.get_coverage(workspace, coverage, coverage)
+        assert code == 200
 
         # Verify coverage properties
-        coverage_data = response.json()["coverage"]
         assert coverage_data["name"] == coverage
         assert coverage_data["nativeName"] == coverage
         assert coverage_data["enabled"] == True
