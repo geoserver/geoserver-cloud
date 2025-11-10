@@ -7,61 +7,42 @@ def test_create_cog_coverage(geoserver_factory):
     store_name = "land_shallow_topo_21600_NW_cog"
     coverage_name = "land_shallow_topo_NW"
     geoserver = geoserver_factory(workspace)
+    rest_client = geoserver.rest_service.rest_client
 
     # Create COG coverage store
-    store_xml = f"""<coverageStore>
-    <name>{store_name}</name>
-    <type>GeoTIFF</type>
-    <enabled>true</enabled>
-    <workspace><name>{workspace}</name></workspace>
-    <url>cog://https://test-data-cog-public.s3.amazonaws.com/public/land_shallow_topo_21600_NW_cog.tif</url>
-    <metadata>
-        <entry key="CogSettings.Key">
-            <cogSettings>
-                <rangeReaderSettings>HTTP</rangeReaderSettings>
-            </cogSettings>
-        </entry>
-    </metadata>
-</coverageStore>"""
-
-    rest_client = geoserver.rest_service.rest_client
-    endpoints = geoserver.rest_service.rest_endpoints
-
-    response = rest_client.post(
-        endpoints.coveragestores(workspace),
-        data=store_xml,
-        headers={"Content-Type": "application/xml"},
+    content, status = geoserver.create_coverage_store(
+        workspace_name=workspace,
+        coveragestore_name=store_name,
+        type="GeoTIFF",
+        url=f"cog://https://test-data-cog-public.s3.amazonaws.com/public/land_shallow_topo_21600_NW_cog.tif",
+        metadata={"cogSettings": {"rangeReaderSettings": "HTTP"}},
     )
-    assert response.status_code == 201
+    assert status == 201
+    assert content == store_name
 
     # Create coverage
-    coverage_xml = f"""<coverage>
-        <name>{coverage_name}</name>
-        <nativeName>{store_name}</nativeName>
-    </coverage>"""
-
-    response = rest_client.post(
-        endpoints.coverages(workspace, store_name),
-        data=coverage_xml,
-        headers={"Content-Type": "application/xml"},
+    content, status = geoserver.create_coverage(
+        workspace_name=workspace,
+        coveragestore_name=store_name,
+        coverage_name=coverage_name,
+        native_name=store_name,
     )
-    assert response.status_code == 201
+    assert status == 201
+    assert content == coverage_name
 
     # Verify the coverage was created - try listing coverages first
-    list_response = rest_client.get(endpoints.coverages(workspace, store_name))
-    assert (
-        list_response.status_code == 200
-    ), f"Failed to get coverages: {list_response.status_code} - {list_response.text}"
+    content, status = geoserver.get_coverages(workspace, store_name)
+    assert status == 200, f"Failed to get coverages: {status} - {content}"
+    assert content[0].get("name") == store_name
 
     # Check specific coverage
-    response = rest_client.get(endpoints.coverage(workspace, store_name, coverage_name))
-    assert response.status_code == 200
+    content, status = geoserver.get_coverage(workspace, store_name, coverage_name)
+    assert status == 200, f"Failed to get coverage: {status} - {content}"
 
     # Verify coverage properties
-    coverage_data = response.json()["coverage"]
-    assert coverage_data["name"] == coverage_name
-    assert coverage_data["nativeName"] == coverage_name
-    assert coverage_data["enabled"] == True
+    assert content.get("name") == coverage_name
+    assert content.get("nativeName") == store_name
+    assert content.get("enabled") is True
 
     # Test WMS GetMap request
     wms_response = rest_client.get(
