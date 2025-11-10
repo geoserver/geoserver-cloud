@@ -16,7 +16,7 @@
     </dependency>
     <!-- ACL security dependencies -->
     <dependency>
-      <groupId>org.geoserver.acl.plugin</groupId>
+      <groupId>org.geoserver.community</groupId>
       <artifactId>gs-acl-client-plugin</artifactId>
     </dependency>
     <dependency>

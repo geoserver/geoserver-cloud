@@ -494,6 +494,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-acl-client-plugin</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
         <artifactId>gs-jdbcconfig</artifactId>
         <version>${gs.version}</version>
         <exclusions>
