@@ -13,7 +13,7 @@
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
+      <artifactId>spring-boot</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -25,10 +25,6 @@
     <dependency>
       <groupId>com.github.f4b6a3</groupId>
       <artifactId>ulid-creator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
     </dependency>
     <dependency>
       <groupId>jakarta.servlet</groupId>

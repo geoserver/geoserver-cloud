@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
@@ -134,7 +135,7 @@ class AccessLogFilterTest {
         when(exchange1.getRequest()).thenReturn(request1);
         when(exchange1.getResponse()).thenReturn(response1);
         when(request1.getURI()).thenReturn(java.net.URI.create("http://localhost/api/data"));
-        when(request1.getMethodValue()).thenReturn("GET");
+        when(request1.getMethod()).thenReturn(HttpMethod.GET);
         when(response1.getRawStatusCode()).thenReturn(200);
 
         // Configure chain
@@ -162,7 +163,7 @@ class AccessLogFilterTest {
         when(exchange2.getRequest()).thenReturn(request2);
         when(exchange2.getResponse()).thenReturn(response2);
         when(request2.getURI()).thenReturn(java.net.URI.create("http://localhost/api/data"));
-        when(request2.getMethodValue()).thenReturn("GET");
+        when(request2.getMethod()).thenReturn(HttpMethod.GET);
         when(response2.getRawStatusCode()).thenReturn(500);
 
         // Configure chain

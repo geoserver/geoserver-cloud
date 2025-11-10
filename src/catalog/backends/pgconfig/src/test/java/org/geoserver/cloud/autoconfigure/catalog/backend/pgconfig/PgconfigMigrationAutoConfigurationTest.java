@@ -32,7 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class PgconfigMigrationAutoConfigurationTest {
 
     @Container
-    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     private ApplicationContextRunner runner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(

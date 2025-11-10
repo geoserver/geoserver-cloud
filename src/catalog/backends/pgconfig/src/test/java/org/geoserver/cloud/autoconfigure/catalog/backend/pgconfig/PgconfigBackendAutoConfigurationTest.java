@@ -36,7 +36,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class PgconfigBackendAutoConfigurationTest {
 
     @Container
-    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     private ApplicationContextRunner runner = new ApplicationContextRunner()
             .withBean("securityManager", GeoServerSecurityManager.class, () -> mock(GeoServerSecurityManager.class))

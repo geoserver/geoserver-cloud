@@ -92,7 +92,7 @@ public class AccessLogWebfluxFilter implements OrderedWebFilter {
         // Capture request start time
         long startTime = System.currentTimeMillis();
         ServerHttpRequest request = exchange.getRequest();
-        String method = request.getMethodValue();
+        String method = request.getMethod().name();
         String uriPath = uri.toString();
 
         // Store initial MDC state

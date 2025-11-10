@@ -45,7 +45,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class PgconfigTileLayerCatalogAutoConfigurationTest {
 
     @Container
-    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     @TempDir
     File cacheDir;

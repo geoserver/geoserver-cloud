@@ -17,7 +17,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.AbstractApplicationContextRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.Testcontainers;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * A {@link Testcontainers test container} based on {@link PostgreSQLContainer} using PostgreSQL 15
@@ -28,7 +28,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
  * @since 1.6
  */
 @SuppressWarnings("java:S119")
-public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>> extends PostgreSQLContainer<SELF> {
+public class PgConfigTestContainer extends PostgreSQLContainer {
 
     private @Getter DataSource dataSource;
     private @Getter JdbcTemplate template;
@@ -40,7 +40,7 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>> exten
     }
 
     @SneakyThrows(Exception.class)
-    public PgConfigTestContainer<SELF> setUp() {
+    public PgConfigTestContainer setUp() {
         String url = getJdbcUrl();
         String username = getUsername();
         String password = getPassword();

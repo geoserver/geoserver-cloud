@@ -14,7 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.junit.MatcherAssume.assumeThat;
+import static org.junit.Assume.assumeThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -67,7 +67,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class PgconfigResourceTest extends ResourceTheoryTest {
 
     @ClassRule
-    public static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    public static PgConfigTestContainer container = new PgConfigTestContainer();
 
     @TempDir
     public File tmpDir;

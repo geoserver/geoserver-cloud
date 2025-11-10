@@ -24,7 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class PgconfigWorkspaceRepositoryTest {
 
     @Container
-    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     PgconfigWorkspaceRepository repo;
 

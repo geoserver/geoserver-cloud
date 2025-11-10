@@ -1406,6 +1406,11 @@
             <version>${wicket.version}</version>
           </dependency>
           <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-tester</artifactId>
+            <version>${wicket.version}</version>
+          </dependency>
+          <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
             <version>1.4.21</version>

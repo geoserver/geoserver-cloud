@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.logging.accesslog;
 
+import org.geoserver.cloud.autoconfigure.logging.accesslog.webflux.AccessLogWebFluxAutoConfiguration;
 import org.geoserver.cloud.logging.accesslog.AccessLogFilterConfig;
 import org.geoserver.cloud.logging.accesslog.AccessLogServletFilter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
