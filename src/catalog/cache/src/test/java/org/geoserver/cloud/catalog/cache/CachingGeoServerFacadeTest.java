@@ -64,20 +64,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(classes = GeoServerBackendCacheConfiguration.class)
 @EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)
 class CachingGeoServerFacadeTest {
 
-    private @MockBean @Qualifier("defaultUpdateSequence") UpdateSequence updateSequence;
-    private @MockBean @Qualifier("rawCatalog") CatalogPlugin rawCatalog;
-    private @MockBean @Qualifier("geoServer") GeoServerImpl rawGeoServer;
-    private @MockBean @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade;
+    private @MockitoBean @Qualifier("defaultUpdateSequence") UpdateSequence updateSequence;
+    private @MockitoBean @Qualifier("rawCatalog") CatalogPlugin rawCatalog;
+    private @MockitoBean @Qualifier("geoServer") GeoServerImpl rawGeoServer;
+    private @MockitoBean @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade;
 
-    private @MockBean @Qualifier("geoserverFacade") GeoServerFacade mock;
+    private @MockitoBean @Qualifier("geoserverFacade") GeoServerFacade mock;
     private @Autowired @Qualifier("cachingGeoServerFacade") CachingGeoServerFacade caching;
 
     private @Autowired CacheManager cacheManager;
