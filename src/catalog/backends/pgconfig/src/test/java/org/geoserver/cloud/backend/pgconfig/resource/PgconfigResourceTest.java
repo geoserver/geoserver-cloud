@@ -14,11 +14,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,17 +40,17 @@ import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceTheoryTest;
-import org.junit.ClassRule;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
@@ -66,11 +66,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @RunWith(Theories.class)
 public class PgconfigResourceTest extends ResourceTheoryTest {
 
-    @ClassRule
+    /**
+     * This is a JUnit 4 test, manually calling start()/stop()
+     */
     public static PgConfigTestContainer container = new PgConfigTestContainer();
 
-    @TempDir
-    public File tmpDir;
+    @Rule
+    public TemporaryFolder tmpDir = new TemporaryFolder();
 
     private PgconfigResourceStore store;
     private File cacheDirectory;
@@ -94,28 +96,29 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         };
     }
 
-    @BeforeAll
-    public static void onetimeSetUp() {
+    @BeforeClass
+    public static void containerSetup() {
+        container.start();
         container.setUp();
     }
 
-    @AfterAll
-    public static void oneTimeTeardown() {
-        container.tearDown();
+    @AfterClass
+    public static void containerTeardown() {
+        container.stop();
     }
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
-        cacheDirectory = newFolder(tmpDir, "junit");
+        cacheDirectory = newFolder(tmpDir.getRoot(), "junit");
         FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         store = new PgconfigResourceStore(
                 cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
         setupTestData(template);
     }
 
-    @AfterEach
+    @After
     public void cleanDb() throws Exception {
         DataSource dataSource = container.getDataSource();
         new JdbcTemplate(dataSource).update("DELETE FROM resourcestore WHERE parentid IS NOT NULL");
@@ -204,13 +207,13 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Override
-    @Disabled("This behaviour is specific to the file based implementation")
+    @Ignore("This behaviour is specific to the file based implementation")
     public void theoryAlteringFileAltersResource(String path) throws Exception {
         // disabled
     }
 
     @Override
-    @Disabled("This behaviour is specific to the file based implementation")
+    @Ignore("This behaviour is specific to the file based implementation")
     public void theoryAddingFileToDirectoryAddsResource(String path) {
         // disabled
     }
@@ -557,8 +560,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         // Check lastmodified() which should trigger updateState()
         long updatedLastModified = resource.lastmodified();
         assertTrue(
-                updatedLastModified > initialLastModified,
-                "Last modified timestamp should be updated: " + initialLastModified + " vs " + updatedLastModified);
+                "Last modified timestamp should be updated: " + initialLastModified + " vs " + updatedLastModified,
+                updatedLastModified > initialLastModified);
 
         // Verify the content was updated
         try (InputStream in = resource.in()) {

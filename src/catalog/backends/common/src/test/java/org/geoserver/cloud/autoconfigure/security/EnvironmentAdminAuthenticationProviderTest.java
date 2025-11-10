@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -51,6 +52,8 @@ class EnvironmentAdminAuthenticationProviderTest {
                     assertThat(context)
                             .hasFailed()
                             .getFailure()
+                            .isInstanceOf(BeanCreationException.class)
+                            .rootCause()
                             .hasMessageContaining(
                                     "password not provided through config property geoserver.admin.password");
                 });
@@ -68,6 +71,8 @@ class EnvironmentAdminAuthenticationProviderTest {
                     assertThat(context)
                             .hasFailed()
                             .getFailure()
+                            .isInstanceOf(BeanCreationException.class)
+                            .rootCause()
                             .hasMessageContaining(
                                     "admin username not provided through config property geoserver.admin.username");
                 });

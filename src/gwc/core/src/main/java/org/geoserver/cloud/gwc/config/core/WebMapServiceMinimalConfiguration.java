@@ -14,7 +14,6 @@ import org.geoserver.wms.WMS;
 import org.geoserver.wms.WMSServiceExceptionHandler;
 import org.geoserver.wms.WebMapService;
 import org.geoserver.wms.map.GetMapKvpRequestReader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -88,7 +87,6 @@ public class WebMapServiceMinimalConfiguration {
     static final String GS_WFS_INCLUDES = "jar:gs-wfs-[0-9]+.*!/applicationContext.xml#name=" + WFS_BEANS_REGEX;
 
     @Bean
-    @Autowired
     @DependsOn({"wms"})
     @ConditionalOnMissingBean(GetMapKvpRequestReader.class)
     GetMapKvpRequestReader getMapKvpReader(WMS wms) {
