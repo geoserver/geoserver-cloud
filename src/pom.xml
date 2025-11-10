@@ -53,11 +53,6 @@
         <version>${logstash-logback-encoder.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.yaml</groupId>
-        <artifactId>snakeyaml</artifactId>
-        <version>2.2</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-bom</artifactId>
         <version>2.21.1</version>
@@ -1328,9 +1323,12 @@
     <profile>
       <id>dependencyConvergence</id>
       <activation>
+        <activeByDefault>false</activeByDefault>
+        <!--
         <property>
           <name>!skipDependencyConvergence</name>
         </property>
+        -->
       </activation>
       <dependencyManagement>
         <dependencies>
