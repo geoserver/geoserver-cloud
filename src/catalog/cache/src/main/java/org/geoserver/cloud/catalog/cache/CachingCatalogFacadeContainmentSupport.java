@@ -9,7 +9,6 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.RESOURCE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.STORE;
 
 import com.google.common.annotations.VisibleForTesting;
-import jakarta.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +37,6 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 /**
  * @since 1.7
  */
-@ParametersAreNonnullByDefault
 @Slf4j(topic = "org.geoserver.cloud.catalog.cache")
 class CachingCatalogFacadeContainmentSupport {
     /** Key used to cache and evict {@link CatalogFacade#getDefaultNamespace() default namespace} */
