@@ -141,27 +141,20 @@
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
+            <artifactId>*</artifactId>
           </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver</groupId>
+        <artifactId>gs-platform</artifactId>
+        <version>${gs.version}</version>
+        <type>test-jar</type>
+        <exclusions>
+          <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jcl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jul</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
+            <artifactId>*</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -177,27 +170,7 @@
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jcl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jul</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
+            <artifactId>*</artifactId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by each service -->
           <exclusion>
@@ -334,27 +307,7 @@
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jcl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jul</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
+            <artifactId>*</artifactId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
@@ -434,7 +387,7 @@
         <exclusions>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>*</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -530,42 +483,7 @@
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jcl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jul</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <!-- let jaiext be resolved from the other geotools dependencies to avoid dependency convergence errors -->
-            <groupId>it.geosolutions.jaiext.colorindexer</groupId>
-            <artifactId>jt-colorindexer</artifactId>
-          </exclusion>
-          <exclusion>
-            <!-- let jaiext be resolved from the other geotools dependencies to avoid dependency convergence errors -->
-            <groupId>it.geosolutions.jaiext.iterators</groupId>
-            <artifactId>jt-iterators</artifactId>
-          </exclusion>
-          <exclusion>
-            <!-- let jaiext be resolved from the other geotools dependencies to avoid dependency convergence errors -->
-            <groupId>it.geosolutions.jaiext.utilities</groupId>
-            <artifactId>jt-utilities</artifactId>
+            <artifactId>*</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -581,27 +499,7 @@
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jcl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jul</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
+            <artifactId>*</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -628,7 +526,7 @@
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
             <!-- exclude transitive from com.microsoft.azure:azure-storage-blob:jar:11.0.0 -->
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>*</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -644,7 +542,7 @@
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
             <!-- exclude transitive from com.microsoft.azure:azure-storage-blob:jar:11.0.0 -->
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>*</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
