@@ -13,7 +13,6 @@
     <module>auth-key</module>
     <module>environment-admin-auth</module>
     <module>gateway-shared-auth</module>
-    <module>geonode-oauth2</module>
     <module>geoserver-acl</module>
     <module>jdbc</module>
     <module>ldap</module>
