@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.extensions.importer;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerREST;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;

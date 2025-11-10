@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.extensions.appschema;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;

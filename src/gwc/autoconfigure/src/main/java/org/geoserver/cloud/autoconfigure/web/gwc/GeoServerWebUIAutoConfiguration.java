@@ -5,16 +5,16 @@
 
 package org.geoserver.cloud.autoconfigure.web.gwc;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoServerWebUIEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GoServerWebUIConfigurationProperties;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.config.GeoServer;
 import org.geoserver.gwc.GWC;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * Auto configuration to enabled GWC Wicket Web UI components.
@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @since 1.0
  */
-@Configuration
+@AutoConfiguration
 @ConditionalOnGeoServerWebUIEnabled
 @EnableConfigurationProperties(GoServerWebUIConfigurationProperties.class)
 @ImportFilteredResource(

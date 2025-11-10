@@ -55,6 +55,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -138,6 +139,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     }
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
+    @DependsOnDatabaseInitialization
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
     @Bean
     CloudJdbcConfigProperties jdbcConfigProperties() {
@@ -153,6 +155,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     }
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
+    @DependsOnDatabaseInitialization
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
     @Bean
     CloudJdbcStoreProperties jdbcStoreProperties() {
@@ -203,6 +206,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     }
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
+    @DependsOnDatabaseInitialization
     @Bean
     DefaultLockRepository jdbcLockRepository() {
         String id = this.instanceId;
@@ -286,6 +290,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     }
 
     @DependsOn({"jdbcConfigDataSourceStartupValidator", "jdbcConfigDataSource"})
+    @DependsOnDatabaseInitialization
     @Bean(name = "JDBCConfigDB")
     ConfigDatabase jdbcConfigDB() {
         CloudJdbcConfigProperties config = jdbcConfigProperties();
@@ -411,6 +416,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
      * @see DatabaseStartupValidator
      */
     @Bean
+    @DependsOnDatabaseInitialization
     DatabaseStartupValidator jdbcConfigDataSourceStartupValidator() {
         DatabaseStartupValidator jdbcConfigDataSourceValidator = new DatabaseStartupValidator();
         jdbcConfigDataSourceValidator.setDataSource(jdbcConfigDataSource());
@@ -458,6 +464,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
 
     @Bean
     @DependsOn("jdbcConfigDataSourceStartupValidator")
+    @DependsOnDatabaseInitialization
     DataSourceTransactionManager jdbcConfigTransactionManager(
             @Qualifier("jdbcConfigDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);

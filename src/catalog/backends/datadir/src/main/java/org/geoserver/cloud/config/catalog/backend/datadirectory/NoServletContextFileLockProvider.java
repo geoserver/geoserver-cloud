@@ -5,8 +5,8 @@
 
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
+import jakarta.servlet.ServletContext;
 import java.io.File;
-import javax.servlet.ServletContext;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.platform.resource.FileLockProvider;

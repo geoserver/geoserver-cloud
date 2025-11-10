@@ -62,7 +62,7 @@ import org.springframework.context.annotation.FilterType;
 public class RESTConfigConfiguration {
 
     /**
-     * Replacement for {@link SeedController#doPost(javax.servlet.http.HttpServletRequest, java.io.InputStream, String, java.util.Map)}
+     * Replacement for {@link SeedController#doPost(jakarta.servlet.http.HttpServletRequest, java.io.InputStream, String, java.util.Map)}
      * working with spring-boot's stricter path pattern matching
      */
     @Bean

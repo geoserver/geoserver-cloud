@@ -7,6 +7,7 @@ package org.geoserver.config.plugin;
 
 import static java.util.Objects.requireNonNull;
 
+import jakarta.annotation.Nullable;
 import java.lang.reflect.Proxy;
 import java.rmi.server.UID;
 import java.util.Collection;
@@ -17,7 +18,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.WorkspaceInfo;

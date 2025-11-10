@@ -5,10 +5,10 @@
 
 package org.geoserver.catalog.plugin;
 
+import jakarta.annotation.Nullable;
 import java.rmi.server.UID;
 import java.util.LinkedHashSet;
 import java.util.List;
-import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;

@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.extensions.security.environmentadmin;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

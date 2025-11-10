@@ -8,6 +8,7 @@ package org.geoserver.jackson.databind.catalog;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +78,7 @@ import org.mapstruct.factory.Mappers;
  */
 @Slf4j(topic = "org.geoserver.jackson.databind.catalog")
 public class GeoServerCatalogModule extends SimpleModule {
+    @Serial
     private static final long serialVersionUID = -8756800180255446679L;
 
     static final PatchMapper PATCH_MAPPER = Mappers.getMapper(PatchMapper.class);

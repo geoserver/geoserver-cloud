@@ -8,6 +8,7 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class PgconfigTransactionManagerAutoConfiguration {
 
     @Bean
+    @DependsOnDatabaseInitialization
     DataSourceTransactionManager pgconfigTransactionManager(@Qualifier("pgconfigDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }

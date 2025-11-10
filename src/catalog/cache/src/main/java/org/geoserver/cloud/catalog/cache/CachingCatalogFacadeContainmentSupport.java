@@ -9,11 +9,11 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.RESOURCE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.STORE;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;

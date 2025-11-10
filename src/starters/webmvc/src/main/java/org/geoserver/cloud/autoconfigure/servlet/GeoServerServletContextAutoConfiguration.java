@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.servlet;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
 import org.geoserver.cloud.config.servlet.GeoServerServletContextConfiguration;

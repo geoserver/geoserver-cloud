@@ -1,0 +1,3 @@
+org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration
+org.geoserver.cloud.autoconfigure.servlet.GeoServerServletContextAutoConfiguration
+org.geoserver.cloud.autoconfigure.servlet.GeoServerServletContextAutoConfiguration$Disabled

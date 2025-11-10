@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.catalog.event;
 
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

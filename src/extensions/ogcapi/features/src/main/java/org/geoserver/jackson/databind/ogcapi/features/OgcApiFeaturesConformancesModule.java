@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
+import java.io.Serial;
 import java.lang.reflect.Field;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.ogcapi.v1.features.CQL2Conformance;
@@ -32,6 +33,7 @@ import org.geoserver.ogcapi.v1.features.FeatureConformance;
 @Slf4j
 public class OgcApiFeaturesConformancesModule extends SimpleModule {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public OgcApiFeaturesConformancesModule() {

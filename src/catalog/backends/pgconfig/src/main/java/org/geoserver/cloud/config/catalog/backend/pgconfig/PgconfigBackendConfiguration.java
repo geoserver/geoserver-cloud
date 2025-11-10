@@ -27,6 +27,7 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
@@ -85,6 +86,7 @@ public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
     }
 
     @Bean
+    @DependsOnDatabaseInitialization
     @Override
     protected PgconfigUpdateSequence updateSequence() {
         return new PgconfigUpdateSequence(dataSource, geoserverFacade());

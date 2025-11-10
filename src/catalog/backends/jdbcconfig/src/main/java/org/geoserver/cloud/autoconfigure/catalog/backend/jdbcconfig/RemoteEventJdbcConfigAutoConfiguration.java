@@ -8,10 +8,10 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
 import org.geoserver.cloud.event.remote.jdbcconfig.RemoteEventJdbcConfigProcessor;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnJdbcConfigEnabled
 @ConditionalOnCatalogEvents
 public class RemoteEventJdbcConfigAutoConfiguration {

@@ -8,6 +8,7 @@ package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
+import java.io.Serial;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -24,7 +25,9 @@ import org.geoserver.platform.resource.Resource;
 /** Extends {@link JDBCConfigProperties} to not need a {@link JDBCConfigPropertiesFactoryBean} */
 @EqualsAndHashCode(callSuper = true)
 public class CloudJdbcConfigProperties extends JDBCConfigProperties {
+    @Serial
     private static final long serialVersionUID = 1L;
+
     private transient DataSource dataSource;
 
     public CloudJdbcConfigProperties(DataSource dataSource) {

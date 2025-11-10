@@ -1,0 +1,6 @@
+
+spring.cloud.config.server.native:
+  fail-on-error: true
+  search-locations:
+  - ${config.native.path:file:./config}
+

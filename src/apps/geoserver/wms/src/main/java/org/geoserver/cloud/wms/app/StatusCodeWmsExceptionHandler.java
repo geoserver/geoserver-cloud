@@ -10,8 +10,8 @@ import static org.geoserver.platform.ServiceException.MAX_MEMORY_EXCEEDED;
 import static org.geoserver.platform.ServiceException.MISSING_PARAMETER_VALUE;
 import static org.geoserver.platform.ServiceException.SERVICE_UNAVAILABLE;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
 import org.geoserver.config.GeoServer;
 import org.geoserver.ows.Request;
 import org.geoserver.platform.Service;

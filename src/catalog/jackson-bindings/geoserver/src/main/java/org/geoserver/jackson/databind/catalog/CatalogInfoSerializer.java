@@ -12,12 +12,14 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
+import java.io.Serial;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
 import org.mapstruct.factory.Mappers;
 
 public class CatalogInfoSerializer<I extends CatalogInfo> extends StdSerializer<I> {
+    @Serial
     private static final long serialVersionUID = -4772839273787523779L;
 
     private static final CatalogInfoMapper mapper = Mappers.getMapper(CatalogInfoMapper.class);

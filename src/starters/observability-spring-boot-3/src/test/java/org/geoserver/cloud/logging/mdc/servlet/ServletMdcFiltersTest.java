@@ -325,12 +325,12 @@ class ServletMdcFiltersTest {
         @Override
         public void doFilter(jakarta.servlet.ServletRequest request, jakarta.servlet.ServletResponse response)
                 throws IOException, ServletException {
-            if (exception instanceof ServletException) {
-                throw (ServletException) exception;
-            } else if (exception instanceof IOException) {
-                throw (IOException) exception;
-            } else if (exception instanceof RuntimeException) {
-                throw (RuntimeException) exception;
+            if (exception instanceof ServletException servletException) {
+                throw servletException;
+            } else if (exception instanceof IOException oException) {
+                throw oException;
+            } else if (exception instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             } else {
                 throw new ServletException(exception);
             }

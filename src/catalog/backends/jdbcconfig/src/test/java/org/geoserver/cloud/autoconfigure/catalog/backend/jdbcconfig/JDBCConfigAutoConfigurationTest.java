@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.CatalogImpl;
@@ -51,7 +51,7 @@ class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
         assertNotNull(configProperties);
         assertNotNull(configProperties.getDatasource());
         assertNotNull(configProperties.getCacheDirectory());
-        var tmp = Paths.get(System.getProperty("java.io.tmpdir"));
+        var tmp = Path.of(System.getProperty("java.io.tmpdir"));
         var expected = tmp.resolve("geoserver-jdbcconfig-cache");
         assertEquals(expected.toString(), configProperties.getCacheDirectory().toString());
     }

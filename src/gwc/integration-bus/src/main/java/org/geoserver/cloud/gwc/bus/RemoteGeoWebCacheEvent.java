@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.gwc.bus;
 
+import java.io.Serial;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 @EqualsAndHashCode(callSuper = true)
 public abstract class RemoteGeoWebCacheEvent extends RemoteApplicationEvent {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public enum Type {

@@ -33,21 +33,20 @@ eureka:
 
 management:
   endpoints:
-    enabled-by-default: true
+    access.default: read-only
     web.exposure.include: "*"
   endpoint:
-    info.enabled: true
-    metrics.enabled: true
-    shutdown.enabled: true
+    info.access: read-only
+    metrics.access: read-only
+    shutdown.access: read-only
     health:
-      enabled: true
+      access: read-only
       probes.enabled: true
       show-details: always
   metrics:
     enable:
       all: true
-    export:
-      atlas.enabled: false
+  atlas.metrics.export.enabled: false
 
 logging:
   level:

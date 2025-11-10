@@ -6,6 +6,7 @@
 package org.geoserver.cloud.config.jndi;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(JNDIDataSourcesConfigurationProperties.class)
 public class JNDIDataSourceConfiguration {
     @Bean
+    @DependsOnDatabaseInitialization
     JNDIInitializer jndiInitializer(JNDIDataSourcesConfigurationProperties config) {
         return new JNDIInitializer(config);
     }

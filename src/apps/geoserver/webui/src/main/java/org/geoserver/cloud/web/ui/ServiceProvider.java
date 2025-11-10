@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.web.ui;
 
+import java.io.Serial;
 import java.util.List;
 import org.geoserver.cloud.web.service.ServiceInstance;
 import org.geoserver.cloud.web.service.ServiceInstanceRegistry;
@@ -15,6 +16,7 @@ import org.geoserver.web.wicket.GeoServerDataProvider;
  * @since 1.0
  */
 class ServiceProvider extends GeoServerDataProvider<ServiceInstance> {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public static final Property<ServiceInstance> NAME = new BeanProperty<>("name", "name");

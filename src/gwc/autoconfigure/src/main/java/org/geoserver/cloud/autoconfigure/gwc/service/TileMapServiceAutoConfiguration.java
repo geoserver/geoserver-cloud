@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.gwc.service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.gwc.config.services.TileMapServiceConfiguration;

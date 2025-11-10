@@ -5,6 +5,7 @@
 
 package org.geoserver.catalog.plugin;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -39,6 +40,7 @@ import org.geoserver.ows.util.OwsUtils;
  */
 @NoArgsConstructor
 public @Data class Patch implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

@@ -5,6 +5,7 @@
 
 package org.geoserver.catalog.plugin;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ import org.geotools.referencing.CRS;
  */
 @Slf4j
 public @Data class PropertyDiff implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private List<Change> changes;
@@ -256,7 +258,9 @@ public @Data class PropertyDiff implements Serializable {
     @NoArgsConstructor
     @AllArgsConstructor
     public static @Data class Change implements Serializable {
+        @Serial
         private static final long serialVersionUID = 1L;
+
         private @NonNull String propertyName;
         private transient Object oldValue;
         private transient Object newValue;

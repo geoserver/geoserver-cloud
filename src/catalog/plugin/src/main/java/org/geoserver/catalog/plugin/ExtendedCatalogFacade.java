@@ -5,11 +5,11 @@
 
 package org.geoserver.catalog.plugin;
 
+import jakarta.annotation.Nullable;
 import java.io.Closeable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import lombok.NonNull;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;

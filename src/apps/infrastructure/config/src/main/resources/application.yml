@@ -55,51 +55,22 @@ eureka:
 
 management:
   endpoints:
-    enabled-by-default: true
+    access.default: read-only
     web.exposure.include: "*"
   endpoint:
-    info.enabled: true
-    metrics.enabled: true
-    shutdown.enabled: true
+    info.access: read-only
+    metrics.access: read-only
+    shutdown.access: read-only
     health:
-      enabled: true
+      access: read-only
       probes.enabled: true
       show-details: always
   metrics:
     enable:
       all: true
-    export:
-      atlas.enabled: false
+  atlas.metrics.export.enabled: false
 
 logging.level:
   root: info
   org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: warn
 
----
-spring.config.activate.on-profile: native
-spring.cloud.config.server.native:
-  fail-on-error: true
-  search-locations:
-  - ${config.native.path:file:./config}
-
----
-spring.config.activate.on-profile: git
-spring:
-  cloud:
-    config:
-      server:
-        git:
-          uri: ${config.git.uri:https://github.com/geoserver/geoserver-cloud-config.git}
-          default-label: ${config.git.label:master}
-          skip-ssl-validation: true
-          timeout: 10
-          # Default value of 0 makes the git backend fetch updated configuration from the Git repo every time it is requested
-          refresh-rate: 30
-          # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
-          # basedir: ${config.git.basedir:/tmp/git_config} # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
-
----
-# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
-spring.config.activate.on-profile: local
-server.port: 8888
-config.native.path: ${user.dir}/../../config

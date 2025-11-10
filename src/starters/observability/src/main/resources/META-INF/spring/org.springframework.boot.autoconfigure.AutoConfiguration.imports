@@ -1,0 +1,3 @@
+org.geoserver.cloud.autoconfigure.logging.accesslog.AccessLogServletAutoConfiguration
+org.geoserver.cloud.autoconfigure.logging.mdc.GeoServerDispatcherMDCAutoConfiguration
+org.geoserver.cloud.autoconfigure.logging.mdc.LoggingMDCServletAutoConfiguration

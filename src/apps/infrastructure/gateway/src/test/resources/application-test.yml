@@ -2,7 +2,7 @@ spring:
   application:
     name: gateway
   cloud:
-    gateway:
+    gateway.server.webflux:
       enabled: true
       discovery:
         locator:

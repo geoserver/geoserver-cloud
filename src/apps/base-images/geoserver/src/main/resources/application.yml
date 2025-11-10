@@ -15,6 +15,10 @@ server:
       min-spare: ${tomcat.threads.min.spare:10}
       # Maximum amount of worker threads.
       max: ${tomcat.threads.max:200}
+  port: 8080
+  # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
+  forward-headers-strategy: framework
+  servlet.context-path: /
 
 spring:
   rabbitmq:
@@ -28,26 +32,49 @@ spring:
       enabled: true
       id: ${info.instance-id} # use the same instance id for eureka (see service's' bootstrap.yml) and cloud-bus' rabbitmq instance id
       trace.enabled: false #switch on tracing of acks (default off).
-    stream:
-      bindings:
-        springCloudBusOutput:
-          destination: geoserver
-        springCloudBusInput:
-          destination: geoserver
+    stream.bindings:
+      springCloudBusOutput.destination: geoserver
+      springCloudBusInput.destination: geoserver
+    config.name: geoserver
   jackson:
     default-property-inclusion: non-empty
-    serialization.indent-output: false #set to true if doing manual testing and want formatted output
+    serialization.indent-output: false
+  config:
+    import:
+      # import definition of common bootstrap configuration profiles    
+      - classpath:gs_cloud_bootstrap_profiles.yml
+    # load externalized configuration from geoserver.yml
+    name: geoserver
+  # and always include the service specific settings from the profile
+  profiles.include: wfs_service
+  banner.charset: UTF-8 # https://patorjk.com/software/taag/#p=display&f=Marquee&t=GeoServer%20WFS
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
+    web-application-type: servlet
+  application.name: wfs-service #set to true if doing manual testing and want formatted output
+  autoconfigure.exclude:
+    - org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
+    - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+    - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+    - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+    - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+    - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+    - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+    - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+    - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
 
 management:
   endpoints:
-    enabled-by-default: true
+    access.default: read-only
     web.exposure.include: "*"
   endpoint:
-    info.enabled: true
-    metrics.enabled: true
-    shutdown.enabled: true
+    info.access: read-only
+    metrics.access: read-only
+    shutdown.access: read-only
     health:
-      enabled: true
+      access: read-only
       probes.enabled: true
       show-details: always
   metrics:
@@ -55,16 +82,26 @@ management:
       processor.enabled: true
       uptime.enabled: true
       jvm.enabled: true
-    enable.all: true
-    enable.jvm: true
-    export:
-      atlas.enabled: false
+    enable:
+      all: true
+      jvm: true
+  server.port: 8081
+  atlas.metrics.export.enabled: false
+info:
+  component: Web Feature Service
+  instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
+geoserver:
+  base-path: /wfs
+  service:
+    # Fixed per-service value to support conditional activation of extensions.
+    # This property is checked by @ConditionalOnGeoServerWFS
+    wfs.enabled: true
+
+eureka.client.fetch-registry: false
 ---
 # this profile is automatically included if any of the embedded
 # config_first or discovery_first profile groups are active
 spring.config.activate.on-profile: discovery_eureka
-# Should only be set in application.yml (i.e. not in bootstrap.yml).
-# Setting the value in bootstrap.yml will cause undesirable side effects like registering in eureka with an UNKNOWN status.
-# See https://cloud.spring.io/spring-cloud-netflix/2.0.x/multi/multi__service_discovery_eureka_clients.html#_eureka_s_health_checks
-eureka.client.healthcheck.enabled: true
-eureka.server.url: http://discovery:8761/eureka
+eureka:
+  client.healthcheck.enabled: true
+  server.url: http://discovery:8761/eureka

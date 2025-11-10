@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.security;
 
+import java.io.Serial;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
@@ -23,6 +24,7 @@ import org.springframework.context.ApplicationEvent;
 @ToString(callSuper = true)
 public class SecurityManagerReloaded extends ApplicationEvent {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /** The update sequence at the time this event was created. */

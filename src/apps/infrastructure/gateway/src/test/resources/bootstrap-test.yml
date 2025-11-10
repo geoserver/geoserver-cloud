@@ -10,7 +10,7 @@ spring:
       enabled: false
     discovery:
       enabled: false
-    gateway:
+    gateway.server.webflux:
       httpclient:
         connect-timeout: 5000
         response-timeout: 10s

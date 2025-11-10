@@ -8,6 +8,7 @@ package org.geotools.jackson.databind.geojson;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import java.io.Serial;
 import lombok.extern.slf4j.Slf4j;
 import org.geotools.jackson.databind.geojson.geometry.GeometryDeserializer;
 import org.geotools.jackson.databind.geojson.geometry.GeometrySerializer;
@@ -48,6 +49,7 @@ import org.locationtech.jts.geom.Polygon;
  */
 @Slf4j(topic = "org.geotools.jackson.databind.geojson")
 public class GeoToolsGeoJsonModule extends SimpleModule {
+    @Serial
     private static final long serialVersionUID = 4898575169880138758L;
 
     public GeoToolsGeoJsonModule() {

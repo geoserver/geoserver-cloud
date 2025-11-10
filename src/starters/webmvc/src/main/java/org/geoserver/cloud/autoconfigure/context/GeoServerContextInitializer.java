@@ -5,11 +5,11 @@
 
 package org.geoserver.cloud.autoconfigure.context;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import org.geoserver.GeoserverInitStartupListener;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;

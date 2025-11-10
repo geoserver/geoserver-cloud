@@ -14,17 +14,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
+import static org.hamcrest.junit.MatcherAssume.assumeThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -39,18 +40,17 @@ import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceTheoryTest;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.runner.RunWith;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
@@ -69,8 +69,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     @ClassRule
     public static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
+    @TempDir
+    public File tmpDir;
 
     private PgconfigResourceStore store;
     private File cacheDirectory;
@@ -94,28 +94,28 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         };
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void onetimeSetUp() {
         container.setUp();
     }
 
-    @AfterClass
+    @AfterAll
     public static void oneTimeTeardown() {
         container.tearDown();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
-        cacheDirectory = tmpDir.newFolder();
+        cacheDirectory = newFolder(tmpDir, "junit");
         FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         store = new PgconfigResourceStore(
                 cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
         setupTestData(template);
     }
 
-    @After
+    @AfterEach
     public void cleanDb() throws Exception {
         DataSource dataSource = container.getDataSource();
         new JdbcTemplate(dataSource).update("DELETE FROM resourcestore WHERE parentid IS NOT NULL");
@@ -204,13 +204,13 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Override
-    @Ignore("This behaviour is specific to the file based implementation")
+    @Disabled("This behaviour is specific to the file based implementation")
     public void theoryAlteringFileAltersResource(String path) throws Exception {
         // disabled
     }
 
     @Override
-    @Ignore("This behaviour is specific to the file based implementation")
+    @Disabled("This behaviour is specific to the file based implementation")
     public void theoryAddingFileToDirectoryAddsResource(String path) {
         // disabled
     }
@@ -557,8 +557,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         // Check lastmodified() which should trigger updateState()
         long updatedLastModified = resource.lastmodified();
         assertTrue(
-                "Last modified timestamp should be updated: " + initialLastModified + " vs " + updatedLastModified,
-                updatedLastModified > initialLastModified);
+                updatedLastModified > initialLastModified,
+                "Last modified timestamp should be updated: " + initialLastModified + " vs " + updatedLastModified);
 
         // Verify the content was updated
         try (InputStream in = resource.in()) {
@@ -596,7 +596,16 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         File file = resource.file();
         assertTrue(file.exists());
         assertTrue(file.isFile());
-        String fileContent = new String(java.nio.file.Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+        String fileContent = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
         assertEquals("test password", fileContent);
+    }
+
+    private static File newFolder(File root, String... subDirs) throws IOException {
+        String subFolder = String.join("/", subDirs);
+        File result = new File(root, subFolder);
+        if (!result.mkdirs()) {
+            throw new IOException("Couldn't create folders " + root);
+        }
+        return result;
     }
 }

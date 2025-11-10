@@ -9,18 +9,18 @@ import static org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProper
 import static org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties.CONFIG_DIRECTORY;
 import static org.geowebcache.storage.DefaultStorageFinder.GWC_CACHE_DIR;
 
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Supplier;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;

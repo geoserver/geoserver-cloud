@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.gwc.bus;
 
+import java.io.Serial;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = true)
 public class RemoteBlobStoreEvent extends RemoteGeoWebCacheEvent {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private @Getter @Setter String blobStoreId;

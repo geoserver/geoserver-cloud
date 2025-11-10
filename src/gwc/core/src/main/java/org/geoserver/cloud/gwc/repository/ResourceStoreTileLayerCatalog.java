@@ -166,7 +166,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         checkInitialized();
         GeoServerTileLayerInfo info = null;
         Optional<Resource> resource = findFile(tileLayerId);
-        if (!resource.isPresent()) {
+        if (resource.isEmpty()) {
             return null;
         }
         final Resource file = resource.get();
