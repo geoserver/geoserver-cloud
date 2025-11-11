@@ -1,6 +1,16 @@
-# Exclude everything in the root context
+# Ignore everything except target/*-bin.jar and target/config/
 *
-
-# Re-include only necessary build artifacts
+!target/
+target/*
 !target/*-bin.jar
-!target/config
+!target/config/
+
+# Additional Maven/IDE artifacts to explicitly ignore
+.classpath
+.project
+.settings/
+.factorypath
+.flattened-pom.xml
+.spotless-index
+*.iml
+.idea/
