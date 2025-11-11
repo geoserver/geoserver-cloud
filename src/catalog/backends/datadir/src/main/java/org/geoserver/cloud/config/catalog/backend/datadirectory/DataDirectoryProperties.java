@@ -7,7 +7,9 @@ package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import lombok.Data;
+import lombok.NonNull;
 import org.geoserver.cloud.autoconfigure.catalog.backend.datadir.DataDirectoryAutoConfiguration;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -32,6 +34,12 @@ public class DataDirectoryProperties {
 
     /** Eventual consistency enforcement configuration for distributed event handling */
     private DataDirectoryProperties.EventualConsistencyConfig eventualConsistency = new EventualConsistencyConfig();
+
+    public @NonNull Path dataDirectory() {
+        Path path = getLocation();
+        Objects.requireNonNull(path, "geoserver.backend.data-directory.location config property resolves to null");
+        return path;
+    }
 
     /**
      * Configuration for eventual consistency enforcement when processing distributed catalog events.

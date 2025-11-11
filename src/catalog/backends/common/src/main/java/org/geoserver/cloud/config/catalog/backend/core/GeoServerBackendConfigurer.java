@@ -5,54 +5,57 @@
 
 package org.geoserver.cloud.config.catalog.backend.core;
 
-import org.geoserver.GeoServerConfigurationLock;
-import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
-import org.geoserver.config.GeoServerFacade;
-import org.geoserver.config.GeoServerLoader;
-import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.platform.config.UpdateSequence;
-import org.geoserver.platform.resource.ResourceStore;
-import org.geoserver.platform.resource.ResourceStoreFactory;
-import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
- * Unified provider interface for the complete GeoServer backend storage (catalog and config).
+ * Marker interface for GeoServer catalog and configuration backend storage implementations.
  *
- * <p>If in vanilla GeoServer the default storage is the "data directory", in the "cloud native
- * GeoServer", you need to explicitly enable and configure the backend by means of one of this
- * interface implementations, using traditional spring's externalized configuration properties.
+ * <h2>Overview</h2>
+ * <p>While vanilla GeoServer defaults to file-based "data directory" storage, GeoServer Cloud
+ * requires explicit backend configuration through Spring Boot's externalized configuration properties.
+ * This marker interface identifies configuration classes that provide complete catalog and configuration
+ * storage implementations for specific backend technologies (e.g., data directory, PostgreSQL).
  *
- * <p>An <code>@Configuration</code> annotated class that implements this interface is all a
- * catalog/configuration "plugin" needs to provide to set up GeoServer's catalog and configuration
- * storage for a particular backend.
+ * <h2>Usage</h2>
+ * <p>Backend implementations should extend this class and be annotated with {@code @Configuration(proxyBeanMethods = false)}.
+ * This allows implementations to use modern Spring dependency injection patterns with constructor or method
+ * parameter injection, avoiding the limitations of {@code proxyBeanMethods = true} where bean methods
+ * must call each other directly.
  *
- * <p>Such configuration class should be included as a spring-boot auto-configuration by adding it
- * to the {@code org.springframework.boot.autoconfigure.EnableAutoConfiguration} list of
- * auto-configuration classes in {@code META-INF/spring.factories}, and should implement a means to
- * enable/disable itself based on the required criteria, for example, using {@link
- * ConditionalOnProperty @ConditionalOnProperty}, {@link ConditionalOnClass @ConditionalOnClass},
- * etc.
+ * <h2>Required Beans</h2>
+ * <p>A backend configuration class extending {@link GeoServerBackendConfigurer} must provide the following
+ * core beans to establish a complete GeoServer catalog and configuration storage backend:
+ * <ul>
+ *  <li>{@code ExtendedCatalogFacade catalogFacade} - Core catalog persistence layer
+ *  <li>{@code GeoServerFacade geoserverFacade} - Configuration persistence layer
+ *  <li>{@code GeoServerConfigurationLock configurationLock} - Distributed locking for configuration changes
+ *  <li>{@code UpdateSequence updateSequence} - Tracks configuration version for WMS/WFS capabilities caching
+ *  <li>{@code GeoServerLoader geoServerLoaderImpl} - Loads initial catalog and configuration on startup
+ *  <li>{@code ResourceStore resourceStoreImpl} - Storage for resources (styles, icons, templates, etc.)
+ *  <li>{@code GeoServerResourceLoader resourceLoader} - High-level resource access API
+ * </ul>
+ *
+ * <h2>Auto-Configuration</h2>
+ * <p>Backend configuration classes should be registered as Spring Boot auto-configurations by adding them
+ * to {@code META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports}. They should
+ * implement conditional activation using annotations such as:
+ * <ul>
+ *  <li>{@link ConditionalOnProperty @ConditionalOnProperty} - Enable/disable via configuration properties
+ *  <li>{@link ConditionalOnClass @ConditionalOnClass} - Require specific classes on classpath
+ *  <li>Custom conditional annotations for backend-specific requirements
+ * </ul>
+ *
+ * <h2>Implementation Examples</h2>
+ * <ul>
+ *  <li>{@code DataDirectoryBackendConfiguration} - Traditional file-based storage
+ *  <li>{@code PgconfigBackendConfiguration} - PostgreSQL-based storage with JNDI support
+ * </ul>
+ *
+ * @since 1.0
+ * @see org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration
+ * @see org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendConfiguration
  */
 public abstract class GeoServerBackendConfigurer {
-
-    protected abstract GeoServerConfigurationLock configurationLock();
-
-    protected abstract UpdateSequence updateSequence();
-
-    protected abstract ExtendedCatalogFacade catalogFacade();
-
-    protected abstract GeoServerLoader geoServerLoaderImpl(GeoServerSecurityManager securityManager);
-
-    protected abstract GeoServerFacade geoserverFacade();
-
-    /**
-     * {@link ResourceStore} named {@code resourceStoreImpl}, as looked up in the application
-     * context by {@link ResourceStoreFactory}. With this, we don't need a bean called
-     * "dataDirectoryResourceStore" at all.
-     */
-    protected abstract ResourceStore resourceStoreImpl();
-
-    protected abstract GeoServerResourceLoader resourceLoader();
+    // Marker class - no methods required
 }
