@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 
 /**
  * Auto-configuration that enables Reactor Context Propagation.
@@ -23,6 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnClass(name = "reactor.core.publisher.Mono")
+@ConditionalOnWebApplication(type = Type.REACTIVE)
 @ConditionalOnProperty(
         name = "geoserver.cloud.reactor.context-propagation.enabled",
         havingValue = "true",

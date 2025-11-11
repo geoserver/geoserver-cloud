@@ -188,6 +188,17 @@ class GatewaySharedAuthenticationTest {
 
     @BeforeEach
     void setUp(WireMockRuntimeInfo runtimeInfo) {
+        // Configure TestRestTemplate to not follow redirects
+        // The test verifies redirect responses with Location headers, but should not
+        // attempt to follow them (especially since they contain placeholder URLs like
+        // http://0.0.0.0:9090 that cannot be resolved)
+        testRestTemplate
+                .getRestTemplate()
+                .setRequestFactory(new org.springframework.http.client.HttpComponentsClientHttpRequestFactory(
+                        org.apache.hc.client5.http.impl.classic.HttpClients.custom()
+                                .disableRedirectHandling()
+                                .build()));
+
         StubMapping weblogin = buildFrom(WEB_LOGIN_SPEC);
         StubMapping weblogout = buildFrom(WEB_LOGOUT_SPEC);
         StubMapping wmscaps = buildFrom(WMS_GETCAPS);

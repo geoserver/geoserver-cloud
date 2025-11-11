@@ -5,8 +5,6 @@
 
 package org.geoserver.cloud.gateway.filter;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import java.util.List;
 import lombok.Data;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -74,9 +72,13 @@ public class StripBasePathGatewayFilterFactory
 
         public void checkPreconditions() {
             if (prefix != null) {
-                checkArgument(prefix.startsWith("/"), "StripBasePath prefix must start with /");
+                if (!prefix.startsWith("/")) {
+                    throw new IllegalStateException("StripBasePath prefix must start with /");
+                }
 
-                checkArgument("/".equals(prefix) || !prefix.endsWith("/"), "StripBasePath prefix must not end with /");
+                if (!"/".equals(prefix) || !prefix.endsWith("/")) {
+                    throw new IllegalStateException("StripBasePath prefix must not end with /");
+                }
             }
         }
     }

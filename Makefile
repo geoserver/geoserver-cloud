@@ -41,7 +41,6 @@ format-java:
 
 .PHONY: install
 install: build-tools
-	./mvnw clean install -DskipTests -ntp -U -T1C -pl src/starters/spring-boot3,src/starters/observability-spring-boot-3 -am
 	./mvnw clean install -DskipTests -ntp -U -T1C
 
 .PHONY: package
@@ -61,8 +60,6 @@ build-base-images: package-base-images
 	docker compose -f docker-build/base-images.yml build jre
 	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
 	docker compose -f docker-build/base-images.yml build spring-boot
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build spring-boot3
 	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
 	docker compose -f docker-build/base-images.yml build geoserver-common
 
@@ -89,8 +86,6 @@ build-base-images-multiplatform: package-base-images
 	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
 	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot --push \
 	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot3 --push \
-	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
 	   docker compose -f docker-build/base-images-multiplatform.yml build geoserver-common --push
 
 .PHONY: build-image-infrastructure-multiplatform
@@ -111,7 +106,7 @@ build-image-geoserver-multiplatform: package-geoserver-images
 .PHONY: package-base-images
 package-base-images:
 ifeq ($(REPACKAGE), true)
-	./mvnw clean package -DskipTests -T1C -ntp -am -pl src/apps/base-images/jre,src/apps/base-images/spring-boot,src/apps/base-images/spring-boot3,src/apps/base-images/geoserver
+	./mvnw clean package -DskipTests -T1C -ntp -am -pl src/apps/base-images/jre,src/apps/base-images/spring-boot,src/apps/base-images/geoserver
 else
 	@echo "Not re-packaging base images, assuming the target/*-bin.jar files exist"
 endif

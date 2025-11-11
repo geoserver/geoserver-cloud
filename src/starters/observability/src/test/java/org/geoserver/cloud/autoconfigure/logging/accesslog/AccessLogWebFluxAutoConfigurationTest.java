@@ -8,6 +8,7 @@ package org.geoserver.cloud.autoconfigure.logging.accesslog;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.regex.Pattern;
+import org.geoserver.cloud.autoconfigure.logging.accesslog.webflux.AccessLogWebFluxAutoConfiguration;
 import org.geoserver.cloud.logging.accesslog.AccessLogFilterConfig;
 import org.geoserver.cloud.logging.accesslog.AccessLogWebfluxFilter;
 import org.junit.jupiter.api.Test;
