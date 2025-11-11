@@ -432,36 +432,6 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.community</groupId>
-        <artifactId>gs-jdbcconfig</artifactId>
-        <version>${gs.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.community</groupId>
-        <artifactId>gs-jdbcstore</artifactId>
-        <version>${gs.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.geoserver.web</groupId>
         <artifactId>gs-web-gwc</artifactId>
         <version>${gs.version}</version>

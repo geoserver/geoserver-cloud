@@ -1,5 +1,0 @@
-# Auto Configure
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig.JDBCConfigAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig.JDBCConfigWebAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig.RemoteEventJdbcConfigAutoConfiguration

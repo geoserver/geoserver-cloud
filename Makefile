@@ -206,21 +206,6 @@ run-acceptance-tests-pgconfig:
 clean-acceptance-tests-pgconfig:
 	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig down -v)
 
-.PHONY: acceptance-tests-jdbcconfig
-acceptance-tests-jdbcconfig: build-acceptance start-acceptance-tests-jdbcconfig run-acceptance-tests-jdbcconfig
-
-.PHONY: start-acceptance-tests-jdbcconfig
-start-acceptance-tests-jdbcconfig:
-	(cd compose/ && ./acceptance_jdbcconfig up -d)
-
-.PHONY: run-acceptance-tests-jdbcconfig
-run-acceptance-tests-jdbcconfig:
-	(cd compose/ && ./acceptance_jdbcconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
-
-.PHONY: clean-acceptance-tests-jdbcconfig
-clean-acceptance-tests-jdbcconfig:
-	(cd compose/ && ./acceptance_jdbcconfig down -v)
-
 # Prevent make from treating service names as targets when using $(MAKECMDGOALS) in build-image-geoserver/build-image-geoserver-multiplatform
 %:
 	@:

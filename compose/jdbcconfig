@@ -1,7 +1,0 @@
-#/bin/sh
-
-GSUID=$(id -u)
-GSGID=$(id -g)
-
-GS_USER="$GSUID:$GSGID" \
-docker compose -f compose.yml -f catalog-jdbcconfig.yml $@

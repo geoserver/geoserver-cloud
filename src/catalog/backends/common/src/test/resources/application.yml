@@ -21,5 +21,3 @@ logging:
     org.geoserver: warn
     org.geoserver.cloud: warn
     org.geoserver.cloud.config.factory: warn
-    org.geoserver.jdbcconfig: warn
-    org.geoserver.jdbcstore: warn

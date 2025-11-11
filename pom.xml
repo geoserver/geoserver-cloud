@@ -249,11 +249,6 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.catalog.backend</groupId>
-        <artifactId>gs-cloud-catalog-backend-jdbcconfig</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.cloud.catalog.backend</groupId>
         <artifactId>gs-cloud-catalog-backend-pgconfig</artifactId>
         <version>${project.version}</version>
       </dependency>

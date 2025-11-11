@@ -48,7 +48,6 @@ Only a curated selection of the extensive [GeoServer extensions](http://geoserve
 
 * **Catalog and Configuration**:
     * PGConfig
-    * JDBC `jdbcconfig` and `jdbcstore` (deprecated)
 * **Security**:
     * GeoServer ACL
     * JDBC Security
@@ -151,7 +150,6 @@ development and testing, `cd compose` and run one of the following scripts. Each
 
 * `./pgconfig up -d`: runs *GeoServer Cloud* with the new and shiny PostgreSQL catalog back-end
 * `./datadir up -d`: runs *GeoServer Cloud* with a bind-mounted shared data directory
-* `./jdbcconfig up -d`: runs *GeoServer Cloud* with the older and deprecated `jdbcconfig` catalog back-end
 
 Verify the services are running:
 
