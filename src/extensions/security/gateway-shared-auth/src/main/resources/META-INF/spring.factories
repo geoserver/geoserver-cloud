@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.extensions.security.gateway.sharedauth.GatewaySharedAuthenticationAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.extensions.security.gateway.preauth.GatewayPreAuthenticationAutoConfiguration

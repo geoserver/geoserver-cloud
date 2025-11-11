@@ -1,7 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.extensions.inspire.InspireAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.extensions.inspire.webui.InspireAutoConfigurationWebUI,\
-org.geoserver.cloud.autoconfigure.extensions.inspire.gwc.InspireAutoConfigurationGwc,\
-org.geoserver.cloud.autoconfigure.extensions.inspire.wfs.InspireAutoConfigurationWfs,\
-org.geoserver.cloud.autoconfigure.extensions.inspire.wms.InspireAutoConfigurationWms,\
-org.geoserver.cloud.autoconfigure.extensions.inspire.wcs.InspireAutoConfigurationWcs

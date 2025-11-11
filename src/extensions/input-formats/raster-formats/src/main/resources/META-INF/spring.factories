@@ -1,4 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geotools.autoconfigure.rasterformats.GridFormatFactoryFilteringAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.cog.COGAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.cog.COGWebUIAutoConfiguration
