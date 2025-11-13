@@ -1,13 +1,9 @@
-WORKSPACE = "cog"
-
-
 def test_create_cog_coverage(geoserver_factory):
     """Test creating a COG coverage store and coverage"""
     workspace = "cog"
     store_name = "land_shallow_topo_21600_NW_cog"
     coverage_name = "land_shallow_topo_NW"
     geoserver = geoserver_factory(workspace)
-    rest_client = geoserver.rest_service.rest_client
 
     # Create COG coverage store
     content, status = geoserver.create_coverage_store(
@@ -45,8 +41,12 @@ def test_create_cog_coverage(geoserver_factory):
     assert content.get("enabled") is True
 
     # Test WMS GetMap request
-    wms_response = rest_client.get(
-        f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/jpeg&SRS=EPSG:4326"
-    )
+    wms_response = geoserver.get_map(
+        layers=[f"{workspace}:{coverage_name}"],
+        bbox=(-180, -90, 180, 90),
+        size=(256, 256),
+        srs="EPSG:4326",
+        format="image/jpeg",
+    )._response
     assert wms_response.status_code == 200
     assert wms_response.headers.get("content-type").startswith("image/jpeg")

@@ -108,9 +108,13 @@ preparedStatements=false
         assert coverage_data["title"] == title
 
         # Test WMS GetMap request
-        wms_response = geoserver.rest_service.rest_client.get(
-            f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
-        )
+        wms_response = geoserver.get_map(
+            layers=[f"{workspace}:{coverage}"],
+            bbox=(-180, -90, 180, 90),
+            size=(256, 256),
+            srs="EPSG:4326",
+            format="image/png",
+        )._response
         assert wms_response.status_code == 200
         assert wms_response.headers.get("content-type").startswith("image/png")
 
