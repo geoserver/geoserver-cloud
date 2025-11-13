@@ -1,10 +1,12 @@
 #!/bin/env python
 
 import pytest
-from conftest import RESOURCE_DIR, WORKSPACE
-from lib.utils import compare_images, write_actual_image
+from tests.conftest import RESOURCE_DIR
+from tests.lib.utils import compare_images, write_actual_image
 from requests.exceptions import JSONDecodeError
 from sqlalchemy.sql import text
+
+WORKSPACE = "test_i18n_workspace"
 
 
 def international_title(default=True, de=True, fr=True, it=True, rm=True):
@@ -28,7 +30,7 @@ def assert_legend(geoserver, style, language, expected_label):
         format="application/json",
         language=language,
         style=style,
-        workspace=WORKSPACE,
+        workspace_name=WORKSPACE,
     )
     try:
         label = response.json()["Legend"][0]["rules"][0]["title"]
@@ -36,6 +38,23 @@ def assert_legend(geoserver, style, language, expected_label):
     except (KeyError, JSONDecodeError):
         print(f"Invalid response for language '{language}:'\n{response.content}")
         assert False
+
+
+@pytest.fixture(scope="module")
+def geoserver(geoserver_factory):
+    geoserver = geoserver_factory(WORKSPACE)
+    geoserver.create_pg_datastore(
+        workspace_name=WORKSPACE,
+        datastore_name="i18n_datastore",
+        pg_host="geodatabase",
+        pg_port=5432,
+        pg_db="acceptance",
+        pg_user="geoserver",
+        pg_password="geoserver",
+        pg_schema="test1",
+        set_default_datastore=True,
+    )
+    yield geoserver
 
 
 @pytest.fixture(scope="module")
@@ -68,17 +87,16 @@ def geoserver_default_locale_it(geoserver_with_i18n_layers):
 
 @pytest.fixture(scope="module")
 def geoserver_i18n_legend_layer(geoserver):
-    geoserver.create_workspace(WORKSPACE, set_default_workspace=True)
     geoserver.create_feature_type("i18n_legend", epsg=2056)
     geoserver.create_style_from_file(
-        "localized_with_default.sld",
+        "localized_with_default",
         f"{RESOURCE_DIR}/localized_with_default.sld",
-        workspace=WORKSPACE,
+        workspace_name=WORKSPACE,
     )
     geoserver.create_style_from_file(
-        "localized_no_default.sld",
+        "localized_no_default",
         f"{RESOURCE_DIR}/localized_no_default.sld",
-        workspace=WORKSPACE,
+        workspace_name=WORKSPACE,
     )
     yield geoserver
 
@@ -102,7 +120,7 @@ def geoserver_i18n_label_layer(geoserver, db_session):
         "label_fr": {"type": "string", "required": False},
     }
     geoserver.create_feature_type(feature_type, attributes=attributes, epsg=2056)
-    geoserver.create_style_from_file(style, file, workspace=WORKSPACE)
+    geoserver.create_style_from_file(style, file, workspace_name=WORKSPACE)
     # Feature with labels in German, French and a default value
     db_session.execute(
         text(

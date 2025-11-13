@@ -1,18 +1,18 @@
-import os
 import tempfile
 import zipfile
 from pathlib import Path
 import pytest
-from geoservercloud import GeoServerCloud
-from conftest import GEOSERVER_URL
 
 
-def _create_imagemosaic(geoserver, workspace, coverage, granules, indexer_content, title="ImageMosaic Coverage"):
+def _create_imagemosaic(
+    geoserver,
+    workspace,
+    coverage,
+    granules,
+    indexer_content,
+    title="ImageMosaic Coverage",
+):
     """Helper function to create an ImageMosaic with COG granules"""
-    # Delete and recreate workspace
-    geoserver.delete_workspace(workspace)
-    response = geoserver.create_workspace(workspace)
-    assert response.status_code == 201
 
     # Create temporary directory for mosaic files
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -42,10 +42,10 @@ preparedStatements=false
 
         # Create zip file
         zip_file = tmp_path / f"{coverage}.zip"
-        with zipfile.ZipFile(zip_file, 'w') as zf:
+        with zipfile.ZipFile(zip_file, "w") as zf:
             zf.write(indexer_file, "indexer.properties")
             zf.write(datastore_file, "datastore.properties")
-            
+
             # Create timeregex.properties if needed for time-based PropertyCollector
             if "timeregex" in indexer_content:
                 # Regex pattern to extract date from MODIS filename format: 2018.01.01
@@ -55,77 +55,77 @@ preparedStatements=false
                 zf.write(timeregex_file, "timeregex.properties")
 
         # Create empty imagemosaic
-        with open(zip_file, 'rb') as f:
+        with open(zip_file, "rb") as f:
             zip_data = f.read()
 
-        response = geoserver.put_request(
-            f"/rest/workspaces/{workspace}/coveragestores/{coverage}/file.imagemosaic?configure=none",
-            data=zip_data,
-            headers={"Content-Type": "application/zip"}
+        content, status = geoserver.create_imagemosaic_store_from_properties_zip(
+            workspace_name=workspace,
+            coveragestore_name=coverage,
+            properties_zip=zip_data,
         )
-        assert response.status_code == 201
+        assert status == 201, f"Failed to create ImageMosaic store: {content}"
+        assert content == ""
 
         # Add granules
         for uri in granules:
-            response = geoserver.post_request(
-                f"/rest/workspaces/{workspace}/coveragestores/{coverage}/remote.imagemosaic",
-                data=uri,
-                headers={"Content-Type": "text/plain"}
+            content, status = geoserver.publish_granule_to_coverage_store(
+                workspace_name=workspace,
+                coveragestore_name=coverage,
+                method="remote",
+                granule_path=uri,
             )
-            # Accept both 202 (Accepted) and 201 (Created) as valid responses
-            assert response.status_code in [201, 202]
+            assert status in [
+                201,
+                202,
+            ], f"Failed to publish granule {uri}: {content}"
 
         # Initialize the store (list available coverages)
-        response = geoserver.get_request(
-            f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages.xml?list=all"
+        content, status = geoserver.get_coverages(
+            workspace_name=workspace, coveragestore_name=coverage
         )
-        assert response.status_code == 200
-
+        assert status == 200
         # Verify coverage name in response
-        response_text = response.text
-        assert f"<coverageName>{coverage}</coverageName>" in response_text
+        assert content[0].get("name") == coverage
 
         # Configure the coverage
-        coverage_xml = f"""<coverage>
-    <name>{coverage}</name>
-    <title>{title}</title>
-    <nativeName>{coverage}</nativeName>
-    <enabled>true</enabled>
-</coverage>"""
-
-        response = geoserver.post_request(
-            f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages",
-            data=coverage_xml,
-            headers={"Content-Type": "text/xml"}
+        content, status = geoserver.create_coverage(
+            workspace_name=workspace,
+            coveragestore_name=coverage,
+            coverage_name=coverage,
+            title=title,
         )
-        assert response.status_code == 201
+        assert status == 201, f"Failed to create coverage: {content}"
+        assert content == coverage
 
         # Verify the coverage was created
-        response = geoserver.get_request(f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages/{coverage}.json")
-        assert response.status_code == 200
+        coverage_data, code = geoserver.get_coverage(workspace, coverage, coverage)
+        assert code == 200
 
         # Verify coverage properties
-        coverage_data = response.json()["coverage"]
         assert coverage_data["name"] == coverage
         assert coverage_data["nativeName"] == coverage
         assert coverage_data["enabled"] == True
         assert coverage_data["title"] == title
 
         # Test WMS GetMap request
-        wms_response = geoserver.get_request(
-            f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
-        )
+        wms_response = geoserver.get_map(
+            layers=[f"{workspace}:{coverage}"],
+            bbox=(-180, -90, 180, 90),
+            size=(256, 256),
+            srs="EPSG:4326",
+            format="image/png",
+        )._response
         assert wms_response.status_code == 200
         assert wms_response.headers.get("content-type").startswith("image/png")
 
         return coverage_data
 
 
-def test_create_imagemosaic_landshallow_topo():
+def test_create_imagemosaic_landshallow_topo(geoserver_factory):
     """Test creating an ImageMosaic coverage store with multiple COG granules"""
-    geoserver = GeoServerCloud(GEOSERVER_URL)
     workspace = "s3cog_public"
     coverage = "land_shallow_topo_http"
+    geoserver = geoserver_factory(workspace)
 
     # HTTP granules
     granules = [
@@ -142,18 +142,22 @@ Schema=*the_geom:Polygon,location:String
 CanBeEmpty=true
 Name={coverage}"""
 
-    _create_imagemosaic(geoserver, workspace, coverage, granules, indexer_content, "Land Shallow Topo HTTP")
-
-    # Cleanup
-    geoserver.delete_workspace(workspace)
+    _create_imagemosaic(
+        geoserver,
+        workspace,
+        coverage,
+        granules,
+        indexer_content,
+        "Land Shallow Topo HTTP",
+    )
 
 
 @pytest.mark.skip(reason="Takes too long - enable for full testing")
-def test_create_imagemosaic_modis():
+def test_create_imagemosaic_modis(geoserver_factory):
     """Test creating a MODIS ImageMosaic coverage with time dimension (reproduces official tutorial)"""
-    geoserver = GeoServerCloud(GEOSERVER_URL)
     workspace = "modis_cog"
     coverage = "modisvi"
+    geoserver = geoserver_factory(workspace)
 
     # MODIS COG datasets from NASA EarthData
     modis_granules = [
@@ -169,16 +173,18 @@ Schema=*the_geom:Polygon,location:String,time:java.util.Date
 CanBeEmpty=true
 Name={coverage}"""
 
-    coverage_data = _create_imagemosaic(geoserver, workspace, coverage, modis_granules, indexer_content, "MODIS Vegetation Index")
+    coverage_data = _create_imagemosaic(
+        geoserver,
+        workspace,
+        coverage,
+        modis_granules,
+        indexer_content,
+        "MODIS Vegetation Index",
+    )
 
     # Additional test for time-based query (since MODIS has time dimension)
-    time_wms_response = geoserver.get_request(
+    time_wms_response = geoserver.rest_service.rest_client.get(
         f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326&TIME=2018-01-01"
     )
     assert time_wms_response.status_code == 200
     assert time_wms_response.headers.get("content-type").startswith("image/png")
-
-    # Cleanup
-    #geoserver.delete_workspace(workspace)
-
-
