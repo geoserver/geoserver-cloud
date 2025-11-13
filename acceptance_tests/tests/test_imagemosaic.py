@@ -50,9 +50,13 @@ def test_create_imagemosaic_local_files(geoserver_factory):
     assert coverage_data.get("enabled") == True
 
     # Test WMS GetMap request (verify local file mosaic works)
-    wms_response = geoserver.rest_service.rest_client.get(
-        f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
-    )
+    wms_response = geoserver.get_map(
+        layers=[f"{workspace}:{coverage_name}"],
+        bbox=(-180, -90, 180, 90),
+        size=(256, 256),
+        srs="EPSG:4326",
+        format="image/png",
+    )._response
     assert wms_response.status_code == 200, f"WMS GetMap failed: {wms_response.text}"
     assert wms_response.headers.get("content-type").startswith("image/png")
 
@@ -166,9 +170,13 @@ preparedStatements=false
     assert coverage_data.get("title") == "Manual Granules Test Coverage"
 
     # Test WMS GetMap request (verify manual granule addition works)
-    wms_response = geoserver.rest_service.rest_client.get(
-        f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
-    )
+    wms_response = geoserver.get_map(
+        layers=[f"{workspace}:{coverage_name}"],
+        bbox=(-180, -90, 180, 90),
+        size=(256, 256),
+        srs="EPSG:4326",
+        format="image/png",
+    )._response
     assert wms_response.status_code == 200, f"WMS GetMap failed: {wms_response.text}"
     assert wms_response.headers.get("content-type").startswith("image/png")
 
@@ -274,10 +282,13 @@ preparedStatements=false
     assert coverage_data.get("title") == "Directory Harvest Test Coverage"
 
     # Step 7: Test WMS GetMap request
-    wms_response = geoserver.rest_service.rest_client.get(
-        f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}"
-        f"&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
-    )
+    wms_response = geoserver.get_map(
+        layers=[f"{workspace}:{coverage_name}"],
+        bbox=(-180, -90, 180, 90),
+        size=(256, 256),
+        srs="EPSG:4326",
+        format="image/png",
+    )._response
     assert wms_response.status_code == 200, f"WMS GetMap failed: {wms_response.text}"
     assert wms_response.headers.get("content-type").startswith("image/png")
 
@@ -377,10 +388,13 @@ preparedStatements=false
     assert content.get("title") == "Single File Harvest Test Coverage"
 
     # Verify WMS works
-    wms_response = geoserver.rest_service.rest_client.get(
-        f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}"
-        f"&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
-    )
+    wms_response = geoserver.get_map(
+        layers=[f"{workspace}:{coverage_name}"],
+        bbox=(-180, -90, 180, 90),
+        size=(256, 256),
+        srs="EPSG:4326",
+        format="image/png",
+    )._response
     assert wms_response.status_code == 200, f"WMS GetMap failed: {wms_response.text}"
     assert wms_response.headers.get("content-type").startswith("image/png")
 
@@ -428,9 +442,12 @@ def test_create_imagemosaic_via_store_definition(geoserver_factory):
     assert content.get("title") == "JSON Store Creation Test Coverage"
 
     # Verify WMS works
-    wms_response = geoserver.rest_service.rest_client.get(
-        f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}"
-        f"&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
-    )
+    wms_response = geoserver.get_map(
+        layers=[f"{workspace}:{coverage_name}"],
+        bbox=(-180, -90, 180, 90),
+        size=(256, 256),
+        srs="EPSG:4326",
+        format="image/png",
+    )._response
     assert wms_response.status_code == 200, f"WMS GetMap failed: {wms_response.text}"
     assert wms_response.headers.get("content-type").startswith("image/png")
