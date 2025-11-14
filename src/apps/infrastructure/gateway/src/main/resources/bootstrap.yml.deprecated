@@ -1,0 +1,42 @@
+info:
+  component: Gateway Service
+  instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
+
+server.port: 8080
+management.server.port: 8081
+spring:
+  config:
+    import:
+    - classpath:gs_cloud_bootstrap_profiles.yml
+    name: gateway-service
+  cloud.config.name: gateway-service
+  main:
+    banner-mode: off
+  application:
+    name: gateway-service
+  jmx.enabled: false
+
+# this service uses the registry (when eureka client is enabled)
+eureka.client:
+  fetch-registry: true
+  registry-fetch-interval-seconds: 5
+
+# Access log configuration - log all requests by default
+logging:
+  level:
+    # Enable debug for MDC components
+    org.geoserver.cloud.logging.mdc: DEBUG
+    org.geoserver.cloud.logging.accesslog: DEBUG
+  accesslog:
+    info:
+      - ".*"  # Log all URLs at INFO level
+  # Configure logback to include MDC in json output
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
+spring.config.activate.on-profile: local
+server.port: 9090
+management.server.port: 9090
