@@ -428,7 +428,7 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
-        <artifactId>gs-acl-client-plugin</artifactId>
+        <artifactId>gs-acl-plugin</artifactId>
         <version>${gs.version}</version>
       </dependency>
       <dependency>

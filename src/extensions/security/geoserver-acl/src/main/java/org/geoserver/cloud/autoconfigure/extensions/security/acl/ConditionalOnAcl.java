@@ -41,8 +41,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Inherited
 @ConditionalOnGeoServer
 @ConditionalOnProperty(
-        prefix = AclConfigProperties.PREFIX,
+        prefix = AclExtensionConfigurationProperties.PREFIX,
         name = "enabled",
         havingValue = "true",
-        matchIfMissing = AclConfigProperties.DEFAULT)
+        matchIfMissing = AclExtensionConfigurationProperties.DEFAULT)
 public @interface ConditionalOnAcl {}

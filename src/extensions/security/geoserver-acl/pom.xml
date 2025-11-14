@@ -17,7 +17,7 @@
     <!-- ACL security dependencies -->
     <dependency>
       <groupId>org.geoserver.community</groupId>
-      <artifactId>gs-acl-client-plugin</artifactId>
+      <artifactId>gs-acl-plugin</artifactId>
     </dependency>
     <dependency>
       <!-- Use a CachingAuthorizationService decorator for the API client AuthorizationServiceClientAdaptor -->
@@ -30,14 +30,41 @@
       <artifactId>gs-acl-spring-cloud-bus</artifactId>
     </dependency>
     <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-main</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wms</artifactId>
       <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- optional for AclWebUIAutoConfiguration -->
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-core</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- optional for AclWebUIAutoConfiguration -->
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-sec-core</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- optional for AclWpsAutoConfiguration -->
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-wps-core</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

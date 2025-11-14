@@ -14,8 +14,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 2.27.0.0
  */
 @Data
-@ConfigurationProperties(prefix = AclConfigProperties.PREFIX)
-public class AclConfigProperties {
+@ConfigurationProperties(prefix = AclExtensionConfigurationProperties.PREFIX)
+public class AclExtensionConfigurationProperties {
 
     /** Configuration prefix for GeoServer ACL properties */
     public static final String PREFIX = "geoserver.extension.security.acl";

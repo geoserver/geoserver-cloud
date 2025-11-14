@@ -1,1 +1,5 @@
 org.geoserver.cloud.autoconfigure.extensions.security.acl.AclAutoConfiguration
+org.geoserver.acl.plugin.autoconfigure.accessmanager.AclAccessManagerAutoConfiguration
+org.geoserver.acl.plugin.autoconfigure.webui.AclWebUIAutoConfiguration
+org.geoserver.acl.plugin.autoconfigure.wps.AclWpsAutoConfiguration
+org.geoserver.acl.plugin.autoconfigure.cache.CachingAuthorizationServicePluginAutoConfiguration

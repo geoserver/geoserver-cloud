@@ -41,10 +41,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  */
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-@EnableConfigurationProperties(AclConfigProperties.class)
+@EnableConfigurationProperties(AclExtensionConfigurationProperties.class)
 @ConditionalOnAcl
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.security.acl")
-public class AclAutoConfiguration {
+public class AclExtensionAutoConfiguration {
 
     /**
      * Log that the GeoServer ACL extension is enabled.

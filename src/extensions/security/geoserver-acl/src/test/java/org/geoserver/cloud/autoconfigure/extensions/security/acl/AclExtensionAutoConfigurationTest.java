@@ -16,11 +16,11 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 /**
- * Test suite for {@link AclAutoConfiguration}
+ * Test suite for {@link AclExtensionAutoConfiguration}
  *
  * @since 2.27.0.0
  */
-class AclAutoConfigurationTest {
+class AclExtensionAutoConfigurationTest {
 
     private ApplicationContextRunner contextRunner;
 
@@ -32,15 +32,15 @@ class AclAutoConfigurationTest {
         contextRunner = new ApplicationContextRunner()
                 .withBean("geoServer", GeoServer.class, () -> mockGeoServer)
                 .withBean(GeoServerSecurityManager.class, () -> mock(GeoServerSecurityManager.class))
-                .withConfiguration(AutoConfigurations.of(AclAutoConfiguration.class));
+                .withConfiguration(AutoConfigurations.of(AclExtensionAutoConfiguration.class));
     }
 
     @Test
     void testDisabledByDefault() {
         contextRunner.run(context -> {
             assertThat(context).hasNotFailed();
-            assertThat(context).doesNotHaveBean(AclAutoConfiguration.class);
-            assertThat(context).doesNotHaveBean(AclConfigProperties.class);
+            assertThat(context).doesNotHaveBean(AclExtensionAutoConfiguration.class);
+            assertThat(context).doesNotHaveBean(AclExtensionConfigurationProperties.class);
         });
     }
 
@@ -50,7 +50,7 @@ class AclAutoConfigurationTest {
                 .withPropertyValues("geoserver.extension.security.acl.enabled=false")
                 .run(context -> {
                     assertThat(context).hasNotFailed();
-                    assertThat(context).doesNotHaveBean(AclAutoConfiguration.class);
+                    assertThat(context).doesNotHaveBean(AclExtensionAutoConfiguration.class);
                 });
     }
 
@@ -60,8 +60,10 @@ class AclAutoConfigurationTest {
                 .withPropertyValues("geoserver.extension.security.acl.enabled=true")
                 .run(context -> {
                     assertThat(context).hasNotFailed();
-                    assertThat(context).hasSingleBean(AclAutoConfiguration.class);
-                    assertThat(context).getBean(AclConfigProperties.class).hasFieldOrPropertyWithValue("enabled", true);
+                    assertThat(context).hasSingleBean(AclExtensionAutoConfiguration.class);
+                    assertThat(context)
+                            .getBean(AclExtensionConfigurationProperties.class)
+                            .hasFieldOrPropertyWithValue("enabled", true);
                 });
     }
 }
