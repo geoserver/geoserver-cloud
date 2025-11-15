@@ -6,10 +6,13 @@
 package org.geoserver.cloud.autoconfigure.extensions.security.acl;
 
 import lombok.Data;
+import org.geoserver.acl.plugin.config.webapi.ApiClientConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration properties for the GeoServer ACL extension.
+ * <p>
+ * This only enables or disables the extension. The {@link ApiClientConfiguration API Client} configuration properties are used to configure access to the target ACL service.
  *
  * @since 2.27.0.0
  */
@@ -19,9 +22,6 @@ public class AclExtensionConfigurationProperties {
 
     /** Configuration prefix for GeoServer ACL properties */
     public static final String PREFIX = "geoserver.extension.security.acl";
-
-    /** Legacy configuration prefix for backward compatibility */
-    public static final String LEGACY_PREFIX = "geoserver.acl";
 
     /** Whether the GeoServer ACL extension is enabled (default: false) */
     public static final boolean DEFAULT = false;

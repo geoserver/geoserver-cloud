@@ -10,6 +10,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
@@ -56,5 +57,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Documented
 @ConditionalOnGeoServer
 @ConditionalOnClass(org.geoserver.wps.DefaultWebProcessingService.class)
+@ConditionalOnBean(name = "wpsResourceManager")
 @ConditionalOnProperty(name = "geoserver.service.wps.enabled", havingValue = "true", matchIfMissing = false)
 public @interface ConditionalOnGeoServerWPS {}

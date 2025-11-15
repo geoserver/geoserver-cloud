@@ -31,7 +31,7 @@
     <gs.version>3.0.0-SNAPSHOT</gs.version>
     <gt.version>35-SNAPSHOT</gt.version>
     <wicket.version>10.7.0</wicket.version>
-    <acl.version>3.0-M0</acl.version>
+    <acl.version>3.0-M2</acl.version>
     <postgresql.version>42.7.7</postgresql.version>
     <httpclient5.version>5.4.4</httpclient5.version>
     <lombok.version>1.18.42</lombok.version>
