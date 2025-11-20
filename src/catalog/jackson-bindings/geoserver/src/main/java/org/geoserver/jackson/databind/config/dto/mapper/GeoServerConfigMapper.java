@@ -21,6 +21,7 @@ import org.geoserver.config.ImageProcessingInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.UserDetailsDisplaySettingsInfo;
 import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.gwc.wmts.WMTSInfoImpl;
@@ -118,6 +119,10 @@ public interface GeoServerConfigMapper {
     GeoServerInfo toInfo(GeoServer dto);
 
     GeoServer toDto(GeoServerInfo info);
+
+    UserDetailsDisplaySettingsInfo toInfo(GeoServer.UserDetailsDisplaySettings dto);
+
+    GeoServer.UserDetailsDisplaySettings toDto(UserDetailsDisplaySettingsInfo info);
 
     @Mapping(target = "id", ignore = true) // set by factory method
     @Mapping(target = "clientProperties", ignore = true)

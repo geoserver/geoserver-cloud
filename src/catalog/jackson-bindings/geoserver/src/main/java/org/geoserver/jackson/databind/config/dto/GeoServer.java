@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.UserDetailsDisplaySettingsInfo;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 
 /** DTO for {@link GeoServerInfo} */
@@ -57,4 +58,39 @@ public class GeoServer extends ConfigInfoDto {
      * @since geoserver 2.24.0
      */
     private boolean trailingSlashMatch;
+
+    /**
+     * @since 2.28.1
+     */
+    private UserDetailsDisplaySettings userDetailsDisplaySettings;
+
+    /**
+     * DTO for {@link UserDetailsDisplaySettingsInfo}
+     * @since 2.28.1
+     */
+    @Data
+    public static class UserDetailsDisplaySettings {
+
+        public enum LoggedInUserDisplayMode {
+            USERNAME,
+            PREFERRED_USERNAME,
+            FULL_NAME,
+            FALLBACK
+        }
+
+        public enum EmailDisplayMode {
+            HIDDEN,
+            DOMAIN_ONLY,
+            MASKED,
+            FULL
+        }
+
+        // ignoring id, this is not an entity but a value object
+        // String id;
+
+        LoggedInUserDisplayMode loggedInUserDisplayMode;
+        boolean showProfileColumnsInUserList;
+        EmailDisplayMode emailDisplayMode;
+        boolean revealEmailAtClick;
+    }
 }
