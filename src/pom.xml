@@ -46,6 +46,14 @@
   </properties>
   <dependencyManagement>
     <dependencies>
+      <!-- Import the GeoTools BOM to have access to all gt artifacts without specifying the version -->
+      <dependency>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-bom</artifactId>
+        <version>${gt.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>net.logstash.logback</groupId>
         <artifactId>logstash-logback-encoder</artifactId>
@@ -659,6 +667,10 @@
             <groupId>org.geoserver.web</groupId>
             <artifactId>gs-web-core</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -764,117 +776,6 @@
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-control-flow</artifactId>
         <version>${gs.version}</version>
-      </dependency>
-      <!-- GeoTools dependencies -->
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-main</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-process</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-process-geometry</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-process-raster</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-process-feature</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-shapefile</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-wms</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-wmts</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-geotiff</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-imagemosaic</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-imagepyramid</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-arcgrid</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-geopkg</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools.jdbc</groupId>
-        <artifactId>gt-jdbc-postgis</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-property</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools.jdbc</groupId>
-        <artifactId>gt-jdbc-oracle</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools.jdbc</groupId>
-        <artifactId>gt-jdbc-sqlserver</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-wfs-ng</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-complex</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-flatgeobuf</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-app-schema</artifactId>
-        <version>${gt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geotools</groupId>
-        <artifactId>gt-app-schema-resolver</artifactId>
-        <version>${gt.version}</version>
       </dependency>
       <dependency>
         <groupId>org.mapstruct</groupId>
@@ -1158,11 +1059,9 @@
       <id>dependencyConvergence</id>
       <activation>
         <activeByDefault>false</activeByDefault>
-        <!--
         <property>
           <name>!skipDependencyConvergence</name>
         </property>
-        -->
       </activation>
       <dependencyManagement>
         <dependencies>
@@ -1181,27 +1080,21 @@
             <artifactId>commons-jxpath</artifactId>
             <version>1.4.0</version>
           </dependency>
-
           <dependency>
-            <!-- GeoServer 2.26.x is at 1.79, where spring-boot:2.7.18 is at 1.73 -->
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.79</version>
-          </dependency>
-          <dependency>
-            <groupId>org.locationtech.jts</groupId>
-            <artifactId>jts-core</artifactId>
-            <version>1.20.0</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>33.5.0-jre</version>
+            <!-- while waiting for https://github.com/geotools/geotools/pull/5436 -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.5.0</version>
           </dependency>
           <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>failureaccess</artifactId>
             <version>1.0.3</version>
+          </dependency>
+          <dependency>
+            <groupId>javax.measure</groupId>
+            <artifactId>unit-api</artifactId>
+            <version>2.2</version>
           </dependency>
           <dependency>
             <groupId>commons-beanutils</groupId>
@@ -1214,14 +1107,9 @@
             <version>3.2.2</version>
           </dependency>
           <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-            <version>1.7</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.18.0</version>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.5</version>
           </dependency>
           <dependency>
             <groupId>commons-logging</groupId>
@@ -1229,54 +1117,29 @@
             <version>1.3.5</version>
           </dependency>
           <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.80</version>
+          </dependency>
+          <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.19.0</version>
           </dependency>
           <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>1.12.0</version>
-          </dependency>
-          <dependency>
-            <groupId>org.codehaus.jettison</groupId>
-            <artifactId>jettison</artifactId>
-            <version>1.5.4</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs</artifactId>
-            <version>3.0.2</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>3.0.2</version>
-          </dependency>
-          <dependency>
             <groupId>org.checkerframework</groupId>
             <artifactId>checker-qual</artifactId>
-            <version>3.33.0</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.errorprone</groupId>
-            <artifactId>error_prone_annotations</artifactId>
-            <version>2.18.0</version>
+            <version>3.49.5</version>
           </dependency>
           <dependency>
             <groupId>com.google.j2objc</groupId>
             <artifactId>j2objc-annotations</artifactId>
-            <version>2.8</version>
+            <version>3.1</version>
           </dependency>
           <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-core</artifactId>
-            <version>${wicket.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-tester</artifactId>
-            <version>${wicket.version}</version>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>7.1.1</version>
           </dependency>
           <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
@@ -1284,57 +1147,9 @@
             <version>1.4.21</version>
           </dependency>
           <dependency>
-            <groupId>com.fasterxml.woodstox</groupId>
-            <artifactId>woodstox-core</artifactId>
-            <version>6.6.2</version>
-          </dependency>
-          <dependency>
-            <groupId>com.netflix.servo</groupId>
-            <artifactId>servo-core</artifactId>
-            <version>0.12.21</version>
-          </dependency>
-          <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-core</artifactId>
-            <version>1.19.4</version>
-          </dependency>
-          <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>1.19.4</version>
-          </dependency>
-          <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>1.19.4</version>
-          </dependency>
-          <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.10.13</version>
-          </dependency>
-          <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>9.5</version>
-          </dependency>
-          <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <version>2.9.0</version>
-          </dependency>
-          <dependency>
-            <!-- this version should match with that used in com.jayway.jsonpath:json-path;
-        which provides runtime scope; however gs-auth has a compile time dependency-->
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>2.5.2</version>
-            <scope>compile</scope>
+            <version>2.12.7</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
