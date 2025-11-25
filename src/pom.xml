@@ -28,8 +28,8 @@
     <spring.security.version>5.8.16</spring.security.version>
     <tomcat.version>9.0.104</tomcat.version>
     <jackson.version>2.19.4</jackson.version>
-    <gs.version>2.28.1.0</gs.version>
-    <gt.version>34.1</gt.version>
+    <gs.version>2.28.2-SNAPSHOT</gs.version>
+    <gt.version>34-SNAPSHOT</gt.version>
     <wicket.version>9.21.0</wicket.version>
     <acl.version>2.4.0</acl.version>
     <postgresql.version>42.7.7</postgresql.version>
