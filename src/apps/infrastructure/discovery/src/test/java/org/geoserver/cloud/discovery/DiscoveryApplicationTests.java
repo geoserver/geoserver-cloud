@@ -28,7 +28,13 @@ class DiscoveryApplicationTests {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         JSONAssert.assertEquals(
                 """
-                {"applications":{"versions__delta":"1","apps__hashcode":"","application":[]}}
+                {
+                  "applications": {
+                    "versions__delta": "1",
+                    "apps__hashcode": "",
+                    "application": []
+                  }
+                }
                 """,
                 response.getBody(),
                 false);
