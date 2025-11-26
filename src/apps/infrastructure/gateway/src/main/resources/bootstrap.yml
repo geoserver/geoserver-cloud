@@ -3,13 +3,17 @@ info:
   instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
 
 server.port: 8080
-management.server.port: 8081
 spring:
   config:
+    name: gateway-service
     import:
     - classpath:gs_cloud_bootstrap_profiles.yml
-    name: gateway-service
-  cloud.config.name: gateway-service
+  cloud:
+    config.name: gateway-service
+    gateway:
+      server:
+        webflux:
+          enabled: true
   main:
     banner-mode: off
   application:
@@ -20,6 +24,33 @@ spring:
 eureka.client:
   fetch-registry: true
   registry-fetch-interval-seconds: 5
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    access:
+      default: read-only
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    info:
+      access: read-only
+    metrics:
+      access: read-only
+    shutdown:
+      access: none
+    health:
+      access: read-only
+      probes:
+        enabled: true
+      show-details: always
+    prometheus:
+      access: read-only
+  metrics:
+    enable:
+      jvm: true
 
 # Access log configuration - log all requests by default
 logging:

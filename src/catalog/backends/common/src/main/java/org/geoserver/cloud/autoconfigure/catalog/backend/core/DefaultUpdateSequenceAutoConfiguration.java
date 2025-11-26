@@ -17,7 +17,11 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnMissingBean(UpdateSequence.class)
 public class DefaultUpdateSequenceAutoConfiguration {
 
+    /**
+     * Provide a default single JVM, in-memory {@link UpdateSequence} if no other one is provided
+     */
     @Bean
+    @ConditionalOnMissingBean
     UpdateSequence defaultUpdateSequence(GeoServer gs) {
         return new DefaultUpdateSequence(gs);
     }

@@ -63,7 +63,6 @@ gs-cloud-starter-output-formats
 
 # Independent starters (no starter dependencies)
 gs-cloud-spring-boot-starter
-gs-cloud-spring-boot3-starter
 gs-cloud-starter-catalog-backend
 gs-cloud-starter-data-formats
 gs-cloud-starter-security

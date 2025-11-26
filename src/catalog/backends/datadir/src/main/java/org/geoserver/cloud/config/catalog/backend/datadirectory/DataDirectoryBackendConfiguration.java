@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 
 /**
  * Spring configuration for GeoServer Cloud's traditional file-based data directory backend.
@@ -128,6 +129,7 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
         return gs;
     }
 
+    @Primary
     @Bean
     UpdateSequence updateSequence(
             @Qualifier("resourceStoreImpl") ResourceStore resourceStore, GeoServerResourceLoader resourceLoader) {

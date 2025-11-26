@@ -115,7 +115,6 @@
             <path>
               <groupId>org.springframework.boot</groupId>
               <artifactId>spring-boot-autoconfigure-processor</artifactId>
-              <version>${spring-boot.version}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>

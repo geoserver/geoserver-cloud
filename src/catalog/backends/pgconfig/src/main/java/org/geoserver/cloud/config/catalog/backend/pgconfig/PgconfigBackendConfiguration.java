@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
@@ -137,6 +138,7 @@ public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
         return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
+    @Primary
     @Bean
     @DependsOnDatabaseInitialization
     PgconfigUpdateSequence updateSequence(

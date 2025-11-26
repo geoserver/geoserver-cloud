@@ -1,10 +1,9 @@
-#eureka client disabled by default, use the discovery_eureka profile to enable it
-eureka.client.enabled: false
-
+# custom property for spring.cloud.config.uri's placeholder below
 # possibly externally provided short name for the location of
 # the config-service when the bootstrap_config_first profile is enabled
 config.server.url: http://config:8080
 
+# custom property for eureka.client.serviceUrl.defaultZone's placeholder below
 # possibly externally provided short name for the location of
 # the config-service when the bootstrap_discovery_first profile is enabled
 # and the the discovery-service is eureka (discovery_eureka profile is enabled) 
@@ -18,9 +17,8 @@ geoserver:
   metrics:
     enabled: true
     instance-id: ${info.instance-id}
-    
-# This default configuration is the same than applying the config_first profile group
-# defined below.
+
+# This default configuration is the same than applying the config_first profile group defined below.
 spring:
   profiles:
     group:
@@ -44,6 +42,26 @@ spring:
         # discovery-first config mode disabled by default, use the discovery_first profile to enable it
         enabled: false
         service-id: config-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+      - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
+      - org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration
+      - org.springframework.boot.autoconfigure.integration.IntegrationAutoConfiguration
+  rabbitmq:
+    host: ${rabbitmq.host:rabbitmq}
+    port: ${rabbitmq.port:5672}
+    username: ${rabbitmq.user:guest}
+    password: ${rabbitmq.password:guest}
+    virtual-host: ${rabbitmq.vhost:}
+
 eureka:
   instance:
     hostname: ${spring.application.name}
@@ -52,7 +70,8 @@ eureka:
     # how often the client sends heartbits to the server
     lease-renewal-interval-in-seconds: 10
   client:
-    enabled: true
+    #eureka client disabled by default, use the discovery_eureka profile to enable it
+    enabled: false
     registerWithEureka: true
     #registry-fetch-interval-seconds: 10
     serviceUrl:
@@ -124,8 +143,8 @@ spring:
   cloud.config.discovery.enabled: false
   cloud.discovery.enabled: false
   cloud.bus.enabled: false
-  eureka.client.enabled: false
 
+eureka.client.enabled: false
 geoserver.acl.enabled: false
 ---
 spring.config.activate.on-profile: local
@@ -134,6 +153,6 @@ spring.config.activate.on-profile: local
 # It is safe to remove this profile completely in a production deployment config.
 # Additionally, each service's bootstrap.yml must set the following properties in the "local" profile:
 # eureka.server.url: http://localhost:8761/eureka, server.port, and management.server.port if it ought to differ from server.port
-rabbitmq.host: localhost
+spring.rabbitmq.host: localhost
 eureka.server.url: http://localhost:8761/eureka
 config.server.url: http://localhost:8888

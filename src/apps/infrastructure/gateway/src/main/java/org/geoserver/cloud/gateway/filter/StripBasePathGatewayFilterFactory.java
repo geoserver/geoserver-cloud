@@ -73,11 +73,13 @@ public class StripBasePathGatewayFilterFactory
         public void checkPreconditions() {
             if (prefix != null) {
                 if (!prefix.startsWith("/")) {
-                    throw new IllegalStateException("StripBasePath prefix must start with /");
+                    throw new IllegalStateException(
+                            "StripBasePath prefix must start with '/', got '%s'".formatted(prefix));
                 }
 
-                if (!"/".equals(prefix) || !prefix.endsWith("/")) {
-                    throw new IllegalStateException("StripBasePath prefix must not end with /");
+                if (!"/".equals(prefix) && prefix.endsWith("/")) {
+                    throw new IllegalStateException(
+                            "StripBasePath prefix must not end with '/', got '%s'".formatted(prefix));
                 }
             }
         }
