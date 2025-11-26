@@ -781,12 +781,6 @@
         <artifactId>gs-pmtiles-store</artifactId>
         <version>${gs.version}</version>
       </dependency>
-      <dependency>
-        <!-- override 1.2.0 from gt-geoparquet:33-SNAPSHOT -->
-        <groupId>org.duckdb</groupId>
-        <artifactId>duckdb_jdbc</artifactId>
-        <version>1.2.2.0</version>
-      </dependency>
       <!-- GeoServer Cloud Extensions -->
       <dependency>
         <groupId>org.geoserver.cloud.extensions</groupId>
