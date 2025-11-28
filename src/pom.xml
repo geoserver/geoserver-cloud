@@ -19,15 +19,16 @@
     <module>integration-tests</module>
   </modules>
   <properties>
-    <checkstyle.skip>false</checkstyle.skip>
     <java.version>21</java.version>
+    <java.sdk.version>25</java.sdk.version>
+    <checkstyle.skip>false</checkstyle.skip>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <spring.version>5.3.39</spring.version>
     <spring.security.version>5.8.16</spring.security.version>
-    <tomcat.version>9.0.104</tomcat.version>
+    <tomcat.version>9.0.113</tomcat.version>
     <jackson.version>2.19.4</jackson.version>
     <gs.version>2.28.2-SNAPSHOT</gs.version>
     <gt.version>34-SNAPSHOT</gt.version>
@@ -39,8 +40,7 @@
     <flyway.version>11.16.0</flyway.version>
     <tileverse.version>1.1.1</tileverse.version>
     <testcontainers.version>1.21.3</testcontainers.version>
-    <fork.javac>true</fork.javac>
-    <javac.maxHeapSize>1G</javac.maxHeapSize>
+    <fork.javac>false</fork.javac>
     <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <!-- logstash-logback-encoder:7.4+ requires logback 1.3+ and slf4j 2.0+, only available on spring-boot 3.0+ -->
     <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
@@ -71,20 +71,6 @@
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
         <version>${jackson.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-framework-bom</artifactId>
-        <version>${spring.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-bom</artifactId>
-        <version>${spring.security.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -1142,7 +1128,13 @@
             <debug>true</debug>
             <encoding>UTF-8</encoding>
             <fork>${fork.javac}</fork>
-            <maxmem>${javac.maxHeapSize}</maxmem>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+              </path>
+            </annotationProcessorPaths>
           </configuration>
         </plugin>
         <plugin>
@@ -1187,6 +1179,10 @@
                 <forkCount>2</forkCount>
                 <reuseForks>false</reuseForks>
                 <trimStackTrace>false</trimStackTrace>
+                <systemPropertyVariables>
+                  <!-- remove when it's not necessary anymore for Java 25 -->
+                  <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+                </systemPropertyVariables>
               </configuration>
             </execution>
           </executions>
@@ -1200,6 +1196,10 @@
             <reuseForks>false</reuseForks>
             <forkCount>1C</forkCount>
             <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED  --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</argLine>
+            <systemPropertyVariables>
+              <!-- remove when it's not necessary anymore for Java 25 -->
+              <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+            </systemPropertyVariables>
           </configuration>
         </plugin>
         <plugin>
@@ -1252,7 +1252,7 @@
                       developers or CI/CD pipelines using different Maven versions may face
                       unexpected build failures or inconsistencies.
                   -->
-                  <version>3.9+</version>
+                  <version>[3.9.11,)</version>
                   <message>You must use Maven 3.9 or higher to build this project.</message>
                 </requireMavenVersion>
               </rules>
@@ -1266,7 +1266,7 @@
             <configuration>
               <rules>
                 <requireJavaVersion>
-                  <version>[${java.version},)</version>
+                  <version>[${java.sdk.version},)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -1288,13 +1288,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
@@ -1308,12 +1301,6 @@
           <name>!skipDependencyConvergence</name>
         </property>
       </activation>
-      <properties>
-        <aws-s3.version>2.40.2</aws-s3.version>
-        <azure-identity.version>1.18.1</azure-identity.version>
-        <azure-storage-blob.version>12.32.0</azure-storage-blob.version>
-        <google-cloud-storage.version>2.60.0</google-cloud-storage.version>
-      </properties>
       <dependencyManagement>
         <dependencies>
           <dependency>
@@ -1341,12 +1328,12 @@
           <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.4.8-jre</version>
+            <version>33.5.0-jre</version>
           </dependency>
           <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>failureaccess</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
           </dependency>
           <dependency>
             <groupId>commons-beanutils</groupId>

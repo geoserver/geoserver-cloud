@@ -82,6 +82,10 @@
         <configuration>
           <reuseForks>false</reuseForks>
           <forkCount>1</forkCount>
+          <systemPropertyVariables>
+            <!-- remove when it's not necessary anymore for Java 25 -->
+            <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
       <plugin>
@@ -98,6 +102,10 @@
               <forkCount>1</forkCount>
               <reuseForks>false</reuseForks>
               <trimStackTrace>false</trimStackTrace>
+              <systemPropertyVariables>
+                <!-- remove when it's not necessary anymore for Java 25 -->
+                <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+              </systemPropertyVariables>
             </configuration>
           </execution>
         </executions>

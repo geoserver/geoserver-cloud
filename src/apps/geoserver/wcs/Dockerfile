@@ -20,15 +20,3 @@ COPY --from=builder spring-boot-loader/ ./
 #see https://github.com/moby/moby/issues/37965
 RUN true
 COPY --from=builder application/ ./
-
-# Execute the CDS training run
-RUN mkdir /tmp/tmpdatadir
-RUN GEOSERVER_DATA_DIR=/tmp/tmpdatadir java \
--XX:ArchiveClassesAtExit=application.jsa \
--Dspring.context.exit=onRefreshed \
--Dspring.profiles.active=standalone,datadir,offline \
--Dserver.port=0 -Dmanagement.server.port=0 \
-org.springframework.boot.loader.JarLauncher
-RUN rm -rf /tmp/*
-
-ENV JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"

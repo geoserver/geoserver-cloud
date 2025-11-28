@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
@@ -17,7 +17,8 @@ ENV DEFAULT_JAVA_TOOL_OPTIONS="\
 -Djava.awt.headless=true \
 -XX:MaxRAMPercentage=80 \
 -XX:InitialRAMPercentage=30 \
--XX:+UseCompressedOops"
+-XX:+UseCompressedOops \
+-XX:+UseCompactObjectHeaders"
 
 ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS}"
 ENV JAVA_OPTS=
