@@ -9,7 +9,7 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 ##########
-FROM $REPOSITORY/gs-cloud-base-spring-boot3:$TAG
+FROM $REPOSITORY/gs-cloud-base-spring-boot:$TAG
 # WORKDIR already set to /opt/app/bin
 
 COPY --from=builder dependencies/ ./

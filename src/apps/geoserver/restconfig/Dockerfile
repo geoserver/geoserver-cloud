@@ -20,4 +20,3 @@ COPY --from=builder spring-boot-loader/ ./
 #see https://github.com/moby/moby/issues/37965
 RUN true
 COPY --from=builder application/ ./
-org.springframework.boot.loader.JarLauncher
