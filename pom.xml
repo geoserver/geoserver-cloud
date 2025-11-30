@@ -162,6 +162,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-control-flow</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-spring-boot3-starter</artifactId>
         <version>${project.version}</version>

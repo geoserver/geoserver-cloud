@@ -904,6 +904,12 @@
         <artifactId>gs-web-features</artifactId>
         <version>${gs.version}</version>
       </dependency>
+      <!-- Control-flow dependencies -->
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-control-flow</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
       <!-- GeoTools dependencies -->
       <dependency>
         <groupId>org.geotools</groupId>

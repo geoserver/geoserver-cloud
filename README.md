@@ -49,7 +49,6 @@ Only a curated selection of the extensive [GeoServer extensions](http://geoserve
 * **Catalog and Configuration**:
     * PGConfig
     * JDBC `jdbcconfig` and `jdbcstore` (deprecated)
-    * Optimized Catalog Data-Directory loader
 * **Security**:
     * GeoServer ACL
     * JDBC Security
@@ -75,6 +74,7 @@ Only a curated selection of the extensive [GeoServer extensions](http://geoserve
     * Azure Blob Storage
     * Google Cloud Storage Blob Storage
 * **Miscellaneous**:
+    * [Control flow](https://docs.geoserver.org/main/en/user/extensions/controlflow/index.html)
     * Importer
     * Resource Browser Tool
     * International Astronomical Union CRS authority
