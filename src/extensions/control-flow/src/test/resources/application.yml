@@ -1,0 +1,64 @@
+spring:
+  main:
+    banner-mode: off
+logging:
+  level:
+    org:
+      geoserver:
+        flow: debug 
+        '[cloud.autoconfigure.extensions.controlflow]': debug 
+
+geoserver:
+  extension:
+    control-flow:
+      enabled: true
+      # Whether to use the traditional control-flow.properties file in the data directory
+      # for configuration or these externalized configuration properties
+      use-properties-file: false
+      properties:
+        ##############################################
+        ### TIMEOUT
+        ### Number of seconds a request can stay queued waiting for execution. If the request does not enter execution
+        ### before the timeout expires it will be rejected.
+        '[timeout]': 10
+        ##############################################
+        ### Total OWS request count
+        ### ows.global: Global number of OWS requests executing in parallel
+        '[ows.global]': "${cpu.cores} * 2"
+        ##############################################
+        ### PER REQUEST CONTROL
+        ### per request type control can be demanded using the following syntax: ows.<service>[.<request>[.<outputFormat>]]=<count>
+        ### Where:
+        ### <service> is the OWS service in question (at the time of writing can be wms, wfs, wcs)
+        ### <request>, optional, is the request type. For example, for the wms service it can be GetMap, GetFeatureInfo, DescribeLayer, GetLegendGraphics, GetCapabilities
+        ### <outputFormat>, optional, is the output format of the request. For example, for the wms GetMap request it could be image/png, image/gif and so on.
+        '[ows.wms]': "${cpu.cores}"
+        '[ows.wms.getmap]': "${cpu.cores} / 2"
+        '[ows.wfs.getfeature.application/msexcel]': 2
+        ### GeoWebCache contributes three cached tiles services: WMS-C, TMS, and WMTS. It is also possible to use the
+        ### Control flow module to throttle them, by adding the following rule to the configuration file:
+        '[ows.gwc]': "${cpu.cores} * 4"
+        ##############################################
+        ### PER USER CONCURRENCY CONTROL 
+        ### There are two mechanisms to identify user requests. The first one is cookie based, so it will work fine for
+        ### browsers but not as much for other kinds of clients. The second one is ip based, which works for any type of
+        ### client but that can limit all the users sitting behind the same router
+        ### user: maximum number of requests a single user can execute in parallel.
+        ### ip: maximum number of requests a single ip address can execute in parallel.
+        '[user]': "${cpu.cores}"
+        '[ip]': "6"
+        ### It is also possible to make this a bit more specific and throttle a single ip address instead by using the following:
+        ### ip.<ip_addr>: <count>
+        ### Where <count> is the maximum number of requests the ip specified in <ip_addr> will execute in parallel.
+        '[ip.10.0.0.1]': "3 * ${cpu.cores}"
+        ### To reject requests from a list of ip addresses:
+        '[ip.blacklist]': "192.168.0.7, 192.168.0.8"
+        ##############################################
+        ### PER USER RATE CONTROL
+        ### The rate control rules allow to setup the maximum number of requests per unit of time, based either on a cookie or IP address.
+        ### These rules look as follows (see “Per user concurrency control” for the meaning of “user” and “ip”):
+        ### user.ows[.<service>[.<request>[.<outputFormat>]]]=<requests>/<unit>[;<delay>s]
+        ### ip.ows[.<service>[.<request>[.<outputFormat>]]]=<requests>/<unit>[;<delay>s]
+        '[user.ows.wms.getmap]': "30/s"
+        '[user.ows.wps.execute]': "1000/d;30s"
+        ##############################################
