@@ -49,6 +49,9 @@ public class InstallDuckDBExtensions {
 
                 stmt.execute("INSTALL spatial;");
                 System.out.println("Spatial extension installed");
+
+                stmt.execute("INSTALL aws;");
+                System.out.println("AWS extension installed");
             }
 
             System.out.println("All extensions successfully installed to " + System.getenv("HOME") + "/.duckdb");
