@@ -148,17 +148,5 @@ with some important fixes to allow starting up several GeoServer instances from 
 directory or database. We will make sure to contribute those fixes upstream before the final
 release.
 
-> Q: So, is this **production ready**?
-> GeoServer Cloud is **production ready**. It is currently used by several private companies and public authorities in Europe. It has been deployed successfully on AWS, Azure, GKE, OpenShift and Scaleway.
+GeoServer Cloud is **production ready**. It is currently used by several private companies and public authorities in Europe. It has been deployed successfully on AWS, Azure, GKE, OpenShift and Scaleway.
 
-# Developer's Guide
-
-Follow the [Developer's Guide](developer-guide/index.md) to learn more about the System's design and how to get started contributing to it.
-
-# Deployment Guide
-
-Check out the [Deployment Guide](deploy/index.md) to learn about deployment options, configuration, and target platforms.
-
-# Configuration guide
-
-Check out the [Externalized configuration guide](configuration/index.md) to learn about fine tuning GeoServer-Cloud applications.
