@@ -132,16 +132,20 @@ jobs:
         # Calculate Preview URL and Banner
         if [ "${{ github.event_name }}" = "pull_request_target" ]; then
           SITE_URL="https://geoserver.org/geoserver-cloud/preview/pr-${{ github.event.pull_request.number }}/"
-          BANNER="📝 This is a preview build for PR #${{ github.event.pull_request.number }}"
+          BANNER='🚧🧪 This is a preview build for <a href="https://github.com/geoserver/geoserver-cloud/pull/${{ github.event.pull_request.number }}" style="color: white; text-decoration: underline; font-weight: bold;">PR #${{ github.event.pull_request.number }}</a>'
         else
           BRANCH_NAME="${{ github.event.inputs.branch_name || github.ref_name }}"
           SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9-]/-/g')
           SITE_URL="https://geoserver.org/geoserver-cloud/preview/branch-${SAFE_BRANCH_NAME}/"
-          BANNER="🌿 This is a preview build for branch: ${BRANCH_NAME}"
+          BANNER="🚧🧪 This is a preview build for branch: ${BRANCH_NAME}"
         fi
 
-        # Build with preview settings using Makefile
-        make build-preview SITE_URL="$SITE_URL" BANNER_MESSAGE="$BANNER"
+        # Export environment variables for build script
+        export SITE_URL
+        export BANNER_MESSAGE="$BANNER"
+
+        # Build with preview settings
+        ./build.sh "$SITE_URL" "$BANNER_MESSAGE"
 
     - name: Set preview path
       id: preview-path
