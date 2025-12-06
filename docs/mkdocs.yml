@@ -87,6 +87,12 @@ markdown_extensions:
 plugins:
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - htmlproofer:
+      enabled: !ENV [HTMLPROOFER_ENABLED, true]
+      raise_error: true
+      raise_error_after_finish: false
+      validate_external_urls: false
+      validate_rendered_template: true
   - minify:
       minify_html: true
 

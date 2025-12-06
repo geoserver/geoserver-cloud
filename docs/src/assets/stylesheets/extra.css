@@ -61,10 +61,12 @@ body {
 .md-announce a {
   color: white;
   text-decoration: underline;
+  transition: opacity 0.2s ease;
 }
 
 .md-announce a:hover {
-  color: #e0e0e0;
+  opacity: 0.8;
+  text-decoration: underline;
 }
 
 /* Card grid layout for index pages */
