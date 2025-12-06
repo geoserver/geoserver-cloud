@@ -47,3 +47,6 @@ hs_err_pid*.log
 .spotless-index
 
 .venv
+node_modules
+package-lock.json
+package.json
