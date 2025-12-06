@@ -1,0 +1,125 @@
+site_name: GeoServer Cloud Documentation
+site_description: Cloud Native distribution of GeoServer
+site_author: GeoServer Project
+copyright: "&copy; 2023  Open Source Geospatial Foundation. All rights reserved."
+repo_url: https://github.com/geoserver/geoserver-cloud
+edit_uri: edit/main/docs/src/
+site_url: !ENV [SITE_URL, 'https://geoserver.org/geoserver-cloud']
+docs_dir: src
+
+theme:
+  name: material
+  custom_dir: overrides
+  logo: assets/images/geoserver-logo.png
+  favicon: assets/images/favicon.ico
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
+  
+extra_css:
+  - assets/stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      title: On this page
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - minify:
+      minify_html: true
+
+nav:
+  - Home: index.md
+  - Deployment:
+    - Overview: deploy/index.md
+    - Docker Compose: deploy/docker-compose/index.md
+    - Helm Charts: deploy/helm/index.md
+  - Configuration:
+    - Externalized configuration guide: configuration/index.md
+    - Migration 2.26 to 2.27: configuration/migration-2.26-to-2.27.md
+  - Developer Guide:
+    - Overview: developer-guide/index.md
+    - Building: developer-guide/build_instructions.md
+    - Contributing: developer-guide/coding_standards.md
+    - Services:
+      - Discovery Service: developer-guide/services/discovery-service.md
+      - Gateway Service: developer-guide/services/gateway-service.md
+      - REST Config Service: developer-guide/services/restconfig-v1-service.md
+    - Event Bus: developer-guide/event-bus/index.md
+    - Extensions: developer-guide/extensions/adding_extensions.md
+
+
+extra:
+  banner_message: !ENV [BANNER_MESSAGE, '']
+  analytics:
+    provider: google
+    property: G-YRM5CB206D
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/geoserver/geoserver-cloud
+    - icon: fontawesome/solid/globe
+      link: https://geoserver/geoserver-cloud

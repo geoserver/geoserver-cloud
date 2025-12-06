@@ -1,0 +1,15 @@
+# MkDocs and core dependencies
+mkdocs>=1.5.0,<2.0.0
+mkdocs-material>=9.4.0,<10.0.0
+
+# Markdown extensions
+pymdown-extensions>=10.4.0,<11.0.0
+
+# Plugins
+mkdocs-minify-plugin>=0.7.0,<1.0.0
+# Environment variable support is built into MkDocs via !ENV tag (requires PyYAML with env tag support)
+
+# Optional: Additional useful plugins
+# mkdocs-git-revision-date-localized-plugin>=1.2.0,<2.0.0
+# mkdocs-awesome-pages-plugin>=2.9.0,<3.0.0
+# mkdocs-redirects>=1.2.0,<2.0.0

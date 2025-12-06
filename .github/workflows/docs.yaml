@@ -1,0 +1,52 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yaml'
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'docs/requirements.txt'
+
+      - name: Install dependencies
+        run: |
+          cd docs
+          pip install -r requirements.txt
+
+      - name: Set up Docker for diagrams
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate C4 diagrams
+        run: |
+          cd docs/structurizr
+          ./structurizr-generate-diagrams.sh
+
+      - name: Build documentation
+        run: |
+          cd docs
+          mkdocs build --strict --verbose
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/site
+          commit_message: 'docs: deploy documentation [skip ci]'

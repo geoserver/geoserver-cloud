@@ -1,0 +1,5 @@
+# Documentation build artifacts
+.venv/
+site/
+src/assets/images/structurizr
+structurizr/exports/
