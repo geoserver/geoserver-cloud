@@ -2,12 +2,6 @@
 
 GeoServer Cloud follows a set of coding standards to ensure code consistency and quality across the project. This document outlines the key standards and how they are enforced.
 
-## Contents
-{:.no_toc}
-
-* Will be replaced with the ToC, excluding the "Contents" header
-{:toc}
-
 ## Introduction
 
 Code style consistency is enforced using automated tools during the build process. The project uses a build-tools module approach, similar to other major Java projects like Apache Commons, Spring Framework, and Hibernate, to centralize style configuration.
