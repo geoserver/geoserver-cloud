@@ -210,18 +210,30 @@ body {
 
 /* Dark mode adjustments */
 [data-md-color-scheme="slate"] {
-  /* Revert header to dark for slate mode if desired, or keep custom. 
+  /* Revert header to dark for slate mode if desired, or keep custom.
      Usually slate mode expects dark header. */
   --md-header-bg: #1e1e20; /* Default slate header */
   --md-header-fg: var(--md-primary-fg-color);
-  
+
   .grid.cards > .card {
     border-color: var(--md-default-fg-color--lightest);
     background-color: var(--md-default-bg-color);
   }
-  
+
   .performance-table th {
     background-color: var(--md-code-bg-color);
+  }
+
+  /* Search input visibility on dark header */
+  .md-search__input {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: var(--md-default-fg-color);
+  }
+  .md-search__input:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+  }
+  .md-search__input::placeholder {
+    color: rgba(255, 255, 255, 0.54);
   }
 }
 

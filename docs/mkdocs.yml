@@ -10,7 +10,7 @@ docs_dir: src
 theme:
   name: material
   custom_dir: overrides
-  logo: assets/images/geoserver-logo.png
+  logo: assets/images/geoserver-logo-outline.svg
   favicon: assets/images/favicon.ico
   features:
     - navigation.tabs
@@ -93,6 +93,8 @@ plugins:
       raise_error_after_finish: false
       validate_external_urls: false
       validate_rendered_template: true
+      ignore_pages:
+        - community/contributors.md
   - minify:
       minify_html: true
 
@@ -105,6 +107,9 @@ nav:
   - Configuration:
     - Externalized configuration guide: configuration/index.md
     - Migration 2.26 to 2.27: configuration/migration-2.26-to-2.27.md
+  - Community:
+    - Overview: community/index.md
+    - Contributors: community/contributors.md
   - Developer Guide:
     - Overview: developer-guide/index.md
     - Building: developer-guide/build_instructions.md

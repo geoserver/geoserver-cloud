@@ -1,0 +1,281 @@
+{
+  "projectName": "geoserver-cloud",
+  "projectOwner": "geoserver",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "docs/src/community/contributors.md"
+  ],
+  "imageSize": 120,
+  "commit": false,
+  "commitConvention": "none",
+  "contributors": [
+    {
+      "login": "groldan",
+      "name": "Gabriel Roldan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/207423?v=4",
+      "profile": "https://github.com/groldan",
+      "contributions": [
+        "code",
+        "doc",
+        "infra",
+        "design",
+        "ideas",
+        "maintenance",
+        "research",
+        "talk"
+      ]
+    },
+    {
+      "login": "vuilleumierc",
+      "name": "Cécile Vuilleumier",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18527151?v=4",
+      "profile": "https://github.com/vuilleumierc",
+      "contributions": [
+        "code",
+        "bug",
+        "test",
+        "infra",
+        "review"
+      ]
+    },
+    {
+      "login": "jemacchi",
+      "name": "Jose Macchi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1171099?v=4",
+      "profile": "http://josemacchi.wordpress.com/",
+      "contributions": [
+        "bug",
+        "test",
+        "infra",
+        "review"
+      ]
+    },
+    {
+      "login": "danduk82",
+      "name": "Andrea Borghi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2493436?v=4",
+      "profile": "https://github.com/danduk82",
+      "contributions": [
+        "infra",
+        "bug",
+        "test",
+        "code",
+        "talk",
+        "userTesting"
+      ]
+    },
+    {
+      "login": "buehner",
+      "name": "Nils Bühner",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3939332?v=4",
+      "profile": "http://www.terrestris.de/",
+      "contributions": [
+        "code",
+        "plugin",
+        "bug",
+        "test",
+        "talk"
+      ]
+    },
+    {
+      "login": "dnlkoch",
+      "name": "Daniel Koch",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1137620?v=4",
+      "profile": "https://www.terrestris.de/",
+      "contributions": [
+        "code",
+        "plugin",
+        "bug",
+        "test",
+        "talk"
+      ]
+    },
+    {
+      "login": "AlexGacon",
+      "name": "Alexandre Gacon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3034717?v=4",
+      "profile": "https://github.com/AlexGacon",
+      "contributions": [
+        "doc",
+        "bug",
+        "test",
+        "ideas",
+        "question",
+        "translation"
+      ]
+    },
+    {
+      "login": "woutergd",
+      "name": "Wouter Goedhart",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12986656?v=4",
+      "profile": "https://github.com/woutergd",
+      "contributions": [
+        "bug",
+        "plugin",
+        "code"
+      ]
+    },
+    {
+      "login": "guspan-tanadi",
+      "name": "Guspan Tanadi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36249910?v=4",
+      "profile": "https://github.com/guspan-tanadi",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "cryptobioz",
+      "name": "Léo Depriester",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7858427?v=4",
+      "profile": "https://exadot.fr/",
+      "contributions": [
+        "infra"
+      ]
+    },
+    {
+      "login": "jwkaltz",
+      "name": "Wolfgang Kaltz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9261252?v=4",
+      "profile": "https://github.com/jwkaltz",
+      "contributions": [
+        "doc",
+        "projectManagement",
+        "business",
+        "promotion"
+      ]
+    },
+    {
+      "login": "ppradela",
+      "name": "Przemyslaw Pradela",
+      "avatar_url": "https://avatars.githubusercontent.com/u/51158576?v=4",
+      "profile": "https://pradela.ovh/",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "shacharmo",
+      "name": "shacharmo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5156570?v=4",
+      "profile": "https://github.com/shacharmo",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    },
+    {
+      "login": "allanin",
+      "name": "allanin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/29509022?v=4",
+      "profile": "https://github.com/allanin",
+      "contributions": [
+        "doc",
+        "test"
+      ]
+    },
+    {
+      "login": "marcjansen",
+      "name": "Marc Jansen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/227934?v=4",
+      "profile": "https://terrestris.de/",
+      "contributions": [
+        "doc",
+        "userTesting"
+      ]
+    },
+    {
+      "login": "longtomjr",
+      "name": "Herman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3615508?v=4",
+      "profile": "https://github.com/longtomjr",
+      "contributions": [
+        "doc",
+        "userTesting",
+        "bug"
+      ]
+    },
+    {
+      "login": "jahow",
+      "name": "Olivia Guyot",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10629150?v=4",
+      "profile": "https://github.com/jahow",
+      "contributions": [
+        "doc",
+        "userTesting",
+        "bug",
+        "code"
+      ]
+    },
+    {
+      "login": "pmauduit",
+      "name": "Pierre Mauduit",
+      "avatar_url": "https://avatars.githubusercontent.com/u/594335?v=4",
+      "profile": "https://github.com/pmauduit",
+      "contributions": [
+        "doc",
+        "userTesting",
+        "bug",
+        "code"
+      ]
+    },
+    {
+      "login": "mlechner",
+      "name": "Marco Lechner",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1194826?v=4",
+      "profile": "https://github.com/mlechner",
+      "contributions": [
+        "userTesting"
+      ]
+    },
+    {
+      "login": "MkLHX",
+      "name": "Mickael Lehoux",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17542841?v=4",
+      "profile": "https://github.com/MkLHX",
+      "contributions": [
+        "bug",
+        "userTesting"
+      ]
+    },
+    {
+      "login": "ebelo",
+      "name": "Emmanuel Belo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/496153?v=4",
+      "profile": "https://www.camptocamp.com/",
+      "contributions": [
+        "fundingFinding",
+        "promotion",
+        "business"
+      ]
+    },
+    {
+      "login": "fgravin",
+      "name": "Florent Gravin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1491924?v=4",
+      "profile": "https://github.com/fgravin",
+      "contributions": [
+        "business",
+        "ideas",
+        "promotion",
+        "fundingFinding"
+      ]
+    },
+    {
+      "login": "AdrienVH-c2c",
+      "name": "Adrien VAN HAMME",
+      "avatar_url": "https://avatars.githubusercontent.com/u/62234831?v=4",
+      "profile": "https://www.camptocamp.com/solutions/geospatial/",
+      "contributions": [
+        "business",
+        "ideas",
+        "promotion",
+        "fundingFinding"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "contributorsSortAlphabetically": true
+}
