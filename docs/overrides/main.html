@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block announce %}
+  {% if config.extra.banner_message %}
+    {{ config.extra.banner_message }}
+  {% endif %}
+{% endblock %}

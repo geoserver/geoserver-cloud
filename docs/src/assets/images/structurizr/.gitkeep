@@ -1,0 +1,2 @@
+# This file ensures the structurizr images directory is preserved in git
+# Generated SVG diagram files are placed here during the build process
