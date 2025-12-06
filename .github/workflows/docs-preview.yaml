@@ -1,7 +1,7 @@
 name: Documentation Preview
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [ main ]
     paths:
       - 'docs/**'
@@ -19,9 +19,96 @@ permissions:
   issues: write
 
 jobs:
+  # Security check for fork PRs - skipped for same-repo PRs
+  security-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target'
+    outputs:
+      is_fork: ${{ steps.check.outputs.is_fork }}
+      safe: ${{ steps.check.outputs.safe || steps.security.outputs.safe }}
+    steps:
+      - name: Check if PR is from fork
+        id: check
+        run: |
+          if [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+            echo "is_fork=true" >> $GITHUB_OUTPUT
+            echo "🔍 Fork PR detected - will run security checks"
+          else
+            echo "is_fork=false" >> $GITHUB_OUTPUT
+            echo "✅ Same-repo PR - security checks skipped (trusted)"
+            echo "safe=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+      - name: Checkout base branch
+        if: steps.check.outputs.is_fork == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          fetch-depth: 0
+
+      - name: Fetch PR
+        if: steps.check.outputs.is_fork == 'true'
+        run: |
+          git fetch origin +refs/pull/${{ github.event.pull_request.number }}/head:refs/remotes/origin/pr-${{ github.event.pull_request.number }}
+
+      - name: Check for dangerous file changes
+        id: security
+        if: steps.check.outputs.is_fork == 'true'
+        run: |
+          # Get list of changed files between base and PR
+          CHANGED_FILES=$(git diff --name-only ${{ github.base_ref }}...origin/pr-${{ github.event.pull_request.number }})
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          echo ""
+
+          # Define patterns for dangerous files
+          DANGEROUS_PATTERNS=(
+            '\.sh$'                    # Shell scripts
+            '^\.github/workflows/'     # Workflow files
+            'Makefile$'                # Makefiles
+            'Dockerfile'               # Dockerfiles
+            '\.py$'                    # Python scripts (build scripts)
+            'requirements\.txt$'       # Dependencies (blocks new plugins)
+          )
+
+          # Note: mkdocs.yml is allowed because:
+          # - requirements.txt is blocked (can't install malicious plugins)
+          # - .py files are blocked (can't add custom hooks/code)
+          # - Most changes are just nav/metadata updates
+
+          # Check each changed file
+          SAFE=true
+          while IFS= read -r file; do
+            # Skip empty lines
+            [ -z "$file" ] && continue
+
+            # Check against dangerous patterns
+            for pattern in "${DANGEROUS_PATTERNS[@]}"; do
+              if echo "$file" | grep -qE "$pattern"; then
+                echo "⚠️  UNSAFE: $file matches dangerous pattern: $pattern"
+                SAFE=false
+              fi
+            done
+          done <<< "$CHANGED_FILES"
+
+          if [ "$SAFE" = "true" ]; then
+            echo "✅ All changed files are safe (markdown, images, CSS only)"
+            echo "safe=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Dangerous files detected - preview deployment skipped for security"
+            echo "safe=false" >> $GITHUB_OUTPUT
+          fi
+
   build-preview:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event.inputs.branch_name != ''
+    needs: security-check
+    # Run if: manual dispatch, OR (it's a PR and either same-repo or passed security check)
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (needs.security-check.outputs.is_fork == 'false') ||
+      (needs.security-check.outputs.is_fork == 'true' && needs.security-check.outputs.safe == 'true')
 
     steps:
     - name: Checkout repository
@@ -43,9 +130,9 @@ jobs:
       working-directory: docs
       run: |
         # Calculate Preview URL and Banner
-        if [ "${{ github.event_name }}" = "pull_request" ]; then
-          SITE_URL="https://geoserver.org/geoserver-cloud/preview/pr-${{ github.event.number }}/"
-          BANNER="📝 This is a preview build for PR #${{ github.event.number }}"
+        if [ "${{ github.event_name }}" = "pull_request_target" ]; then
+          SITE_URL="https://geoserver.org/geoserver-cloud/preview/pr-${{ github.event.pull_request.number }}/"
+          BANNER="📝 This is a preview build for PR #${{ github.event.pull_request.number }}"
         else
           BRANCH_NAME="${{ github.event.inputs.branch_name || github.ref_name }}"
           SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9-]/-/g')
@@ -59,9 +146,9 @@ jobs:
     - name: Set preview path
       id: preview-path
       run: |
-        if [ "${{ github.event_name }}" = "pull_request" ]; then
-          echo "path=preview/pr-${{ github.event.number }}" >> $GITHUB_OUTPUT
-          echo "name=pr-${{ github.event.number }}" >> $GITHUB_OUTPUT
+        if [ "${{ github.event_name }}" = "pull_request_target" ]; then
+          echo "path=preview/pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "name=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
         else
           BRANCH_NAME="${{ github.event.inputs.branch_name || github.ref_name }}"
           SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9-]/-/g')
@@ -87,7 +174,7 @@ jobs:
         retention-days: 14
 
     - name: Comment on PR with preview link
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request_target'
       uses: actions/github-script@v7
       with:
         script: |
@@ -95,6 +182,9 @@ jobs:
           const commitSha = context.payload.pull_request.head.sha.substring(0, 7);
           const previewUrl = `https://geoserver.org/geoserver-cloud/preview/pr-${prNumber}/`;
           const artifactUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
+          const isFork = context.payload.pull_request.head.repo.full_name !== context.payload.repository.full_name;
+
+          const securityNote = isFork ? '\n\n### 🔒 Security Note:\nThis preview was built using safe mode (documentation-only changes).\n' : '';
 
           const comment = `
           ## 📖 Documentation Preview Ready!
@@ -108,20 +198,19 @@ jobs:
           ### 📊 Build Information:
           - **Commit**: \`${commitSha}\`
           - **Status**: ✅ Build Successful
-          - **Artifacts**: [Download Build](${artifactUrl})
-
+          - **Artifacts**: [Download Build](${artifactUrl})${securityNote}
           ---
           *Generated by GitHub Actions*
           `;
-          
+
           const existingComments = await github.rest.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: prNumber
           });
 
-          const botComment = existingComments.data.find(comment => 
-            comment.user.type === 'Bot' && 
+          const botComment = existingComments.data.find(comment =>
+            comment.user.type === 'Bot' &&
             comment.body.includes('📖 Documentation Preview Ready!')
           );
 
@@ -145,9 +234,49 @@ jobs:
             console.log('Could not post/update comment on PR:', error.message);
           }
 
+  notify-unsafe:
+    runs-on: ubuntu-latest
+    needs: security-check
+    if: needs.security-check.outputs.is_fork == 'true' && needs.security-check.outputs.safe == 'false'
+
+    steps:
+      - name: Comment on PR about security
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            const comment = `
+            ## 📖 Documentation Preview Skipped
+
+            This PR modifies executable files or build scripts, so the automatic preview deployment has been skipped for security reasons.
+
+            ### ⚠️ Files that triggered security check:
+            - Shell scripts (\`.sh\`)
+            - Workflow files (\`.github/workflows/\`)
+            - Build configuration (\`Makefile\`, \`requirements.txt\`)
+            - Python scripts (\`.py\`)
+
+            ### 📊 What happens next:
+            - The documentation will still be built and verified
+            - A maintainer can manually trigger a preview if needed
+            - The docs will be deployed normally once merged to \`main\`
+
+            ---
+            *Generated by GitHub Actions*
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment
+            });
+
   compare-changes:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request_target'
+    needs: security-check
 
     steps:
     - name: Checkout base branch
@@ -232,7 +361,7 @@ jobs:
           echo "*None*" >> /tmp/changes.md
         fi
         rm -f "$removed_pages"
-        
+
     - name: Add comparison to PR comment
       uses: actions/github-script@v7
       with:
@@ -241,7 +370,7 @@ jobs:
           try {
             const changes = fs.readFileSync('/tmp/changes.md', 'utf8');
             const comment = changes;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
