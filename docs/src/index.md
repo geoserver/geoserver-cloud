@@ -10,12 +10,6 @@ Built with GeoServer software components, *GeoServer Cloud* adapts and/or extend
 > 
 > Absolutely not. This is not a clustered GeoServer approach and does not use `.war` files. Each microservice is a self-contained application that includes only the GeoServer components necessary for the service. Many GeoServer components provide extensive functionality (such as different output formats). In these cases, care is taken to load only the functionality required for a lightweight experience.
 
-# Contents
-{:.no_toc}
-
-* Will be replaced with the ToC, excluding the "Contents" header
-{:toc}
-
 # Background and Motivation
 
 GeoServer is the most widely used and deployed open-source geospatial server in the world. It enables the publishing, transformation, and editing of geospatial data from numerous formats through a comprehensive set of user-facing services. In addition to these out-of-the-box capabilities, GeoServer supports over 40 [extensions](http://geoserver.org/release/stable/), along with numerous experimental extensions (known as "community modules").

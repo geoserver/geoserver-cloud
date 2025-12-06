@@ -1,11 +1,5 @@
 # Cloud Native GeoServer externalized configuration guide
 
-## Contents
-{:.no_toc}
-
-* Will be replaced with the ToC, excluding the "Contents" header
-{:toc}
-
 ## Introduction
 
 GeoServer Cloud provides extensive configuration options through Spring Boot's externalized configuration system. This document outlines the various configuration options available for customizing your GeoServer Cloud deployment.
