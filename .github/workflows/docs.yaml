@@ -49,4 +49,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/site
+          force_orphan: true
           commit_message: 'docs: deploy documentation [skip ci]'
