@@ -163,7 +163,6 @@ jobs:
         publish_dir: docs/site
         destination_dir: ${{ steps.preview-path.outputs.path }}
         keep_files: true
-        force_orphan: true
         commit_message: 'docs: deploy preview for ${{ steps.preview-path.outputs.name }} [skip ci]'
 
     - name: Upload preview artifacts
