@@ -104,6 +104,12 @@ echo ""
 echo "📚 Building documentation..."
 mkdocs build --verbose --strict
 
+# Disable Jekyll processing on GitHub Pages
+echo ""
+echo "🚫 Disabling Jekyll processing..."
+touch site/.nojekyll
+echo "✅ Created .nojekyll file"
+
 # Add preview metadata if preview build
 if [ -n "$BANNER_MESSAGE" ]; then
     echo "<!-- Preview build -->" >> site/index.html
