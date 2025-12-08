@@ -50,12 +50,11 @@ import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
  * facade.setOutboundResolver(resolver);
  * </pre>
  *
- * @param <T> The type of {@link Info} to resolve (typically {@link CatalogInfo}).
  * @since 1.0
  * @see ResolvingCatalogFacadeDecorator
  * @see ModificationProxy
  */
-public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T> {
+public class CatalogPropertyResolver {
 
     private final Supplier<Catalog> catalog;
 
@@ -65,7 +64,7 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * @param catalog The {@link Catalog} to set on resolved objects; must not be null.
      * @throws NullPointerException if {@code catalog} is null.
      */
-    public CatalogPropertyResolver(Catalog catalog) {
+    private CatalogPropertyResolver(Catalog catalog) {
         Objects.requireNonNull(catalog, "Catalog must not be null");
         this.catalog = () -> catalog;
     }
@@ -76,7 +75,7 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * @param catalog A supplier providing the {@link Catalog}; must not be null.
      * @throws NullPointerException if {@code catalog} is null.
      */
-    public CatalogPropertyResolver(@NonNull Supplier<Catalog> catalog) {
+    private CatalogPropertyResolver(@NonNull Supplier<Catalog> catalog) {
         Objects.requireNonNull(catalog, "Catalog supplier must not be null");
         this.catalog = catalog;
     }
@@ -99,8 +98,8 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * @return A new {@link CatalogPropertyResolver} instance.
      * @throws NullPointerException if {@code catalog} is null.
      */
-    public static <I extends Info> CatalogPropertyResolver<I> of(Catalog catalog) {
-        return new CatalogPropertyResolver<>(catalog);
+    public static <I extends Info> UnaryOperator<I> of(Catalog catalog) {
+        return new CatalogPropertyResolver(catalog)::apply;
     }
 
     /**
@@ -111,19 +110,21 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * @return A new {@link CatalogPropertyResolver} instance.
      * @throws NullPointerException if {@code catalog} is null.
      */
-    public static <I extends Info> CatalogPropertyResolver<I> of(Supplier<Catalog> catalog) {
-        return new CatalogPropertyResolver<>(catalog);
+    public static <I extends Info> UnaryOperator<I> of(Supplier<Catalog> catalog) {
+        return new CatalogPropertyResolver(catalog)::apply;
     }
 
     /**
      * Applies the resolver to an {@link Info} object, setting its catalog property if applicable.
      *
-     * @param i The {@link Info} object to resolve; may be null.
+     * @param info The {@link Info} object to resolve; may be null.
      * @return The resolved object with catalog set, or null if {@code i} is null.
      */
-    @Override
-    public T apply(T i) {
-        return resolve(i);
+    public <T> T apply(T info) {
+        if (info == null) {
+            return null;
+        }
+        return resolve(info);
     }
 
     /**
@@ -134,24 +135,23 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * {@link LayerGroupStyle}.
      *
      * @param <I> The type of {@link Info}.
-     * @param i   The object to resolve; may be null.
+     * @param info   The object to resolve; may be null.
      * @return The resolved object, or null if {@code i} is null.
      */
-    @SuppressWarnings("unchecked")
-    private <I> I resolve(I i) {
-        i = null == i ? null : ModificationProxy.unwrap(i);
-        if (i instanceof StoreInfo store) {
+    private <I> I resolve(@NonNull I orig) {
+        I info = ModificationProxy.unwrap(orig);
+        if (info instanceof StoreInfo store) {
             setCatalog(store);
-        } else if (i instanceof ResourceInfo resource) {
+        } else if (info instanceof ResourceInfo resource) {
             setCatalog(resource);
-        } else if (i instanceof StyleInfo style) {
+        } else if (info instanceof StyleInfo style) {
             setCatalog(style);
-        } else if (i instanceof PublishedInfo published) {
+        } else if (info instanceof PublishedInfo published) {
             setCatalog(published);
-        } else if (i instanceof LayerGroupStyle lgs) {
+        } else if (info instanceof LayerGroupStyle lgs) {
             setCatalog(lgs);
         }
-        return i;
+        return orig;
     }
 
     /**
@@ -159,21 +159,21 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      *
      * @param list The collection to resolve; may be null (no action taken).
      */
-    private void resolve(Collection<?> list) {
+    private void apply(Collection<?> list) {
         if (null != list) {
-            list.forEach(this::resolve);
+            list.forEach(this::apply);
         }
     }
 
     /**
      * Sets the catalog on a {@link PublishedInfo} object, dispatching to specific types.
      *
-     * @param i The {@link PublishedInfo} to process; must not be null.
+     * @param published The {@link PublishedInfo} to process; must not be null.
      */
-    private void setCatalog(@NonNull PublishedInfo i) {
-        if (i instanceof LayerInfo li) {
+    private void setCatalog(@NonNull PublishedInfo published) {
+        if (published instanceof LayerInfo li) {
             setCatalog(li);
-        } else if (i instanceof LayerGroupInfo lg) {
+        } else if (published instanceof LayerGroupInfo lg) {
             setCatalog(lg);
         }
     }
@@ -181,79 +181,79 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
     /**
      * Sets the catalog on a {@link LayerInfo} and resolves its nested references.
      *
-     * @param i The {@link LayerInfo} to process; must not be null.
+     * @param layer The {@link LayerInfo} to process; must not be null.
      */
-    private void setCatalog(@NonNull LayerInfo i) {
-        resolve(i.getResource());
-        resolve(i.getDefaultStyle());
-        resolve(i.getStyles());
+    private void setCatalog(@NonNull LayerInfo layer) {
+        apply(layer.getResource());
+        apply(layer.getDefaultStyle());
+        apply(layer.getStyles());
     }
 
     /**
      * Sets the catalog on a {@link LayerGroupInfo} and resolves its nested references.
      *
-     * @param i The {@link LayerGroupInfo} to process; must not be null.
+     * @param layerGroup The {@link LayerGroupInfo} to process; must not be null.
      */
-    private void setCatalog(@NonNull LayerGroupInfo i) {
-        resolve(i.getRootLayer());
-        resolve(i.getRootLayerStyle());
-        resolve(i.getLayers());
-        resolve(i.getStyles());
-        resolve(i.getLayerGroupStyles());
+    private void setCatalog(@NonNull LayerGroupInfo layerGroup) {
+        apply(layerGroup.getRootLayer());
+        apply(layerGroup.getRootLayerStyle());
+        apply(layerGroup.getLayers());
+        apply(layerGroup.getStyles());
+        apply(layerGroup.getLayerGroupStyles());
     }
 
     /**
      * Sets the catalog on a {@link LayerGroupStyle} and resolves its nested references.
      *
-     * @param i The {@link LayerGroupStyle} to process; must not be null.
+     * @param lgStyle The {@link LayerGroupStyle} to process; must not be null.
      */
-    private void setCatalog(@NonNull LayerGroupStyle i) {
-        if (null != i.getLayers()) {
-            i.getLayers().forEach(this::setCatalog);
+    private void setCatalog(@NonNull LayerGroupStyle lgStyle) {
+        if (null != lgStyle.getLayers()) {
+            lgStyle.getLayers().forEach(this::apply);
         }
-        if (null != i.getStyles()) {
-            i.getStyles().forEach(this::setCatalog);
+        if (null != lgStyle.getStyles()) {
+            lgStyle.getStyles().forEach(this::apply);
         }
     }
 
     /**
      * Sets the catalog on a {@link StoreInfo} if it’s a concrete implementation.
      *
-     * @param i The {@link StoreInfo} to process; must not be null.
+     * @param store The {@link StoreInfo} to process; must not be null.
      */
-    private void setCatalog(@NonNull StoreInfo i) {
-        if (i instanceof StoreInfoImpl store) {
-            store.setCatalog(catalog());
+    private void setCatalog(@NonNull StoreInfo store) {
+        if (store instanceof StoreInfoImpl storeImpl) {
+            storeImpl.setCatalog(catalog());
         }
     }
 
     /**
      * Sets the catalog on a {@link ResourceInfo} and resolves its nested references.
      *
-     * @param i The {@link ResourceInfo} to process; must not be null.
+     * @param resource The {@link ResourceInfo} to process; must not be null.
      */
-    private void setCatalog(@NonNull ResourceInfo i) {
-        i.setCatalog(catalog());
-        resolve(i.getStore());
-        if (i instanceof WMSLayerInfo wmsLayer) {
-            resolve(wmsLayer.getAllAvailableRemoteStyles());
+    private void setCatalog(@NonNull ResourceInfo resource) {
+        resource.setCatalog(catalog());
+        apply(resource.getStore());
+        if (resource instanceof WMSLayerInfo wmsLayer) {
+            apply(wmsLayer.getAllAvailableRemoteStyles());
         }
     }
 
     /**
      * Sets the catalog on a {@link StyleInfo} if it’s a concrete implementation.
      *
-     * @param i The {@link StyleInfo} to process; must not be null.
+     * @param style The {@link StyleInfo} to process; must not be null.
      */
-    private void setCatalog(@NonNull StyleInfo i) {
-        if (i instanceof StyleInfoImpl style) {
+    private void setCatalog(@NonNull StyleInfo style) {
+        if (style instanceof StyleInfoImpl styleImpl) {
             /*
              * When the style is remote (null id), StyleInfoImpl.getSLD() will check for a null catalog and return null.
              * Otherwise it'll call ResourcePool.getStyle(StyleInfo) and fail
              */
-            boolean isRemoteStyle = null == style.getId();
+            boolean isRemoteStyle = null == styleImpl.getId();
             if (!isRemoteStyle) {
-                style.setCatalog(catalog());
+                styleImpl.setCatalog(catalog());
             }
         }
     }
