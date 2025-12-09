@@ -54,10 +54,12 @@
       <artifactId>gs-cog-s3</artifactId>
     </dependency>
     <dependency>
-      <!-- alternative http client for gs-cog-s3 replacing software.amazon.awssdk:netty-nio-client -->
       <groupId>software.amazon.awssdk</groupId>
-      <artifactId>apache-client</artifactId>
-      <optional>true</optional>
+      <artifactId>aws-crt-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk.crt</groupId>
+      <artifactId>aws-crt</artifactId>
     </dependency>
 
     <dependency>
