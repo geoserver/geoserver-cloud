@@ -37,7 +37,7 @@
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <flyway.version>11.16.0</flyway.version>
-    <tileverse.version>1.1.0</tileverse.version>
+    <tileverse.version>1.1.1</tileverse.version>
     <testcontainers.version>1.21.3</testcontainers.version>
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>1G</javac.maxHeapSize>
@@ -832,8 +832,22 @@
           </exclusion>
           <exclusion>
             <!--
-                exclude netty, we don't want all the transitive dependencies, it'll use
-                software.amazon.awssdk:apache-client -> org.apache.httpcomponents:httpclient instead
+                Exclude netty, we don't want all the transitive dependencies.
+                it.geosolutions.imageioimpl.plugins.cog.S3ClientFactory loads a
+                software.amazon.awssdk.services.s3.S3AsyncClient
+                The alternative implementation is software.amazon.awssdk:aws-crt-client
+                <quote>
+                The AWS CRT-based S3 client improves transfer reliability in case there is a network failure.
+                Reliability is improved by retrying individual failed parts of a file transfer without restarting
+                the transfer from the beginning.
+
+                In addition, the AWS CRT-based S3 client offers enhanced connection pooling and
+                Domain Name System (DNS)load balancing, which also improves throughput.
+
+                You can use the AWS CRT-based S3 client in place of the SDK's standard S3 asynchronous
+                client and take advantage of its improved throughput right away.
+                </quote>
+                See https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/crt-based-s3-client.html
             -->
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>netty-nio-client</artifactId>
@@ -1294,8 +1308,25 @@
           <name>!skipDependencyConvergence</name>
         </property>
       </activation>
+      <properties>
+        <aws-s3.version>2.40.2</aws-s3.version>
+        <azure-identity.version>1.18.1</azure-identity.version>
+        <azure-storage-blob.version>12.32.0</azure-storage-blob.version>
+        <google-cloud-storage.version>2.60.0</google-cloud-storage.version>
+      </properties>
       <dependencyManagement>
         <dependencies>
+          <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-core</artifactId>
+            <version>1.57.0</version>
+          </dependency>
+          <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.25.8</version>
+          </dependency>
+
           <dependency>
             <!-- GeoServer 2.26.x is at 1.79, where spring-boot:2.7.18 is at 1.73 -->
             <groupId>org.bouncycastle</groupId>
@@ -1475,64 +1506,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-    <profile>
-      <id>cve</id>
-      <activation>
-        <property>
-          <name>!skipCve</name>
-        </property>
-      </activation>
-      <dependencyManagement>
-        <dependencies>
-          <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.261</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client</artifactId>
-            <version>1.34.1</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.http-client</groupId>
-            <artifactId>google-http-client-gson</artifactId>
-            <version>1.42.0</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.19.4</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java-util</artifactId>
-            <version>3.19.4</version>
-          </dependency>
-          <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.7.2</version>
-          </dependency>
-          <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.42.0.0</version>
-          </dependency>
-          <dependency>
-            <!-- actually to get rid of its com.squareup.okio:okio:2.8.0 dependency -->
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
-          </dependency>
-          <dependency>
-            <groupId>org.jssqlite-jdbcon</groupId>
-            <artifactId>json</artifactId>
-            <version>20230618</version>
-          </dependency>
-        </dependencies>
-      </dependencyManagement>
     </profile>
     <profile>
       <id>coverage</id>
