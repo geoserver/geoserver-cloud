@@ -20,8 +20,9 @@
   </modules>
   <properties>
     <checkstyle.skip>false</checkstyle.skip>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <java.version>21</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <spring.version>5.3.39</spring.version>
@@ -1123,7 +1124,7 @@
           <version>3.14.1</version>
           <inherited>true</inherited>
           <configuration>
-            <release>21</release>
+            <release>${java.version}</release>
             <debug>true</debug>
             <encoding>UTF-8</encoding>
             <fork>${fork.javac}</fork>
@@ -1219,15 +1220,12 @@
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
           <execution>
-            <id>enforce</id>
+            <id>enforce-maven-version</id>
             <goals>
               <goal>enforce</goal>
             </goals>
             <configuration>
               <rules>
-                <requireJavaVersion>
-                  <version>[21,)</version>
-                </requireJavaVersion>
                 <requireMavenVersion>
                   <!--
                     Enforcing a minimum Maven version is crucial to ensure that:
@@ -1243,9 +1241,19 @@
                   <version>3.9+</version>
                   <message>You must use Maven 3.9 or higher to build this project.</message>
                 </requireMavenVersion>
-                <dependencyConvergence>
-                  <excludedScopes>test</excludedScopes>
-                </dependencyConvergence>
+              </rules>
+            </configuration>
+          </execution>
+          <execution>
+            <id>enforce-java-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[${java.version},)</version>
+                </requireJavaVersion>
               </rules>
             </configuration>
           </execution>
@@ -1444,6 +1452,29 @@
           </dependency>
         </dependencies>
       </dependencyManagement>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>enforce-dependency-convergence</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <dependencyConvergence>
+                      <excludedScopes>test</excludedScopes>
+                    </dependencyConvergence>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
     <profile>
       <id>cve</id>
