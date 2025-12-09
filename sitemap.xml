@@ -2,66 +2,66 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://geoserver.org/geoserver-cloud/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/community/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/community/contributors/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/configuration/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/configuration/migration-2.26-to-2.27/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/deploy/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/deploy/docker-compose/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/deploy/helm/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/developer-guide/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/developer-guide/build_instructions/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/developer-guide/coding_standards/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/developer-guide/event-bus/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/developer-guide/extensions/adding_extensions/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/developer-guide/services/discovery-service/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/developer-guide/services/gateway-service/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
     <url>
          <loc>https://geoserver.org/geoserver-cloud/developer-guide/services/restconfig-v1-service/</loc>
-         <lastmod>2025-12-07</lastmod>
+         <lastmod>2025-12-09</lastmod>
     </url>
 </urlset>
