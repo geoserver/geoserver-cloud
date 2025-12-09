@@ -273,6 +273,19 @@
         "promotion",
         "fundingFinding"
       ]
+    },
+    {
+      "login": "amjobst",
+      "name": "amjobst",
+      "avatar_url": "https://avatars.githubusercontent.com/u/50134978?v=4",
+      "profile": "https://github.com/amjobst",
+      "contributions": [
+        "business",
+        "ideas",
+        "promotion",
+        "fundingFinding",
+        "projectManagement"
+      ]
     }
   ],
   "contributorsPerLine": 7,
