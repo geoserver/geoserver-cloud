@@ -46,7 +46,6 @@
     <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
   </properties>
   <dependencyManagement>
-    <!-- Note dependencies added purely to satisfy the dependencyConvergence maven-enforcer-plugin rule are in the dependencyConvergence maven profile -->
     <dependencies>
       <dependency>
         <groupId>net.logstash.logback</groupId>
@@ -92,17 +91,33 @@
         <artifactId>tomcat-embed-websocket</artifactId>
         <version>${tomcat.version}</version>
       </dependency>
+      <!-- Spring Framework and Spring Security BOMs before Spring Boot/Cloud BOM's  to take precedence and match the versions used upstream  -->
       <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-dependencies</artifactId>
-        <version>${spring-cloud.version}</version>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-bom</artifactId>
+        <version>${spring.security.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <!-- Spring boot dependencies before spring-cloud to take precedence over spring-cloud's transitive boot dependencies -->
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
         <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
