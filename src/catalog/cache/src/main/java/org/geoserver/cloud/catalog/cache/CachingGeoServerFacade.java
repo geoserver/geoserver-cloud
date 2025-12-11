@@ -53,7 +53,7 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         this.cache = cache;
     }
 
-    ////// Event handling ///////
+    // /////// Event handling ///////
 
     /**
      * Clears the whole config cache upon any {@link UpdateSequenceEvent}.
@@ -68,7 +68,7 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         }
     }
 
-    ////// Cache manipulation functions ///////
+    // ////// Cache manipulation functions ///////
     <T extends ServiceInfo> T cachePutIncludeNull(@NonNull Object key, @NonNull Cache cache, T service) {
 
         if (service == null) {
@@ -93,7 +93,7 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         return service;
     }
 
-    ////// GeoServerFacade functions ///////
+    // ////// GeoServerFacade functions ///////
 
     @Override
     @Cacheable(key = "'" + GEOSERVERINFO_KEY + "'", unless = "#result == null")

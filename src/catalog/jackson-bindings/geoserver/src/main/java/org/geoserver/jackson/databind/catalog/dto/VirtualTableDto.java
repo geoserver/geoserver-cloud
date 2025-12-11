@@ -88,6 +88,7 @@ public class VirtualTableDto {
      */
     public static class GeometryTypesDeserializer extends JsonDeserializer<Map<String, Class<? extends Geometry>>> {
         @Override
+        @SuppressWarnings("java:S1168") // if stringMap is null we do want to return null instead of empty
         public Map<String, Class<? extends Geometry>> deserialize(JsonParser p, DeserializationContext ctxt)
                 throws IOException {
             Map<String, String> stringMap = p.readValueAs(new TypeReference<Map<String, String>>() {});

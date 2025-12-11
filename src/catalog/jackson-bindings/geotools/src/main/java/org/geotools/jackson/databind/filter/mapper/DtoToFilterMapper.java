@@ -190,6 +190,9 @@ abstract class DtoToFilterMapper {
     }
 
     Identifier toIdentifier(Filter.Id.FeatureId dto) {
+        if (dto == null) {
+            return null;
+        }
         if (dto instanceof Filter.Id.ResourceId rid) {
             if (rid.getStartTime() != null || rid.getEndTime() != null) {
                 return ff.resourceId(rid.getId(), rid.getStartTime(), rid.getEndTime());

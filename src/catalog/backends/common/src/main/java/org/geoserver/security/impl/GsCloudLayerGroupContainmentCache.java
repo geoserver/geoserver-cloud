@@ -371,7 +371,6 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
                     String resourceId = layer.getResource().getId();
                     clearContainment(groupSummary, resourceId);
                 } else if (removed instanceof LayerGroupInfo child) {
-                    //// getGroupData(child)
                     LayerGroupSummary summary = groupCache.get(child.getId());
                     if (summary != null) {
                         summary.containerGroups.remove(groupSummary);

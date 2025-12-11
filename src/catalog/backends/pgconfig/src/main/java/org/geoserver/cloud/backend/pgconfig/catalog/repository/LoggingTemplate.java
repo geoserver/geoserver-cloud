@@ -102,11 +102,8 @@ public class LoggingTemplate {
     }
 
     private void logAfter(long reqId, String sql, Duration elapsed, Exception error) {
-        if (error != null) {
-            if (error instanceof org.springframework.dao.EmptyResultDataAccessException) {
-                return;
-            }
-            error.printStackTrace();
+        if (error instanceof org.springframework.dao.EmptyResultDataAccessException) {
+            return;
         }
         if (!log.isDebugEnabled()) {
             return;

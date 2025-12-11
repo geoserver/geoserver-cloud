@@ -400,7 +400,6 @@ public class CatalogFaker {
         g.setSettings(settingsInfo(null));
         g.setUpdateSequence(faker().random().nextLong(1000L));
         g.setWebUIMode(WebUIMode.DO_NOT_REDIRECT);
-        g.setXmlExternalEntitiesEnabled(Boolean.TRUE);
         g.setXmlPostRequestLogBufferSize(1024);
 
         return g;

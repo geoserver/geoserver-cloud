@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpStatus;
 
-public class StatusCodeWmsExceptionHandlerTest {
+class StatusCodeWmsExceptionHandlerTest {
     private StatusCodeWmsExceptionHandler handler;
     private PropertyResolver propertyResolver = mock(PropertyResolver.class);
     private GeoServer geoServer = mock(GeoServer.class);

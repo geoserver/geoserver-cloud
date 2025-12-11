@@ -236,6 +236,7 @@ public interface GeoServerValueObjectsMapper {
         return dto;
     }
 
+    @SuppressWarnings("java:S3776")
     default VirtualTable dtoToVirtualTable(VirtualTableDto dto) {
         if (dto == null) {
             return null;
@@ -282,8 +283,7 @@ public interface GeoServerValueObjectsMapper {
         dto.setDefaultValue(param.getDefaultValue());
 
         // Convert validator to string representation for DTO
-        if (param.getValidator() != null && param.getValidator() instanceof RegexpValidator) {
-            RegexpValidator regexpValidator = (RegexpValidator) param.getValidator();
+        if (param.getValidator() instanceof RegexpValidator regexpValidator) {
             dto.setValidator(regexpValidator.getPattern().pattern());
         }
 

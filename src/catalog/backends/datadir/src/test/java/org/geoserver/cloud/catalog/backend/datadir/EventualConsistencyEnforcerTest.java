@@ -40,12 +40,13 @@ class EventualConsistencyEnforcerTest {
 
     private EventualConsistencyEnforcer enforcer;
 
-    public static @BeforeAll void oneTimeSetup() {
+    static @BeforeAll void oneTimeSetup() {
         // avoid the chatty warning logs due to catalog looking up a bean of type GeoServerConfigurationLock
         GeoServerExtensionsHelper.setIsSpringContext(false);
     }
 
-    public @BeforeEach void before() {
+    @BeforeEach
+    void before() {
         catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
         geoserver.setCatalog(catalog);

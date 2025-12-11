@@ -5,18 +5,22 @@
 package org.geoserver.cloud.autoconfigure.extensions.inspire.wms;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.geoserver.cloud.autoconfigure.extensions.inspire.InspireAutoConfigurationTestSupport.createContextRunner;
 
 import java.io.File;
-import org.geoserver.cloud.autoconfigure.extensions.inspire.InspireAutoConfigurationTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-class InspireAutoConfigurationWmsTest extends InspireAutoConfigurationTest {
+class InspireAutoConfigurationWmsTest {
 
-    @Override
-    protected ApplicationContextRunner createContextRunner(File tempDir) {
-        return super.createContextRunner(tempDir)
+    private ApplicationContextRunner runner;
+
+    @BeforeEach
+    void setUp(@TempDir File tempDir) {
+        runner = createContextRunner(tempDir)
                 .withConfiguration(AutoConfigurations.of(InspireAutoConfigurationWms.class));
     }
 

@@ -261,7 +261,7 @@ public class ProxyUtils {
             resolved = resolveResolvingProxy(resolved);
         }
 
-        if (failOnNotFound && unresolved != null && (resolved == null || isResolvingProxy(resolved))) {
+        if (failOnNotFound && (resolved == null || isResolvingProxy(resolved))) {
             throw new IllegalArgumentException("Reference to %s not found".formatted(unresolved.getId()));
         }
 

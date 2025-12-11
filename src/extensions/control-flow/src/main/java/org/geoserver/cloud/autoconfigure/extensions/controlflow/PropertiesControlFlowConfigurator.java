@@ -36,6 +36,18 @@ import org.geotools.util.logging.Logging;
  * @author Andrea Aime - OpenGeo
  * @author Juan Marin, OpenGeo
  */
+@SuppressWarnings({
+    "java:S6541",
+    "java:S1135",
+    "java:S135",
+    "java:S2864",
+    "java:S1066",
+    "java:S2629",
+    "java:S7158",
+    "java:S5852",
+    "java:S3776"
+})
+// deactivate sonarqube warning, this is a class from upstream and don't want to deviate too much from the original
 class PropertiesControlFlowConfigurator implements ControlFlowConfigurator {
 
     static final Pattern RATE_PATTERN = Pattern.compile("(\\d+)/([smhd])(;(\\d+)s)?");
@@ -140,7 +152,7 @@ class PropertiesControlFlowConfigurator implements ControlFlowConfigurator {
 
             FlowController controller = null;
             if ("timeout".equalsIgnoreCase(key)) {
-                timeout = queueSize * 1000;
+                timeout = queueSize * 1000L;
                 continue;
             }
             if ("ows.global".equalsIgnoreCase(key)) {

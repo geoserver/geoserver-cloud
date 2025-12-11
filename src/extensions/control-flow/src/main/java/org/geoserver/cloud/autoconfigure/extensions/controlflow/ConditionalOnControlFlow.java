@@ -17,5 +17,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnClass(name = "org.geoserver.flow.ControlFlowConfigurator")
-@ConditionalOnProperty(name = ControlFlowConfigurationProperties.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(
+        name = ControlFlowConfigurationProperties.ENABLED_PROPERTY,
+        havingValue = "true",
+        matchIfMissing = true)
 @interface ConditionalOnControlFlow {}

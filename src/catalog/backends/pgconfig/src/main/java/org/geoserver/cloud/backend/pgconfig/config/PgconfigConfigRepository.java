@@ -101,6 +101,7 @@ public class PgconfigConfigRepository implements ConfigRepository {
         return update(settings, patch, SettingsInfo.class, "settingsinfo", "settingsinfos", SettingsInfoRowMapper);
     }
 
+    @SuppressWarnings("java:S2077") // table is a safe argument, constrained to "settingsinfo" and "serviceinfo"
     private <T extends Info> T update(
             T value, Patch patch, Class<T> clazz, String table, String querytable, RowMapper<T> mapper) {
 

@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 public class GoogleCloudStorageBlobstoreConfiguration {
 
     @Bean(name = "GcsBlobStoreConfigProvider")
+    @SuppressWarnings("java:S6830") // keeping the original bean name from xml
     GoogleCloudStorageConfigProvider googleCloudStorageConfigProvider() {
         return new GoogleCloudStorageConfigProvider();
     }

@@ -158,8 +158,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     LockRepository pgconfigLockRepository() {
         DataSource dataSource = container.getDataSource();
         DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
-        // override default table prefix "INT" by "RESOURCE_" (matching table definition
-        // RESOURCE_LOCK in init.XXX.sql
+        // override default table prefix "INT" by "RESOURCE_" (matching table RESOURCE_LOCK in flyway ddl scripts)
         lockRepository.setPrefix("RESOURCE_");
         // time in ms to expire dead locks (10k is the default)
         lockRepository.setTimeToLive(300_000);
@@ -516,6 +515,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
      * </p>
      */
     @Test
+    @SuppressWarnings("java:S2925") // Thread.sleep
     public void testUpdateStateHandlesModifiedResource() throws Exception {
         // Create a test resource in the database
         String path = "security/updated.properties";

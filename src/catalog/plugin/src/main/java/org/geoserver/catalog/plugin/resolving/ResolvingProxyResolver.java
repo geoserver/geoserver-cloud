@@ -306,11 +306,11 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
             if (resolvingProxy != null) {
                 onNotFound.accept(info, resolvingProxy);
             }
-        } else if (value instanceof Iterable it) {
+        } else if (value instanceof Iterable<?> it) {
             for (Object v : it) {
                 checkNotFounds(v);
             }
-        } else if (value instanceof Map map) {
+        } else if (value instanceof Map<?, ?> map) {
             checkNotFounds(map.values());
         }
     }

@@ -5,19 +5,23 @@
 package org.geoserver.cloud.autoconfigure.extensions.inspire.webui;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.geoserver.cloud.autoconfigure.extensions.inspire.InspireAutoConfigurationTestSupport.createContextRunner;
 
 import java.io.File;
-import org.geoserver.cloud.autoconfigure.extensions.inspire.InspireAutoConfigurationTest;
 import org.geoserver.web.GeoServerApplication;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-class InspireAutoConfigurationWebUITest extends InspireAutoConfigurationTest {
+class InspireAutoConfigurationWebUITest {
 
-    @Override
-    protected ApplicationContextRunner createContextRunner(File tempDir) {
-        return super.createContextRunner(tempDir)
+    private ApplicationContextRunner runner;
+
+    @BeforeEach
+    void setUp(@TempDir File tempDir) {
+        runner = createContextRunner(tempDir)
                 .withBean("geoServerApplication", GeoServerApplication.class)
                 .withConfiguration(AutoConfigurations.of(InspireAutoConfigurationWebUI.class));
     }
