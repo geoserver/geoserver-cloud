@@ -58,12 +58,14 @@ public class WicketComponentFilter implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(WicketComponentFilter.class);
 
     /**
-     * Pattern to match bookmarkable page URLs. Handles both path formats:
+     * Pattern to match bookmarkable page URLs and extract the class name. For example, extract {@code org.geoserver.wms.web.WMSAdminPage} from
      * {@literal /web/wicket/bookmarkable/org.geoserver.wms.web.WMSAdminPage} or
      * {@literal /geoserver/cloud/web/bookmarkable/org.geoserver.wms.web.WMSAdminPage}
+     *
+     * @see #extractBookmarkablePageClassName(String)
      */
     private static final Pattern BOOKMARKABLE_URL_PATTERN =
-            Pattern.compile(".*/(?:web/wicket/bookmarkable|web/bookmarkable)/([^?/]+)(?:\\?.*)?$");
+            Pattern.compile("/web/(?:wicket/)?bookmarkable/([^?/]+)(?:\\?.*)?$");
 
     private @NonNull WebUIConfigurationProperties config;
 
@@ -142,7 +144,7 @@ public class WicketComponentFilter implements Filter {
     private String extractBookmarkablePageClassName(String requestURI) {
         if (requestURI != null) {
             Matcher matcher = BOOKMARKABLE_URL_PATTERN.matcher(requestURI);
-            if (matcher.matches()) {
+            if (matcher.find()) {
                 return matcher.group(1);
             }
         }
