@@ -1,114 +1,70 @@
 # Standalone mode configuration for GeoServer Cloud
-# - Replaces infrastructure services with dummy containers
+# - Disables infrastructure services (discovery, config)
 # - Applies standalone profile to all GeoServer services
 # - Works with various catalog backends (datadir, jdbcconfig, pgconfig)
 
+# Override x-gs-dependencies from compose.yml to exclude discovery service
+x-gs-standalone-dependencies: &gs-standalone-dependencies
+  rabbitmq:
+    condition: service_healthy
+    required: true
+  acl:
+    condition: service_healthy
+    required: true
+  geodatabase:
+    condition: service_started
+    required: true
+  init-test-data:
+    condition: service_completed_successfully
+    required: true
+
 services:
-  # Replace infrastructure services with minimal Alpine containers
+  # Disable infrastructure services in standalone mode
   discovery:
-    image: alpine:latest
-    entrypoint: ["sh", "-c", "echo 'Discovery service is disabled in standalone mode' && tail -f /dev/null"]
-    restart: "no"
-    healthcheck:
-      test: ["CMD-SHELL", "exit 0"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-  
+    deploy:
+      replicas: 0
+
   config:
-    image: alpine:latest
-    entrypoint: ["sh", "-c", "echo 'Config service is disabled in standalone mode' && tail -f /dev/null"]
-    restart: "no"
-    healthcheck:
-      test: ["CMD-SHELL", "exit 0"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-  
+    deploy:
+      replicas: 0
+
   # Apply standalone profile to all services
   gateway:
     environment:
       SPRING_PROFILES_INCLUDE: "standalone"
-    depends_on:
-      discovery:
-        condition: service_healthy
-        required: false
-  
+    depends_on: {}
+
   wfs:
     environment:
       SPRING_PROFILES_INCLUDE: "standalone"
-    depends_on:
-      discovery:
-        condition: service_healthy
-        required: false
-      rabbitmq:
-        condition: service_healthy
-        required: true
-  
+    depends_on: *gs-standalone-dependencies
+
   wms:
     environment:
       SPRING_PROFILES_INCLUDE: "standalone"
-    depends_on:
-      discovery:
-        condition: service_healthy
-        required: false
-      rabbitmq:
-        condition: service_healthy
-        required: true
-  
+    depends_on: *gs-standalone-dependencies
+
   wcs:
     environment:
       SPRING_PROFILES_INCLUDE: "standalone"
-    depends_on:
-      discovery:
-        condition: service_healthy
-        required: false
-      rabbitmq:
-        condition: service_healthy
-        required: true
-  
+    depends_on: *gs-standalone-dependencies
+
   wps:
     environment:
       SPRING_PROFILES_INCLUDE: "standalone"
-    depends_on:
-      discovery:
-        condition: service_healthy
-        required: false
-      rabbitmq:
-        condition: service_healthy
-        required: true
-  
+    depends_on: *gs-standalone-dependencies
+
   restconfig:
     environment:
       SPRING_PROFILES_INCLUDE: "standalone"
-    depends_on:
-      discovery:
-        condition: service_healthy
-        required: false
-      rabbitmq:
-        condition: service_healthy
-        required: true
-  
+    depends_on: *gs-standalone-dependencies
+
   webui:
     environment:
       SPRING_PROFILES_INCLUDE: "standalone"
-    depends_on:
-      discovery:
-        condition: service_healthy
-        required: false
-      rabbitmq:
-        condition: service_healthy
-        required: true
-  
+    depends_on: *gs-standalone-dependencies
+
   gwc:
     environment:
       SPRING_PROFILES_INCLUDE: "standalone"
-    depends_on:
-      discovery:
-        condition: service_healthy
-        required: false
-      rabbitmq:
-        condition: service_healthy
-        required: true
+    depends_on: *gs-standalone-dependencies
