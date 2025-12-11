@@ -2,8 +2,8 @@
 
 Requirements:
 
- * Java >= 21 JDK
- * [Maven](https://maven.apache.org/) >= `3.9`
+ * Java >= 25 JDK
+ * [Maven](https://maven.apache.org/) >= `3.9.11` (included with the `mvnw` maven wrapper in the root folder)
  * A recent [Docker](https://docs.docker.com/engine/install/) version with the [Compose](https://docs.docker.com/compose/) plugin.
 
 ### Clone the repository
