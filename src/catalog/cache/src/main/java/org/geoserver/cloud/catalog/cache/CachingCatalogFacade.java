@@ -66,7 +66,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
         this.support = support;
     }
 
-    /////////////////////  Eviction event listeners //////////////////////////
+    // ///////////////////  Eviction event listeners //////////////////////////
 
     @EventListener(classes = DefaultWorkspaceSet.class)
     public void onDefaultWorkspaceSet() {
@@ -114,7 +114,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
         }
     }
 
-    /////////////////////  CatalogFacade override methods //////////////////////////
+    // ///////////////////  CatalogFacade override methods //////////////////////////
 
     @Override
     public <T extends CatalogInfo> T add(@NonNull T info) {

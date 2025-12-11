@@ -85,8 +85,7 @@ public class GeoServer extends ConfigInfoDto {
             FULL
         }
 
-        // ignoring id, this is not an entity but a value object
-        // String id;
+        // ignoring String id, this is not an entity but a value object
 
         LoggedInUserDisplayMode loggedInUserDisplayMode;
         boolean showProfileColumnsInUserList;

@@ -5,44 +5,22 @@
 package org.geoserver.cloud.autoconfigure.extensions.inspire;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.geoserver.cloud.autoconfigure.extensions.inspire.InspireAutoConfigurationTestSupport.createContextRunner;
 
 import java.io.File;
-import org.geoserver.config.GeoServer;
-import org.geoserver.config.GeoServerDataDirectory;
-import org.geoserver.config.impl.GeoServerImpl;
-import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.ModuleStatus;
-import org.geoserver.platform.resource.FileSystemResourceStore;
-import org.geoserver.platform.resource.ResourceStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-public class InspireAutoConfigurationTest {
-
-    @TempDir
-    File tempDir;
+class InspireAutoConfigurationTest {
 
     protected ApplicationContextRunner runner;
 
     @BeforeEach
-    void setUp() {
+    void setUp(@TempDir File tempDir) {
         runner = createContextRunner(tempDir);
-    }
-
-    protected ApplicationContextRunner createContextRunner(File tempDir) {
-        ResourceStore resourceStore = new FileSystemResourceStore(tempDir);
-        GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStore);
-        GeoServerDataDirectory datadir = new GeoServerDataDirectory(resourceLoader);
-
-        return new ApplicationContextRunner()
-                .withBean(ResourceStore.class, () -> resourceStore)
-                .withBean(GeoServerResourceLoader.class, () -> resourceLoader)
-                .withBean("dataDirectory", GeoServerDataDirectory.class, () -> datadir)
-                .withBean("geoServer", GeoServer.class, GeoServerImpl::new)
-                .withConfiguration(AutoConfigurations.of(InspireAutoConfiguration.class));
     }
 
     /**

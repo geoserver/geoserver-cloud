@@ -6,7 +6,6 @@
 package org.geoserver.cloud.gwc.config.blobstore;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +84,7 @@ class GoogleCloudStorageBlobStoreIT {
                     when(mock.getGridSubsets()).thenReturn(Collections.singleton("testGridSet"));
                     when(mock.getMimeTypes()).thenReturn(Arrays.asList(org.geowebcache.mime.ImageMime.png));
                     try {
-                        when(dispatcher.getTileLayer(eq(name))).thenReturn(mock);
+                        when(dispatcher.getTileLayer(name)).thenReturn(mock);
                     } catch (GeoWebCacheException e) {
                         throw new IllegalStateException(e);
                     }

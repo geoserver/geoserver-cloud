@@ -215,7 +215,7 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
         enforcer.setDefaultDataStore(workspace, store);
     }
 
-    ///////// point queries, apply retry if
+    // point queries, apply retry if
 
     @Override
     public <T extends StoreInfo> T getStore(String id, Class<T> clazz) {

@@ -16,11 +16,11 @@ import org.springframework.core.env.Environment;
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.controlflow")
 class ControlFlowConfigurationProperties {
 
-    static final String ENABLED = "geoserver.extension.control-flow.enabled";
+    static final String ENABLED_PROPERTY = "geoserver.extension.control-flow.enabled";
     static final String USE_PROPERTIES_FILE = "geoserver.extension.control-flow.use-properties-file";
 
-    private final transient @NonNull ExpressionEvaluator evaluator;
-    private transient Properties resolved;
+    private final @NonNull ExpressionEvaluator evaluator;
+    private Properties resolved;
 
     /**
      * Whether to enable the control-flow extension
@@ -56,9 +56,9 @@ class ControlFlowConfigurationProperties {
     }
 
     private String resolve(final String value) {
-        String resolved = evaluator.resolvePlaceholders(value);
+        String resolvedValue = evaluator.resolvePlaceholders(value);
         try {
-            resolved = evaluator.evaluateExpressions(resolved);
+            resolvedValue = evaluator.evaluateExpressions(resolvedValue);
         } catch (Exception e) {
             log.warn(
                     """
@@ -67,9 +67,9 @@ class ControlFlowConfigurationProperties {
                      Error message: {}
                      """,
                     value,
-                    resolved,
+                    resolvedValue,
                     e.getMessage());
         }
-        return resolved;
+        return resolvedValue;
     }
 }

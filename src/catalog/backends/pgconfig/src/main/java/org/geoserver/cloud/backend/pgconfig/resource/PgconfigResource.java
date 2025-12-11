@@ -14,7 +14,6 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.ToString;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceListener;
@@ -23,7 +22,6 @@ import org.geoserver.platform.resource.ResourceListener;
  * @since 1.4
  */
 @EqualsAndHashCode(exclude = {"store", "lastChecked"})
-@ToString(exclude = "store")
 class PgconfigResource implements Resource {
 
     @Getter

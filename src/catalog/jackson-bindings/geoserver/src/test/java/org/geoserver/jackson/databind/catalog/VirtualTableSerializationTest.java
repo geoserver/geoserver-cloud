@@ -26,7 +26,7 @@ import org.locationtech.jts.geom.Polygon;
  * Test to verify our VirtualTable serialization fixes work correctly
  */
 @Slf4j
-public class VirtualTableSerializationTest {
+class VirtualTableSerializationTest {
 
     private ObjectMapper objectMapper;
 
@@ -38,6 +38,7 @@ public class VirtualTableSerializationTest {
 
     @Test
     @SneakyThrows
+    @SuppressWarnings("java:S5961") // 26 assertions is not too much more than 25 max expected by sornarqube
     void testVirtualTableWithValidatorsAndGeometryTypes() {
         // Create a VirtualTable with validators and geometry types
         VirtualTable originalVt = new VirtualTable("test_vt", "SELECT * FROM test_table", true);

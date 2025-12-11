@@ -106,7 +106,6 @@ public class LoggingTemplate {
             if (error instanceof org.springframework.dao.EmptyResultDataAccessException) {
                 return;
             }
-            error.printStackTrace();
         }
         if (!log.isDebugEnabled()) {
             return;
