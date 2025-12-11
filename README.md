@@ -23,7 +23,7 @@
 
 The following diagram shows the system’s general architecture.
 
-<img src="docs/img/gs_cloud_architecture_diagram.svg" alt="GeoServer Cloud Architecture Diagram" width="740" />
+<img src="docs/src/assets/images/gs_cloud_architecture_diagram.svg" alt="GeoServer Cloud Architecture Diagram" width="740" />
 
 *GeoServer Cloud* is designed to achieve [functional decomposition by business capability](https://microservices.io/patterns/decomposition/decompose-by-business-capability.html), adapting and extending *GeoServer* components to promote higher cohesion and lower coupling.
 
