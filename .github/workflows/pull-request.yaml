@@ -59,7 +59,6 @@ jobs:
       fail-fast: false
       matrix:
         catalog: [ 'datadir', 'pgconfig' ]
-        #catalog: [ 'datadir', 'pgconfig', 'jdbcconfig' ]
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -92,6 +91,17 @@ jobs:
     - name: Install CI dependencies
       id: installci
       run: python3 -m pip install --user --requirement=ci/requirements.txt
+
+    - name: Set up AWS credentials for acceptance tests
+      if: secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != ''
+      run: |
+        mkdir -p compose/secrets/aws
+        cat > compose/secrets/aws/credentials << 'EOF'
+        [default]
+        aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        EOF
+        chmod 600 compose/secrets/aws/credentials
 
     - name: Launch ${{ matrix.catalog }} acceptance tests docker composition
       id: start
