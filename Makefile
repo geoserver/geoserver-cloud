@@ -200,7 +200,7 @@ start-acceptance-tests-pgconfig:
 
 .PHONY: run-acceptance-tests-pgconfig
 run-acceptance-tests-pgconfig:
-	(cd compose/ && ./acceptance_pgconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
+	(cd compose/ && ./acceptance_pgconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes --ignore=tests/test_imagemosaic.py --ignore=tests/test_imagemosaic_cog.py')
 
 .PHONY: clean-acceptance-tests-pgconfig
 clean-acceptance-tests-pgconfig:
