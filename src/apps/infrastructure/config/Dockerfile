@@ -35,12 +35,3 @@ ENV SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: master
 ENV CONFIG_GIT_BASEDIR: /tmp/git_config
 # avoid stack trace due to jgit not being able of creating a .config dir at $HOME
 ENV XDG_CONFIG_HOME: /tmp
-
-# Execute the CDS training run
-RUN java -XX:ArchiveClassesAtExit=application.jsa \
--Dspring.context.exit=onRefreshed \
--Dserver.port=0 -Dmanagement.server.port=0 \
-org.springframework.boot.loader.JarLauncher
-RUN rm -rf /tmp/*
-
-ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"

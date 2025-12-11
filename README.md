@@ -122,7 +122,8 @@ If you encounter a bug, please check if it's reported as a GeoServer bug in JIRA
 
 Requirements:
 
- * Java 21 JDK
+ * Java 25 JDK
+ * Maven 3.9.11+ (included with the `mvnw` maven wrapper)
  * A recent [Docker](https://docs.docker.com/engine/install/) version with the [Compose](https://docs.docker.com/compose/) plugin.
  * [GNU Make](https://www.gnu.org/software/make/) (optional, recommended).
 

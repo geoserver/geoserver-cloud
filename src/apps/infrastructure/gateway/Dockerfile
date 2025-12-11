@@ -18,16 +18,3 @@ COPY --from=builder spring-boot-loader/ ./
 #see https://github.com/moby/moby/issues/37965
 RUN true
 COPY --from=builder application/ ./
-
-# Generate CDS archive for faster startup
-# Execute the CDS training run
-RUN java -XX:ArchiveClassesAtExit=application.jsa \
--Dspring.context.exit=onRefreshed \
--Dspring.profiles.active=standalone \
--Dserver.port=0 -Dmanagement.server.port=0 \
-org.springframework.boot.loader.launch.JarLauncher
-
-RUN rm -rf /tmp/*
-
-# Enable CDS for faster startup
-ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"
