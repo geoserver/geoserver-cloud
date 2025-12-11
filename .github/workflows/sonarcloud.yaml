@@ -60,6 +60,7 @@ jobs:
         -Dcoverage \
         -Dsonar.projectKey=geoserver_geoserver-cloud \
         -Dsonar.organization=geoserver \
+        -Dsonar.scanner.skipJreProvisioning=true \
         -Dmaven.javadoc.skip=true \
         -ntp \
         -T1C
