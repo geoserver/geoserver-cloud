@@ -1,0 +1,6 @@
+# Exclude everything in the root context
+*
+
+# Re-include only necessary build artifacts
+!target/*-bin.jar
+!target/config
