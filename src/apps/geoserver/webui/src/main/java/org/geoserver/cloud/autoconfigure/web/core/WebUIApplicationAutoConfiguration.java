@@ -5,15 +5,16 @@
 
 package org.geoserver.cloud.autoconfigure.web.core;
 
-import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.web.demo.DemosAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.web.extension.ExtensionsAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.web.security.SecurityAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.web.tools.ToolsAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.web.wcs.WcsAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.web.wfs.WfsAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.web.wms.WmsAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.web.wps.WpsAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.core.GeoServerMainAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.demo.WebDemosAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.extension.WebExtensionsAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.rest.WebRestAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.security.WebSecurityAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.tools.WebToolsAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.wcs.WebWcsAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.wfs.WebWfsAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.wms.WebWmsAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.wps.WebWpsAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -23,19 +24,20 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 
-@AutoConfiguration(after = {GeoServerWebMvcMainAutoConfiguration.class})
+@AutoConfiguration(after = {GeoServerMainAutoConfiguration.class})
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @EnableConfigurationProperties(WebUIConfigurationProperties.class)
 @Import({ //
-    WebCoreConfiguration.class, // this one is mandatory
-    SecurityAutoConfiguration.class,
-    WfsAutoConfiguration.class,
-    WmsAutoConfiguration.class,
-    WcsAutoConfiguration.class,
-    WpsAutoConfiguration.class,
-    ExtensionsAutoConfiguration.class,
-    DemosAutoConfiguration.class,
-    ToolsAutoConfiguration.class
+    WebCoreAutoConfiguration.class, // this one is mandatory
+    WebSecurityAutoConfiguration.class,
+    WebRestAutoConfiguration.class,
+    WebWfsAutoConfiguration.class,
+    WebWmsAutoConfiguration.class,
+    WebWcsAutoConfiguration.class,
+    WebWpsAutoConfiguration.class,
+    WebExtensionsAutoConfiguration.class,
+    WebDemosAutoConfiguration.class,
+    WebToolsAutoConfiguration.class
 })
 public class WebUIApplicationAutoConfiguration {
 
