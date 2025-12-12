@@ -7,9 +7,17 @@ from geoservercloud import GeoServerCloud
 
 GEOSERVER_URL = os.getenv("GEOSERVER_URL", "http://gateway:8080/geoserver/cloud")
 RESOURCE_DIR = Path(__file__).parent / "resources"
-# Database connection - defaults for container, can be overridden for local testing
+
+# Database connection for test client (can be overridden for local testing)
 PGHOST = os.getenv("PGHOST", "geodatabase")
 PGPORT = int(os.getenv("PGPORT", "5432"))
+
+# Database connection for GeoServer datastores (must use container names)
+# These are separate because GeoServer runs inside containers and needs
+# to use the internal Docker network, while tests may run on the host
+PGHOST_GEOSERVER = os.getenv("PGHOST_GEOSERVER", "geodatabase")
+PGPORT_GEOSERVER = int(os.getenv("PGPORT_GEOSERVER", "5432"))
+
 PGDATABASE = os.getenv("PGDATABASE", "acceptance")
 PGUSER = os.getenv("PGUSER", "geoserver")
 PGPASSWORD = os.getenv("PGPASSWORD", "geoserver")
@@ -57,3 +65,30 @@ def geoserver_factory(request):
         return geoserver
 
     return _create
+
+
+@pytest.fixture(scope="module")
+def geoserver(request):
+    """
+    Shared GeoServerCloud instance with workspace and PostGIS datastore.
+    Used by tests that need a consistent workspace/datastore setup (like OGC API Features tests).
+    """
+    geoserver = GeoServerCloud(url=GEOSERVER_URL)
+    geoserver.recreate_workspace(WORKSPACE, set_default_workspace=True)
+    geoserver.create_pg_datastore(
+        workspace_name=WORKSPACE,
+        datastore_name=DATASTORE,
+        pg_host=PGHOST_GEOSERVER,  # Use container network parameters
+        pg_port=PGPORT_GEOSERVER,
+        pg_db=PGDATABASE,
+        pg_user=PGUSER,
+        pg_password=PGPASSWORD,
+        pg_schema=PGSCHEMA,
+        set_default_datastore=True,
+    )
+    geoserver.publish_workspace(WORKSPACE)
+
+    # Register cleanup
+    request.addfinalizer(lambda: geoserver.delete_workspace(WORKSPACE))
+
+    return geoserver
