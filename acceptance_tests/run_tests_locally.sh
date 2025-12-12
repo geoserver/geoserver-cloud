@@ -1,5 +1,9 @@
 #!/bin/bash
 
+virtualenv -q .venv/
+source .venv/bin/activate
+pip install -q -e .
+
 # Default GeoServer URL
 GEOSERVER_URL=${GEOSERVER_URL:-"http://localhost:9090/geoserver/cloud"}
 

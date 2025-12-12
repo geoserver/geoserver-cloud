@@ -2,6 +2,7 @@
 x-geoserver-volume-mounts: &geoserver_volumes
   - geowebcache_data:/opt/geowebcache_data
   - geoserver_data:/opt/geoserver_data
+  - $PWD/secrets/aws:/opt/app/home/.aws
 
 # Define reusable environment variables
 x-geoserver-env: &geoserver_environment
@@ -10,6 +11,8 @@ x-geoserver-env: &geoserver_environment
   JNDI_POSTGIS_ENABLED: true
   GEOWEBCACHE_CACHE_DIR: /opt/geowebcache_data
   JAVA_OPTS: "${JAVA_OPTS_GEOSERVER}"
+  #AWS_ACCESS_KEY_ID: 
+  #AWS_SECRET_ACCESS_KEY: 
 
 services:
   gstemplate:
