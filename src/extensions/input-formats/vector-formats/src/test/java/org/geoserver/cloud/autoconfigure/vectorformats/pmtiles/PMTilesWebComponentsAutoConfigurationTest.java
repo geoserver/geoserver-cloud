@@ -27,29 +27,42 @@ class PMTilesWebComponentsAutoConfigurationTest {
 
     @Test
     void testConditionalOnGeoServerWebUI() {
-        contextRunner.run(context -> assertThat(context).hasNotFailed().doesNotHaveBean("pmtilesDataStorePanel"));
+        contextRunner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .doesNotHaveBean("pmtilesDataStorePanel")
+                .doesNotHaveBean("aclSwitchFieldCssContribution"));
 
         contextRunner
                 .withPropertyValues("geoserver.service.webui.enabled=true")
                 .withClassLoader(new FilteredClassLoader(GeoServerApplication.class))
-                .run(context -> assertThat(context).hasNotFailed().doesNotHaveBean("pmtilesDataStorePanel"));
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .doesNotHaveBean("pmtilesDataStorePanel")
+                        .doesNotHaveBean("aclSwitchFieldCssContribution"));
 
-        contextRunner
-                .withPropertyValues("geoserver.service.webui.enabled=true")
-                .run(context -> assertThat(context).hasNotFailed().hasBean("pmtilesDataStorePanel"));
+        contextRunner.withPropertyValues("geoserver.service.webui.enabled=true").run(context -> assertThat(context)
+                .hasNotFailed()
+                .hasBean("pmtilesDataStorePanel")
+                .hasBean("aclSwitchFieldCssContribution"));
     }
 
     @Test
     void testConditionalPMTilesStoreFactoryClass() {
         contextRunner
                 .withClassLoader(new FilteredClassLoader(PMTilesDataStoreFactory.class))
-                .run(context -> assertThat(context).hasNotFailed().doesNotHaveBean("pmtilesDataStorePanel"));
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .doesNotHaveBean("pmtilesDataStorePanel")
+                        .doesNotHaveBean("aclSwitchFieldCssContribution"));
     }
 
     @Test
     void testConditionalPMTilesExtension() {
         contextRunner
                 .withPropertyValues("geoserver.extension.pmtiles.enabled=false")
-                .run(context -> assertThat(context).hasNotFailed().doesNotHaveBean("pmtilesDataStorePanel"));
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .doesNotHaveBean("pmtilesDataStorePanel")
+                        .doesNotHaveBean("aclSwitchFieldCssContribution"));
     }
 }

@@ -8,9 +8,10 @@ package org.geoserver.cloud.autoconfigure.vectorformats.pmtiles;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.pmtiles.web.data.PMTilesStoreConfiguration;
 import org.geotools.autoconfigure.vectorformats.DataAccessFactoryFilteringAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Auto-configuration for GeoParquet extension that provides a data store
@@ -26,11 +27,12 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
  * </ul>
  *
  * @since 2.28.0
+ * @see PMTilesStoreConfiguration
  */
 @AutoConfiguration(after = DataAccessFactoryFilteringAutoConfiguration.class)
 @ConditionalOnPMTiles
 @ConditionalOnGeoServerWebUI
-@ImportFilteredResource("jar:gs-pmtiles-store-.*!/applicationContext.xml")
+@Import(PMTilesStoreConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.vectorformats.pmtiles")
 public class PMTilesWebComponentsAutoConfiguration {
 
