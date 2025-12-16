@@ -25,4 +25,11 @@ public class DxfConfigProperties {
      * Default is true.
      */
     private boolean enabled = true;
+
+    /**
+     * Whether DXF WPS extension is enabled.  geoserver.extension.dxf.enabled must also be true.
+     *
+     * Default is true.
+     */
+    private boolean wps = true;
 }

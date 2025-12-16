@@ -1,2 +1,3 @@
 org.geoserver.cloud.autoconfigure.extensions.ogcapi.features.OgcApiFeaturesAutoConfiguration
+org.geoserver.cloud.autoconfigure.extensions.ogcapi.features.OgcApiFeaturesWebUIAutoConfiguration
 org.geoserver.cloud.autoconfigure.extensions.ogcapi.features.OgcApiFeaturesConformancesModuleAutoConfiguration

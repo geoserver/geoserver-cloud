@@ -101,8 +101,8 @@ class ImporterAutoConfigurationTest {
             assertThat(context)
                     .hasNotFailed()
                     .doesNotHaveBean(ImporterAutoConfiguration.class)
-                    .doesNotHaveBean(ImporterAutoConfiguration.ImporterRestConfiguration.class)
-                    .doesNotHaveBean(ImporterAutoConfiguration.ImporterWebUIConfiguration.class)
+                    .doesNotHaveBean(ImporterAutoConfiguration.ImporterRestAutoConfiguration.class)
+                    .doesNotHaveBean(ImporterAutoConfiguration.ImporterWebUIAutoConfiguration.class)
                     .doesNotHaveBean("importer");
         });
     }
@@ -123,8 +123,8 @@ class ImporterAutoConfigurationTest {
                     assertThat(context)
                             .hasNotFailed()
                             .hasSingleBean(ImporterAutoConfiguration.class)
-                            .doesNotHaveBean(ImporterAutoConfiguration.ImporterRestConfiguration.class)
-                            .doesNotHaveBean(ImporterAutoConfiguration.ImporterWebUIConfiguration.class)
+                            .doesNotHaveBean(ImporterAutoConfiguration.ImporterRestAutoConfiguration.class)
+                            .doesNotHaveBean(ImporterAutoConfiguration.ImporterWebUIAutoConfiguration.class)
                             .doesNotHaveBean(Importer.class)
                             .getBean(ImporterConfigProperties.class)
                             .hasFieldOrPropertyWithValue("enabled", true);

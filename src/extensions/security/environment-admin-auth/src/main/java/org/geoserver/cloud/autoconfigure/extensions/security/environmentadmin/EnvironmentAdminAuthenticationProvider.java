@@ -9,7 +9,9 @@ import static org.springframework.util.StringUtils.hasText;
 
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.security.GeoServerAuthenticationProvider;
 import org.geoserver.security.impl.GeoServerRole;
 import org.geoserver.security.impl.GeoServerUser;
 import org.springframework.beans.BeanInstantiationException;
@@ -48,7 +50,8 @@ import org.springframework.util.StringUtils;
  */
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class EnvironmentAdminAuthenticationProvider implements AuthenticationProvider {
+public class EnvironmentAdminAuthenticationProvider extends GeoServerAuthenticationProvider
+        implements AuthenticationProvider {
 
     @Value("${geoserver.admin.username:}")
     private String adminUserName;
@@ -92,7 +95,7 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
     }
 
     @Override
-    public boolean supports(Class<?> authentication) {
+    public boolean supports(Class<?> authentication, HttpServletRequest request) {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
@@ -107,7 +110,8 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
      *     credentials don't match, or the
      */
     @Override
-    public Authentication authenticate(Authentication token) throws AuthenticationException {
+    public Authentication authenticate(Authentication token, HttpServletRequest request)
+            throws AuthenticationException {
         if (!enabled) {
             // proceed with the authentication chain
             return null;

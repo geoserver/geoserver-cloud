@@ -7,8 +7,8 @@ package org.geoserver.cloud.autoconfigure.extensions.mapboxstyling;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.community.mbstyle.MBStyleHandler;
+import org.geoserver.configuration.extension.mbstyle.MapboxStyleConfiguration;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geotools.util.Version;
@@ -26,17 +26,18 @@ import org.springframework.context.annotation.Import;
  * for MapBox stylesheets.
  *
  * @since 2.27.0
+ * @see MapboxStyleConfiguration
  */
 @AutoConfiguration
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.mapboxstyling")
 @EnableConfigurationProperties(MapBoxStylingConfigProperties.class)
 @Import(value = {MapBoxStylingAutoConfiguration.Enabled.class, MapBoxStylingAutoConfiguration.Disabled.class})
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class MapBoxStylingAutoConfiguration {
 
     @Configuration
     @ConditionalOnMapBoxStyling
-    @ImportFilteredResource("jar:gs-mbstyle-.*!/applicationContext.xml")
+    @Import(MapboxStyleConfiguration.class)
     static class Enabled {
         @PostConstruct
         void log() {

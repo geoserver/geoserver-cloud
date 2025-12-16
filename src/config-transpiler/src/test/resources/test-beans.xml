@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+                           
+    <bean id="gsMainModule" class="org.geoserver.platform.ModuleStatusImpl">
+        <constructor-arg index="0" value="gs-main"/>
+        <constructor-arg index="1" value="GeoServer Main"/>
+    </bean>
+    
+    <bean id="nullLockProvider" class="org.geoserver.platform.resource.NullLockProvider" factory-method="instance"/>
+    
+    <bean id="memoryLockProvider" class="org.geoserver.platform.resource.MemoryLockProvider"/>
+    
+    <bean id="dataDirectoryResourceStore" class="org.geoserver.platform.resource.DataDirectoryResourceStore">
+        <property name="lockProvider" ref="fileLockProvider"/>
+    </bean>
+    
+    <bean id="resourceLoader" class="org.geoserver.platform.GeoServerResourceLoader">
+        <constructor-arg ref="resourceStore"/>
+    </bean>
+
+    <!--  alias test -->
+    <bean id="authenticationManager" class="org.geoserver.security.GeoServerSecurityManager"
+       depends-on="extensions">
+      <constructor-arg ref="dataDirectory"/>
+    </bean>
+    <alias name="authenticationManager" alias="geoServerSecurityManager"/>
+    
+</beans>

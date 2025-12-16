@@ -53,6 +53,8 @@ import org.springframework.util.StringUtils;
  * appropriate, or to {@link CacheProvider#addUncachedLayer(String) addUncachedLayer} when a layer
  * is created to changed to not be memory cached.
  *
+ * @see DefaultGwcInitializer
+ * @see {@code PgconfigGwcInitializer}
  * @since 1.8
  */
 @RequiredArgsConstructor

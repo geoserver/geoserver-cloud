@@ -14,7 +14,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.gwc.config.core.WebMapServiceMinimalConfiguration;
+import org.geoserver.configuration.core.wms.WMSCoreMinimalConfiguration;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.rest.RequestInfo;
@@ -36,7 +36,7 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
 
     /**
      * Required by {@link GeoServerTileLayer#getLegendSample}, excluded by {@link
-     * WebMapServiceMinimalConfiguration}
+     * WMSCoreMinimalConfiguration}
      *
      * @param catalog using {@code rawCatalog} instead of {@code catalog}, to avoid the local
      *     workspace and secured catalog decorators

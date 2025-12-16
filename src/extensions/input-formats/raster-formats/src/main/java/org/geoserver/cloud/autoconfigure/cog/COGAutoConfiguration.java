@@ -5,17 +5,19 @@
 
 package org.geoserver.cloud.autoconfigure.cog;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.cog.CogSettings;
+import org.geoserver.configuration.community.cog.COGConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.context.annotation.Import;
 
-/** Auto configuration to enable the COG (Cloud Optimized GeoTIFF) support as raster data format. */
+/**
+ * Auto configuration to enable the COG (Cloud Optimized GeoTIFF) support as
+ * raster data format.
+ * @see COGConfiguration
+ */
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnClass({CogSettings.class})
-@ImportFilteredResource("jar:gs-cog-.*!/applicationContext.xml#name=" + COGAutoConfiguration.EXCLUDE_WEBUI_BEANS)
-public class COGAutoConfiguration {
-
-    static final String EXCLUDE_WEBUI_BEANS = "^(?!" + COGWebUIAutoConfiguration.WEBUI_BEAN_NAMES + ").*$";
-}
+@Import(COGConfiguration.class)
+public class COGAutoConfiguration {}

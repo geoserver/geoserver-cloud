@@ -12,6 +12,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWMS;
 import org.geoserver.cloud.autoconfigure.extensions.inspire.ConditionalOnInspire;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 /**
  * Conditional annotation that only matches when:
@@ -29,4 +30,5 @@ import org.geoserver.cloud.autoconfigure.extensions.inspire.ConditionalOnInspire
 @Inherited
 @ConditionalOnInspire
 @ConditionalOnGeoServerWMS
+@ConditionalOnClass(name = "org.geoserver.inspire.wms.WMSExtendedCapabilitiesProvider")
 public @interface ConditionalOnInspireWms {}
