@@ -2,4 +2,4 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.geotools.autoconfigure.vectorformats.DataAccessFactoryFilteringAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.vectorformats.graticule.GraticuleWebComponentsAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.vectorformats.geoparquet.GeoParquetWebComponentsAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.vectorformats.pmtiles.PMTilesWebComponentsAutoConfiguration
+org.geoserver.cloud.autoconfigure.vectorformats.pmtiles.PMTilesPluginAutoConfiguration
