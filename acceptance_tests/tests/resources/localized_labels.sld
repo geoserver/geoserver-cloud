@@ -25,6 +25,10 @@
                     <ogc:PropertyName>label_fr</ogc:PropertyName>
                 </ogc:Function>
                 </Label>
+                <Font>
+                    <CssParameter name="font-family">DejaVu Sans</CssParameter>
+                    <CssParameter name="font-size">10</CssParameter>
+                </Font>
                 <Fill>
                 <CssParameter name="fill">#000000</CssParameter>
                 </Fill>
