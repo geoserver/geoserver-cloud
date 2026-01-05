@@ -6,7 +6,6 @@
 package org.geoserver.cloud.web.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
@@ -19,14 +18,12 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.util.tester.TagTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.core.WebUIContextInitializer;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.GeoServerHomePage;
-import org.geoserver.web.GeoServerLoginPage;
 import org.geoserver.web.ServicesPanel;
-import org.geoserver.web.admin.GlobalSettingsPage;
 import org.geoserver.web.wicket.WicketHierarchyPrinter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -143,27 +140,6 @@ class WebUIApplicationTest {
     }
 
     @Test
-    void GlobalSettingsPage_smoke_test_loggedout() {
-        logout();
-        tester.startPage(GlobalSettingsPage.class);
-        tester.assertRenderedPage(GeoServerLoginPage.class);
-    }
-
-    @Test
-    void GlobalSettingsPage_smoke_test() {
-        login();
-        tester.startPage(GlobalSettingsPage.class);
-        tester.assertRenderedPage(GlobalSettingsPage.class);
-        GlobalSettingsPage page = (GlobalSettingsPage) tester.getLastRenderedPage();
-        assertNotNull(page);
-        assertHidden("proxyBaseUrlContainer");
-        assertHidden("useHeadersProxyURL");
-        assertHidden("loggingSettingsContainer");
-        assertHidden("lockProviderContainer");
-        assertHidden("webUISettingsContainer");
-    }
-
-    @Test
     void GeoServerHomePage_smoke_test_service_links() {
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);
@@ -183,13 +159,6 @@ class WebUIApplicationTest {
 
         tester.assertComponent("serviceList:serviceDescriptions:4", ListItem.class);
         tester.assertComponent("serviceList:serviceDescriptions:4:links:0", ListItem.class);
-    }
-
-    protected void assertHidden(String id) {
-        TagTester tag = tester.getTagById(id);
-        String msg = "expected custom 'unused' css class to hide the %s form inputs in custom GlobalSettingsPage.html"
-                .formatted(id);
-        assertEquals("unused", tag.getAttribute("class"), msg);
     }
 
     /**

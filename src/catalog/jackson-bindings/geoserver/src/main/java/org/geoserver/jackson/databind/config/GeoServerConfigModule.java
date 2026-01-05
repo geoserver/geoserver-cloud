@@ -20,6 +20,7 @@ import org.geoserver.config.ImageProcessingInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.UserDetailsDisplaySettingsInfo;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
@@ -28,6 +29,7 @@ import org.geoserver.jackson.databind.config.dto.CogSettingsStoreDto;
 import org.geoserver.jackson.databind.config.dto.Contact;
 import org.geoserver.jackson.databind.config.dto.CoverageAccess;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
+import org.geoserver.jackson.databind.config.dto.GeoServer.UserDetailsDisplaySettings;
 import org.geoserver.jackson.databind.config.dto.ImageProcessingInfoDto;
 import org.geoserver.jackson.databind.config.dto.Logging;
 import org.geoserver.jackson.databind.config.dto.Service;
@@ -118,6 +120,12 @@ public class GeoServerConfigModule extends SimpleModule {
                 VALUE_MAPPER::imageProcessingInfo,
                 ImageProcessingInfoDto.class,
                 VALUE_MAPPER::imageProcessingInfo);
+
+        addMapperSerializer(
+                UserDetailsDisplaySettingsInfo.class,
+                VALUE_MAPPER::toDto,
+                UserDetailsDisplaySettings.class,
+                VALUE_MAPPER::toInfo);
 
         addMapperSerializer(ContactInfo.class, VALUE_MAPPER::contactInfo, Contact.class, VALUE_MAPPER::contactInfo);
 

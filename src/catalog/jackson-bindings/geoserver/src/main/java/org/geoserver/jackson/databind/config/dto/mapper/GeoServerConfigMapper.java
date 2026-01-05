@@ -116,8 +116,15 @@ public interface GeoServerConfigMapper {
     @Mapping(target = "clientProperties", ignore = true)
     @Mapping(target = "useHeadersProxyURL", ignore = true) // deprecated
     @Mapping(target = "xmlExternalEntitiesEnabled", ignore = true) // deprecated
+    @Mapping(
+            target = "userDetailsDisplaySettings",
+            defaultExpression = "java(new org.geoserver.config.impl.UserDetailsDisplaySettingsInfoImpl())")
     GeoServerInfo toInfo(GeoServer dto);
 
+    @Mapping(
+            target = "userDetailsDisplaySettings",
+            defaultExpression =
+                    "java(new org.geoserver.jackson.databind.config.dto.GeoServer.UserDetailsDisplaySettings())")
     GeoServer toDto(GeoServerInfo info);
 
     UserDetailsDisplaySettingsInfo toInfo(GeoServer.UserDetailsDisplaySettings dto);
