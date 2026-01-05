@@ -83,6 +83,9 @@ public abstract class PatchMapper {
             if (ProxyUtils.encodeByReference(info)) {
                 dto = (R) REFS.infoToReference(info);
             }
+            // note if info is a value object Info (i.e. can't have id) and still is a ModificationProxy, a Jackson
+            // serializer/deserializer must be registered against its interface (e.g. see GeoServerConfigModule
+            // registering de/serializer for UserDetailsDisplaySettings
         } else if (value instanceof Collection<?> c) {
             dto = (R) copyOf(c, this::valueToDto);
         } else if (value instanceof Map) {

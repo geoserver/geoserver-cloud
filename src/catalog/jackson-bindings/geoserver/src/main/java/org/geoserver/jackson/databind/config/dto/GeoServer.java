@@ -20,9 +20,9 @@ import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonTypeName("GeoServerInfo")
-// for backwards compatiblility, xmlExternalEntitiesEnabled removed in 2.28.0, might be present in a config JSON
-// document from an earler version
-@JsonIgnoreProperties("xmlExternalEntitiesEnabled")
+// for backwards compatiblility, xmlExternalEntitiesEnabled and useHeadersProxyURLremoved in 2.28.0, might be present in
+// a config JSON document from an earler version
+@JsonIgnoreProperties({"xmlExternalEntitiesEnabled", "useHeadersProxyURL"})
 public class GeoServer extends ConfigInfoDto {
     public enum ResourceErrorHandling {
         OGC_EXCEPTION_REPORT,
@@ -47,7 +47,6 @@ public class GeoServer extends ConfigInfoDto {
     private String adminPassword;
     private int featureTypeCacheSize;
     private Boolean globalServices;
-    private Boolean useHeadersProxyURL;
     private Integer xmlPostRequestLogBufferSize;
     private String lockProviderName;
     private WebUIMode webUIMode;
@@ -62,7 +61,7 @@ public class GeoServer extends ConfigInfoDto {
     /**
      * @since 2.28.1
      */
-    private UserDetailsDisplaySettings userDetailsDisplaySettings;
+    private UserDetailsDisplaySettings userDetailsDisplaySettings = new UserDetailsDisplaySettings();
 
     /**
      * DTO for {@link UserDetailsDisplaySettingsInfo}
@@ -87,9 +86,9 @@ public class GeoServer extends ConfigInfoDto {
 
         // ignoring String id, this is not an entity but a value object
 
-        LoggedInUserDisplayMode loggedInUserDisplayMode;
+        LoggedInUserDisplayMode loggedInUserDisplayMode = LoggedInUserDisplayMode.USERNAME;
         boolean showProfileColumnsInUserList;
-        EmailDisplayMode emailDisplayMode;
+        EmailDisplayMode emailDisplayMode = EmailDisplayMode.DOMAIN_ONLY;
         boolean revealEmailAtClick;
     }
 }

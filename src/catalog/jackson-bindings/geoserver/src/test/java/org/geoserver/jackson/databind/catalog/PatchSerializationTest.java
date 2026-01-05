@@ -62,10 +62,13 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.ImageProcessingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.UserDetailsDisplaySettingsInfo;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
+import org.geoserver.config.impl.UserDetailsDisplaySettingsInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
 import org.geoserver.jackson.databind.catalog.mapper.GeoServerValueObjectsMapper;
+import org.geoserver.jackson.databind.config.GeoServerConfigModule;
 import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
@@ -464,6 +467,20 @@ public abstract class PatchSerializationTest {
     @Test
     void modificationProxy_geoserverInfo() throws Exception {
         testPatch("global", forceProxy(data.global, GeoServerInfo.class));
+    }
+
+    /**
+     * UserDetailsDisplaySettingsInfo is a value object, has no id, hence can't be
+     * encoded by reference, yet the webui is setting
+     * {@link GeoServerInfo#setUserDetailsDisplaySettings(UserDetailsDisplaySettingsInfo)}
+     * using a {@link ModificationProxy}
+     * <p>
+     * The solution is to ensure {@link GeoServerConfigModule} registers a de/serializer for the {@link UserDetailsDisplaySettingsInfo} interface
+     */
+    @Test
+    void modificationProxy_UserDetailsDisplaySettingsInfo() throws Exception {
+        UserDetailsDisplaySettingsInfo info = new UserDetailsDisplaySettingsInfoImpl();
+        testPatch("userDetailsDisplaySettingsInfo", forceProxy(info, UserDetailsDisplaySettingsInfo.class));
     }
 
     @Test

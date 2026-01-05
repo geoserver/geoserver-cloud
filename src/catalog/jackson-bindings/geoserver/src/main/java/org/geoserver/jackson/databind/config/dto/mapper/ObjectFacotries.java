@@ -22,6 +22,7 @@ import org.geoserver.config.impl.LoggingInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.config.impl.UserDetailsDisplaySettingsInfoImpl;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
+import org.geoserver.jackson.databind.config.dto.GeoServer.UserDetailsDisplaySettings;
 import org.geoserver.jackson.databind.config.dto.Logging;
 import org.geoserver.jackson.databind.config.dto.Settings;
 import org.geoserver.ows.util.OwsUtils;
@@ -67,5 +68,9 @@ public class ObjectFacotries {
 
     public @ObjectFactory UserDetailsDisplaySettingsInfo userDetailsDisplaySettings() {
         return new UserDetailsDisplaySettingsInfoImpl();
+    }
+
+    public @ObjectFactory UserDetailsDisplaySettings userDetailsDisplaySettingsDto() {
+        return new UserDetailsDisplaySettings();
     }
 }
