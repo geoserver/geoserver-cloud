@@ -23,11 +23,11 @@
       <artifactId>gs-wcs</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver</groupId>
+      <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-wcs1_0</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver</groupId>
+      <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-wcs1_1</artifactId>
     </dependency>
     <dependency>
