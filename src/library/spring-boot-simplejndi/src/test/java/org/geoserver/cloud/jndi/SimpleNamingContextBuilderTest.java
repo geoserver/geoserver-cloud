@@ -44,8 +44,8 @@ class SimpleNamingContextBuilderTest {
         LDAP_CONTAINER.start();
         System.setProperty("ldapPort", String.valueOf(LDAP_CONTAINER.getMappedLdapPort()));
         System.setProperty("ldapHost", LDAP_CONTAINER.getHost());
-        System.out.println("Automatically set system property ldapPort=" + LDAP_CONTAINER.getMappedLdapPort());
-        System.out.println("Automatically set system property ldapHost=" + LDAP_CONTAINER.getHost());
+        IO.println("Automatically set system property ldapPort=" + LDAP_CONTAINER.getMappedLdapPort());
+        IO.println("Automatically set system property ldapHost=" + LDAP_CONTAINER.getHost());
     }
 
     @Order(1)

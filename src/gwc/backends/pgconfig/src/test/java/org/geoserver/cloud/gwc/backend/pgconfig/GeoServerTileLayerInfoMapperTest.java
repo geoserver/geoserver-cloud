@@ -137,7 +137,7 @@ class GeoServerTileLayerInfoMapperTest {
     @Test
     void testGridSubsets() {
         List<XMLGridSubset> gridSubsets = List.copyOf(info.getGridSubsets());
-        XMLGridSubset set1 = gridSubsets.get(0);
+        XMLGridSubset set1 = gridSubsets.getFirst();
         set1.setExtent(new BoundingBox(-180, -90, 0, 0));
         set1.setMinCachedLevel(3);
         set1.setMaxCachedLevel(12);
@@ -166,8 +166,8 @@ class GeoServerTileLayerInfoMapperTest {
         GeoServerTileLayerInfoImpl roundtripped = roundtripTest();
         List<ExpirationRule> actual = roundtripped.getExpireCacheList();
         assertThat(actual).hasSameSizeAs(rules);
-        assertThat(actual.get(0).getExpiration()).isEqualTo(rules.get(0).getExpiration());
-        assertThat(actual.get(0).getMinZoom()).isEqualTo(rules.get(0).getMinZoom());
+        assertThat(actual.getFirst().getExpiration()).isEqualTo(rules.getFirst().getExpiration());
+        assertThat(actual.getFirst().getMinZoom()).isEqualTo(rules.getFirst().getMinZoom());
         assertThat(actual.get(1).getExpiration()).isEqualTo(rules.get(1).getExpiration());
         assertThat(actual.get(1).getMinZoom()).isEqualTo(rules.get(1).getMinZoom());
     }

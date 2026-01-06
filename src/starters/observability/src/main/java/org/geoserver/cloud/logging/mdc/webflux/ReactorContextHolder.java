@@ -79,7 +79,7 @@ public class ReactorContextHolder {
             try {
                 // Set MDC values for current thread
                 MDC.setContextMap(mdcValues);
-            } catch (Exception ex) {
+            } catch (Exception _) {
                 // Restore previous MDC if there was a problem
                 if (oldMdc != null) {
                     MDC.setContextMap(oldMdc);
@@ -126,7 +126,7 @@ public class ReactorContextHolder {
      */
     @SuppressWarnings("unchecked")
     public static Mono<Map<String, String>> getMdcMapFromContext(Mono<?> mono) {
-        return mono.flatMap(ignored -> Mono.deferContextual(ctx -> {
+        return mono.flatMap(_ -> Mono.deferContextual(ctx -> {
             if (ctx.hasKey(MDC_CONTEXT_KEY)) {
                 Object mdcObj = ctx.get(MDC_CONTEXT_KEY);
                 if (mdcObj instanceof Map) {

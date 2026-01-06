@@ -166,7 +166,7 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
                 var tl = loadLayerByName(layerName);
                 namesById.forcePut(tl.getId(), tl.getName());
                 return tl;
-            } catch (NoSuchElementException e) {
+            } catch (NoSuchElementException _) {
                 return null;
             }
         }

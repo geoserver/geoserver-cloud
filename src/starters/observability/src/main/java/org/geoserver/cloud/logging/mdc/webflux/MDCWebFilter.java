@@ -113,10 +113,10 @@ public class MDCWebFilter implements OrderedWebFilter {
             return chain.filter(exchange)
                     .contextWrite(context -> context.put(MDC_CONTEXT_KEY, requestMdc))
                     // Use a hook to restore MDC during subscription
-                    .doOnSubscribe(s ->
+                    .doOnSubscribe(_ ->
                             // Set the MDC values for this thread when the chain is subscribed
                             MDC.setContextMap(requestMdc))
-                    .doFinally(signalType -> {
+                    .doFinally(_ -> {
                         // Clean up
                         MDC.clear();
                         if (initialMdc != null) {

@@ -154,7 +154,7 @@ public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
     @Override
     public boolean exists(String workspace, @NonNull String layer) throws DataAccessException {
         return findCached(workspace, layer)
-                .map(tl -> {
+                .map(_ -> {
                     log.trace("returning exists=true from cache for layer {}", name(workspace, layer));
                     return true;
                 })

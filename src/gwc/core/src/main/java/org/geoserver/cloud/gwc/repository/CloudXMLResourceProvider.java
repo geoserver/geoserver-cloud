@@ -125,7 +125,7 @@ public class CloudXMLResourceProvider implements ConfigurationResourceProvider {
         final int maxBackups = 10;
         if (previousBackUps.size() > maxBackups) {
             Collections.sort(previousBackUps, (o1, o2) -> (int) (o1.lastmodified() - o2.lastmodified()));
-            Resource oldest = previousBackUps.get(0);
+            Resource oldest = previousBackUps.getFirst();
             log.debug("Deleting oldest config backup {} to keep a maximum of {} backups.", oldest, maxBackups);
             oldest.delete();
         }
@@ -139,7 +139,7 @@ public class CloudXMLResourceProvider implements ConfigurationResourceProvider {
     public boolean hasInput() {
         try {
             return Resources.exists(findOrCreateConfFile());
-        } catch (IOException e) {
+        } catch (IOException _) {
             return false;
         }
     }

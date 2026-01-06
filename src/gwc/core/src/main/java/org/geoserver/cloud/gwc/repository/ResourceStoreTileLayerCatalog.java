@@ -299,7 +299,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     private void closeSilently(DirectoryStream<Path> directoryStream) {
         try {
             directoryStream.close();
-        } catch (IOException e) {
+        } catch (IOException _) {
             log.warn("Error closing directory stream for {}", baseDirectory);
         }
     }

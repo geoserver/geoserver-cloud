@@ -16,7 +16,7 @@ public class WfsApplication {
     public static void main(String[] args) {
         try {
             SpringApplication.run(WfsApplication.class, args);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException _) {
             System.exit(-1);
         }
     }

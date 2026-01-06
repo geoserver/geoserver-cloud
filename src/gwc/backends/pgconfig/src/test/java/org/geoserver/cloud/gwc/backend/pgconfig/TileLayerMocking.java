@@ -77,7 +77,7 @@ class TileLayerMocking {
     public TileLayerInfo pgLayerInfo(PublishedInfo info) {
         List<XMLGridSubset> defaultXmlGridSubsets =
                 List.copyOf(TileLayerInfoUtil.create(new GWCConfig()).getGridSubsets());
-        XMLGridSubset set1 = defaultXmlGridSubsets.get(0);
+        XMLGridSubset set1 = defaultXmlGridSubsets.getFirst();
         set1.setExtent(new BoundingBox(-180, -90, 0, 0));
         set1.setMinCachedLevel(3);
         set1.setMaxCachedLevel(12);

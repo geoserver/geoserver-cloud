@@ -144,7 +144,7 @@ class PropertiesControlFlowConfigurator implements ControlFlowConfigurator {
                         }
                     }
                 }
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException _) {
                 LOGGER.severe(
                         "Rules should be assigned just a queue size, instead " + key + " is associated to " + value);
                 continue;

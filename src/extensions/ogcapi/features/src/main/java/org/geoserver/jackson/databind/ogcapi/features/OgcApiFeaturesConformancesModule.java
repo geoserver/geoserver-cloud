@@ -116,7 +116,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
                 } else {
                     gen.writeNullField("advanced");
                 }
-            } catch (Exception e) {
+            } catch (Exception _) {
                 // If anything goes wrong, write null
                 gen.writeNullField("advanced");
             }

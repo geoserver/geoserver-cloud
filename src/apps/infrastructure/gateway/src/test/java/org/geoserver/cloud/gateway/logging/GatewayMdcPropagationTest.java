@@ -110,7 +110,7 @@ class GatewayMdcPropagationTest {
                 .build();
 
         Mono<Void> result = testFilter
-                .filter(exchange, ex -> Mono.<Void>empty())
+                .filter(exchange, _ -> Mono.<Void>empty())
                 .contextWrite(ctx -> ctx.put(TestMdcVerificationFilter.MDC_CONTEXT_KEY, mdcValues));
 
         // Just verify it completes without error
@@ -147,7 +147,7 @@ class GatewayMdcPropagationTest {
         // Give some time for async processing to complete and logs to flush
         try {
             Thread.sleep(500);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
         }
 

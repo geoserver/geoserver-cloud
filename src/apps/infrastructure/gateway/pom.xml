@@ -92,7 +92,7 @@
         <version>3.14.1</version>
         <inherited>true</inherited>
         <configuration>
-          <release>21</release>
+          <release>${java.version}</release>
           <debug>true</debug>
           <encoding>UTF-8</encoding>
           <annotationProcessorPaths>

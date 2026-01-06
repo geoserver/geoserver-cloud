@@ -201,7 +201,7 @@ class PgconfigTileLayerCatalogTest {
         List<GeoServerTileLayer> actual = tlCatalog.getLayers();
         assertThat(actual).hasSameSizeAs(tileLayerInfos);
 
-        assertTileLayer(l1, actual.get(0));
+        assertTileLayer(l1, actual.getFirst());
         assertTileLayer(l2, actual.get(1));
         assertTileLayer(l3, actual.get(2));
     }

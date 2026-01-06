@@ -241,7 +241,7 @@ class ResourceStoreTileLayerCatalogTest {
         AtomicBoolean hasBeenModified = new AtomicBoolean(false);
         AtomicBoolean hasBeenDeleted = new AtomicBoolean(false);
 
-        catalog.addListener((layerId, type) -> {
+        catalog.addListener((_, type) -> {
             switch (type) {
                 case CREATE:
                     hasBeenCreated.set(true);

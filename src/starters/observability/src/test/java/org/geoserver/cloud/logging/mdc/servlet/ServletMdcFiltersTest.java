@@ -128,7 +128,7 @@ class ServletMdcFiltersTest {
         // Execute filter and catch expected exception
         try {
             filter.doFilterInternal(request, response, failingChain);
-        } catch (ServletException e) {
+        } catch (ServletException _) {
             // Expected exception
         }
 

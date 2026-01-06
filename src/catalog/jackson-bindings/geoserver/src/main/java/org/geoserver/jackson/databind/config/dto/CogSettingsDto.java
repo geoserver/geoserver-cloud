@@ -16,7 +16,7 @@ public class CogSettingsDto {
         HTTP,
         S3,
         GS,
-        Azure;
+        Azure
     }
 
     private RangeReaderType rangeReaderSettings = RangeReaderType.HTTP;

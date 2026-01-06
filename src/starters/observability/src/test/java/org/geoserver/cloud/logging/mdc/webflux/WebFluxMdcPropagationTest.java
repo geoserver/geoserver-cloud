@@ -92,7 +92,7 @@ class WebFluxMdcPropagationTest {
         when(exchange.getPrincipal()).thenReturn(Mono.empty());
 
         // Simple test chain that just returns empty
-        WebFilterChain chain = exch -> Mono.empty();
+        WebFilterChain chain = _ -> Mono.empty();
 
         // Execute filter
         Mono<Void> result = mdcWebFilter.filter(exchange, chain);

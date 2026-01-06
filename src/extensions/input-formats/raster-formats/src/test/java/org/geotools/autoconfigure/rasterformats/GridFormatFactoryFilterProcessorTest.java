@@ -136,7 +136,7 @@ class GridFormatFactoryFilterProcessorTest {
             // Check the class - it should be FilteringFactoryCreator
             String className = registry.getClass().getSimpleName();
             return className.equals("FilteringFactoryCreator");
-        } catch (Exception e) {
+        } catch (Exception _) {
             // If there's an exception, the filter couldn't be checked
             return false;
         }

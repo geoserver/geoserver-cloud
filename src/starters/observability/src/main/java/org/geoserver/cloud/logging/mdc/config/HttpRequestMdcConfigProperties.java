@@ -313,6 +313,6 @@ public class HttpRequestMdcConfigProperties {
     }
 
     private static Optional<String> header(String name, HttpHeaders headers) {
-        return Optional.ofNullable(headers.get(name)).filter(l -> !l.isEmpty()).map(l -> l.get(0));
+        return Optional.ofNullable(headers.get(name)).filter(l -> !l.isEmpty()).map(l -> l.getFirst());
     }
 }

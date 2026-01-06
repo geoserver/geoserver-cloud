@@ -139,7 +139,7 @@ class AccessLogFilterTest {
         when(response1.getRawStatusCode()).thenReturn(200);
 
         // Configure chain
-        WebFilterChain chain1 = exch -> Mono.empty();
+        WebFilterChain chain1 = _ -> Mono.empty();
 
         // Create filter and execute
         AccessLogWebfluxFilter filter = new AccessLogWebfluxFilter(config);
@@ -167,7 +167,7 @@ class AccessLogFilterTest {
         when(response2.getRawStatusCode()).thenReturn(500);
 
         // Configure chain
-        WebFilterChain chain2 = exch -> Mono.empty();
+        WebFilterChain chain2 = _ -> Mono.empty();
 
         // Create filter and execute
         AccessLogWebfluxFilter filter = new AccessLogWebfluxFilter(config);

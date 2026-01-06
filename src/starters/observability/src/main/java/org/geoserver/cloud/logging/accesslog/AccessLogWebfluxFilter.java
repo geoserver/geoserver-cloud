@@ -98,7 +98,7 @@ public class AccessLogWebfluxFilter implements OrderedWebFilter {
         // Store initial MDC state
         Map<String, String> initialMdc = MDC.getCopyOfContextMap();
 
-        return chain.filter(exchange).doFinally(signalType -> {
+        return chain.filter(exchange).doFinally(_ -> {
             try {
                 // Calculate request duration
                 long duration = System.currentTimeMillis() - startTime;

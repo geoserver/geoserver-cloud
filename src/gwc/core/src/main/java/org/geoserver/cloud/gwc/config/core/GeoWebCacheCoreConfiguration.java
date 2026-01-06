@@ -226,7 +226,7 @@ public class GeoWebCacheCoreConfiguration {
             try {
                 Path created = Files.createDirectory(directory);
                 log.info("Created directory from config property {}: {}", configPropertyName, created);
-            } catch (FileAlreadyExistsException beatenByOtherInstance) {
+            } catch (FileAlreadyExistsException _) {
                 // continue
             } catch (IOException e) {
                 throw new BeanInitializationException(
