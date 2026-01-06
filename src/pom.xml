@@ -45,6 +45,13 @@
   </properties>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>io.tileverse</groupId>
+        <artifactId>tileverse-dependencies</artifactId>
+        <version>${tileverse.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <!-- Import the GeoTools BOM to have access to all gt artifacts without specifying the version -->
       <dependency>
         <groupId>org.geotools</groupId>
@@ -789,12 +796,6 @@
         <version>1.2.1</version>
         <scope>test</scope>
       </dependency>
-      <dependency>
-        <groupId>io.tileverse</groupId>
-        <artifactId>tileverse-dependencies</artifactId>
-        <version>${tileverse.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
       </dependency>
       <!-- override pmtiles and rangereader deps from gt-pmtiles 34.2. Remove once aligned -->
       <dependency>
@@ -806,7 +807,6 @@
         <groupId>io.tileverse.rangereader</groupId>
         <artifactId>tileverse-rangereader-all</artifactId>
         <version>${tileverse.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -1066,12 +1066,6 @@
             <version>1.4.0</version>
           </dependency>
           <dependency>
-            <!-- while waiting for https://github.com/geotools/geotools/pull/5436 -->
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>4.5.0</version>
-          </dependency>
-          <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>33.5.0-jre</version>
@@ -1127,16 +1121,6 @@
             <version>3.49.5</version>
           </dependency>
           <dependency>
-            <groupId>com.google.j2objc</groupId>
-            <artifactId>j2objc-annotations</artifactId>
-            <version>3.1</version>
-          </dependency>
-          <dependency>
-            <groupId>com.fasterxml.woodstox</groupId>
-            <artifactId>woodstox-core</artifactId>
-            <version>7.1.1</version>
-          </dependency>
-          <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
             <version>1.4.21</version>
@@ -1145,6 +1129,16 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.12.7</version>
+          </dependency>
+          <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.7.1</version>
+          </dependency>
+          <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
