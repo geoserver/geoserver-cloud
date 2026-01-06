@@ -75,7 +75,7 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-      <!-- Spring Framework and Spring Security BOMs before Spring Boot/Cloud BOM's  to take precedence and match the versions used upstream  -->
+        <!-- Spring Framework and Spring Security BOMs before Spring Boot/Cloud BOM's  to take precedence and match the versions used upstream  -->
         <!-- Spring boot dependencies before spring-cloud to take precedence over spring-cloud's transitive boot dependencies -->
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
@@ -886,7 +886,6 @@
                 <version>${lombok.version}</version>
               </path>
             </annotationProcessorPaths>
-            </annotationProcessorPaths>
           </configuration>
         </plugin>
         <plugin>
@@ -1074,8 +1073,18 @@
           </dependency>
           <dependency>
             <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.5.0-jre</version>
+          </dependency>
+          <dependency>
+            <groupId>com.google.guava</groupId>
             <artifactId>failureaccess</artifactId>
             <version>1.0.3</version>
+          </dependency>
+          <dependency>
+            <groupId>org.glassfish.hk2</groupId>
+            <artifactId>hk2-api</artifactId>
+            <version>3.1.1</version>
           </dependency>
           <dependency>
             <groupId>javax.measure</groupId>
