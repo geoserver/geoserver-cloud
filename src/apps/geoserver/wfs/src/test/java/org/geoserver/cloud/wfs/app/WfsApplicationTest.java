@@ -42,6 +42,22 @@ abstract class WfsApplicationTest {
         XmlAssert.assertThat(caps).withNamespaceContext(nscontext).hasXPath("/wfs:WFS_Capabilities");
     }
 
+    @Test
+    void wfsGetCapabilitiesOutputFormatsTest(@LocalServerPort int servicePort) {
+        String url = "http://localhost:%d/wfs?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=1.1.0".formatted(servicePort);
+        String caps = restTemplate.getForObject(url, String.class);
+
+        Map<String, String> nscontext =
+                Map.of("wfs", "http://www.opengis.net/wfs", "ows", "http://www.opengis.net/ows");
+        XmlAssert xmlAssert = XmlAssert.assertThat(caps).withNamespaceContext(nscontext);
+        xmlAssert.hasXPath(
+                "//ows:Operation[@name='GetFeature']/ows:Parameter[@name='outputFormat']/ows:Value[text()='DXF']");
+        xmlAssert.hasXPath(
+                "//ows:Operation[@name='GetFeature']/ows:Parameter[@name='outputFormat']/ows:Value[text()='DXF-ZIP']");
+        xmlAssert.hasXPath(
+                "//ows:Operation[@name='GetFeature']/ows:Parameter[@name='outputFormat']/ows:Value[text()='application/flatgeobuf']");
+    }
+
     /**
      * Tests the service-specific conditional annotations.
      *

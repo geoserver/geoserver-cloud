@@ -69,14 +69,6 @@ import org.springframework.context.annotation.Import;
 public class FlatGeobufAutoConfiguration {
 
     /**
-     * Logs that the FlatGeobuf extension is enabled.
-     */
-    @PostConstruct
-    void log() {
-        log.info("FlatGeobuf extension enabled for multiple services");
-    }
-
-    /**
      * Provides a ModuleStatus for the FlatGeobuf extension.
      */
     @Bean("flatGeobufExtension")
@@ -104,7 +96,12 @@ public class FlatGeobufAutoConfiguration {
     @ConditionalOnFlatGeobuf
     @ConditionalOnGeoServerWFS
     @ImportFilteredResource("jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*")
-    public static class FlatGeobufOutputFormatConfiguration {}
+    public static class FlatGeobufOutputFormatConfiguration {
+        @PostConstruct
+        void log() {
+            log.info("FlatGeobuf WFS output format enabled");
+        }
+    }
 
     /**
      * Configuration class that enables FlatGeobuf in the WebUI service.
@@ -126,5 +123,10 @@ public class FlatGeobufAutoConfiguration {
     @ConditionalOnFlatGeobuf
     @ConditionalOnGeoServerWebUI
     @ImportFilteredResource("jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*")
-    public static class WebUIConfiguration {}
+    public static class WebUIConfiguration {
+        @PostConstruct
+        void log() {
+            log.info("FlatGeobuf WebUI output format extension enabled");
+        }
+    }
 }

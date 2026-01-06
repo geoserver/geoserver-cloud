@@ -55,14 +55,6 @@ import org.springframework.context.annotation.Import;
 public class DxfAutoConfiguration {
 
     /**
-     * Logs that the DXF extension is enabled.
-     */
-    @PostConstruct
-    void log() {
-        log.info("DXF extension enabled for multiple services");
-    }
-
-    /**
      * Provides a ModuleStatus for the DXF extension.
      */
     @SuppressWarnings("java:S6830")
@@ -93,7 +85,12 @@ public class DxfAutoConfiguration {
     @ConditionalOnDxf
     @ConditionalOnGeoServerWFS
     @ImportFilteredResource("jar:gs-dxf-core-.*!/applicationContext.xml#name=.*")
-    public static class DxfOutputFormatConfiguration {}
+    public static class DxfOutputFormatConfiguration {
+        @PostConstruct
+        void log() {
+            log.info("DXF WFS output format extension enabled");
+        }
+    }
 
     /**
      * Configuration class that enables DXF in the WebUI service.
@@ -115,5 +112,10 @@ public class DxfAutoConfiguration {
     @ConditionalOnDxf
     @ConditionalOnGeoServerWebUI
     @ImportFilteredResource("jar:gs-dxf-core-.*!/applicationContext.xml#name=.*")
-    public static class WebUIConfiguration {}
+    public static class WebUIConfiguration {
+        @PostConstruct
+        void log() {
+            log.info("DXF WebUI output format extension enabled");
+        }
+    }
 }
