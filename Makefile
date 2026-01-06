@@ -1,7 +1,7 @@
 .PHONY: all
 all: install test build-image
 
-TAG?=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+TAG?=$(shell ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
 
 COSIGN_PASSWORD := $(COSIGN_PASSWORD)
 
