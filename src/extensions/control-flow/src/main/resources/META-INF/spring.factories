@@ -1,6 +1,3 @@
 # Initializers
 org.springframework.context.ApplicationContextInitializer=\
 org.geoserver.cloud.autoconfigure.extensions.controlflow.ControlFlowAppContextInitializer
-
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.extensions.controlflow.ControlFlowAutoConfiguration
