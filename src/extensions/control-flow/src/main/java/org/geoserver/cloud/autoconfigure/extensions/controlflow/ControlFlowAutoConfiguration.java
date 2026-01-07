@@ -23,6 +23,48 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Auto-configuration for the GeoServer Control-Flow extension.
+ *
+ * <p>The Control-Flow extension throttles incoming requests to prevent server overload and ensure
+ * fair resource distribution. It queues excess requests rather than rejecting them, helping achieve
+ * optimal throughput and preventing OutOfMemoryErrors.
+ *
+ * <p>This configuration supports two mutually exclusive modes:
+ *
+ * <ul>
+ *   <li><b>Externalized Configuration</b> (default): Uses Spring Boot properties with SpEL
+ *       expression support for dynamic limits based on CPU cores
+ *   <li><b>Data Directory Configuration</b>: Uses the traditional {@code control-flow.properties}
+ *       file from the GeoServer data directory
+ * </ul>
+ *
+ * <p>The mode is controlled by {@code geoserver.extension.control-flow.use-properties-file}:
+ *
+ * <pre>{@code
+ * # Externalized config (default)
+ * geoserver.extension.control-flow.use-properties-file=false
+ *
+ * # Data directory config
+ * geoserver.extension.control-flow.use-properties-file=true
+ * }</pre>
+ *
+ * <p>Beans registered by this configuration:
+ *
+ * <ul>
+ *   <li>{@link ControlFlowCallback} - Dispatcher callback that enforces flow control rules
+ *   <li>{@link ControlFlowConfigurator} - Reads and parses configuration
+ *   <li>{@link FlowControllerProvider} - Provides flow controllers based on configuration
+ *   <li>{@link IpBlacklistFilter} - Filters requests from blacklisted IP addresses
+ *   <li>{@link ControlModuleStatus} - Reports extension status for the REST API
+ * </ul>
+ *
+ * @see ControlFlowConfigurationProperties
+ * @see ConditionalOnControlFlow
+ * @see <a href="https://docs.geoserver.org/main/en/user/extensions/controlflow/index.html">
+ *     GeoServer Control Flow Documentation</a>
+ * @since 2.28.1.1
+ */
 @AutoConfiguration
 @Import({
     ControlFlowAutoConfiguration.Enabled.class,
