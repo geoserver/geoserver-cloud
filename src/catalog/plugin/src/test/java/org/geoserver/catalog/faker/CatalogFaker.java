@@ -5,8 +5,6 @@
 
 package org.geoserver.catalog.faker;
 
-import com.github.javafaker.Address;
-import com.github.javafaker.Faker;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -20,6 +18,8 @@ import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
+import net.datafaker.Faker;
+import net.datafaker.providers.base.Address;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Catalog;
