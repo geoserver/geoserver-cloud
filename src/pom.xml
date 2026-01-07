@@ -142,9 +142,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>com.github.javafaker</groupId>
-        <artifactId>javafaker</artifactId>
-        <version>1.0.2</version>
+        <groupId>net.datafaker</groupId>
+        <artifactId>datafaker</artifactId>
+        <version>2.5.3</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -1080,8 +1080,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.javafaker</groupId>
-      <artifactId>javafaker</artifactId>
+      <groupId>net.datafaker</groupId>
+      <artifactId>datafaker</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
