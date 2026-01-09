@@ -162,6 +162,10 @@ Learn about [logging configuration](logging.md) in GeoServer Cloud, including ho
 
 GeoServer Cloud follows specific [coding standards and style guidelines](coding_standards.md) to ensure consistency across the project.
 
+# Acceptance Tests
+
+Learn about [acceptance tests](acceptance_tests.md), how they ensure quality and consistency with upstream GeoServer, and how to run and contribute to them.
+
 # Creating Extensions
 
 Learn how to create [extensions for GeoServer Cloud](extensions/adding_extensions.md).
