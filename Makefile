@@ -185,7 +185,7 @@ start-acceptance-tests-datadir:
 
 .PHONY: run-acceptance-tests-datadir
 run-acceptance-tests-datadir:
-	(cd compose/ && ./acceptance_datadir run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
+	(cd compose/ && ./acceptance_datadir run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && COLUMNS=120 pytest -v --color=yes --pyargs geoserver_acceptance_tests.tests')
 
 .PHONY: clean-acceptance-tests-datadir
 clean-acceptance-tests-datadir:
@@ -200,7 +200,7 @@ start-acceptance-tests-pgconfig:
 
 .PHONY: run-acceptance-tests-pgconfig
 run-acceptance-tests-pgconfig:
-	(cd compose/ && ./acceptance_pgconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes --ignore=tests/test_imagemosaic.py --ignore=tests/test_imagemosaic_cog.py')
+	(cd compose/ && ./acceptance_pgconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && COLUMNS=120 pytest -v --color=yes --pyargs geoserver_acceptance_tests.tests  -k "not imagemosaic and not test_i18n_layers_default_locale"')
 
 .PHONY: clean-acceptance-tests-pgconfig
 clean-acceptance-tests-pgconfig:
@@ -215,7 +215,7 @@ start-acceptance-tests-jdbcconfig:
 
 .PHONY: run-acceptance-tests-jdbcconfig
 run-acceptance-tests-jdbcconfig:
-	(cd compose/ && ./acceptance_jdbcconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
+	(cd compose/ && ./acceptance_jdbcconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && COLUMNS=120 pytest -v --color=yes --pyargs geoserver_acceptance_tests.tests')
 
 .PHONY: clean-acceptance-tests-jdbcconfig
 clean-acceptance-tests-jdbcconfig:

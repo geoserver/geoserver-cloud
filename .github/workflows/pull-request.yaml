@@ -104,6 +104,7 @@ jobs:
         EOF
           chmod 600 compose/secrets/aws/credentials
         else
+          echo "GEOSERVER_ACCEPTANCE_RUN_AWS_S3_TESTS=false" >> $GITHUB_ENV
           echo "AWS credentials not available, skipping credentials file creation"
           echo "S3 integration tests will be skipped"
         fi
