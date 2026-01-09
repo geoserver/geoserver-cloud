@@ -1,0 +1,32 @@
+server:
+  url: "http://gateway:8080/geoserver/cloud"
+  verifytls: true
+
+credentials:
+  user: "admin"
+  pass: "geoserver"
+
+logging:
+  level: "DEBUG"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+db:
+  pg_host:
+    docker: "geodatabase"
+    local: "geodatabase"
+  pg_port:
+    docker: 5432
+    local: 5432
+  pg_db: "acceptance"
+  pg_user: "geoserver"
+  pg_password: "geoserver"
+  pg_schema: "test1"
+
+installed_fonts:
+  - "Noto Sans"
+  - "Noto Sans Bold"
+  - "FontAwesome"
+  - "DejaVu Sans"
+  - "Material Design Icons"
+  - "Material Icons"
+  - "Roboto"
