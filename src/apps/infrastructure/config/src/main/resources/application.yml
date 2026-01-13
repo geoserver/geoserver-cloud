@@ -92,8 +92,8 @@ logging.level:
   org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: warn
 
 ---
-spring.config.activate.on-profile: "config-first"
-# disable the config client, this is the server, but the config-client profile is included in the docker-compose group
+spring.config.activate.on-profile: "bootstrap-config-first"
+# disable the config client, this is the server, but the config-client profile is included in the bootstrap-config-first group
 spring:
   config:
     import: "optional:configserver:"

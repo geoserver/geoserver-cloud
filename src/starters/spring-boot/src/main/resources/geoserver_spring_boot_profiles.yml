@@ -12,14 +12,16 @@ management:
   # enable custom properties in /actuator/info like info.component
   info.env.enabled: true
   server.port: 8081
-  
+  endpoint:
+    env.show-values: ALWAYS
+    configprops.show-values: ALWAYS
+
 geoserver:
   metrics:
     enabled: true
     instance-id: ${info.instance-id}
 
 spring:
-  config.location: optional:${geoserver.config.location:file:/etc/geoserver/}
   main:
     banner-mode: off
     # Required for GeoServer initialization

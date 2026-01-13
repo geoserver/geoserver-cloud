@@ -15,6 +15,9 @@ spring:
 geoserver.service.wms.enabled: true
 geoserver.base-path: /wms
 ---
+spring.config.activate.on-profile: "bootstrap-standalone"
+spring.config.import: ${standalone.config.location:file:/etc/geoserver/geoserver.yml}
+---
 spring.config.activate.on-profile: local
 server.port: 9102
 management.server.port: 8102

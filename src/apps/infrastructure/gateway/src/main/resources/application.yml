@@ -19,6 +19,8 @@ management:
       exposure:
         include: "*"
   endpoint:
+    env.show-values: ALWAYS
+    configprops.show-values: ALWAYS
     info:
       access: read-only
     metrics:
@@ -51,12 +53,16 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 ---
-spring.config.activate.on-profile: eureka
-# this service uses the registry (when eureka client is enabled)
+spring.config.activate.on-profile: "bootstrap-standalone"
+spring.config.import: ${standalone.config.location:file:/etc/geoserver/gateway.yml}
+
+---
+spring.config.activate.on-profile: "discovery-eureka"
 eureka:
   client:
     fetch-registry: true
     registry-fetch-interval-seconds: 5
+
 ---
 # local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
 spring.config.activate.on-profile: local

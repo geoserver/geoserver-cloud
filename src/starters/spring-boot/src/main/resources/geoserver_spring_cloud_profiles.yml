@@ -4,14 +4,16 @@ spring:
       # Map the AUTO-ACTIVATED 'kubernetes' profile to a group
       # When the spring-cloud-starter-kubernetes-client-config detects K8s
       "kubernetes": 
-        - "rabbitmq"
+        - "bootstrap-standalone"
+        - "bus-rabbitmq"
       "standalone": 
-        - "rabbitmq"
+        - "bootstrap-standalone"
+        - "bus-rabbitmq"
       # This group will be triggered dynamically below
-      "docker-compose":
+      "bootstrap-config-first":
         - "config-client"
-        - "eureka"
-        - "rabbitmq"
+        - "discovery-eureka"
+        - "bus-rabbitmq"
   cloud:
     discovery: # discovery-client defaults
       enabled: false # enables/disables DiscoveryClient for Eureka registration
@@ -24,7 +26,7 @@ spring:
 eureka.client.enabled: false
  
 ---
-spring.config.activate.on-profile: "rabbitmq"
+spring.config.activate.on-profile: "bus-rabbitmq"
 
 spring:
   cloud.bus.enabled: true
@@ -58,7 +60,7 @@ spring:
         service-id: "config-service"
 
 ---
-spring.config.activate.on-profile: "eureka"
+spring.config.activate.on-profile: "discovery-eureka"
 
 eureka.server.url: http://discovery:8761/eureka
 
