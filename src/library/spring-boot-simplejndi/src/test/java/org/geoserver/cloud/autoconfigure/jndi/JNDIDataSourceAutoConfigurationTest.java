@@ -34,7 +34,7 @@ class JNDIDataSourceAutoConfigurationTest {
                         "jndi.datasources.ds1.connection-timeout: 250", //
                         "jndi.datasources.ds1.idle-timeout: 60000" //
                         )
-                .run(_ -> {
+                .run(context -> {
                     Context initialContext = NamingManager.getInitialContext(null);
                     Object object = initialContext.lookup("java:comp/env/jdbc/ds1");
                     assertThat(object).isInstanceOf(HikariDataSource.class);
