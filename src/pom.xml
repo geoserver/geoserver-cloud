@@ -55,6 +55,13 @@
       <!-- Import the GeoTools BOM to have access to all gt artifacts without specifying the version -->
       <dependency>
         <groupId>org.geotools</groupId>
+        <artifactId>gt-platform-dependencies</artifactId>
+        <version>${gt.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.geotools</groupId>
         <artifactId>gt-bom</artifactId>
         <version>${gt.version}</version>
         <type>pom</type>
