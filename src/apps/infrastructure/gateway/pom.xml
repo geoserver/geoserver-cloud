@@ -85,7 +85,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.1</version>
         <inherited>true</inherited>
         <configuration>
           <release>${java.version}</release>
@@ -95,7 +94,7 @@
             <path>
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
-              <version>1.18.42</version>
+              <version>${lombok.version}</version>
             </path>
             <path>
               <groupId>org.springframework.boot</groupId>

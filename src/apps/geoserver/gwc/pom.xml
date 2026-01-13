@@ -25,14 +25,12 @@
     <dependency>
       <groupId>org.geoserver.cloud.gwc</groupId>
       <artifactId>gwc-cloud-services</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wms</artifactId>
     </dependency>
     <dependency>
-      <!-- used to eagerly filter auto-configurations that do not match, which will improve startup time. META-INF/spring-autoconfigure-metadata.properties-->
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure-processor</artifactId>
       <optional>true</optional>
