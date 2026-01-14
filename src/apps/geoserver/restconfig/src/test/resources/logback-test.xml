@@ -1,4 +1,5 @@
 <configuration>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
@@ -8,8 +9,4 @@
     <root level="WARN">
         <appender-ref ref="STDOUT"/>
     </root>
-
-    <logger name="org.springframework.test" level="WARN"/>
-    <logger name="org.springframework.boot.test" level="WARN"/>
-    <logger name="org.springframework.context" level="WARN"/>
 </configuration>

@@ -1,10 +1,10 @@
 geoserver:
   extension:
     security:
+      acl.enabled: false
       gateway-shared-auth:
         enabled: true
         auto: true
-
 logging:
   level:
     root: warn
@@ -27,6 +27,7 @@ geoserver:
 spring.config.activate.on-profile: pgconfigjndi
 
 geoserver:
+  catalog.caching.enabled: true
   backend:
     pgconfig:
       enabled: true

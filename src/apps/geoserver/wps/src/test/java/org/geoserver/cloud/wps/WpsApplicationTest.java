@@ -70,11 +70,10 @@ class WpsApplicationTest {
     void testServiceConditionalAnnotations() {
         // This should exist in WPS service
         assertThat(context.containsBean("wpsConditionalBean")).isTrue();
-        if (context.containsBean("wpsConditionalBean")) {
-            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
-                    context.getBean("wpsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
-            assertThat(bean.getServiceName()).isEqualTo("WPS");
-        }
+
+        ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                context.getBean("wpsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+        assertThat(bean.getServiceName()).isEqualTo("WPS");
 
         // These should not exist in WPS service
         assertThat(context.containsBean("wfsConditionalBean")).isFalse();

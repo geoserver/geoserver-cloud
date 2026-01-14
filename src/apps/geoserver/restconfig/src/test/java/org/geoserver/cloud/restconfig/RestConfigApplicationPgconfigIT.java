@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.restconfig;
 
+import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
@@ -12,7 +13,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"test", "pgconfigjndi"})
@@ -20,7 +20,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 class RestConfigApplicationPgconfigIT extends RestConfigApplicationTest {
 
     @Container
-    static PostgreSQLContainer container = new PostgreSQLContainer("postgres:15");
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     /**
      * Contribute the following properties defined in the {@literal pgconfigjndi}
@@ -37,11 +37,6 @@ class RestConfigApplicationPgconfigIT extends RestConfigApplicationTest {
      */
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) {
-        registry.add("pgconfig.host", container::getHost);
-        registry.add("pgconfig.port", () -> container.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT));
-        registry.add("pgconfig.database", container::getDatabaseName);
-        registry.add("pgconfig.schema", () -> "pgconfigtestschema");
-        registry.add("pgconfig.username", container::getUsername);
-        registry.add("pgconfig.password", container::getPassword);
+        container.setupDynamicPropertySource(registry);
     }
 }

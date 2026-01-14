@@ -72,11 +72,10 @@ abstract class WfsApplicationTest {
     void testServiceConditionalAnnotations() {
         // This should exist in WFS service
         assertThat(context.containsBean("wfsConditionalBean")).isTrue();
-        if (context.containsBean("wfsConditionalBean")) {
-            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
-                    context.getBean("wfsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
-            assertThat(bean.getServiceName()).isEqualTo("WFS");
-        }
+
+        ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                context.getBean("wfsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+        assertThat(bean.getServiceName()).isEqualTo("WFS");
 
         // These should not exist in WFS service
         assertThat(context.containsBean("wmsConditionalBean")).isFalse();

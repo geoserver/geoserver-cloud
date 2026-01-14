@@ -194,11 +194,10 @@ class WcsApplicationTest {
     void testServiceConditionalAnnotations() {
         // This should exist in WCS service
         assertThat(context.containsBean("wcsConditionalBean")).isTrue();
-        if (context.containsBean("wcsConditionalBean")) {
-            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
-                    context.getBean("wcsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
-            assertThat(bean.getServiceName()).isEqualTo("WCS");
-        }
+
+        ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                context.getBean("wcsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+        assertThat(bean.getServiceName()).isEqualTo("WCS");
 
         // These should not exist in WCS service
         assertThat(context.containsBean("wmsConditionalBean")).isFalse();
