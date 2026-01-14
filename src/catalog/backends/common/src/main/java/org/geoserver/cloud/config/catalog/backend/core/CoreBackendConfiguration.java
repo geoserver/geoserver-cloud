@@ -253,7 +253,7 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * File or Resource access to GeoServer data directory. In addition to paths Catalog obhjects such as workspace or
+     * File or Resource access to GeoServer data directory. In addition to paths Catalog objects such as workspace or
      * FeatureTypeInfo can be used to locate resources.
      */
     @Bean

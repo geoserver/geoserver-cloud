@@ -24,6 +24,7 @@ import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties.EventualConsistencyConfig;
 import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.config.util.XStreamPersisterFactory;
@@ -123,8 +124,11 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
     }
 
     @Bean(name = "geoServer")
-    LockingGeoServer geoServer(@Qualifier("catalog") Catalog catalog, GeoServerConfigurationLock configurationLock) {
-        LockingGeoServer gs = new LockingGeoServer(configurationLock, geoserverFacade());
+    LockingGeoServer geoServer(
+            @Qualifier("catalog") Catalog catalog,
+            @Qualifier("geoserverFacade") GeoServerFacade geoserverFacade,
+            GeoServerConfigurationLock configurationLock) {
+        LockingGeoServer gs = new LockingGeoServer(configurationLock, geoserverFacade);
         gs.setCatalog(catalog);
         return gs;
     }
