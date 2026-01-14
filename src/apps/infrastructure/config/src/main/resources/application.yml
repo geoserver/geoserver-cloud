@@ -26,7 +26,7 @@ spring:
         service-id: ${spring.application.name}
       server: # see https://cloud.spring.io/spring-cloud-config/reference/html/#_spring_cloud_config_server
         enabled: true
-        bootstrap: true
+        bootstrap: false
         default-application-name: application
 #        accept-empty: false #send 404 if global application.yml is not found
         git:
@@ -90,14 +90,6 @@ management:
 logging.level:
   root: info
   org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: warn
-
----
-spring.config.activate.on-profile: "bootstrap-config-first"
-# disable the config client, this is the server, but the config-client profile is included in the bootstrap-config-first group
-spring:
-  config:
-    import: "optional:configserver:"
-spring.cloud.config.enabled: false
 
 ---
 spring:

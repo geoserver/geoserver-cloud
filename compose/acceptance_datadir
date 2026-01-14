@@ -5,7 +5,6 @@ GSGID=$(id -g)
 
 mkdir -p catalog-datadir_acceptance
 
-BOOTSTRAP_PROFILE=standalone \
 GS_USER="$GSUID:$GSGID" \
 CATALOG_DATADIR_PATH="$PWD/catalog-datadir_acceptance" \
 COMPOSE_PROJECT_NAME=gscloud-acceptance-datadir \

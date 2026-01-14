@@ -3,7 +3,6 @@
 GSUID=$(id -u)
 GSGID=$(id -g)
 
-BOOTSTRAP_PROFILE=standalone \
 GS_USER="$GSUID:$GSGID" \
 COMPOSE_PROJECT_NAME=gscloud-acceptance-pgconfig \
 docker compose \
