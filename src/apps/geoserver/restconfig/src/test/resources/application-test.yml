@@ -1,16 +1,4 @@
-spring:
-  main:
-    banner-mode: off
-    allow-bean-definition-overriding: true
-    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
-  cloud.config.enabled: false
-  cloud.config.discovery.enabled: false
-  cloud.discovery.enabled: false
-  cloud.bus.enabled: false
-eureka.client.enabled: false
-
 geoserver:
-  acl.enabled: false
   extension:
     security:
       gateway-shared-auth:

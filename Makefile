@@ -184,7 +184,7 @@ run-acceptance-tests-datadir:
 
 .PHONY: clean-acceptance-tests-datadir
 clean-acceptance-tests-datadir:
-	(cd compose/ && TAG=$(TAG) ./acceptance_datadir down -v)
+	(cd compose/ && TAG=$(TAG) ./acceptance_datadir down -v --remove-orphans)
 
 .PHONY: acceptance-tests-pgconfig
 acceptance-tests-pgconfig: build-acceptance start-acceptance-tests-pgconfig run-acceptance-tests-pgconfig
@@ -199,7 +199,7 @@ run-acceptance-tests-pgconfig:
 
 .PHONY: clean-acceptance-tests-pgconfig
 clean-acceptance-tests-pgconfig:
-	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig down -v)
+	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig down -v --remove-orphans)
 
 # Prevent make from treating service names as targets when using $(MAKECMDGOALS) in build-image-geoserver/build-image-geoserver-multiplatform
 %:

@@ -6,6 +6,7 @@ x-geoserver-volume-mounts: &geoserver_volumes
 
 # Define reusable environment variables
 x-geoserver-env: &geoserver_environment
+  SPRING_PROFILES_INCLUDE: config-first
   SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
   # Enable the PostGIS JNDI datasource (for development purposes)
   JNDI_POSTGIS_ENABLED: true

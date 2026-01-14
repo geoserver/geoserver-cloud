@@ -1,5 +1,6 @@
 spring:
   profiles:
+    include: default
     group:
       # Map the AUTO-ACTIVATED 'kubernetes' profile to a group
       # When the spring-cloud-starter-kubernetes-client-config detects K8s
@@ -14,6 +15,9 @@ spring:
         - "config-client"
         - "discovery-eureka"
         - "bus-rabbitmq"
+---
+spring.config.activate.on-profile: default
+spring:
   cloud:
     discovery: # discovery-client defaults
       enabled: false # enables/disables DiscoveryClient for Eureka registration
@@ -23,11 +27,7 @@ spring:
     bus.enabled: false
 
 # To be enabled in the eureka profile
-eureka.client.enabled: false
- 
----
-spring.config.activate.on-cloud-platform: none
-spring.profiles.include: config-first
+eureka.client.enabled: false   
 ---
 spring.config.activate.on-profile: bootstrap_standalone
 #no config-service, load config from /etc/geoserver
@@ -54,13 +54,13 @@ config.server.url: http://config:8080
 
 spring:
   config:
-    import: "configserver:"
+    import: "optional:configserver:"
   cloud:
     config:
-      # Required because 'configserver' is in an optional import
-      #import-check.enabled: false
       enabled: true
-      fail-fast: false
+      # Required because 'configserver' is in an optional import
+      import-check.enabled: false
+      fail-fast: true
       uri:
         - ${config.server.url}
       retry:

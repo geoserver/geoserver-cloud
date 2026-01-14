@@ -27,6 +27,22 @@ spring:
     # Required for GeoServer initialization
     allow-bean-definition-overriding: true
     allow-circular-references: true
+    # cache implementation to use if `geoserver.backend.caching.enabled: true`
+  cache:
+    type: caffeine
+    caffeine:
+      #CaffeineSpec supports parsing configuration off of a string
+      #The string syntax is a series of comma-separated keys or key-value pairs, each corresponding to a Caffeine builder method.
+      #
+      #initialCapacity=[integer]
+      #maximumSize=[long]
+      #maximumWeight=[long]
+      #expireAfterAccess=[duration]
+      #expireAfterWrite=[duration]
+      #refreshAfterWrite=[duration]
+      #softValues: sets Caffeine.softValues.
+      #recordStats: sets Caffeine.recordStats.
+      spec: softValues,initialCapacity=10000,maximumSize=10000,recordStats
   integration:
     jdbc:
       # Prevents circular dependency between GeoServer's PGConfig and Spring Integration.
