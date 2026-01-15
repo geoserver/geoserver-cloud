@@ -281,7 +281,7 @@ class CachingCatalogFacadeContainmentSupportTest {
         InfoIdKey id = InfoIdKey.valueOf(store);
         InfoIdKey idGeneric = InfoIdKey.valueOf(id.id(), STORE);
         InfoNameKey name = InfoNameKey.valueOf(store);
-        InfoNameKey nameGeneric = InfoNameKey.valueOf(name.prefixexName(), STORE);
+        InfoNameKey nameGeneric = InfoNameKey.valueOf(name.prefixedName(), STORE);
         support.getCache().put(id, store);
         support.getCache().put(idGeneric, store);
         support.getCache().put(name, store);
@@ -301,7 +301,7 @@ class CachingCatalogFacadeContainmentSupportTest {
         InfoIdKey id = InfoIdKey.valueOf(resource);
         InfoIdKey idGeneric = InfoIdKey.valueOf(id.id(), RESOURCE);
         InfoNameKey name = InfoNameKey.valueOf(resource);
-        InfoNameKey nameGeneric = InfoNameKey.valueOf(name.prefixexName(), RESOURCE);
+        InfoNameKey nameGeneric = InfoNameKey.valueOf(name.prefixedName(), RESOURCE);
         support.getCache().put(id, resource);
         support.getCache().put(idGeneric, resource);
         support.getCache().put(name, resource);

@@ -23,7 +23,7 @@ import org.springframework.cache.interceptor.SimpleKey;
  * <p>easier than implementing multiple key generators; it's also a smaller memory footprint than
  * {@link SimpleKey}
  */
-record InfoNameKey(@NonNull String prefixexName, @NonNull ConfigInfoType type) implements Serializable {
+record InfoNameKey(@NonNull String prefixedName, @NonNull ConfigInfoType type) implements Serializable {
 
     public static InfoNameKey valueOf(@NonNull Info info) {
         return new InfoNameKey(InfoEvent.prefixedName(info), InfoEvent.typeOf(info));
@@ -49,7 +49,7 @@ record InfoNameKey(@NonNull String prefixexName, @NonNull ConfigInfoType type) i
     }
 
     public InfoNameKey withLocalName(String localName) {
-        Optional<String> prefix = InfoEvent.prefix(prefixexName());
+        Optional<String> prefix = InfoEvent.prefix(prefixedName());
         var newPrefixedName = InfoEvent.prefixedName(prefix, localName);
         return new InfoNameKey(newPrefixedName, type());
     }

@@ -146,7 +146,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
                 .or(() -> patch.get("prefix"))
                 .map(Patch.Property::getValue)
                 .map(String::valueOf)
-                .map(newName -> InfoNameKey.valueOf(info).withLocalName(newName).prefixexName());
+                .map(newName -> InfoNameKey.valueOf(info).withLocalName(newName).prefixedName());
     }
 
     @Override
