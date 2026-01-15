@@ -11,6 +11,7 @@ import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfigura
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationProvider;
 
 /**
  * Auto-configuration for the Environment Admin Authentication extension.
@@ -54,7 +55,7 @@ public class EnvironmentAdminAutoConfiguration {
      * @return the EnvironmentAdminAuthenticationProvider instance
      */
     @Bean
-    EnvironmentAdminAuthenticationProvider environmentAdminAuthenticationProvider() {
+    AuthenticationProvider environmentAdminAuthenticationProvider() {
         return new EnvironmentAdminAuthenticationProvider();
     }
 }

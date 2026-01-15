@@ -48,7 +48,7 @@ import org.springframework.util.StringUtils;
  */
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class EnvironmentAdminAuthenticationProvider implements AuthenticationProvider {
+class EnvironmentAdminAuthenticationProvider implements AuthenticationProvider {
 
     @Value("${geoserver.admin.username:}")
     private String adminUserName;
@@ -57,6 +57,10 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
     private String adminPassword;
 
     private boolean enabled;
+
+    public EnvironmentAdminAuthenticationProvider() {
+        System.err.println("EnvironmentAdminAuthenticationProvider");
+    }
 
     @PostConstruct
     void validateConfig() {
@@ -84,6 +88,9 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
         if (enabled) {
             log.info(
                     "The default admin username and password are overridden by the externalized geoserver.admin.username and geoserver.admin.password config properties.");
+        } else {
+            log.debug(
+                    "The default admin username and password are not overridden by the externalized geoserver.admin.username and geoserver.admin.password config properties.");
         }
     }
 
@@ -117,7 +124,10 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
 
         final String name = token.getName();
         if (GeoServerUser.ADMIN_USERNAME.equals(name) && !expectedName.equals(name)) {
-            throw new InternalAuthenticationServiceException("Default admin user is disabled");
+            String msg =
+                    "Attempt to authenticate with the default admin username dismissed, overridden by the externalized geoserver.admin.username config property.";
+            log.warn(msg);
+            throw new InternalAuthenticationServiceException(msg);
         }
 
         final boolean sameName = hasText(expectedName) && expectedName.equals(name);

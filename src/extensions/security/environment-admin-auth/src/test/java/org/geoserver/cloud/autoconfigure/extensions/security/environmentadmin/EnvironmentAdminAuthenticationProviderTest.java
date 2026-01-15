@@ -3,18 +3,19 @@
  * application directory.
  */
 
-package org.geoserver.cloud.autoconfigure.security;
+package org.geoserver.cloud.autoconfigure.extensions.security.environmentadmin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
-import java.io.File;
-import org.geoserver.cloud.security.EnvironmentAdminAuthenticationProvider;
+import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -30,14 +31,13 @@ import org.springframework.security.core.Authentication;
  */
 class EnvironmentAdminAuthenticationProviderTest {
 
-    @TempDir
-    File tempDir;
-
     private ApplicationContextRunner runner;
 
     @BeforeEach
     void setUp() {
-        runner = GeoServerSecurityAutoConfigurationTest.createContextRunner(tempDir);
+        runner = new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(EnvironmentAdminAutoConfiguration.class))
+                .withBean(GeoServerSecurityManager.class, () -> mock(GeoServerSecurityManager.class));
     }
 
     @Test
