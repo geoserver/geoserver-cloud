@@ -177,13 +177,15 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
 
         HttpClientContext localContext = HttpClientContext.create();
         ClassicHttpResponse resp;
-        if (credsProvider != null) {
+        AuthScope scope = authScope;
+        if (credsProvider != null && scope != null) {
             localContext.setCredentialsProvider(credsProvider);
             // see https://stackoverflow.com/a/21592593
             AuthCache authCache = new BasicAuthCache();
             URI target = method.getUri();
             BasicScheme basicScheme = new BasicScheme();
-            basicScheme.initPreemptive(credsProvider.getCredentials(authScope, localContext));
+            Credentials credentials = credsProvider.getCredentials(scope, localContext);
+            basicScheme.initPreemptive(credentials);
             authCache.put(new HttpHost(target.getScheme(), target.getHost(), target.getPort()), basicScheme);
             localContext.setAuthCache(authCache);
         }
