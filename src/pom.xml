@@ -888,6 +888,7 @@
           <configuration>
             <release>${java.version}</release>
             <debug>true</debug>
+            <parameters>true</parameters>
             <encoding>UTF-8</encoding>
             <fork>${fork.javac}</fork>
             <annotationProcessorPaths>
