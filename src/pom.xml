@@ -1328,6 +1328,11 @@
             <artifactId>protobuf-java</artifactId>
             <version>3.25.8</version>
           </dependency>
+          <dependency>
+            <groupId>commons-jxpath</groupId>
+            <artifactId>commons-jxpath</artifactId>
+            <version>1.4.0</version>
+          </dependency>
 
           <dependency>
             <!-- GeoServer 2.26.x is at 1.79, where spring-boot:2.7.18 is at 1.73 -->
