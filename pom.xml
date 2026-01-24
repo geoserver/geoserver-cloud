@@ -341,6 +341,17 @@
       <url>https://public:&#103;hp_Mp4UdrZ2GYC4v4UtdzEirXLig4D8t54dKkAf@maven.pkg.github.com/camptocamp/geoserver-cloud-geoserver</url>
       <?SORTPOM RESUME?>
     </repository>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>central-portal-snapshots</id>
+      <name>Central Portal Snapshots</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </repository>
   </repositories>
 
   <build>
