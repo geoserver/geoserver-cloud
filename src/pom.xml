@@ -807,7 +807,6 @@
         <version>1.2.1</version>
         <scope>test</scope>
       </dependency>
-      </dependency>
       <!-- override pmtiles and rangereader deps from gt-pmtiles 34.2. Remove once aligned -->
       <dependency>
         <groupId>io.tileverse.pmtiles</groupId>
@@ -818,6 +817,7 @@
         <groupId>io.tileverse.rangereader</groupId>
         <artifactId>tileverse-rangereader-all</artifactId>
         <version>${tileverse.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
