@@ -38,7 +38,7 @@
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <flyway.version>11.16.0</flyway.version>
-    <tileverse.version>1.2.0</tileverse.version>
+    <tileverse.version>1.2-SNAPSHOT</tileverse.version>
     <testcontainers.version>1.21.3</testcontainers.version>
     <fork.javac>false</fork.javac>
     <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -1070,6 +1070,17 @@
         <version>${tileverse.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <!-- override pmtiles and rangereader deps from gt-pmtiles 34.2. Remove once aligned -->
+      <dependency>
+        <groupId>io.tileverse.pmtiles</groupId>
+        <artifactId>tileverse-pmtiles</artifactId>
+        <version>${tileverse.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.tileverse.rangereader</groupId>
+        <artifactId>tileverse-rangereader-all</artifactId>
+        <version>${tileverse.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
