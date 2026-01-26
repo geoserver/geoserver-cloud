@@ -3,25 +3,21 @@ spring:
     banner-mode: off
     allow-bean-definition-overriding: true
     allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
-  cloud:
-    bus:
-      enabled: false
   cloud.config.enabled: false
+  cloud.config.fail-fast: false
   cloud.config.discovery.enabled: false
   cloud.discovery.enabled: false
+  cloud.bus.enabled: false
 eureka.client.enabled: false
 
 geoserver:
   acl.enabled: false
-  backend:
-    data-directory:
-      enabled: true
-      location: # set by test classes
 
 logging:
   level:
     root: WARN
-    org.geoserver.platform: ERROR
-    org.geoserver.cloud: INFO
-    org.geoserver.cloud.config.factory: INFO
-    org.springframework.test: ERROR
+    org.geoserver.platform: error
+    org.geoserver.cloud: info
+    org.geoserver.cloud.config.factory: info
+    org.springframework.test: error
+

@@ -1,33 +1,17 @@
-info:
-  component: Gateway Service
-  instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
-
-server.port: 8080
 spring:
+  application.name: gateway
   config:
-    name: gateway-service
     import:
-    - classpath:gs_cloud_bootstrap_profiles.yml
+      - classpath:geoserver_spring_boot_profiles.yml
+      - classpath:geoserver_spring_cloud_profiles.yml
   cloud:
-    config.name: gateway-service
     gateway:
       server:
         webflux:
           enabled: true
-  main:
-    banner-mode: off
-  application:
-    name: gateway-service
-  jmx.enabled: false
-
-# this service uses the registry (when eureka client is enabled)
-eureka.client:
-  fetch-registry: true
-  registry-fetch-interval-seconds: 5
+          trusted-proxies: ".*"
 
 management:
-  server:
-    port: 8081
   endpoints:
     access:
       default: read-only
@@ -56,8 +40,8 @@ management:
 logging:
   level:
     # Enable debug for MDC components
-    org.geoserver.cloud.logging.mdc: DEBUG
-    org.geoserver.cloud.logging.accesslog: DEBUG
+    '[org.geoserver.cloud.logging.mdc]': DEBUG
+    '[org.geoserver.cloud.logging.accesslog]': DEBUG
   accesslog:
     info:
       - ".*"  # Log all URLs at INFO level
@@ -66,6 +50,13 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
+---
+spring.config.activate.on-profile: eureka
+# this service uses the registry (when eureka client is enabled)
+eureka:
+  client:
+    fetch-registry: true
+    registry-fetch-interval-seconds: 5
 ---
 # local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
 spring.config.activate.on-profile: local

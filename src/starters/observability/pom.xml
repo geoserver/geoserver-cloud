@@ -43,6 +43,10 @@
       <artifactId>logstash-logback-encoder</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-main</artifactId>
       <optional>true</optional>

@@ -1,5 +1,5 @@
 spring:
-  application.name: wfs
+  application.name: wcs
   config:
     name: geoserver # load externalized configuration from geoserver.yml
     import:
@@ -11,12 +11,11 @@ spring:
   cloud.config.name: geoserver
 
 # Fixed per-service value to support conditional activation of extensions.
-# This property is checked by @ConditionalOnGeoServerWFS
-geoserver.service.wfs.enabled: true
-geoserver.base-path: /wfs
-
+# This property is checked by @ConditionalOnGeoServerWCS
+geoserver.service.wcs.enabled: true
+geoserver.base-path: /wcs
 ---
 # local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
 spring.config.activate.on-profile: local
-server.port: 9101
-management.server.port: 8101
+server.port: 9103
+management.server.port: 8103

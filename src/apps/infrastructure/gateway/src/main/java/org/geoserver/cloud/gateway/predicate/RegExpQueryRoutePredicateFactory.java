@@ -47,7 +47,7 @@ import org.springframework.web.server.ServerWebExchange;
  *   gateway:
  *    routes:
  *     - id: wfs_ows
- *       uri: lb://wfs-service
+ *       uri: lb://wfs
  *       predicates:
  *       - RegExpQuery=(?i:service),(?i:wfs)
  * </code>

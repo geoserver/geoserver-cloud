@@ -34,7 +34,8 @@ import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest(
         properties = {
-            "geoserver.acl.enabled: true",
+            "geoserver.extension.security.acl.enabled: true",
+            "geoserver.acl.client.enabled: true",
             "geoserver.acl.client.basePath: http://localhost:9000/api",
             "geoserver.acl.client.startupCheck: false",
             "geoserver.acl.client.username: acluser",

@@ -2,7 +2,6 @@
 # possibly externally provided short name for the location of
 # the config-service when the bootstrap_config_first profile is enabled
 config.server.url: http://config:8080
-
 # custom property for eureka.client.serviceUrl.defaultZone's placeholder below
 # possibly externally provided short name for the location of
 # the config-service when the bootstrap_discovery_first profile is enabled
@@ -13,6 +12,19 @@ info:
   component: ${spring.application.name}
   instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
 
+server:
+  port: 8080
+  context-path: /
+  # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
+  forward-headers-strategy: framework
+  servlet:
+    context-path: /
+
+management:
+  # enable custom properties in /actuator/info like info.component
+  info.env.enabled: true
+  server.port: 8081
+  
 geoserver:
   metrics:
     enabled: true
@@ -20,6 +32,8 @@ geoserver:
 
 # This default configuration is the same than applying the config_first profile group defined below.
 spring:
+  config:
+    import: "optional:configserver:"
   profiles:
     group:
       config_first:
@@ -31,17 +45,33 @@ spring:
       standalone:
         - bootstrap_standalone
         - discovery_none
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
+  jmx.enabled: false
   cloud:
     config:
+      # Disables the early validation check for 'spring.config.import=configserver:'.
+      # This is required because our configserver entry is inside an imported file, 
+      # and Spring's default validator runs before those imports are fully resolved.
+      import-check.enabled: false
       enabled: true
-      fail-fast: true
+      fail-fast: false
       retry.max-attempts: 20
-      uri:
-      - ${config.server.url}
+      # profile config_first needs to be enabled to set the uri, otherwise we're running with no config server
+      # uri: ${config.server.url:}
       discovery:
         # discovery-first config mode disabled by default, use the discovery_first profile to enable it
         enabled: false
         service-id: config-service
+  integration:
+    jdbc:
+      # Prevents circular dependency between GeoServer's PGConfig and Spring Integration.
+      # Setting this to 'never' stops the creation of 'integrationDataSourceInitializer',
+      # allowing IntegrationAutoConfiguration to run (fixing the Bus NPE) without
+      # trying to manage database schemas.
+      initialize-schema: never
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
@@ -54,7 +84,6 @@ spring:
       - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
       - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
       - org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration
-      - org.springframework.boot.autoconfigure.integration.IntegrationAutoConfiguration
   rabbitmq:
     host: ${rabbitmq.host:rabbitmq}
     port: ${rabbitmq.port:5672}
@@ -78,6 +107,13 @@ eureka:
       defaultZone: ${eureka.server.url}
     healthcheck:
       enabled: false # must only be set to true in application.yml, not bootstrap
+
+---
+spring:
+  config.activate.on-cloud-platform: none
+  profiles:
+    include:
+    - config_first
 ---
 #no config-service, load config from /etc/geoserver
 #all Dockerfile files have the default config under that directory
@@ -89,23 +125,26 @@ spring:
 ---
 #config-first bootstrap, using config-service from ${config.server.url}
 spring.config.activate.on-profile: bootstrap_config_first
+
 spring:
   cloud:
     config:
       enabled: true
+      fail-fast: true
       discovery:
         enabled: false
       uri:
-      - ${config.server.url:http://localhost:8888}
+      - ${config.server.url}
 
 ---
-#discovery-first bootstrap, first registers with discovery-service and 
+#discovery-first bootstrap, first registers with discovery-service and
 # gets the config-service url from it
 spring.config.activate.on-profile: bootstrap_discovery_first
 spring:
   cloud:
     config:
       enabled: true
+      fail-fast: true
       discovery:
         enabled: true
         service-id: config-service
@@ -120,6 +159,7 @@ spring:
 eureka.client.enabled: false
 ---
 spring.config.activate.on-profile: discovery_eureka
+
 eureka:
   instance:
     hostname: ${spring.application.name}
@@ -151,7 +191,7 @@ spring.config.activate.on-profile: local
 # Profile used for local development, so an app launched from the IDE can participate in the cluster.
 # providing environment variables that otherwise would be given by docker-compose.yml
 # It is safe to remove this profile completely in a production deployment config.
-# Additionally, each service's bootstrap.yml must set the following properties in the "local" profile:
+# Additionally, each service's application.yml must set the following properties in the "local" profile:
 # eureka.server.url: http://localhost:8761/eureka, server.port, and management.server.port if it ought to differ from server.port
 spring.rabbitmq.host: localhost
 eureka.server.url: http://localhost:8761/eureka

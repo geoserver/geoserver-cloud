@@ -1,0 +1,88 @@
+spring:
+  profiles:
+    group:
+      # Map the AUTO-ACTIVATED 'kubernetes' profile to a group
+      # When the spring-cloud-starter-kubernetes-client-config detects K8s
+      "kubernetes": 
+        - "rabbitmq"
+      "standalone": 
+        - "rabbitmq"
+      # This group will be triggered dynamically below
+      "docker-compose":
+        - "config-client"
+        - "eureka"
+        - "rabbitmq"
+  cloud:
+    discovery: # discovery-client defaults
+      enabled: false # enables/disables DiscoveryClient for Eureka registration
+    config: # config-client defaults
+      enabled: false # Whether to use config client
+      discovery.enabled: false # Whether to use discovery to find config server
+    bus.enabled: false
+
+# To be enabled in the eureka profile
+eureka.client.enabled: false
+ 
+---
+spring.config.activate.on-profile: "rabbitmq"
+
+spring:
+  cloud.bus.enabled: true
+  rabbitmq:
+    host: ${rabbitmq.host:rabbitmq}
+    port: ${rabbitmq.port:5672}
+    username: ${rabbitmq.user:guest}
+    password: ${rabbitmq.password:guest}
+    virtual-host: ${rabbitmq.vhost:}
+
+---
+spring.config.activate.on-profile: "config-client"
+
+config.server.url: http://config:8080
+
+spring:
+  config:
+    import: "configserver:"
+  cloud:
+    config:
+      # Required because 'configserver' is in an optional import
+      #import-check.enabled: false
+      enabled: true
+      fail-fast: false
+      uri:
+        - ${config.server.url}
+      retry:
+        max-attempts: 20
+      discovery:
+        enabled: false
+        service-id: "config-service"
+
+---
+spring.config.activate.on-profile: "eureka"
+
+eureka.server.url: http://discovery:8761/eureka
+
+# Enable  DiscoveryClient for Eureka registration
+spring.cloud.discovery.enabled: true
+eureka:
+  instance:
+    hostname: ${spring.application.name}
+    instance-id: ${info.instance-id}
+    preferIpAddress: true
+    # how often the client sends heartbits to the server
+    lease-renewal-interval-in-seconds: 10
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: false
+    registry-fetch-interval-seconds: 10
+    serviceUrl:
+      defaultZone: ${eureka.server.url}
+    healthcheck:
+      enabled: false
+---
+# LOCAL: For IDE development outside of containers
+spring.config.activate.on-profile: "local"
+config.server.url: http://localhost:8888
+eureka.server.url: http://localhost:8761/eureka
+rabbitmq.host: localhost

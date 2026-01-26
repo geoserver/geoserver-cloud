@@ -1,4 +1,0 @@
-
-# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
-server.port: 8888
-config.native.path: ${user.dir}/../../config

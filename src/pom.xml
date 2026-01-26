@@ -21,10 +21,9 @@
     <!-- default target java version, submodules may override -->
     <java.version>25</java.version>
     <java.sdk.version>25</java.sdk.version>
-    <spring-cloud.version>2025.0.0</spring-cloud.version>
-    <spring-boot.version>3.5.0</spring-boot.version>
-    <spring.security.version>6.5.6</spring.security.version>
-    <jackson.version>2.19.4</jackson.version>
+    <spring-cloud.version>2025.0.1</spring-cloud.version>
+    <spring-boot.version>3.5.8</spring-boot.version>
+    <jackson.version>2.20.1</jackson.version>
     <gs.version>3.0.0-SNAPSHOT</gs.version>
     <gt.version>35-SNAPSHOT</gt.version>
     <wicket.version>10.7.0</wicket.version>
@@ -117,6 +116,11 @@
         <artifactId>lombok</artifactId>
         <version>${lombok.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>33.5.0-jre</version>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents.client5</groupId>
@@ -746,7 +750,6 @@
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-ogcapi-core</artifactId>
         <version>${gs.version}</version>
-        <optional>true</optional>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
@@ -1067,16 +1070,6 @@
             <version>1.4.0</version>
           </dependency>
           <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>33.5.0-jre</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>failureaccess</artifactId>
-            <version>1.0.3</version>
-          </dependency>
-          <dependency>
             <groupId>org.glassfish.hk2</groupId>
             <artifactId>hk2-api</artifactId>
             <version>3.1.1</version>
@@ -1102,9 +1095,11 @@
             <version>2.5</version>
           </dependency>
           <dependency>
+            <!-- declare it provided because spring-jcl acts as a bridge and logs a warning if both are in the classpath -->
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.3.5</version>
+            <scope>provided</scope>
           </dependency>
           <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -1140,6 +1135,11 @@
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
             <version>1.3.2</version>
+          </dependency>
+          <dependency>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+            <version>7.1.1</version>
           </dependency>
         </dependencies>
       </dependencyManagement>

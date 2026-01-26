@@ -15,11 +15,14 @@ import org.geowebcache.rest.controller.ByteStreamController;
 import org.gwc.web.rest.GeoWebCacheController;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnWebUIEnabled
+// if this was in the extensions we should use @ConditionalOnGeoServerGWC
+@ConditionalOnProperty(name = "geoserver.service.gwc.enabled", havingValue = "true", matchIfMissing = false)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.web.gwc")
 public class GeoWebCacheUIAutoConfiguration {
 

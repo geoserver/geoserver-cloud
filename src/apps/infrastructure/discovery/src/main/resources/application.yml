@@ -1,5 +1,5 @@
 info:
-  component: Discovery Server
+  component: ${spring.application.name}
   instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
 server:
   port: 8761
@@ -8,12 +8,9 @@ server:
     threads:
       min-spare: 1
       max: 25
-management.server.port: 8081
 spring:
-  application:
-    name: discovery-service
-  main:
-    banner-mode: off
+  application.name: discovery
+  main.banner-mode: off
 
 eureka:
   server:
@@ -32,6 +29,9 @@ eureka:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 
 management:
+  # enable custom properties in /actuator/info like info.component
+  info.env.enabled: true
+  server.port: 8081
   endpoints:
     access.default: read-only
     web.exposure.include: "*"

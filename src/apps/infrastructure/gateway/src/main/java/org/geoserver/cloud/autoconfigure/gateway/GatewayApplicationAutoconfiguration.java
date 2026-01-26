@@ -23,7 +23,7 @@ public class GatewayApplicationAutoconfiguration {
      *
      * <pre>{@code
      * - id: wms_ows
-     *   uri: http://wms-service:8080
+     *   uri: http://wms:8080
      *   predicates:
      *     # match service=wms case insensitively
      *     - RegExpQuery=(?i:service),(?i:wms)

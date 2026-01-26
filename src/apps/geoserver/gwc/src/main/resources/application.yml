@@ -1,0 +1,46 @@
+server:
+  servlet:
+    session:
+      tracking-modes: COOKIE
+      cookie:
+        name: JSESSIONID_${spring.application.name}
+        http-only: true
+spring:
+  application.name: gwc
+  config:
+    name: geoserver # load externalized configuration from geoserver.yml
+    import:
+      - classpath:geoserver_spring_boot_profiles.yml
+      - classpath:geoserver_spring_cloud_profiles.yml
+  # and always include the service specific settings from the profile
+  profiles.include: ${spring.application.name}
+  # also ask for geoserver.yml when loading the externalized config through a config-server
+  cloud.config.name: geoserver
+
+# Fixed per-service value to support conditional activation of extensions.
+# This property is checked by @ConditionalOnGeoServerGWC
+geoserver.service.gwc.enabled: true
+geoserver.base-path: /gwc
+
+gwc:
+  enabled: true
+  # gwc.context.suffix is used by gwc rest controllers # (e.g. @RequestMapping(path = "${gwc.context.suffix:}/rest"))
+  # and usually loaded from gs-gwc.jar's application.properties. This won't be the case since we declare spring.config.name=geoserver
+  context.suffix: gwc
+  cache-directory: ${GEOWEBCACHE_CACHE_DIR:${geoserver.backend.data-directory.location}/gwc}
+  rest-config: true
+  web-ui: true
+  services:
+    wmts: true
+    tms: true
+    wms: true
+    kml: false
+    gmaps: false
+    mgmaps: false
+  disk-quota:
+    enabled: false
+---
+# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
+spring.config.activate.on-profile: local
+server.port: 9107
+management.server.port: 8107

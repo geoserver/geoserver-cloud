@@ -95,7 +95,7 @@ public class WebMapServiceMinimalConfiguration {
 
     /**
      * Conditionally return a {@link WMSServiceExceptionHandler} in case it doesn't exist. It's excluded from {@literal applicationContext.xml}
-     * because the wms-service app overrides it
+     * because the {@literal wms} service app overrides it
      */
     @Bean
     @ConditionalOnMissingBean

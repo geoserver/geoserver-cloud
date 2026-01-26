@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Bean;
  *   <li>{@literal http.proxyUser/Password} are not standard properties, though commonly used, it's
  *       kind of JDK implementation dependent.
  *   <li>Setting {@literal -Dhtt.proxy*} System properties affects all HTTP clients in the
- *       container, meaning requests to the {@literal config-service}, {@literal discovery-service},
+ *       container, meaning requests to the {@literal config}, {@literal discovery} services,
  *       etc., will also try to go through the proxy, or you need to go through the extra burden of
  *       figuring out how to ignore them.
  *   <li>If the proxy is secured, and since the http client used may not respect the {@literal
