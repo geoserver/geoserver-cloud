@@ -55,7 +55,7 @@
     <dependency>
       <!-- required to always have WFSInfo/Impl on the classpath -->
       <groupId>org.geoserver</groupId>
-      <artifactId>gs-wfs</artifactId>
+      <artifactId>gs-wfs-core</artifactId>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>

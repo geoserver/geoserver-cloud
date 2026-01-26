@@ -19,9 +19,9 @@ import org.springframework.context.annotation.Configuration;
     "jar:gs-wcs1_0-.*!/applicationContext.xml",
     "jar:gs-wcs1_1-.*!/applicationContext.xml",
     "jar:gs-wcs2_0-.*!/applicationContext.xml",
-    "jar:gs-wfs-.*!/applicationContext.xml#name=^(?!wfsInsertElementHandler|wfsUpdateElementHandler|wfsDeleteElementHandler|wfsReplaceElementHandler).*$",
-    "jar:gs-dxf-core-.*!/applicationContext.xml#name=.*",
-    "jar:gs-dxf-wps-.*!/applicationContext.xml#name=.*"
+    "jar:gs-wfs-core.*!/applicationContext.xml#name=^(?!wfsInsertElementHandler|wfsUpdateElementHandler|wfsDeleteElementHandler|wfsReplaceElementHandler).*$",
+    "jar:gs-dxf-core-.*!/applicationContext.xml",
+    "jar:gs-dxf-wps-.*!/applicationContext.xml"
 })
 public class WpsApplicationConfiguration {
 

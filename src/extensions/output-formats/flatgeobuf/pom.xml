@@ -23,7 +23,7 @@
     <dependency>
       <!-- GeoServer WFS API (needed for conditional annotation) -->
       <groupId>org.geoserver</groupId>
-      <artifactId>gs-wfs</artifactId>
+      <artifactId>gs-wfs-core</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
