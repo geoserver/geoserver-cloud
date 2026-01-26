@@ -184,23 +184,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>*</artifactId>
           </exclusion>
-          <!-- exclude data formats, let them be managed by the ones explicitly imported by each service -->
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-property</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-arcgrid</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-imagemosaic</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geotiff</artifactId>
-          </exclusion>
           <exclusion>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna-platform</artifactId>
@@ -215,13 +198,6 @@
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wms</artifactId>
         <version>${gs.version}</version>
-        <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
-        <exclusions>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geotiff</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
@@ -244,37 +220,11 @@
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wfs</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <!-- exclude data formats, let them be managed by the ones explicitly imported by each service -->
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-shapefile</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wcs</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geotiff</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-arcgrid</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-imagemosaic</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-image</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
@@ -295,21 +245,6 @@
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-wps-core</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geotiff</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-arcgrid</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-csv</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.web</groupId>
@@ -320,35 +255,6 @@
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>*</artifactId>
-          </exclusion>
-          <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-shapefile</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools.jdbc</groupId>
-            <artifactId>gt-jdbc-postgis</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-wfs-ng</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-arcgrid</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geotiff</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-image</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geopkg</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -558,30 +464,6 @@
         <groupId>org.geoserver.importer</groupId>
         <artifactId>gs-importer-core</artifactId>
         <version>${gs.version}</version>
-        <!-- exclude data formats, let them be managed by the ones
-				explicitly imported by the service that uses it -->
-        <exclusions>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-csv</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-shapefile</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools.jdbc</groupId>
-            <artifactId>gt-jdbc-h2</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools.jdbc</groupId>
-            <artifactId>gt-jdbc-oracle</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.geotools.jdbc</groupId>
-            <artifactId>gt-jdbc-sqlserver</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.importer</groupId>
