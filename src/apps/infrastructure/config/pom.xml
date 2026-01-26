@@ -51,59 +51,10 @@
     </dependency>
   </dependencies>
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-maven-plugin</artifactId>
-          <configuration>
-            <excludes>
-              <exclude>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-              </exclude>
-            </excludes>
-            <layers>
-              <enabled>true</enabled>
-            </layers>
-            <image>
-              <pullPolicy>IF_NOT_PRESENT</pullPolicy>
-              <env>
-                <!-- Builder config options -->
-                <BP_JVM_VERSION>17</BP_JVM_VERSION>
-                <BP_JVM_TYPE>JRE</BP_JVM_TYPE>
-                <BPL_JVM_THREAD_COUNT>8</BPL_JVM_THREAD_COUNT>
-                <!-- Runtime config options -->
-                <!-- Allow running on low-resource provisioned containers, this service doesn't need much -->
-                <BPE_DELIM_JAVA_TOOL_OPTIONS xml:space="preserve"></BPE_DELIM_JAVA_TOOL_OPTIONS>
-                <BPE_JAVA_TOOL_OPTIONS>-Xss256K -XX:ReservedCodeCacheSize=64M -XX:MaxMetaspaceSize=128M</BPE_JAVA_TOOL_OPTIONS>
-                <BPE_JVM_THREAD_COUNT>8</BPE_JVM_THREAD_COUNT>
-              </env>
-            </image>
-          </configuration>
-          <executions>
-            <execution>
-              <id>build-info</id>
-              <goals>
-                <goal>build-info</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>build-info</id>
-            <goals>
-              <goal>build-info</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

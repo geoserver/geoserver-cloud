@@ -912,20 +912,6 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot.version}</version>
-          <inherited>false</inherited>
-          <configuration>
-            <attach>false</attach>
-            <classifier>bin</classifier>
-            <layers>
-              <enabled>true</enabled>
-            </layers>
-            <excludes>
-              <exclude>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-              </exclude>
-            </excludes>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
