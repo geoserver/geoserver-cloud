@@ -69,7 +69,7 @@ geoserver:
 spring.config.activate.on-profile: "bootstrap-standalone"
 spring.config.import: ${standalone.config.location:file:/etc/geoserver/geoserver.yml}
 ---
-# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
+# local profile, used for development only. Other settings like config and eureka urls in geoserver_spring_cloud_profiles.yml
 spring.config.activate.on-profile: local
 server.port: 9106
 management.server.port: 8106

@@ -64,7 +64,7 @@ eureka:
     registry-fetch-interval-seconds: 5
 
 ---
-# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
+# local profile, used for development only. Other settings like config and eureka urls in geoserver_spring_cloud_profiles.yml
 spring.config.activate.on-profile: local
 server.port: 9090
 management.server.port: 9090

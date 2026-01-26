@@ -112,7 +112,7 @@ spring:
             # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
             # basedir: ${config.git.basedir:/tmp/git_config} # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
 ---
-# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
+# local profile, used for development only. Other settings like config and eureka urls in geoserver_spring_cloud_profiles.yml
 spring.config.activate.on-profile: local
 server.port: 8888
 config.native.path: ${user.dir}/../../config
