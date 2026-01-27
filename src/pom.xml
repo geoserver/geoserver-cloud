@@ -986,11 +986,9 @@
             <version>2.5</version>
           </dependency>
           <dependency>
-            <!-- declare it provided because spring-jcl acts as a bridge and logs a warning if both are in the classpath -->
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.3.5</version>
-            <scope>provided</scope>
           </dependency>
           <dependency>
             <groupId>org.bouncycastle</groupId>
