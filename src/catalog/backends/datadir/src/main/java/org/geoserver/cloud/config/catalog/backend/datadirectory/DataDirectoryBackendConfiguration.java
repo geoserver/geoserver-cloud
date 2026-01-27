@@ -92,7 +92,7 @@ import org.springframework.context.annotation.Primary;
  */
 @Configuration(proxyBeanMethods = false)
 @Slf4j(topic = "org.geoserver.cloud.config.datadirectory")
-public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigurer {
+public class DataDirectoryBackendConfiguration implements GeoServerBackendConfigurer {
 
     public DataDirectoryBackendConfiguration(DataDirectoryProperties dataDirectoryConfig) {
 

@@ -114,7 +114,9 @@ public class WicketComponentFilter implements Filter {
             httpResponse.setStatus(HttpStatus.NOT_FOUND.value());
             httpResponse.setContentType("text/plain");
             httpResponse.getWriter().println("Page not found");
-            LOGGER.debug("Blocked access to disabled component: {}", httpRequest.getRequestURI());
+            String requestURI = httpRequest.getRequestURI();
+            requestURI = (requestURI == null) ? "" : requestURI.replaceAll("[\\n\\r\\t]", "_");
+            LOGGER.debug("Blocked access to disabled component: {}", requestURI);
         } else {
             chain.doFilter(request, response);
         }

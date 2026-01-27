@@ -56,7 +56,10 @@ class ResourceStoreTileLayerCatalogTest {
     @BeforeEach
     void setUp() {
         resourceLoader = new GeoServerResourceLoader(baseDirectory);
-        new File(baseDirectory, "gwc-layers").mkdir();
+        File layersDir = new File(baseDirectory, "gwc-layers");
+        if (!layersDir.isDirectory()) {
+            assertTrue(layersDir.mkdir());
+        }
 
         WebApplicationContext context = mock(WebApplicationContext.class);
 

@@ -88,11 +88,21 @@ public class AccessLogFilterConfig {
             void log(String message, Object... args) {
                 // no-op
             }
+
+            @Override
+            boolean isEnabled() {
+                return false;
+            }
         },
         TRACE {
             @Override
             void log(String message, Object... args) {
                 log.trace(message, args);
+            }
+
+            @Override
+            boolean isEnabled() {
+                return log.isTraceEnabled();
             }
         },
         DEBUG {
@@ -100,15 +110,27 @@ public class AccessLogFilterConfig {
             void log(String message, Object... args) {
                 log.debug(message, args);
             }
+
+            @Override
+            boolean isEnabled() {
+                return log.isDebugEnabled();
+            }
         },
         INFO {
             @Override
             void log(String message, Object... args) {
                 log.info(message, args);
             }
+
+            @Override
+            boolean isEnabled() {
+                return log.isInfoEnabled();
+            }
         };
 
         abstract void log(String message, Object... args);
+
+        abstract boolean isEnabled();
     }
 
     /**
@@ -129,7 +151,11 @@ public class AccessLogFilterConfig {
      */
     public void log(String method, int statusCode, String uri) {
         Level level = getLogLevel(uri);
-        level.log("{} {} {} ", method, statusCode, uri);
+        if (level.isEnabled()) {
+            method = sanitizeMethod(method);
+            uri = sanitizeUri(uri);
+            level.log("{} {} {} ", method, statusCode, uri);
+        }
     }
 
     /**
@@ -206,5 +232,18 @@ public class AccessLogFilterConfig {
         return patterns != null
                 && !patterns.isEmpty()
                 && patterns.stream().anyMatch(pattern -> pattern.matcher(url).matches());
+    }
+
+    static String sanitizeMethod(String method) {
+        // validate the HTTP Method against an allow-list
+        if (method == null || !method.matches("^[A-Z]+$")) {
+            method = "INVALID_METHOD";
+        }
+        return method;
+    }
+
+    static String sanitizeUri(String requestURI) {
+        // sanitize the URI to remove line breaks
+        return (requestURI == null) ? "" : requestURI.replaceAll("[\\n\\r\\t]", "_");
     }
 }

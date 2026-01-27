@@ -105,7 +105,7 @@ import org.springframework.util.StringUtils;
  */
 @Configuration(proxyBeanMethods = false)
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgconfig")
-public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
+public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer {
 
     /**
      * Constructs the PostgreSQL backend configuration.

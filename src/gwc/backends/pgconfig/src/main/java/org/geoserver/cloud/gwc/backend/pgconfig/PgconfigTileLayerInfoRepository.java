@@ -122,7 +122,7 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
         try {
             TileLayerInfo info = template.queryForObject(sql, mapper(), args);
             return Optional.of(info);
-        } catch (EmptyResultDataAccessException empty) {
+        } catch (EmptyResultDataAccessException _) {
             log.trace("returning empty for {}", sql);
             return Optional.empty();
         }

@@ -6,10 +6,8 @@
 package org.geoserver.cloud.autoconfigure.catalog.event;
 
 import jakarta.annotation.security.RolesAllowed;
-import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.Accessors;
 import org.geoserver.cloud.event.UpdateSequenceEvent;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.config.UpdateSequence;
@@ -31,25 +29,22 @@ public class UpdateSequenceController {
     private final @NonNull ApplicationEventPublisher eventPublisher;
     private final @NonNull GeoServer geoServer;
 
-    @Accessors(chain = true)
-    public static @Data class UpdateSeq {
-        private long observed;
-        private long real;
-    }
+    public static record UpdateSeq(long observed, long real) {}
 
     @GetMapping(path = "/admin/updatesequence", produces = "application/json")
     public UpdateSeq currVal() {
         long observed = observed();
         long real = updateSequence.currValue();
-        return new UpdateSeq().setObserved(observed).setReal(real);
+        return new UpdateSeq(observed, real);
     }
 
     @RolesAllowed({"ADMIN", "ROLE_ADMINISTRATOR"})
     @PostMapping(path = "/admin/updatesequence", produces = "application/json")
     public UpdateSeq nextVal() {
-        final long nextValue = updateSequence.nextValue();
+        long observed = observed();
+        long nextValue = updateSequence.nextValue();
         eventPublisher.publishEvent(UpdateSequenceEvent.createLocal(nextValue));
-        return new UpdateSeq().setObserved(observed()).setReal(nextValue);
+        return new UpdateSeq(observed, nextValue);
     }
 
     protected long observed() {

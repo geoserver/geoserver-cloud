@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
@@ -136,7 +137,7 @@ class AccessLogFilterTest {
         when(exchange1.getResponse()).thenReturn(response1);
         when(request1.getURI()).thenReturn(java.net.URI.create("http://localhost/api/data"));
         when(request1.getMethod()).thenReturn(HttpMethod.GET);
-        when(response1.getRawStatusCode()).thenReturn(200);
+        when(response1.getStatusCode()).thenReturn(HttpStatusCode.valueOf(200));
 
         // Configure chain
         WebFilterChain chain1 = _ -> Mono.empty();
@@ -164,7 +165,7 @@ class AccessLogFilterTest {
         when(exchange2.getResponse()).thenReturn(response2);
         when(request2.getURI()).thenReturn(java.net.URI.create("http://localhost/api/data"));
         when(request2.getMethod()).thenReturn(HttpMethod.GET);
-        when(response2.getRawStatusCode()).thenReturn(500);
+        when(response2.getStatusCode()).thenReturn(HttpStatusCode.valueOf(500));
 
         // Configure chain
         WebFilterChain chain2 = _ -> Mono.empty();

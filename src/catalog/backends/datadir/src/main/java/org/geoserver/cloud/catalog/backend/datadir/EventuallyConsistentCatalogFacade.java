@@ -399,7 +399,7 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
             int attempt = i + 1;
             ret = supplier.get();
             if (predicate.test(ret)) {
-                log.debug("retry #{} after {}ms found, call: {}", attempt, opDesc);
+                log.debug("retry #{} after {}ms found, call: {}", attempt, waitMillis, opDesc);
                 return ret;
             } else {
                 log.debug("retry #{} after {}ms not found, call: {}", attempt, waitMillis, opDesc);

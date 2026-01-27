@@ -58,10 +58,6 @@ class EnvironmentAdminAuthenticationProvider implements AuthenticationProvider {
 
     private boolean enabled;
 
-    public EnvironmentAdminAuthenticationProvider() {
-        System.err.println("EnvironmentAdminAuthenticationProvider");
-    }
-
     @PostConstruct
     void validateConfig() {
         final boolean userSet = StringUtils.hasText(adminUserName);
@@ -80,8 +76,7 @@ class EnvironmentAdminAuthenticationProvider implements AuthenticationProvider {
                     """
                     Found overriding admin password config property geoserver.admin.password, \
                     but admin username not provided through config property geoserver.admin.username
-                    """
-                            .formatted(adminUserName);
+                    """;
             throw new BeanInstantiationException(getClass(), msg);
         }
         enabled = userSet && passwordSet;

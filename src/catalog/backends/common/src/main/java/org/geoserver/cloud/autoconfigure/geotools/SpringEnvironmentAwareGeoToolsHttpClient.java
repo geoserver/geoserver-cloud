@@ -230,7 +230,7 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
         } catch (HttpException e) {
             throw new IOException(e);
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
         if (200 != response.getStatusCode()) {
             throw new IOException(
@@ -242,10 +242,12 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
     private void setHeadersOn(
             Map<String, String> headers, org.apache.hc.client5.http.classic.methods.HttpUriRequestBase request) {
         for (Map.Entry<String, String> header : headers.entrySet()) {
+            String key = header.getKey();
+            String value = header.getValue();
             if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.log(Level.FINE, "Setting header " + header.getKey() + " = " + header.getValue());
+                LOGGER.log(Level.FINE, () -> "Setting header %s = %s".formatted(key, value));
             }
-            request.setHeader(header.getKey(), header.getValue());
+            request.setHeader(key, value);
         }
     }
 
@@ -301,7 +303,7 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
         return new HttpHost(host, port);
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "java:S1874"})
     private RequestConfig requestConfig(URL url) {
         RequestConfig reqConf = this.requestConfig;
         Optional<HttpHost> proxy = proxy(url);

@@ -24,7 +24,6 @@ import lombok.experimental.Delegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
@@ -119,7 +118,7 @@ public class LoggingTemplate {
                 ? ""
                 : " (ERROR %s: %s)".formatted(error.getClass().getSimpleName(), error.getMessage());
 
-        if (error != null && log.isTraceEnabled() && !(error instanceof EmptyResultDataAccessException)) {
+        if (error != null && log.isTraceEnabled()) {
             log.trace("after request #{} ({}): '{}'{}", reqId, time, sql, errMsg, error);
         } else {
             log.debug("after request #{} ({}): '{}'{}", reqId, time, sql, errMsg);
