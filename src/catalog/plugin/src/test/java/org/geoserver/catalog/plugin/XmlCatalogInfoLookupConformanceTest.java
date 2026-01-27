@@ -55,9 +55,13 @@ class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
             returned ft/ft2 where mockito is not throwing the expected exception
             """)
     @Override
-    public void testSaveDataStoreRollbacksBothStoreAndResources() {}
+    protected void testSaveDataStoreRollbacksBothStoreAndResources() {
+        super.testSaveDataStoreRollbacksBothStoreAndResources();
+    }
 
     @Disabled("don't care it can't save the resourceinfo when saving a layer, it's just a demo implementation")
     @Override
-    public void testEnableLayer() {}
+    protected void testEnableLayer() {
+        super.testEnableLayer();
+    }
 }

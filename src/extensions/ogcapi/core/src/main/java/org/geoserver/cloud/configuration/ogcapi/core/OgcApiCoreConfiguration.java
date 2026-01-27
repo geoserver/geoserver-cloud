@@ -59,6 +59,7 @@ public class OgcApiCoreConfiguration {
      *  </bean>
      * }
      */
+    @SuppressWarnings({"deprecation", "java:S1874"})
     @Bean
     OWSHandlerMapping apiURLMapping(@Qualifier("catalog") Catalog catalog, APIDispatcher apiDispatcher) {
         OWSHandlerMapping mapping = new OWSHandlerMapping(catalog);
@@ -92,6 +93,7 @@ public class OgcApiCoreConfiguration {
      * }</pre>
      */
     @Bean
+    @SuppressWarnings({"deprecation", "java:S1874"})
     SimpleUrlHandlerMapping apiClasspathPublisherMapping(
             @Qualifier("classpathPublisher") ClasspathPublisher classpathPublisher) {
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();

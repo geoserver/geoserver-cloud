@@ -25,7 +25,7 @@ import org.springframework.http.HttpStatus;
 /**
  * Test for {@link WicketComponentFilter}
  */
-public class WicketComponentFilterTest {
+class WicketComponentFilterTest {
 
     private WicketComponentFilter filter;
     private WebUIConfigurationProperties config;
@@ -35,7 +35,7 @@ public class WicketComponentFilterTest {
     private StringWriter responseWriter;
 
     @Before
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         config = new WebUIConfigurationProperties();
         filter = new WicketComponentFilter(config);
 
@@ -49,7 +49,7 @@ public class WicketComponentFilterTest {
     }
 
     @Test
-    public void testNonBookmarkableUrl() throws ServletException, IOException {
+    void testNonBookmarkableUrl() throws ServletException, IOException {
         when(request.getRequestURI()).thenReturn("/web/some/other/url");
 
         filter.doFilter(request, response, chain);
@@ -60,7 +60,7 @@ public class WicketComponentFilterTest {
     }
 
     @Test
-    public void testEnabledComponent() throws ServletException, IOException {
+    void testEnabledComponent() throws ServletException, IOException {
         // WMS is enabled by default
         assertTrue(config.getWms().isEnabled());
 
@@ -74,7 +74,7 @@ public class WicketComponentFilterTest {
     }
 
     @Test
-    public void testEnabledComponentAlternativeUrlFormat() throws ServletException, IOException {
+    void testEnabledComponentAlternativeUrlFormat() throws ServletException, IOException {
         // WMS is enabled by default
         assertTrue(config.getWms().isEnabled());
 
@@ -89,7 +89,7 @@ public class WicketComponentFilterTest {
     }
 
     @Test
-    public void testDisabledComponent() throws ServletException, IOException {
+    void testDisabledComponent() throws ServletException, IOException {
         // Disable WMS
         config.getWms().setEnabled(false);
         assertFalse(config.getWms().isEnabled());
@@ -104,7 +104,7 @@ public class WicketComponentFilterTest {
     }
 
     @Test
-    public void testDisabledNestedComponent() throws ServletException, IOException {
+    void testDisabledNestedComponent() throws ServletException, IOException {
         // Disable demo page layer preview
         config.getDemos().getLayerPreviewPage().setEnabled(false);
 
@@ -118,7 +118,7 @@ public class WicketComponentFilterTest {
     }
 
     @Test
-    public void testDisabledNestedComponentAlternativeUrlFormat() throws ServletException, IOException {
+    void testDisabledNestedComponentAlternativeUrlFormat() throws ServletException, IOException {
         // Disable resource browser tool
         config.getTools().setResourceBrowser(false);
 
@@ -133,7 +133,7 @@ public class WicketComponentFilterTest {
     }
 
     @Test
-    public void testUrlsWithQueryParameters() throws ServletException, IOException {
+    void testUrlsWithQueryParameters() throws ServletException, IOException {
         // Disable WMS
         config.getWms().setEnabled(false);
 

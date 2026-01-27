@@ -124,6 +124,7 @@ public class RESTConfigConfiguration {
      * @param catalog
      */
     @Bean
+    @SuppressWarnings({"deprecation", "java:S1874"})
     GwcUrlHandlerMapping gwcWmtsRestUrlHandlerMapping(Catalog catalog) {
         GwcUrlHandlerMapping handler = new GwcUrlHandlerMapping(catalog, "/gwc/rest/wmts");
         handler.setAlwaysUseFullPath(true);
