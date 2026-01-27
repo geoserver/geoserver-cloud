@@ -107,6 +107,7 @@ nav:
   - Configuration:
     - Externalized configuration guide: configuration/index.md
     - Migration 2.26 to 2.27: configuration/migration-2.26-to-2.27.md
+    - Migration 2.28 to 3.0: configuration/migration-2.28-to-3.0.md
   - Community:
     - Overview: community/index.md
     - Contributors: community/contributors.md
