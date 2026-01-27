@@ -2,7 +2,6 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-
 package org.geoserver.cloud.autoconfigure.geotools;
 
 import java.io.BufferedReader;
@@ -302,6 +301,7 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
         return new HttpHost(host, port);
     }
 
+    @SuppressWarnings("deprecation")
     private RequestConfig requestConfig(URL url) {
         RequestConfig reqConf = this.requestConfig;
         Optional<HttpHost> proxy = proxy(url);

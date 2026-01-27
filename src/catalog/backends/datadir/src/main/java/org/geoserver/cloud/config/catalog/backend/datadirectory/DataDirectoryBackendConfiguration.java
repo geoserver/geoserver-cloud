@@ -213,7 +213,6 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
     })
     @Bean(name = "geoServerLoaderImpl")
     GeoServerLoader geoServerLoaderImpl(
-            @Qualifier("rawCatalog") Catalog rawCatalog,
             LockingGeoServer geoServer,
             GeoServerSecurityManager securityManager,
             GeoServerResourceLoader resourceLoader) {

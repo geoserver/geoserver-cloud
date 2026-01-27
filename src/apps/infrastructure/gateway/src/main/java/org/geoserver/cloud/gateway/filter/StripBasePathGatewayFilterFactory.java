@@ -58,10 +58,10 @@ public class StripBasePathGatewayFilterFactory
     }
 
     private int resolvePartsToStrip(String basePath, String requestPath) {
-        if (null == basePath) return 0;
-        if (!requestPath.startsWith(basePath)) {
+        if (null == basePath || !requestPath.startsWith(basePath)) {
             return 0;
         }
+
         final int basePathSteps = StringUtils.countOccurrencesOf(basePath, "/");
         boolean isRoot = basePath.equals(requestPath);
         return isRoot ? basePathSteps - 1 : basePathSteps;
