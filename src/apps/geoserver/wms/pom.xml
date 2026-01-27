@@ -33,6 +33,10 @@
       <artifactId>gs-wms</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wms-gml</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-kml</artifactId>
     </dependency>

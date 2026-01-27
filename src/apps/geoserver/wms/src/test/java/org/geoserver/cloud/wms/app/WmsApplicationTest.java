@@ -72,6 +72,15 @@ abstract class WmsApplicationTest {
     }
 
     @Test
+    void testExpectedBeansFromGsWmsGml() {
+        expectBean("wmsGetFeatureInfoGML2", org.geoserver.wms.featureinfo.GML2FeatureInfoOutputFormat.class);
+        expectBean("wmsGetFeatureInfoXML2", org.geoserver.wms.featureinfo.XML2FeatureInfoOutputFormat.class);
+        expectBean("wmsGetFeatureInfoGML3", org.geoserver.wms.featureinfo.GML3FeatureInfoOutputFormat.class);
+        expectBean("wmsGetFeatureInfoXML311", org.geoserver.wms.featureinfo.XML311FeatureInfoOutputFormat.class);
+        expectBean("wmsFilterKvpParser", org.geoserver.wms.kvp.FilterKvpParser.class);
+    }
+
+    @Test
     void testGwcWmsIntegration() {
         expectBean("gwcWMSExtendedCapabilitiesProvider", CachingExtendedCapabilitiesProvider.class);
         expectBean("gwcGetMapAdvise", ForwardGetMapToGwcAspect.class);

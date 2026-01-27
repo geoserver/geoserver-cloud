@@ -36,7 +36,10 @@ import org.springframework.core.env.PropertyResolver;
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ImportFilteredResource({
     "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST,
-    "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST
+    "jar:gs-wms-gml-.*!/applicationContext.xml",
+    "jar:gs-wfs-core-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST,
+    "jar:gs-wfs1_x-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST,
+    "jar:gs-wfs2_x-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST
 })
 public class WmsApplicationAutoConfiguration {
 
