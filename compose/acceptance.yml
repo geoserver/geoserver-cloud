@@ -34,7 +34,15 @@ services:
         limits:
           cpus: "1.0"
           memory: 512M
-
+    volumes:
+      - ./secrets/aws:/compose/secrets/aws:ro
+      - ../acceptance_tests/config.yaml:/opt/geoserver_acceptance/config.yaml:ro
+    environment:
+      GEOSERVER_ACCEPTANCE_RUN_DB_TESTS: ${GEOSERVER_ACCEPTANCE_RUN_DB_TESTS:-true}
+      GEOSERVER_ACCEPTANCE_RUN_COG_TESTS: ${GEOSERVER_ACCEPTANCE_RUN_COG_TESTS:-true}
+      GEOSERVER_ACCEPTANCE_RUN_JNDI_TESTS: ${GEOSERVER_ACCEPTANCE_RUN_JNDI_TESTS:-true}
+      GEOSERVER_ACCEPTANCE_RUN_SLOW_TESTS: ${GEOSERVER_ACCEPTANCE_RUN_SLOW_TESTS:-false}
+      GEOSERVER_ACCEPTANCE_RUN_AWS_S3_TESTS: ${GEOSERVER_ACCEPTANCE_RUN_AWS_S3_TESTS:-true}
   # For github CI
   rabbitmq:
     deploy:

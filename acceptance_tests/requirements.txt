@@ -1,0 +1,5 @@
+geoservercloud==0.8.3.dev4
+# To debug a local version of python-geoservercloud:
+# git clone git@github.com:camptocamp/python-geoservercloud
+# and then uncomment the following line and adjust the path accordingly
+# -e file:./../../python-geoservercloud
