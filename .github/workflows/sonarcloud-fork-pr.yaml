@@ -49,6 +49,9 @@ jobs:
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
+    # For pull_request_target, we must explicitly pass PR parameters to SonarCloud
+    # since the scanner runs in the base repo context and can't auto-detect PR info.
+    # This enables PR analysis reports and PR decoration on GitHub.
     - name: Analyze with Sonar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
@@ -59,6 +62,9 @@ jobs:
         -Dsonar.projectKey=geoserver_geoserver-cloud \
         -Dsonar.organization=geoserver \
         -Dsonar.scanner.skipJreProvisioning=true \
+        -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+        -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} \
+        -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} \
         -Dmaven.javadoc.skip=true \
         -ntp \
         -T1C
