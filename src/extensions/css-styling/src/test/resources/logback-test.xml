@@ -2,4 +2,5 @@
 <configuration>
   <include resource="org/springframework/boot/logging/logback/base.xml" />
   <root level="WARN"/>
+  <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

@@ -4,4 +4,5 @@
   <include resource="org/springframework/boot/logging/logback/base.xml" />
   <root level="WARN" />
   <logger name="org.geoserver.cloud.autoconfigure.extensions.importer" level="DEBUG" />
+  <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

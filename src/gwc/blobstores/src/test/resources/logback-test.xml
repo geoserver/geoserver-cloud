@@ -12,5 +12,5 @@
   <logger name="org.springframework.test" level="ERROR" />
   <logger name="org.springframework.boot.test" level="ERROR" />
   <logger name="com.microsoft.azure.storage.blob" level="WARN" />
-  
+  <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

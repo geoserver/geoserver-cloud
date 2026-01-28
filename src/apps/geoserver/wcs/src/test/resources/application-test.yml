@@ -20,6 +20,6 @@ logging:
   level:
     root: WARN
     org.geoserver.platform: ERROR
-    org.geoserver.cloud: DEBUG
-    org.geoserver.cloud.config.factory: TRACE
+    org.geoserver.cloud: INFO
+    org.geoserver.cloud.config.factory: INFO
     org.springframework.test: ERROR

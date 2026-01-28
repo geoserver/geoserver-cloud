@@ -14,4 +14,5 @@
     <logger name="org.geoserver.cloud.catalog.locking" level="INFO"/>
     <logger name="org.geoserver.catalog.impl" level="OFF"/>
     <logger name="org.geoserver.cloud.backend.pgconfig.catalog.repository" level="DEBUG"/>
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>
