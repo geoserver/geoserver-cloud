@@ -114,6 +114,7 @@ nav:
   - Developer Guide:
     - Overview: developer-guide/index.md
     - Building: developer-guide/build_instructions.md
+    - Docker Images: developer-guide/docker-images.md
     - Contributing: developer-guide/coding_standards.md
     - Logging: developer-guide/logging.md
     - Services:
