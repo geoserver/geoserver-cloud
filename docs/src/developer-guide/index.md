@@ -133,24 +133,26 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |_ spring-factory/ ...................... Spring Factory utility
         |
         |_ starters .................................. Spring Boot starters for GeoServer microservices
-        |    |_ catalog-backend/ ..................... Groups all supported catalog back-ends
-        |    |_ input-formats/ ....................... Unified starter for all vector and raster input data formats
-        |    |_ event-bus/ ........................... Binds Spring Cloud Bus integration layer with a concrete event-bridge
-        |    |_ extensions/ .......................... Common extension functionality
-        |    |_ output-formats/ ....................... Output format extensions starter
-        |    |_ observability/ ....................... Observability support (Boot 2.x)
-        |    |_ observability-spring-boot-3/ ......... Observability support (Boot 3.x)
-        |    |_ security/ ............................ Security extensions and configurations
-        |    |_ spring-boot/ ......................... Basic Spring Boot integration (Boot 2.x)
-        |    |_ webmvc/ .............................. Spring Cloud and GeoServer integrations for web applications
-        |    |_ wms-extensions/ ...................... WMS extensions autoconfigurations
-        |
-        |_ integration-tests ......................... Integration tests
+             |_ catalog-backend/ ..................... Groups all supported catalog back-ends
+             |_ input-formats/ ....................... Unified starter for all vector and raster input data formats
+             |_ event-bus/ ........................... Binds Spring Cloud Bus integration layer with a concrete event-bridge
+             |_ extensions/ .......................... Common extension functionality
+             |_ output-formats/ ....................... Output format extensions starter
+             |_ observability/ ....................... Observability support (Boot 2.x)
+             |_ observability-spring-boot-3/ ......... Observability support (Boot 3.x)
+             |_ security/ ............................ Security extensions and configurations
+             |_ spring-boot/ ......................... Basic Spring Boot integration (Boot 2.x)
+             |_ webmvc/ .............................. Spring Cloud and GeoServer integrations for web applications
+             |_ wms-extensions/ ...................... WMS extensions autoconfigurations
 ```
 
 # Building
 
 Check out the [build instructions](build_instructions.md) document.
+
+# Docker Images
+
+Learn about the [Docker image architecture](docker-images.md), including the base image hierarchy and layer sharing strategy that optimizes disk usage across all microservices.
 
 # Logging
 
