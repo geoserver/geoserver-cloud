@@ -56,52 +56,40 @@ build-image: build-base-images build-image-infrastructure build-image-geoserver
 
 .PHONY: build-base-images
 build-base-images: package-base-images
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build jre
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build spring-boot
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build geoserver-common
+	TAG=$(TAG) docker compose -f docker-build/base-images.yml build jre
+	TAG=$(TAG) docker compose -f docker-build/base-images.yml build spring-boot
+	TAG=$(TAG) docker compose -f docker-build/base-images.yml build geoserver-common
 
 .PHONY: build-image-infrastructure
 build-image-infrastructure: package-infrastructure-images
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/infrastructure.yml build
+	TAG=$(TAG) docker compose -f docker-build/infrastructure.yml build
 
 # This uses $(MAKECMDGOALS) (all targets specified) and filters out the target itself ($@), passing the rest as arguments. The %: rule tells make to ignore any unrecognized "targets" (which are actually your service names).
 # Then you can call:
 #  make build-image-geoserver wcs wfs
 .PHONY: build-image-geoserver
 build-image-geoserver: package-geoserver-images
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0  TAG=$(TAG) \
-	docker compose -f docker-build/geoserver.yml build $(filter-out $@ build-image build-image-multiplatform,$(MAKECMDGOALS))
+	TAG=$(TAG) docker compose -f docker-build/geoserver.yml build $(filter-out $@ build-image build-image-multiplatform,$(MAKECMDGOALS))
 
 .PHONY: build-image-multiplatform
 build-image-multiplatform: build-base-images-multiplatform build-image-infrastructure-multiplatform build-image-geoserver-multiplatform
 
 .PHONY: build-base-images-multiplatform
 build-base-images-multiplatform: package-base-images
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	docker compose -f docker-build/base-images-multiplatform.yml build jre --push \
-	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot --push \
-	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	   docker compose -f docker-build/base-images-multiplatform.yml build geoserver-common --push
+	TAG=$(TAG) docker compose -f docker-build/base-images-multiplatform.yml build jre --push \
+	&& TAG=$(TAG) docker compose -f docker-build/base-images-multiplatform.yml build spring-boot --push \
+	&& TAG=$(TAG) docker compose -f docker-build/base-images-multiplatform.yml build geoserver-common --push
 
 .PHONY: build-image-infrastructure-multiplatform
 build-image-infrastructure-multiplatform: package-infrastructure-images
-	COMPOSE_DOCKER_CLI_BUILD=1 \
-	DOCKER_BUILDKIT=1 \
-	TAG=$(TAG) \
-	docker compose -f docker-build/infrastructure-multiplatform.yml build --push
+	TAG=$(TAG) docker compose -f docker-build/infrastructure-multiplatform.yml build --push
 
 # This uses $(MAKECMDGOALS) (all targets specified) and filters out the target itself ($@), passing the rest as arguments. The %: rule tells make to ignore any unrecognized "targets" (which are actually your service names).
 # Then you can call:
 #  make build-image-geoserver-multiplatform wcs wfs
 .PHONY: build-image-geoserver-multiplatform
 build-image-geoserver-multiplatform: package-geoserver-images
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	docker compose -f docker-build/geoserver-multiplatform.yml build --push $(filter-out $@ build-image build-image-multiplatform,$(MAKECMDGOALS))
+	TAG=$(TAG) docker compose -f docker-build/geoserver-multiplatform.yml build --push $(filter-out $@ build-image build-image-multiplatform,$(MAKECMDGOALS))
 
 .PHONY: package-base-images
 package-base-images:
