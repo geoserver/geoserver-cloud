@@ -2,6 +2,7 @@
 
 name: Build and Push Docker images
 on:
+  workflow_dispatch:  # Manual trigger - select branch/tag from GitHub UI
   push:
     branches:
       - main
