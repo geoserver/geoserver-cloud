@@ -64,6 +64,20 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-observability</artifactId>
     </dependency>
+    <!--
+      Explicitly include spring-jcl (Spring's commons-logging bridge).
+      Upstream GeoServer's gs-main excludes spring-jcl from spring-core to avoid
+      conflicts with commons-logging. In Spring Boot applications, spring-jcl is
+      preferred because:
+      - It's Spring Boot's default logging bridge to SLF4J/Logback
+      - It integrates seamlessly with Spring Boot's logging auto-configuration
+      - It avoids the classloader issues that commons-logging has
+      See docs/src/developer-guide/logging.md for details.
+    -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jcl</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-iau-wkt</artifactId>

@@ -115,6 +115,7 @@ nav:
     - Overview: developer-guide/index.md
     - Building: developer-guide/build_instructions.md
     - Contributing: developer-guide/coding_standards.md
+    - Logging: developer-guide/logging.md
     - Services:
       - Discovery Service: developer-guide/services/discovery-service.md
       - Gateway Service: developer-guide/services/gateway-service.md

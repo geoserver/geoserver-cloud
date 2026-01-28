@@ -100,11 +100,6 @@
       <artifactId>gs-web-gwc</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <!-- to avoid ClassNotFoundException(org/apache/logging/log4j/core/config/Configuration) at GlobalSettingsPage  -->
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-tester</artifactId>
       <version>${wicket.version}</version>

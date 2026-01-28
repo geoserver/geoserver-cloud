@@ -152,6 +152,10 @@ Each microservice is its own self-contained application, including only the GeoS
 
 Check out the [build instructions](build_instructions.md) document.
 
+# Logging
+
+Learn about [logging configuration](logging.md) in GeoServer Cloud, including how logging bridges are configured and how GeoTools logging is integrated with Spring Boot's Logback.
+
 # Coding Standards
 
 GeoServer Cloud follows specific [coding standards and style guidelines](coding_standards.md) to ensure consistency across the project.
