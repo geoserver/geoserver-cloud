@@ -15,5 +15,5 @@
   <logger name="org.springframework.boot.test" level="ERROR" />
   <logger name="org.springframework.context" level="WARN" />
   <logger name="org.geoserver.platform.GeoServerExtensions" level="ERROR" />
-  
+  <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

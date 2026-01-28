@@ -18,5 +18,5 @@
     <logger name="org.geoserver.cloud.gwc.backend.pgconfig" level="INFO"/>
     <logger name="org.geoserver.catalog.impl" level="OFF"/>
     <logger name="org.geoserver.cloud.backend.pgconfig.catalog.repository" level="INFO"/>
-    
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

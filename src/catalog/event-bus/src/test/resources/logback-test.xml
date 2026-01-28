@@ -13,5 +13,5 @@
     <logger name="org.testcontainers" level="INFO"/>
     <logger name="org.geoserver.cloud.event" level="DEBUG"/>
     <logger name="org.geoserver.cloud.event.bus" level="DEBUG"/>
-    
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>
