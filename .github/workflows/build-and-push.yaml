@@ -170,7 +170,8 @@ jobs:
 
   sign-images:
     needs: [base-images, infrastructure-images, geoserver-images]
-    if: github.repository == 'geoserver/geoserver-cloud'
+    # Only sign release images (git tags), not SNAPSHOT builds
+    if: github.repository == 'geoserver/geoserver-cloud' && startsWith(github.ref, 'refs/tags/')
     name: Sign and Verify Images
     runs-on: ubuntu-latest
     timeout-minutes: 30
