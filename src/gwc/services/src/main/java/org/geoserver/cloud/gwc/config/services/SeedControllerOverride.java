@@ -5,9 +5,9 @@
 
 package org.geoserver.cloud.gwc.config.services;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 class GeoServerBackendCacheConfigurationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withPropertyValues("spring.cache.type: caffeine")
             .withAllowBeanDefinitionOverriding(true)
             .withBean("rawCatalog", CatalogPlugin.class)
             .withBean("geoServer", GeoServerImpl.class)

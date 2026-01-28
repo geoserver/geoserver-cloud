@@ -23,7 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class PgconfigUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     @Container
-    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     private UpdateSequence sequence;
     private PgconfigGeoServerFacade facade;

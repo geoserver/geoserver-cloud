@@ -67,18 +67,50 @@ Create a `pom.xml` file for your extension with the appropriate dependencies:
       <groupId>org.geoserver.cloud.extensions</groupId>
       <artifactId>gs-cloud-extensions-core</artifactId>
     </dependency>
-    
+
     <!-- Extension-specific dependencies -->
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-<extension-related-module></artifactId>
       <optional>true</optional>
     </dependency>
-    
+
+    <!-- Required for Spring Boot auto-configuration metadata generation -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <!-- Test dependencies are inherited from parent -->
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Required: configure annotation processors for auto-configuration metadata -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-autoconfigure-processor</artifactId>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 ```
+
+> **Important**: The `spring-boot-autoconfigure-processor` dependency and its corresponding `annotationProcessorPaths` entry in `maven-compiler-plugin` are required for all modules with auto-configurations. This generates `META-INF/spring-autoconfigure-metadata.properties` at compile time, enabling Spring Boot to filter auto-configuration classes efficiently without loading them.
 
 ### 3. Add the Extension to the Parent POM
 

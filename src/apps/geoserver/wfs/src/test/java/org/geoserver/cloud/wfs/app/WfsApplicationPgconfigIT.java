@@ -10,9 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 @SpringBootTest(classes = WfsApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("pgconfigjndi")
@@ -20,7 +20,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class WfsApplicationPgconfigIT extends WfsApplicationTest {
 
     @Container
-    static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:15");
+    static PostgreSQLContainer container = new PostgreSQLContainer("postgres:15");
 
     /**
      * Contribute the following properties defined in the {@literal pgconfigjndi} spring profile

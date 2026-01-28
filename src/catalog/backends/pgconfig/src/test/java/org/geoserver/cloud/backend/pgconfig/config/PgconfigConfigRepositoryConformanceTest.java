@@ -32,7 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class PgconfigConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
 
     @Container
-    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     @Override
     @BeforeEach

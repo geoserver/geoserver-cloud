@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.gwc.bus;
 
+import java.io.Serial;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 @EqualsAndHashCode(callSuper = true)
 public class RemoteTileLayerEvent extends RemoteGeoWebCacheEvent {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private @Getter @Setter String publishedId;

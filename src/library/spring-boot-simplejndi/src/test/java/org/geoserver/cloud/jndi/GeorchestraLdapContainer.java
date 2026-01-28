@@ -11,9 +11,10 @@ import org.testcontainers.utility.Base58;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * A <a href="https://www.testcontainers.org">Testconainers</a> container to run
- * georchestra's LDAP server as a JUnit {@code @Rule} based on
- * {@code georchestra/ldap:latest}.
+ * A <a href="https://www.testcontainers.org">Testcontainers</a> container to run
+ * georchestra's LDAP server based on {@code georchestra/ldap:latest}.
+ * <p>
+ * Use with JUnit 5's {@code @Container} annotation.
  * <p>
  * Get the host mapped port for {@code 389} with {@link #getMappedPort(int)
  * getMappedPort(389)}, or directly with {@link #getMappedLdapPort()}

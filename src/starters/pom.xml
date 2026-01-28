@@ -11,7 +11,6 @@
   <name>Spring boot starters for GeoServer cloud services</name>
   <modules>
     <module>spring-boot</module>
-    <module>spring-boot3</module>
     <module>catalog-backend</module>
     <module>input-formats</module>
     <module>spring-cloud</module>
@@ -20,7 +19,6 @@
     <module>webmvc</module>
     <module>security</module>
     <module>observability</module>
-    <module>observability-spring-boot-3</module>
   </modules>
   <dependencies>
     <dependency>

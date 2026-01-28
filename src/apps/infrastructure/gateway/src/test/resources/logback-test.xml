@@ -35,4 +35,5 @@
     </root>
   </springProfile>
 
+  <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

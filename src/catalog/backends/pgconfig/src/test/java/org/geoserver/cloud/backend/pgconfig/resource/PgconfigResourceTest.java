@@ -14,17 +14,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +44,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -66,8 +66,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @RunWith(Theories.class)
 public class PgconfigResourceTest extends ResourceTheoryTest {
 
-    @ClassRule
-    public static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    /**
+     * This is a JUnit 4 test, manually calling start()/stop()
+     */
+    public static PgConfigTestContainer container = new PgConfigTestContainer();
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -95,20 +97,21 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @BeforeClass
-    public static void onetimeSetUp() {
+    public static void containerSetup() {
+        container.start();
         container.setUp();
     }
 
     @AfterClass
-    public static void oneTimeTeardown() {
-        container.tearDown();
+    public static void containerTeardown() {
+        container.stop();
     }
 
     @Before
     public void setUp() throws Exception {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
-        cacheDirectory = tmpDir.newFolder();
+        cacheDirectory = newFolder(tmpDir.getRoot(), "junit");
         FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         store = new PgconfigResourceStore(
                 cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
@@ -596,7 +599,16 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         File file = resource.file();
         assertTrue(file.exists());
         assertTrue(file.isFile());
-        String fileContent = new String(java.nio.file.Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+        String fileContent = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
         assertEquals("test password", fileContent);
+    }
+
+    private static File newFolder(File root, String... subDirs) throws IOException {
+        String subFolder = String.join("/", subDirs);
+        File result = new File(root, subFolder);
+        if (!result.mkdirs()) {
+            throw new IOException("Couldn't create folders " + root);
+        }
+        return result;
     }
 }

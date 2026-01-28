@@ -13,4 +13,5 @@
     <module>core</module>
     <module>features</module>
   </modules>
+  <dependencies></dependencies>
 </project>

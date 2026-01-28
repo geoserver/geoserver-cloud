@@ -7,11 +7,13 @@ package org.geoserver.cloud.logging.accesslog;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.boot.web.reactive.filter.OrderedWebFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
@@ -90,30 +92,27 @@ public class AccessLogWebfluxFilter implements OrderedWebFilter {
         }
 
         // Capture request start time
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         ServerHttpRequest request = exchange.getRequest();
-        String method = request.getMethodValue();
+        String method = request.getMethod().name();
         String uriPath = uri.toString();
 
         // Store initial MDC state
         Map<String, String> initialMdc = MDC.getCopyOfContextMap();
 
-        return chain.filter(exchange).doFinally(signalType -> {
+        return chain.filter(exchange).doFinally(_ -> {
             try {
                 // Calculate request duration
-                long duration = System.currentTimeMillis() - startTime;
+                long durationNanos = System.nanoTime() - startTime;
 
-                // Get status code if available, or use 0 if not set
-                Integer statusCode = exchange.getResponse().getRawStatusCode();
-                if (statusCode == null) {
-                    statusCode = 0;
-                }
-
+                HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
+                int rawStatusCode = statusCode == null ? 0 : statusCode.value();
                 // Log the request without MDC context
-                config.log(method, statusCode, uriPath);
+                config.log(method, rawStatusCode, uriPath);
 
                 if (log.isTraceEnabled()) {
-                    log.trace("Request {} {} {} completed in {}ms", method, statusCode, uriPath, duration);
+                    long duration = TimeUnit.MILLISECONDS.convert(durationNanos, TimeUnit.NANOSECONDS);
+                    log.trace("Request {} {} {} completed in {}ms", method, rawStatusCode, uriPath, duration);
                 }
             } finally {
                 // Restore initial MDC state if any

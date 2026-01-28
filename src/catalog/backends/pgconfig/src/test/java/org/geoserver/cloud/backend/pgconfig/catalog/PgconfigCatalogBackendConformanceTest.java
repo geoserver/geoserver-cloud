@@ -37,7 +37,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
 
     @Container
-    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     @Override
     @BeforeEach

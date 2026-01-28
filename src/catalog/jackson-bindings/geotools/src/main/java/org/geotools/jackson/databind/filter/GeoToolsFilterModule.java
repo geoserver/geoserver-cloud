@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import java.io.Serial;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
@@ -70,6 +71,7 @@ import org.mapstruct.factory.Mappers;
  */
 @Slf4j
 public class GeoToolsFilterModule extends SimpleModule {
+    @Serial
     private static final long serialVersionUID = 4898575169880138758L;
 
     private static final FilterMapper FILTERS = Mappers.getMapper(FilterMapper.class);

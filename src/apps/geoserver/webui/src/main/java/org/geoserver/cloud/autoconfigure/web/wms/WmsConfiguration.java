@@ -12,7 +12,9 @@ import org.springframework.context.annotation.Configuration;
 @ImportFilteredResource({
     "jar:gs-web-wms-.*!/applicationContext.xml",
     "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsConfiguration.WMS_BEANS_REGEX,
-    "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_BEANS_REGEX
+    "jar:gs-wfs-core.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_BEANS_REGEX,
+    "jar:gs-wfs1_x-.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_BEANS_REGEX,
+    "jar:gs-wfs2_x-.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_BEANS_REGEX
 })
 public class WmsConfiguration {
 

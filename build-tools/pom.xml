@@ -16,4 +16,5 @@
     <!-- Skip validation for this module to avoid circular dependency -->
     <checkstyle.skip>true</checkstyle.skip>
   </properties>
+  <dependencies></dependencies>
 </project>

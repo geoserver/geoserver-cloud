@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.filter.dto.Literal;
@@ -208,7 +207,7 @@ class ConnectionParametersSerializerTest {
         File file = new File("/tmp/testfile.txt");
         URI uri = new URI("http://example.com/data");
         URL url = new URI("http://example.com/data.json").toURL();
-        Path path = Paths.get("/tmp/testpath");
+        Path path = Path.of("/tmp/testpath");
 
         params.put("file", file);
         params.put("uri", uri);

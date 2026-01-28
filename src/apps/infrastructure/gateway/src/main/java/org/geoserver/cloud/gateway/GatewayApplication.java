@@ -10,9 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Spring Cloud Gateway application for GeoServer Cloud
- * <p>
- * Using Spring Boot 3.2.x with Spring Cloud 2024.0.1+ for improved
- * reactive context propagation, especially for MDC values in logging.
  */
 @SpringBootApplication
 public class GatewayApplication {

@@ -11,7 +11,7 @@
   <modules>
     <module>jre</module>
     <module>spring-boot</module>
-    <module>spring-boot3</module>
     <module>geoserver</module>
   </modules>
+  <dependencies></dependencies>
 </project>

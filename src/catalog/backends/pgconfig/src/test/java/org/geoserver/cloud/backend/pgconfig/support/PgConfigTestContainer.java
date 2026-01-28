@@ -16,8 +16,9 @@ import org.geoserver.cloud.config.jndi.JNDIDataSourceConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.AbstractApplicationContextRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
 import org.testcontainers.Testcontainers;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * A {@link Testcontainers test container} based on {@link PostgreSQLContainer} using PostgreSQL 15
@@ -28,7 +29,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
  * @since 1.6
  */
 @SuppressWarnings("java:S119")
-public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>> extends PostgreSQLContainer<SELF> {
+public class PgConfigTestContainer extends PostgreSQLContainer {
 
     private @Getter DataSource dataSource;
     private @Getter JdbcTemplate template;
@@ -40,7 +41,7 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>> exten
     }
 
     @SneakyThrows(Exception.class)
-    public PgConfigTestContainer<SELF> setUp() {
+    public PgConfigTestContainer setUp() {
         String url = getJdbcUrl();
         String username = getUsername();
         String password = getPassword();
@@ -102,5 +103,27 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>> exten
                         "jndi.datasources.testdb.password: " + password, //
                         // pgconfig backend datasource config using jndi
                         "geoserver.backend.pgconfig.datasource.jndi-name: java:comp/env/jdbc/testdb");
+    }
+
+    /**
+     * Contribute the following properties defined in the {@literal pgconfigjndi}
+     * spring profile
+     *
+     * <ul>
+     * <li>pgconfig.host
+     * <li>pgconfig.port
+     * <li>pgconfig.database
+     * <li>pgconfig.schema
+     * <li>pgconfig.username
+     * <li>pgconfig.password
+     * </ul>
+     */
+    public void setupDynamicPropertySource(DynamicPropertyRegistry registry) {
+        registry.add("pgconfig.host", this::getHost);
+        registry.add("pgconfig.port", () -> this.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT));
+        registry.add("pgconfig.database", this::getDatabaseName);
+        registry.add("pgconfig.schema", () -> "pgconfigtestschema");
+        registry.add("pgconfig.username", this::getUsername);
+        registry.add("pgconfig.password", this::getPassword);
     }
 }

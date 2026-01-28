@@ -7,8 +7,8 @@ package org.geoserver.cloud.autoconfigure.extensions.security.environmentadmin;
 
 import static org.springframework.util.StringUtils.hasText;
 
+import jakarta.annotation.PostConstruct;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.security.impl.GeoServerRole;
 import org.geoserver.security.impl.GeoServerUser;
@@ -48,7 +48,7 @@ import org.springframework.util.StringUtils;
  */
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class EnvironmentAdminAuthenticationProvider implements AuthenticationProvider {
+class EnvironmentAdminAuthenticationProvider implements AuthenticationProvider {
 
     @Value("${geoserver.admin.username:}")
     private String adminUserName;
@@ -76,14 +76,16 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
                     """
                     Found overriding admin password config property geoserver.admin.password, \
                     but admin username not provided through config property geoserver.admin.username
-                    """
-                            .formatted(adminUserName);
+                    """;
             throw new BeanInstantiationException(getClass(), msg);
         }
         enabled = userSet && passwordSet;
         if (enabled) {
             log.info(
                     "The default admin username and password are overridden by the externalized geoserver.admin.username and geoserver.admin.password config properties.");
+        } else {
+            log.debug(
+                    "The default admin username and password are not overridden by the externalized geoserver.admin.username and geoserver.admin.password config properties.");
         }
     }
 
@@ -117,7 +119,10 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
 
         final String name = token.getName();
         if (GeoServerUser.ADMIN_USERNAME.equals(name) && !expectedName.equals(name)) {
-            throw new InternalAuthenticationServiceException("Default admin user is disabled");
+            String msg =
+                    "Attempt to authenticate with the default admin username dismissed, overridden by the externalized geoserver.admin.username config property.";
+            log.warn(msg);
+            throw new InternalAuthenticationServiceException(msg);
         }
 
         final boolean sameName = hasText(expectedName) && expectedName.equals(name);

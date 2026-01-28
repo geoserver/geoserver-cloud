@@ -115,6 +115,7 @@ services:
       JAVA_OPTS: "${JAVA_OPTS_DEFAULT}"
       # eat our own dogfood and set a base path
       GEOSERVER_BASE_PATH: ${GEOSERVER_BASE_PATH}
+      SPRING_PROFILES_INCLUDE: config-first
       SPRING_PROFILES_ACTIVE: "${GATEWAY_DEFAULT_PROFILES}"
     ports:
       - ${GATEWAY_PORT}:8080

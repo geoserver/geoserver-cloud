@@ -1,75 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
-  <!-- No parent from gs-cloud project to allow independent versioning -->
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.3</version>
-    <relativePath></relativePath>
-    <!-- lookup parent from repository -->
+    <groupId>org.geoserver.cloud.apps</groupId>
+    <artifactId>gs-cloud-infrastructure</artifactId>
+    <version>${revision}</version>
   </parent>
-
-  <groupId>org.geoserver.cloud.apps</groupId>
   <artifactId>gs-cloud-gateway</artifactId>
-  <version>2.28.2-SNAPSHOT</version>
-  <packaging>jar</packaging>
   <name>API gateway service</name>
-
   <properties>
-    <java.version>21</java.version>
-    <spring-cloud.version>2024.0.1</spring-cloud.version>
-    <logstash-logback-encoder.version>8.0</logstash-logback-encoder.version>
-    <junit-jupiter.version>5.10.2</junit-jupiter.version>
-    <wiremock.version>3.4.2</wiremock.version>
-    <guava.version>33.0.0-jre</guava.version>
-    <geoserver.cloud.version>${project.version}</geoserver.cloud.version>
-    <mainClass>org.geoserver.cloud.gateway.GatewayApplication</mainClass>
-    <fmt.skip>false</fmt.skip>
-    <spotless.action>apply</spotless.action>
-    <spotless.apply.skip>${fmt.skip}</spotless.apply.skip>
+    <start-class>org.geoserver.cloud.gateway.GatewayApplication</start-class>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-dependencies</artifactId>
-        <version>${spring-cloud.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
-    <!-- GeoServer Cloud Spring Boot 3 Starter -->
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-spring-boot3-starter</artifactId>
-      <version>${geoserver.cloud.version}</version>
-    </dependency>
-
-    <!-- GeoServer Cloud Observability Spring Boot 3 -->
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-observability-spring-boot-3</artifactId>
-      <version>${geoserver.cloud.version}</version>
-    </dependency>
-
-    <!-- Spring Boot/Cloud Core Dependencies -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-webflux</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-bootstrap</artifactId>
+      <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-boot-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -87,24 +36,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-aop</artifactId>
     </dependency>
-
-    <!-- Jakarta EE APIs for Spring Boot 3 -->
-    <dependency>
-      <groupId>jakarta.annotation</groupId>
-      <artifactId>jakarta.annotation-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.validation</groupId>
-      <artifactId>jakarta.validation-api</artifactId>
-    </dependency>
-
-    <!-- Spring Cloud Gateway -->
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-gateway</artifactId>
-    </dependency>
-
-    <!-- Micrometer and Actuator -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
@@ -113,26 +44,23 @@
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
-
-    <!-- Logging -->
     <dependency>
-      <groupId>net.logstash.logback</groupId>
-      <artifactId>logstash-logback-encoder</artifactId>
-      <version>${logstash-logback-encoder.version}</version>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-observability</artifactId>
     </dependency>
-
-    <!-- Lombok -->
+    <dependency>
+      <!-- Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production. -->
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <optional>true</optional>
     </dependency>
-
-    <!-- Additional Dependencies -->
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure-processor</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <!-- Testing -->
@@ -149,130 +77,52 @@
     <dependency>
       <groupId>org.wiremock</groupId>
       <artifactId>wiremock-standalone</artifactId>
-      <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.1</version>
-        <inherited>true</inherited>
         <configuration>
-          <release>21</release>
-          <debug>true</debug>
-          <encoding>UTF-8</encoding>
           <annotationProcessorPaths>
             <path>
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
-              <version>1.18.42</version>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-autoconfigure-processor</artifactId>
             </path>
           </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>
-        <groupId>io.github.git-commit-id</groupId>
-        <artifactId>git-commit-id-maven-plugin</artifactId>
-        <configuration>
-          <failOnNoGitDirectory>false</failOnNoGitDirectory>
-          <generateGitPropertiesFile>true</generateGitPropertiesFile>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
           <execution>
-            <id>get-the-git-infos</id>
+            <id>forbid-webui-dependencies</id>
             <goals>
-              <goal>revision</goal>
-            </goals>
-            <phase>initialize</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <mainClass>${mainClass}</mainClass>
-          <excludes>
-            <exclude>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-            </exclude>
-          </excludes>
-        </configuration>
-        <executions>
-          <execution>
-            <id>repackage</id>
-            <goals>
-              <goal>repackage</goal>
+              <goal>enforce</goal>
             </goals>
             <configuration>
-              <classifier>bin</classifier>
+              <rules>
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>org.geoserver.web:*</exclude>
+                  </excludes>
+                  <searchTransitive>true</searchTransitive>
+                </bannedDependencies>
+              </rules>
+              <fail>true</fail>
             </configuration>
-          </execution>
-          <execution>
-            <id>build-info</id>
-            <goals>
-              <goal>build-info</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <addMavenDescriptor>false</addMavenDescriptor>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.github.ekryd.sortpom</groupId>
-        <artifactId>sortpom-maven-plugin</artifactId>
-        <version>4.0.0</version>
-        <configuration>
-          <encoding>UTF-8</encoding>
-          <keepBlankLines>true</keepBlankLines>
-          <spaceBeforeCloseEmptyElement>false</spaceBeforeCloseEmptyElement>
-          <createBackupFile>false</createBackupFile>
-          <lineSeparator>\n</lineSeparator>
-          <verifyFail>stop</verifyFail>
-          <verifyFailOn>strict</verifyFailOn>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>sort</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.diffplug.spotless</groupId>
-        <artifactId>spotless-maven-plugin</artifactId>
-        <version>3.0.0</version>
-        <configuration>
-          <java>
-            <palantirJavaFormat>
-              <version>2.74.0</version>
-            </palantirJavaFormat>
-          </java>
-          <upToDateChecking>
-            <enabled>true</enabled>
-            <indexFile>${project.basedir}/.spotless-index</indexFile>
-          </upToDateChecking>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>apply</goal>
-            </goals>
-            <phase>validate</phase>
           </execution>
         </executions>
       </plugin>

@@ -10,8 +10,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 /**
- * Provides service discovery to all microservices; discovery-service configuration itself can be
- * provided by the {@code config-service} if the {@code spring.cloud.config.uri} property is set to
+ * Provides service discovery to all microservices; {@code discovery} service configuration itself can be
+ * provided by the {@code config} service if the {@code spring.cloud.config.uri} property is set to
  * the URI of the Spring Cloud Config server.
  */
 @SpringBootApplication

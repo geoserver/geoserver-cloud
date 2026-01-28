@@ -5,9 +5,9 @@
 
 package org.geoserver.cloud.catalog.cache;
 
+import jakarta.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.WorkspaceInfo;

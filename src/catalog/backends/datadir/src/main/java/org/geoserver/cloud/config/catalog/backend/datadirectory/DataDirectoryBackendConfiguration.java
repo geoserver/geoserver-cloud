@@ -8,7 +8,6 @@ package org.geoserver.cloud.config.catalog.backend.datadirectory;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +24,7 @@ import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties.EventualConsistencyConfig;
 import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.config.util.XStreamPersisterFactory;
@@ -38,30 +38,68 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 
-/** */
-@Configuration(proxyBeanMethods = true)
+/**
+ * Spring configuration for GeoServer Cloud's traditional file-based data directory backend.
+ *
+ * <h2>Overview</h2>
+ * <p>This configuration provides a GeoServer catalog and configuration backend that stores data in
+ * a traditional file-based data directory structure, similar to vanilla GeoServer. The implementation
+ * uses an in-memory catalog facade backed by file-based persistence through GeoServer's standard
+ * XML serialization mechanisms.
+ *
+ * <h2>Storage Architecture</h2>
+ * <ul>
+ *  <li><b>Catalog</b> - In-memory facade ({@code DefaultMemoryCatalogFacade}) with XML file persistence
+ *  <li><b>Configuration</b> - In-memory repository facade ({@code RepositoryGeoServerFacadeImpl}) with XML file persistence
+ *  <li><b>Resources</b> - File-based resource store for styles, icons, templates, and other assets
+ *  <li><b>Locking</b> - File-based locking for configuration consistency across nodes
+ * </ul>
+ *
+ * <h2>Eventual Consistency Support</h2>
+ * <p>In multi-node deployments, this backend can be configured with eventual consistency enforcement to
+ * handle out-of-order distributed event delivery. When enabled via {@link DataDirectoryProperties},
+ * the catalog facade is wrapped with {@link EventuallyConsistentCatalogFacade} which:
+ * <ul>
+ *  <li>Defers catalog operations when dependencies are not yet available
+ *  <li>Implements configurable retry logic for query operations during convergence
+ *  <li>Tracks pending operations and resolves them when dependencies arrive
+ * </ul>
+ *
+ * <h2>Configuration</h2>
+ * <p>Backend behavior is controlled through {@link DataDirectoryProperties}, typically configured via:
+ * <pre>
+ * geoserver.backend.data-directory.location=/path/to/datadir
+ * geoserver.backend.data-directory.eventual-consistency.enabled=true
+ * geoserver.backend.data-directory.eventual-consistency.retries=100,200,500
+ * </pre>
+ *
+ * <h2>Bean Dependencies</h2>
+ * <p>This configuration uses {@code @Configuration(proxyBeanMethods = false)} for optimal performance
+ * and flexibility, allowing bean methods to declare their dependencies as method parameters rather than
+ * calling other {@code @Bean} methods directly.
+ *
+ * <h2>Optimization</h2>
+ * <p>Uses {@link CloudDataDirectoryGeoServerLoader} which provides optimized parallel loading of
+ * catalog and configuration data compared to vanilla GeoServer's sequential loader.
+ *
+ * @since 1.0
+ * @see GeoServerBackendConfigurer
+ * @see DataDirectoryProperties
+ * @see EventuallyConsistentCatalogFacade
+ * @see CloudDataDirectoryGeoServerLoader
+ */
+@Configuration(proxyBeanMethods = false)
 @Slf4j(topic = "org.geoserver.cloud.config.datadirectory")
-public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigurer {
+public class DataDirectoryBackendConfiguration implements GeoServerBackendConfigurer {
 
-    private final CatalogProperties catalogProperties;
+    public DataDirectoryBackendConfiguration(DataDirectoryProperties dataDirectoryConfig) {
 
-    private final DataDirectoryProperties dataDirectoryConfig;
-
-    private final Optional<EventualConsistencyEnforcer> converger;
-
-    public DataDirectoryBackendConfiguration(
-            DataDirectoryProperties dataDirectoryConfig,
-            CatalogProperties catalogProperties,
-            Optional<EventualConsistencyEnforcer> converger) {
-
-        this.dataDirectoryConfig = dataDirectoryConfig;
-        this.catalogProperties = catalogProperties;
-        this.converger = converger;
         log.info(
                 "Loading geoserver config backend with {} from {}",
                 DataDirectoryBackendConfiguration.class.getSimpleName(),
-                dataDirectoryConfig.getLocation());
+                dataDirectoryConfig.dataDirectory());
     }
 
     @Bean
@@ -73,42 +111,50 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
     }
 
     @Bean
-    CatalogPlugin rawCatalog() {
+    CatalogPlugin rawCatalog(
+            CatalogProperties catalogProperties,
+            GeoServerResourceLoader resourceLoader,
+            ExtendedCatalogFacade catalogFacade,
+            GeoServerConfigurationLock configurationLock) {
+
         boolean isolated = catalogProperties.isIsolated();
-        GeoServerConfigurationLock configurationLock = configurationLock();
-        ExtendedCatalogFacade catalogFacade = catalogFacade();
-        GeoServerResourceLoader resourceLoader = resourceLoader();
         CatalogPlugin rawCatalog = new LockingCatalog(configurationLock, catalogFacade, isolated);
         rawCatalog.setResourceLoader(resourceLoader);
         return rawCatalog;
     }
 
     @Bean(name = "geoServer")
-    LockingGeoServer geoServer(@Qualifier("catalog") Catalog catalog) {
-
-        GeoServerConfigurationLock configurationLock = configurationLock();
-        LockingGeoServer gs = new LockingGeoServer(configurationLock, geoserverFacade());
+    LockingGeoServer geoServer(
+            @Qualifier("catalog") Catalog catalog,
+            @Qualifier("geoserverFacade") GeoServerFacade geoserverFacade,
+            GeoServerConfigurationLock configurationLock) {
+        LockingGeoServer gs = new LockingGeoServer(configurationLock, geoserverFacade);
         gs.setCatalog(catalog);
         return gs;
     }
 
-    protected @Bean @Override UpdateSequence updateSequence() {
-        ResourceStore resourceStore = resourceStoreImpl();
-        GeoServerDataDirectory dd = new GeoServerDataDirectory(resourceLoader());
+    @Primary
+    @Bean
+    UpdateSequence updateSequence(
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStore, GeoServerResourceLoader resourceLoader) {
+        GeoServerDataDirectory dd = new GeoServerDataDirectory(resourceLoader);
         XStreamPersisterFactory xpf = new XStreamPersisterFactory();
         return new DataDirectoryUpdateSequence(resourceStore, dd, xpf);
     }
 
-    protected @Bean @Override GeoServerConfigurationLock configurationLock() {
-        LockProvider lockProvider = resourceStoreImpl().getLockProvider();
+    @Bean
+    GeoServerConfigurationLock configurationLock(@Qualifier("resourceStoreImpl") ResourceStore resourceStoreImpl) {
+        LockProvider lockProvider = resourceStoreImpl.getLockProvider();
         return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
-    protected @Bean @Override ExtendedCatalogFacade catalogFacade() {
+    @Bean
+    ExtendedCatalogFacade catalogFacade(
+            DataDirectoryProperties config, Optional<EventualConsistencyEnforcer> converger) {
         ExtendedCatalogFacade facade = new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
         if (converger.isPresent()) {
             log.info("Data directory catalog facade eventual consistency enforcement enabled");
-            facade = buildEventuallyConsistentCatalogFacade(facade, converger.orElseThrow());
+            facade = buildEventuallyConsistentCatalogFacade(facade, converger.orElseThrow(), config);
         } else {
             log.info("Data directory catalog facade eventual consistency enforcement disabled");
         }
@@ -136,9 +182,9 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
      *     retries are not configured
      */
     private EventuallyConsistentCatalogFacade buildEventuallyConsistentCatalogFacade(
-            ExtendedCatalogFacade facade, EventualConsistencyEnforcer tracker) {
+            ExtendedCatalogFacade facade, EventualConsistencyEnforcer tracker, DataDirectoryProperties config) {
         int[] waitMillis = new int[] {}; // no retries
-        EventualConsistencyConfig ecConfig = dataDirectoryConfig.getEventualConsistency();
+        EventualConsistencyConfig ecConfig = config.getEventualConsistency();
         List<Integer> retries = ecConfig.getRetries();
         if (retries != null && !retries.isEmpty()) {
             waitMillis = retries.stream().mapToInt(Integer::intValue).toArray();
@@ -148,7 +194,8 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
         return new EventuallyConsistentCatalogFacade(facade, tracker, waitMillis);
     }
 
-    protected @Bean @Override RepositoryGeoServerFacade geoserverFacade() {
+    @Bean
+    RepositoryGeoServerFacade geoserverFacade() {
         return new org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl();
     }
 
@@ -165,39 +212,31 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
         "geoServerSecurityManager"
     })
     @Bean(name = "geoServerLoaderImpl")
-    @Override
-    public GeoServerLoader geoServerLoaderImpl(GeoServerSecurityManager securityManager) {
+    GeoServerLoader geoServerLoaderImpl(
+            LockingGeoServer geoServer,
+            GeoServerSecurityManager securityManager,
+            GeoServerResourceLoader resourceLoader) {
         log.info("Using optimized parallel data directory config loader");
-        GeoServerResourceLoader resourceLoader = resourceLoader();
         GeoServerDataDirectory dataDirectory = new GeoServerDataDirectory(resourceLoader);
-        Catalog rawCatalog = rawCatalog();
-        LockingGeoServer geoserver = geoServer(rawCatalog);
-
-        return new CloudDataDirectoryGeoServerLoader(dataDirectory, geoserver, securityManager);
+        return new CloudDataDirectoryGeoServerLoader(dataDirectory, geoServer, securityManager);
     }
 
-    protected @Bean @Override GeoServerResourceLoader resourceLoader() {
-        ResourceStore resourceStoreImpl = resourceStoreImpl();
+    @Bean
+    GeoServerResourceLoader resourceLoader(
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStoreImpl, DataDirectoryProperties config) {
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStoreImpl);
-        final @NonNull Path datadir = dataDirectoryFile();
+        final @NonNull Path datadir = config.dataDirectory();
         log.debug("geoserver.backend.data-directory.location: {}", datadir);
         resourceLoader.setBaseDirectory(datadir.toFile());
         return resourceLoader;
     }
 
     @Bean(name = {"resourceStoreImpl"})
-    protected @Override ResourceStore resourceStoreImpl() {
-        final @NonNull File dataDirectory = dataDirectoryFile().toFile();
+    ResourceStore resourceStoreImpl(DataDirectoryProperties config) {
+        File dataDirectory = config.dataDirectory().toFile();
         NoServletContextDataDirectoryResourceStore store =
                 new NoServletContextDataDirectoryResourceStore(dataDirectory);
         store.setLockProvider(new NoServletContextFileLockProvider(dataDirectory));
         return store;
-    }
-
-    private Path dataDirectoryFile() {
-        DataDirectoryProperties config = this.dataDirectoryConfig;
-        Path path = config.getLocation();
-        Objects.requireNonNull(path, "geoserver.backend.data-directory.location config property resolves to null");
-        return path;
     }
 }

@@ -5,13 +5,13 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.geotools.api.filter.BinaryComparisonOperator;
@@ -186,8 +186,8 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
         List<Object> values = null;
         if (null != literal) {
             Object value = literal.getValue();
-            if (value instanceof Collection) {
-                values = new ArrayList<>((Collection<?>) value);
+            if (value instanceof Collection<?> collection) {
+                values = new ArrayList<>(collection);
             }
         }
         return values;

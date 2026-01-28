@@ -46,7 +46,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class PgconfigTileLayerCatalogIT {
 
     @Container
-    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     private TileLayerMocking support;
 

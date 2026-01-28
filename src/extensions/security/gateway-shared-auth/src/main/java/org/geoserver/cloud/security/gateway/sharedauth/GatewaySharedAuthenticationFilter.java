@@ -8,17 +8,17 @@ package org.geoserver.cloud.security.gateway.sharedauth;
 import static com.google.common.collect.Streams.stream;
 
 import com.google.common.collect.Streams;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -166,11 +166,13 @@ public class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
                     String postUsername = post == null ? null : post.getName();
                     String reqHeaders = getHeaders(req);
                     String gatewaySessionId = getGatewaySessionId(req);
+                    String method = sanitizeMethod(req.getMethod());
+                    String requestURI = sanitizeUri(req.getRequestURI());
                     log.debug(
                             "[gateway session: {}] {} {}\n user pre: {}\n user post: {}\n headers: \n{}",
                             gatewaySessionId,
-                            req.getMethod(),
-                            req.getRequestURI(),
+                            method,
+                            requestURI,
                             preUsername,
                             postUsername,
                             reqHeaders);
@@ -244,12 +246,14 @@ public class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
             response.setHeader(X_GSCLOUD_USERNAME, "");
             if (log.isDebugEnabled()) {
                 String gatewaySessionId = getGatewaySessionId(req);
+                String method = sanitizeMethod(req.getMethod());
+                String requestURI = sanitizeUri(req.getRequestURI());
                 log.debug(
                         "[gateway session: {}] sending empty {} response header for {} {}",
                         gatewaySessionId,
                         X_GSCLOUD_USERNAME,
-                        req.getMethod(),
-                        req.getRequestURI());
+                        method,
+                        requestURI);
             }
         }
 
@@ -262,6 +266,8 @@ public class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
                         .forEach(authority -> response.addHeader(X_GSCLOUD_ROLES, authority.getAuthority()));
                 if (log.isDebugEnabled()) {
                     String gatewaySessionId = getGatewaySessionId(req);
+                    String method = sanitizeMethod(req.getMethod());
+                    String requestURI = sanitizeUri(req.getRequestURI());
                     log.debug(
                             "[gateway session: {}] appended response headers {}: {}, {}: {} for {} {}",
                             gatewaySessionId,
@@ -269,8 +275,8 @@ public class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
                             response.getHeader(X_GSCLOUD_USERNAME),
                             X_GSCLOUD_ROLES,
                             response.getHeaders(X_GSCLOUD_ROLES),
-                            req.getMethod(),
-                            req.getRequestURI());
+                            method,
+                            requestURI);
                 }
             }
         }
@@ -307,5 +313,18 @@ public class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
             log.debug("gateway shared auth filter pass-through, functionality disabled");
             chain.doFilter(request, response);
         }
+    }
+
+    static String sanitizeMethod(String method) {
+        // validate the HTTP Method against an allow-list
+        if (method == null || !method.matches("^[A-Z]+$")) {
+            method = "INVALID_METHOD";
+        }
+        return method;
+    }
+
+    static String sanitizeUri(String requestURI) {
+        // sanitize the URI to remove line breaks
+        return (requestURI == null) ? "" : requestURI.replaceAll("[\\n\\r\\t]", "_");
     }
 }

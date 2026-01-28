@@ -8,7 +8,7 @@ Dependency graph:
                                     |
  (catalog-event-bus) <-------- (catalog-backend-starter) ------> (catalog-cache)
                                  /  |           \
-                                /   |            \--> [gs-jdbcconfig]
+                                /   |            \
                                /    |             \
                               /     |              \--> <other catalog backends>...
                              /      | 
@@ -28,13 +28,12 @@ Implements `spring-could-bus` based event notification of catalog and configurat
 
 ## catalog-backend-starter
 
-Provides spring atuo-configuration for several catalog back-ends. Namely: traditional file based data directory, jdbcconfig, and pgconfig. More can be added as implementations are developed.
+Provides spring atuo-configuration for several catalog back-ends. Namely: traditional file based data directory and pgconfig. More can be added as implementations are developed.
  
  depends on: 
   * gs-cloud-catalog-events
   * gs-cloud-catalog-cache
   * gs-cloud-catalog-backend-datadir
-  * gs-cloud-catalog-backend-jdbcconfig
   * gs-cloud-catalog-backend-pgconfig
 
 ## catalog-cache
@@ -54,12 +53,4 @@ geoserver.web.resource-browser.enabed=true
 geoserver.servlet.enabled=true #flag to turn off auto-configuration of geoserver servlet context
 geoserver.servlet.filter.session-debug.enabled=true #flag to disable the session debug servlet filter
 geoserver.servlet.filter.flush-safe.enabled=true #flag to disable the flush-safe servlet filter
-
-geoserver.jdbcconfig.enabled=true
-geoserver.jdbcconfig.web.enabled=true
-geoserver.jdbcconfig.initdb=false
-geoserver.jdbcconfig.datasource.jdbc-url=jdbc\:postgresql\://database\:5432/geoserver_config
-geoserver.jdbcconfig.datasource.username=sa
-geoserver.jdbcconfig.datasource.password=
-geoserver.jdbcconfig.datasource.driverClassname=org.postgresql.Driver
 ```

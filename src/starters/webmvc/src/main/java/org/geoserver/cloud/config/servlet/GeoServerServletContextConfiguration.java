@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.config.servlet;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 import org.geoserver.filters.FlushSafeFilter;
 import org.geoserver.filters.SessionDebugFilter;
 import org.geoserver.filters.SpringDelegatingFilter;

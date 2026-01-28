@@ -14,7 +14,6 @@ import org.geoserver.wms.WMS;
 import org.geoserver.wms.WMSServiceExceptionHandler;
 import org.geoserver.wms.WebMapService;
 import org.geoserver.wms.map.GetMapKvpRequestReader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +37,7 @@ public class WebMapServiceMinimalConfiguration {
      * wms beans black-list, note wmsPNGLegendOutputFormat is required by {@link
      * GeoServerTileLayer#getLayerLegendsInfo()}
      */
-    private static final String WMS_BEANS_BLACK_LIST =
+    private static final String WMS_BEANS_BLACKLIST =
             """
             ^(?!\
             legendSample\
@@ -71,7 +70,7 @@ public class WebMapServiceMinimalConfiguration {
             """;
 
     // wfs beans white-list
-    private static final String WFS_BEANS_REGEX =
+    private static final String WFS_BEANS_WHITELIST =
             """
             ^(\
             gml.*OutputFormat\
@@ -83,12 +82,12 @@ public class WebMapServiceMinimalConfiguration {
             ).*$\
             """;
 
-    static final String GS_WMS_INCLUDES = "jar:gs-wms-[0-9]+.*!/applicationContext.xml#name=" + WMS_BEANS_BLACK_LIST;
+    static final String GS_WMS_INCLUDES = "jar:gs-wms-[0-9]+.*!/applicationContext.xml#name=" + WMS_BEANS_BLACKLIST;
 
-    static final String GS_WFS_INCLUDES = "jar:gs-wfs-[0-9]+.*!/applicationContext.xml#name=" + WFS_BEANS_REGEX;
+    static final String GS_WFS_INCLUDES =
+            "jar:gs-wfs-core-[0-9]+.*!/applicationContext.xml#name=" + WFS_BEANS_WHITELIST;
 
     @Bean
-    @Autowired
     @DependsOn({"wms"})
     @ConditionalOnMissingBean(GetMapKvpRequestReader.class)
     GetMapKvpRequestReader getMapKvpReader(WMS wms) {
@@ -97,7 +96,7 @@ public class WebMapServiceMinimalConfiguration {
 
     /**
      * Conditionally return a {@link WMSServiceExceptionHandler} in case it doesn't exist. It's excluded from {@literal applicationContext.xml}
-     * because the wms-service app overrides it
+     * because the {@literal wms} service app overrides it
      */
     @Bean
     @ConditionalOnMissingBean

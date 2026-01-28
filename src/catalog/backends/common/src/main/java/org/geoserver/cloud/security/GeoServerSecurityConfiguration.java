@@ -5,10 +5,11 @@
 
 package org.geoserver.cloud.security;
 
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javax.annotation.PostConstruct;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.AuthenticationProvider;
 
 /**
  * Loads geoserver security bean definitions from {@code
@@ -59,11 +61,6 @@ public class GeoServerSecurityConfiguration {
     }
 
     @Bean
-    EnvironmentAdminAuthenticationProvider environmentAdminAuthenticationProvider() {
-        return new EnvironmentAdminAuthenticationProvider();
-    }
-
-    @Bean
     GeoServerSecurityFilterChainProxy filterChainProxy(GeoServerSecurityManager sm) {
         return new CloudGeoServerSecurityFilterChainProxy(sm);
     }
@@ -84,12 +81,23 @@ public class GeoServerSecurityConfiguration {
             GeoServerDataDirectory dataDir, //
             ApplicationEventPublisher localContextPublisher, //
             UpdateSequence updateSequence, //
-            EnvironmentAdminAuthenticationProvider envAuth //
-            ) throws Exception {
+            List<AuthenticationProvider> additionalAuthenticationProviders)
+            throws Exception {
 
+        if (additionalAuthenticationProviders.isEmpty()) {
+            log.info("No additional authentication providers found");
+        } else {
+            log.info(
+                    "Using additional authentication providers {}",
+                    additionalAuthenticationProviders.stream()
+                            .map(Object::getClass)
+                            .map(Class::getCanonicalName)
+                            .collect(Collectors.joining(", ")));
+        }
         Consumer<SecurityConfigChanged> publisher = localContextPublisher::publishEvent;
         Supplier<Long> updateSequenceIncrementor = updateSequence::nextValue;
 
-        return new CloudGeoServerSecurityManager(lock, dataDir, publisher, updateSequenceIncrementor, List.of(envAuth));
+        return new CloudGeoServerSecurityManager(
+                lock, dataDir, publisher, updateSequenceIncrementor, additionalAuthenticationProviders);
     }
 }

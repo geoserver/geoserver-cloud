@@ -7,7 +7,7 @@ package org.geoserver.cloud.autoconfigure.extensions.security.gateway.sharedauth
 
 import static org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationProvider.Mode.CLIENT;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationProvider;
 import org.springframework.context.annotation.Bean;

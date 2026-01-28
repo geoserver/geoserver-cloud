@@ -113,16 +113,14 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public SettingsInfo update(SettingsInfo settings, Patch patch) {
+    public synchronized SettingsInfo update(SettingsInfo settings, Patch patch) {
         checkNotAProxy(settings);
 
         String localCopy = this.settings.get(settings.getId());
-        synchronized (localCopy) {
-            SettingsInfo local = deserialize(localCopy, SettingsInfo.class);
-            patch.applyTo(local);
-            this.settings.put(settings.getId(), serialize(local));
-            return local;
-        }
+        SettingsInfo local = deserialize(localCopy, SettingsInfo.class);
+        patch.applyTo(local);
+        this.settings.put(settings.getId(), serialize(local));
+        return local;
     }
 
     @Override
@@ -155,16 +153,14 @@ class XmlSerializedConfigRepository implements ConfigRepository {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <S extends ServiceInfo> S update(S service, Patch patch) {
+    public synchronized <S extends ServiceInfo> S update(S service, Patch patch) {
         checkNotAProxy(service);
 
         String localCopy = services.get(service.getId());
-        synchronized (localCopy) {
-            ServiceInfo local = deserialize(localCopy, service.getClass());
-            patch.applyTo(local);
-            this.services.put(service.getId(), serialize(local));
-            return (S) local;
-        }
+        ServiceInfo local = deserialize(localCopy, service.getClass());
+        patch.applyTo(local);
+        this.services.put(service.getId(), serialize(local));
+        return (S) local;
     }
 
     @Override

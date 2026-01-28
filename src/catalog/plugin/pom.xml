@@ -30,8 +30,8 @@
       <!-- during the upgrade to GeoServer 2.22.x, GeoServerInfoImpl has the following field: -->
       <!-- protected Integer xmlPostRequestLogBufferSize = LoggingFilter.REQUEST_LOG_BUFFER_SIZE_DEFAULT -->
       <!-- which creates a direct dependency against the servlet API (javax.servlet.Filter) -->
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -55,7 +55,7 @@
     <dependency>
       <!-- required to always have WFSInfo/Impl on the classpath -->
       <groupId>org.geoserver</groupId>
-      <artifactId>gs-wfs</artifactId>
+      <artifactId>gs-wfs-core</artifactId>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>

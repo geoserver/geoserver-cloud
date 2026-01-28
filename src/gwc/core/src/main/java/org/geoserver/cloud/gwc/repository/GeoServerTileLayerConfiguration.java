@@ -37,7 +37,7 @@ public class GeoServerTileLayerConfiguration extends ForwardingTileLayerConfigur
      * @see #setEventListener
      */
     @NonNull
-    private Consumer<TileLayerEvent> eventConsumer = e -> {};
+    private Consumer<TileLayerEvent> eventConsumer = _ -> {};
 
     public GeoServerTileLayerConfiguration(
             @NonNull TileLayerConfiguration subject, Consumer<TileLayerEvent> eventPublisher) {

@@ -33,28 +33,28 @@ public class InstallDuckDBExtensions {
      * @param args Command line arguments (not used)
      */
     @SuppressWarnings({"java:S4507", "java:S106"}) // printStackTrace() and System.out.println() are ok in this class
-    public static void main(String[] args) {
+    void main() {
         try {
             Class.forName("org.duckdb.DuckDBDriver");
-            System.out.println("Installing DuckDB extensions...");
+            IO.println("Installing DuckDB extensions...");
 
             try (Connection conn = DriverManager.getConnection("jdbc:duckdb:");
                     Statement stmt = conn.createStatement()) {
 
                 stmt.execute("INSTALL parquet;");
-                System.out.println("Parquet extension installed");
+                IO.println("Parquet extension installed");
 
                 stmt.execute("INSTALL httpfs;");
-                System.out.println("HTTP FS extension installed");
+                IO.println("HTTP FS extension installed");
 
                 stmt.execute("INSTALL spatial;");
-                System.out.println("Spatial extension installed");
+                IO.println("Spatial extension installed");
 
                 stmt.execute("INSTALL aws;");
-                System.out.println("AWS extension installed");
+                IO.println("AWS extension installed");
             }
 
-            System.out.println("All extensions successfully installed to " + System.getenv("HOME") + "/.duckdb");
+            IO.println("All extensions successfully installed to " + System.getenv("HOME") + "/.duckdb");
         } catch (Exception e) {
             System.err.println("Error installing extensions: " + e.getMessage());
             e.printStackTrace();

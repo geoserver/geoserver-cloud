@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.catalog.event.UpdateSequenceControllerAutoConfiguration

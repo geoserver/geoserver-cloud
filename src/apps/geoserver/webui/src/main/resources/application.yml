@@ -1,0 +1,75 @@
+server:
+  servlet:
+    session:
+      tracking-modes: COOKIE
+      cookie:
+        name: JSESSIONID_${spring.application.name}
+        http-only: true
+spring:
+  application.name: webui
+  config:
+    name: geoserver # load externalized configuration from geoserver.yml
+    import:
+      - classpath:geoserver_spring_boot_profiles.yml
+      - classpath:geoserver_spring_cloud_profiles.yml
+  # always include the service specific settings from the profile
+  profiles.include: ${spring.application.name}
+  # also ask for geoserver.yml when loading the externalized config through a config-server
+  cloud.config.name: geoserver
+
+# Fixed per-service value to support conditional activation of extensions.
+# This property is checked by @ConditionalOnGeoServerWebUI
+geoserver.service.webui.enabled: true
+geoserver.base-path: /geoserver
+
+geoserver:
+  styling:
+    css.enabled: true
+  wms:
+    output-formats:
+      vector-tiles:
+        mapbox.enabled: true
+        geojson.enabled: false
+        topojson.enabled: false
+  web-ui:
+    file-browser.hide-file-system: true
+    # These are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
+    security.enabled: true
+    wfs.enabled: ${webui.wfs.enabled:true}
+    wms.enabled: ${webui.wms.enabled:true}
+    wcs.enabled: ${webui.wcs.enabled:true}
+    wps.enabled: ${webui.wps.enabled:true}
+    gwc:
+      enabled: ${gwc.enabled:true}
+      capabilities:
+        tms: ${gwc.services.tms:true}
+        wmts: ${gwc.services.wmts:true}
+        wmsc: ${gwc.services.wms:false}
+    extensions:
+      importer.enabled: true
+    demos:
+      enabled: true
+      wps-request-builder: true
+      wcs-request-builder: true
+      demo-requests: true
+      srs-list: true
+      reprojection-console: true
+      layer-preview-page:
+        enabled: true
+        common-formats:
+          open-layers: true
+          gml: true
+          kml: false #kml links are broken
+    tools:
+      enabled: true
+      resource-browser: true
+      catalog-bulk-load: true
+
+---
+spring.config.activate.on-profile: "bootstrap-standalone"
+spring.config.import: ${standalone.config.location:file:/etc/geoserver/geoserver.yml}
+---
+# local profile, used for development only. Other settings like config and eureka urls in geoserver_spring_cloud_profiles.yml
+spring.config.activate.on-profile: local
+server.port: 9106
+management.server.port: 8106

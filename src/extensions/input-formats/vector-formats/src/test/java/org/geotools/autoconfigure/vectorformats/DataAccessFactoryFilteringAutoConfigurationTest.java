@@ -92,7 +92,7 @@ class DataAccessFactoryFilteringAutoConfigurationTest {
                         "geotools.data.filtering.enabled=true",
                         "geotools.data.filtering.vector-formats.[PostGIS]=false",
                         "geotools.data.filtering.vector-formats.[Oracle NG]=false")
-                .run(context -> {
+                .run(_ -> {
                     Map<String, DataAccessFactory> dsUtilsReported =
                             DataStoreUtils.getAvailableDataStoreFactories().stream()
                                     .collect(Collectors.toMap(DataAccessFactory::getDisplayName, Function.identity()));

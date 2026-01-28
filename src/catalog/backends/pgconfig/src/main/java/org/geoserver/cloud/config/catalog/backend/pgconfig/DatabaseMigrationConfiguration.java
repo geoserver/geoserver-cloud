@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 public class DatabaseMigrationConfiguration {
 
     @Bean
+    @DependsOnDatabaseInitialization
     Migrations pgconfigMigrations(
             PgconfigBackendProperties config, @Qualifier("pgconfigDataSource") DataSource dataSource) {
 

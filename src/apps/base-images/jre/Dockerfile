@@ -14,6 +14,7 @@ ENV DEFAULT_JAVA_TOOL_OPTIONS="\
 --add-opens=java.desktop/sun.java2d.pipe=ALL-UNNAMED \
 --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED \
 --add-opens=java.net.http/jdk.internal.net.http=ALL-UNNAMED \
+--enable-native-access=ALL-UNNAMED \
 -Djava.awt.headless=true \
 -XX:MaxRAMPercentage=80 \
 -XX:InitialRAMPercentage=30 \

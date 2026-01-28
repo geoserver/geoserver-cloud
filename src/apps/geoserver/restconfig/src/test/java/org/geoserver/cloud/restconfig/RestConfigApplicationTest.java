@@ -15,7 +15,6 @@ import static org.springframework.http.MediaType.TEXT_HTML;
 
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,14 +35,8 @@ abstract class RestConfigApplicationTest {
     @Autowired
     protected ConfigurableApplicationContext context;
 
-    @BeforeEach
-    void before() {
-        restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
-    }
-
     @Test
     void testAnnonymousForbidden() {
-        restTemplate = restTemplate.withBasicAuth(null, null);
         ResponseEntity<String> response = restTemplate.getForEntity("/rest", String.class);
         assertThat(response.getStatusCode()).isEqualTo(FORBIDDEN);
     }
@@ -76,6 +69,7 @@ abstract class RestConfigApplicationTest {
 
     @Test
     void testBasicAdminAccess() {
+        restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
         testPathExtensionContentType("/rest", TEXT_HTML);
         testPathExtensionContentType("/rest/", TEXT_HTML);
         testPathExtensionContentType("/rest/index", TEXT_HTML);
@@ -83,12 +77,14 @@ abstract class RestConfigApplicationTest {
 
     @Test
     void testDefaultContentType() {
+        restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
         testPathExtensionContentType("/rest/workspaces", APPLICATION_JSON);
         testPathExtensionContentType("/rest/layers", APPLICATION_JSON);
     }
 
     @Test
     void testPathExtensionContentNegotiation() {
+        restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
         testPathExtensionContentType("/rest/styles/line.json", APPLICATION_JSON);
         testPathExtensionContentType("/rest/styles/line.xml", APPLICATION_XML);
         testPathExtensionContentType("/rest/styles/line.html", TEXT_HTML);
@@ -119,11 +115,10 @@ abstract class RestConfigApplicationTest {
     void testServiceConditionalAnnotations() {
         // This should exist in REST service
         assertThat(context.containsBean("restConditionalBean")).isTrue();
-        if (context.containsBean("restConditionalBean")) {
-            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
-                    context.getBean("restConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
-            assertThat(bean.getServiceName()).isEqualTo("REST");
-        }
+
+        ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                context.getBean("restConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+        assertThat(bean.getServiceName()).isEqualTo("REST");
 
         // These should not exist in REST service
         assertThat(context.containsBean("wfsConditionalBean")).isFalse();

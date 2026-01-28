@@ -2,54 +2,61 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-
 package org.geoserver.cloud.autoconfigure.geotools;
-
-import static java.time.Duration.ofMillis;
-import static java.time.Duration.ofSeconds;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.Credentials;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.auth.BasicScheme;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.routing.RoutingSupport;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.util.Timeout;
 import org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientProxyConfigurationProperties.ProxyHostConfig;
 import org.geotools.http.HTTPClient;
 import org.geotools.http.HTTPConnectionPooling;
 import org.geotools.http.HTTPProxy;
 import org.geotools.http.HTTPResponse;
 import org.geotools.util.factory.GeoTools;
+import org.geotools.util.logging.Logging;
 import org.springframework.core.env.PropertyResolver;
 
 /**
@@ -61,93 +68,41 @@ import org.springframework.core.env.PropertyResolver;
 class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.AbstractHttpClient
         implements HTTPClient, HTTPConnectionPooling, HTTPProxy {
 
+    private static final Logger LOGGER = Logging.getLogger(SpringEnvironmentAwareGeoToolsHttpClient.class);
+
+    private final GeoToolsHttpClientProxyConfigurationProperties proxyConfig;
+
     private final PoolingHttpClientConnectionManager connectionManager;
 
     private HttpClient client;
 
-    private RequestConfig connectionConfig;
+    private ConnectionConfig connectionConfig;
 
-    private BasicCredentialsProvider credsProvider = null;
+    private RequestConfig requestConfig;
 
-    private GeoToolsHttpClientProxyConfigurationProperties proxyConfig;
+    private AuthScope authScope;
 
     public SpringEnvironmentAwareGeoToolsHttpClient(
             @NonNull GeoToolsHttpClientProxyConfigurationProperties proxyConfig) {
         this.proxyConfig = proxyConfig;
-        connectionManager = new PoolingHttpClientConnectionManager();
+        connectionConfig = ConnectionConfig.custom()
+                .setSocketTimeout(Timeout.ofSeconds(30))
+                .setConnectTimeout(Timeout.ofSeconds(30))
+                .build();
+        connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+                .setDefaultConnectionConfig(connectionConfig)
+                .build();
         connectionManager.setMaxTotal(6);
         connectionManager.setDefaultMaxPerRoute(6);
-        connectionConfig = RequestConfig.custom()
-                .setCookieSpec(CookieSpecs.DEFAULT)
+        requestConfig = RequestConfig.custom()
+                .setCookieSpec(StandardCookieSpec.RELAXED)
                 .setExpectContinueEnabled(true)
-                .setSocketTimeout((int) ofSeconds(30).toMillis())
-                .setConnectTimeout((int) ofSeconds(30).toMillis())
                 .build();
-        resetCredentials();
-        client = builder().build();
-    }
 
-    @Override
-    public void setUser(String user) {
-        super.setUser(user);
         resetCredentials();
     }
 
-    @Override
-    public void setPassword(String password) {
-        super.setPassword(password);
-        resetCredentials();
-    }
-
-    private RequestConfig connectionConfig(URL url) {
-        RequestConfig reqConf = this.connectionConfig;
-        Optional<HttpHost> proxy = proxy(url);
-        if (proxy.isPresent()) {
-            HttpHost proxyHost = proxy.get();
-            reqConf = RequestConfig.copy(reqConf).setProxy(proxyHost).build();
-        }
-        return reqConf;
-    }
-
-    private Optional<HttpHost> proxy(URL url) {
-        final GeoToolsHttpClientProxyConfigurationProperties config = this.proxyConfig;
-        final String host = url.getHost();
-        return config.ofProtocol(url.getProtocol()).forHost(host).map(this::toHttpHost);
-    }
-
-    private HttpHost toHttpHost(ProxyHostConfig conf) {
-        String host = conf.getHost();
-        int port = conf.port();
-        return new HttpHost(host, port);
-    }
-
-    private void resetCredentials() {
-        // overrides defaulting to SystemDefaultCredentialsProvider
-        BasicCredentialsProvider provider = new BasicCredentialsProvider();
-        if (user != null && password != null) {
-            setTargetCredentials(provider, user, password);
-        }
-        setProxyCredentials(provider, this.proxyConfig.getHttp());
-        setProxyCredentials(provider, this.proxyConfig.getHttps());
-        this.credsProvider = provider;
-        client = builder().build();
-    }
-
-    private void setProxyCredentials(BasicCredentialsProvider provider, ProxyHostConfig proxy) {
-        if (proxy.isSecured()) {
-            AuthScope scope = new AuthScope(toHttpHost(proxy));
-            String proxyUser = proxy.getUser();
-            String proxyPassword = proxy.getPassword();
-            Credentials credentials = new UsernamePasswordCredentials(proxyUser, proxyPassword);
-            provider.setCredentials(scope, credentials);
-        }
-    }
-
-    private void setTargetCredentials(BasicCredentialsProvider provider, String userName, String pwd) {
-        AuthScope authscope = AuthScope.ANY;
-        Credentials credentials = new UsernamePasswordCredentials(userName, pwd);
-        provider.setCredentials(authscope, credentials);
-    }
+    private BasicCredentialsProvider credsProvider = null;
 
     private HttpClientBuilder builder() {
         HttpClientBuilder builder = HttpClientBuilder.create()
@@ -168,16 +123,17 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
     }
 
     @Override
+    @SuppressWarnings("PMD.CloseResource")
     public HttpMethodResponse post(
             URL url, InputStream postContent, String postContentType, Map<String, String> headers) throws IOException {
-        if (headers == null) {
-            headers = Map.of();
-        } else {
-            headers = Map.copyOf(headers); // avoid parameter modification
-        }
 
+        if (headers == null) {
+            headers = new HashMap<>();
+        } else {
+            headers = new HashMap<>(headers); // avoid parameter modification
+        }
         HttpPost postMethod = new HttpPost(url.toExternalForm());
-        postMethod.setConfig(connectionConfig(url));
+        postMethod.setConfig(requestConfig(url));
         HttpEntity requestEntity;
         if (credsProvider != null) {
             // we can't read the input stream twice as would be needed if the server asks us to
@@ -187,48 +143,52 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
                     .collect(Collectors.joining("\n"));
             requestEntity = new StringEntity(input);
         } else {
-            requestEntity = new InputStreamEntity(postContent);
+            requestEntity = new InputStreamEntity(postContent, ContentType.create(postContentType));
         }
         if (tryGzip) {
-            postMethod.setHeader("Accept-Encoding", "gzip");
+            headers.put("Accept-Encoding", "gzip");
         }
         if (postContentType != null) {
-            postMethod.setHeader("Content-type", postContentType);
+            headers.put("Content-type", postContentType);
         }
 
         setHeadersOn(headers, postMethod);
 
         postMethod.setEntity(requestEntity);
 
-        HttpMethodResponse response = executeMethod(postMethod);
-
+        HttpMethodResponse response = null;
+        try {
+            response = executeMethod(postMethod);
+        } catch (HttpException | URISyntaxException e) {
+            throw new IOException(e);
+        }
         if (200 != response.getStatusCode()) {
-            postMethod.releaseConnection();
-            throw new IOException("Server returned HTTP error code %d for URL %s"
-                    .formatted(response.getStatusCode(), url.toExternalForm()));
+            throw new IOException(
+                    "Server returned HTTP error code " + response.getStatusCode() + " for URL " + url.toExternalForm());
         }
 
         return response;
     }
 
-    /**
-     * @return the http status code of the execution
-     */
-    private HttpMethodResponse executeMethod(HttpRequestBase method) throws IOException {
+    /** @return the http status code of the execution */
+    private HttpMethodResponse executeMethod(org.apache.hc.client5.http.classic.methods.HttpUriRequestBase method)
+            throws IOException, HttpException, URISyntaxException {
 
         HttpClientContext localContext = HttpClientContext.create();
-        HttpResponse resp;
-        if (credsProvider != null) {
+        ClassicHttpResponse resp;
+        AuthScope scope = authScope;
+        if (credsProvider != null && scope != null) {
             localContext.setCredentialsProvider(credsProvider);
             // see https://stackoverflow.com/a/21592593
             AuthCache authCache = new BasicAuthCache();
-            URI target = method.getURI();
-            authCache.put(new HttpHost(target.getHost(), target.getPort(), target.getScheme()), new BasicScheme());
+            URI target = method.getUri();
+            BasicScheme basicScheme = new BasicScheme();
+            Credentials credentials = credsProvider.getCredentials(scope, localContext);
+            basicScheme.initPreemptive(credentials);
+            authCache.put(new HttpHost(target.getScheme(), target.getHost(), target.getPort()), basicScheme);
             localContext.setAuthCache(authCache);
-            resp = client.execute(method, localContext);
-        } else {
-            resp = client.execute(method);
         }
+        resp = client.executeOpen(RoutingSupport.determineHost(method), method, localContext);
 
         return new HttpMethodResponse(resp);
     }
@@ -240,66 +200,141 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
 
     @Override
     public HTTPResponse get(URL url, Map<String, String> headers) throws IOException {
+
         if (isFile(url)) {
             return createFileResponse(url);
         }
         if (headers == null) {
-            headers = Map.of();
+            headers = new HashMap<>();
         } else {
-            headers = Map.copyOf(headers); // avoid parameter modification
+            headers = new HashMap<>(headers); // avoid parameter modification
         }
+
         Map<String, String> extraParams = getExtraParams();
         if (!extraParams.isEmpty()) {
             url = appendURL(url, extraParams);
         }
 
         HttpGet getMethod = new HttpGet(url.toExternalForm());
-        getMethod.setConfig(connectionConfig(url));
+        getMethod.setConfig(requestConfig(url));
 
         if (tryGzip) {
-            getMethod.setHeader("Accept-Encoding", "gzip");
+            headers.put("Accept-Encoding", "gzip");
         }
 
         setHeadersOn(headers, getMethod);
 
-        HttpMethodResponse response = executeMethod(getMethod);
-
+        HttpMethodResponse response = null;
+        try {
+            response = executeMethod(getMethod);
+        } catch (HttpException e) {
+            throw new IOException(e);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
         if (200 != response.getStatusCode()) {
-            getMethod.releaseConnection();
-            throw new IOException("Server returned HTTP error code %d for URL %s"
-                    .formatted(response.getStatusCode(), url.toExternalForm()));
+            throw new IOException(
+                    "Server returned HTTP error code " + response.getStatusCode() + " for URL " + url.toExternalForm());
         }
         return response;
     }
 
-    private void setHeadersOn(Map<String, String> headers, HttpRequestBase request) {
+    private void setHeadersOn(
+            Map<String, String> headers, org.apache.hc.client5.http.classic.methods.HttpUriRequestBase request) {
         for (Map.Entry<String, String> header : headers.entrySet()) {
-            log.debug("Setting header {} = {}", header.getKey(), header.getValue());
-            request.setHeader(header.getKey(), header.getValue());
+            String key = header.getKey();
+            String value = header.getValue();
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.log(Level.FINE, () -> "Setting header %s = %s".formatted(key, value));
+            }
+            request.setHeader(key, value);
         }
     }
 
     @Override
+    public void setUser(String user) {
+        super.setUser(user);
+        resetCredentials();
+    }
+
+    @Override
+    public void setPassword(String password) {
+        super.setPassword(password);
+        resetCredentials();
+    }
+
+    private void resetCredentials() {
+        // overrides defaulting to SystemDefaultCredentialsProvider
+        BasicCredentialsProvider provider = new BasicCredentialsProvider();
+        if (user != null && password != null) {
+            setTargetCredentials(provider, user, password);
+        }
+        setProxyCredentials(provider, this.proxyConfig.getHttp());
+        setProxyCredentials(provider, this.proxyConfig.getHttps());
+        this.credsProvider = provider;
+        client = builder().build();
+    }
+
+    private void setTargetCredentials(BasicCredentialsProvider provider, String userName, String pwd) {
+        authScope = new AuthScope(null, -1);
+        Credentials credentials = new UsernamePasswordCredentials(userName, pwd.toCharArray());
+        provider.setCredentials(authScope, credentials);
+    }
+
+    private void setProxyCredentials(BasicCredentialsProvider provider, ProxyHostConfig proxy) {
+        if (proxy.isSecured()) {
+            AuthScope scope = new AuthScope(toHttpHost(proxy), null, null);
+            String proxyUser = proxy.getUser();
+            String proxyPassword = proxy.getPassword();
+            Credentials credentials = new UsernamePasswordCredentials(proxyUser, proxyPassword.toCharArray());
+            provider.setCredentials(scope, credentials);
+        }
+    }
+
+    private Optional<HttpHost> proxy(URL url) {
+        final GeoToolsHttpClientProxyConfigurationProperties config = this.proxyConfig;
+        final String host = url.getHost();
+        return config.ofProtocol(url.getProtocol()).forHost(host).map(this::toHttpHost);
+    }
+
+    private HttpHost toHttpHost(ProxyHostConfig conf) {
+        String host = conf.getHost();
+        int port = conf.port();
+        return new HttpHost(host, port);
+    }
+
+    @SuppressWarnings({"deprecation", "java:S1874"})
+    private RequestConfig requestConfig(URL url) {
+        RequestConfig reqConf = this.requestConfig;
+        Optional<HttpHost> proxy = proxy(url);
+        if (proxy.isPresent()) {
+            HttpHost proxyHost = proxy.get();
+            reqConf = RequestConfig.copy(reqConf).setProxy(proxyHost).build();
+        }
+        return reqConf;
+    }
+
+    @Override
     public int getConnectTimeout() {
-        return (int) ofMillis(connectionConfig.getConnectionRequestTimeout()).toSeconds();
+        return (int) connectionConfig.getConnectTimeout().toSeconds();
     }
 
     @Override
     public void setConnectTimeout(int connectTimeout) {
-        connectionConfig = RequestConfig.copy(connectionConfig)
-                .setConnectionRequestTimeout((int) ofSeconds(connectTimeout).toMillis())
+        connectionConfig = ConnectionConfig.copy(connectionConfig)
+                .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
                 .build();
     }
 
     @Override
     public int getReadTimeout() {
-        return (int) ofMillis(connectionConfig.getSocketTimeout()).toSeconds();
+        return (int) requestConfig.getResponseTimeout().toSeconds();
     }
 
     @Override
     public void setReadTimeout(int readTimeout) {
-        connectionConfig = RequestConfig.copy(connectionConfig)
-                .setSocketTimeout((int) ofSeconds(readTimeout).toMillis())
+        requestConfig = RequestConfig.copy(requestConfig)
+                .setResponseTimeout(Timeout.ofSeconds(readTimeout))
                 .build();
     }
 
@@ -314,20 +349,25 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
         connectionManager.setMaxTotal(maxConnections);
     }
 
+    @Override
+    public void close() {
+        this.connectionManager.close();
+    }
+
     static class HttpMethodResponse implements HTTPResponse {
 
-        private org.apache.http.HttpResponse methodResponse;
+        private ClassicHttpResponse methodResponse;
 
         private InputStream responseBodyAsStream;
 
-        public HttpMethodResponse(final org.apache.http.HttpResponse methodResponse) {
+        public HttpMethodResponse(final ClassicHttpResponse methodResponse) {
             this.methodResponse = methodResponse;
         }
 
+        /** @return */
         public int getStatusCode() {
             if (methodResponse != null) {
-                StatusLine statusLine = methodResponse.getStatusLine();
-                return statusLine.getStatusCode();
+                return methodResponse.getCode();
             } else {
                 return -1;
             }
@@ -344,6 +384,11 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
             }
 
             if (methodResponse != null) {
+                try {
+                    methodResponse.close();
+                } catch (IOException e) {
+                    // ignore
+                }
                 methodResponse = null;
             }
         }
@@ -373,15 +418,12 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
             return responseBodyAsStream;
         }
 
+        /** @see org.geotools.data.ows.HTTPResponse#getResponseCharset() */
         @Override
         public String getResponseCharset() {
-            final Header encoding = methodResponse.getEntity().getContentEncoding();
-            return encoding == null ? null : encoding.getValue();
+            final Header encoding = new BasicHeader(
+                    HttpHeaders.CONTENT_ENCODING, methodResponse.getEntity().getContentEncoding());
+            return encoding.getValue();
         }
-    }
-
-    @Override
-    public void close() {
-        this.connectionManager.shutdown();
     }
 }

@@ -1,7 +1,7 @@
 # Standalone mode configuration for GeoServer Cloud
 # - Disables infrastructure services (discovery, config)
 # - Applies standalone profile to all GeoServer services
-# - Works with various catalog backends (datadir, jdbcconfig, pgconfig)
+# - Works with various catalog backends (datadir, pgconfig)
 
 # Override x-gs-dependencies from compose.yml to exclude discovery service
 x-gs-standalone-dependencies: &gs-standalone-dependencies

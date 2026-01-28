@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.xmlunit.assertj3.XmlAssert;
@@ -23,7 +22,6 @@ import org.xmlunit.assertj3.XmlAssert;
         classes = WmsApplication.class,
         webEnvironment = WebEnvironment.RANDOM_PORT,
         properties = {"geoserver.backend.data-directory.enabled=true", "gwc.wms-integration=true"})
-@ActiveProfiles({"test"})
 class WmsApplicationDataDirectoryTest extends WmsApplicationTest {
 
     static @TempDir Path datadir;

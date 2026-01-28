@@ -5,10 +5,10 @@
 
 package org.geoserver.cloud.autoconfigure.gwc.backend;
 
+import jakarta.annotation.PostConstruct;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

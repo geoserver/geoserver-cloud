@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.extensions.security.geonode.GeoNodeOAuth2AutoConfiguration,\
-org.geoserver.cloud.autoconfigure.extensions.security.geonode.GeoNodeOAuth2WebUIAutoConfiguration

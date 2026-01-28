@@ -61,7 +61,6 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |     |_ geoserver/ ..................... Base image for GeoServer services
         |    |     |_ jre/ ........................... Base JRE image
         |    |     |_ spring-boot/ ................... Base Spring Boot image (Boot 2.x)
-        |    |     |_ spring-boot3/ .................. Base Spring Boot image (Boot 3.x)
         |    |
         |    |_ infrastructure/ ...................... Infrastructure services
         |    |     |_ config/ ........................ Spring-cloud config service
@@ -143,7 +142,6 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |_ observability-spring-boot-3/ ......... Observability support (Boot 3.x)
         |    |_ security/ ............................ Security extensions and configurations
         |    |_ spring-boot/ ......................... Basic Spring Boot integration (Boot 2.x)
-        |    |_ spring-boot3/ ........................ Basic Spring Boot integration (Boot 3.x)
         |    |_ webmvc/ .............................. Spring Cloud and GeoServer integrations for web applications
         |    |_ wms-extensions/ ...................... WMS extensions autoconfigurations
         |
@@ -153,6 +151,10 @@ Each microservice is its own self-contained application, including only the GeoS
 # Building
 
 Check out the [build instructions](build_instructions.md) document.
+
+# Logging
+
+Learn about [logging configuration](logging.md) in GeoServer Cloud, including how logging bridges are configured and how GeoTools logging is integrated with Spring Boot's Logback.
 
 # Coding Standards
 

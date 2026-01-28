@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.web.ui;
 
+import java.io.Serial;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.springframework.boot.info.BuildProperties;
@@ -13,6 +14,7 @@ import org.springframework.boot.info.BuildProperties;
  * @since 1.0
  */
 class GeoServerCloudStatusPanel extends Panel {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public GeoServerCloudStatusPanel(String id, BuildProperties buildInfo) {

@@ -125,7 +125,7 @@ public class TileLayerInfo {
         public enum Case {
             NONE,
             UPPER,
-            LOWER;
+            LOWER
         }
 
         private Case normalizerCase;

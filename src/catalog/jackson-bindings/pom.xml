@@ -15,4 +15,5 @@
     <module>geoserver</module>
     <module>starter</module>
   </modules>
+  <dependencies></dependencies>
 </project>

@@ -122,7 +122,7 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
         try {
             TileLayerInfo info = template.queryForObject(sql, mapper(), args);
             return Optional.of(info);
-        } catch (EmptyResultDataAccessException empty) {
+        } catch (EmptyResultDataAccessException _) {
             log.trace("returning empty for {}", sql);
             return Optional.empty();
         }
@@ -138,7 +138,7 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
     @Override
     public Set<String> findAllNames() throws DataAccessException {
         String query = "SELECT name FROM \"%s\"".formatted(tileLayersQueryTable);
-        try (var stream = template.queryForStream(query, (rs, rn) -> rs.getString(1))) {
+        try (var stream = template.queryForStream(query, (rs, _) -> rs.getString(1))) {
             return stream.collect(Collectors.toCollection(TreeSet::new));
         }
     }

@@ -1,0 +1,53 @@
+geoserver:
+  extension:
+    security:
+      acl.enabled: false
+      gateway-shared-auth:
+        enabled: true
+        auto: true
+logging:
+  level:
+    root: warn
+    org.geoserver.platform: error
+    org.geoserver.security: error
+    org.geoserver.cloud: warn
+    org.geoserver.cloud.config.factory: warn
+    org.springframework.test: error
+    org.geoserver.cloud.security.gateway.sharedauth: info
+
+---
+spring.config.activate.on-profile: datadir
+geoserver:
+  backend:
+    data-directory:
+      enabled: true
+      location: # to be set by the test class
+
+---
+spring.config.activate.on-profile: pgconfigjndi
+
+geoserver:
+  catalog.caching.enabled: true
+  backend:
+    pgconfig:
+      enabled: true
+      initialize: true
+      schema: ${pgconfig.schema}
+      create-schema: true
+      datasource:
+        jndi-name: java:comp/env/jdbc/pgconfig
+
+jndi:
+  datasources:
+    pgconfig:
+      enabled: true
+      schema: ${pgconfig.schema}
+      wait-for-it: true
+      wait-timeout: 10
+      url: jdbc:postgresql://${pgconfig.host}:${pgconfig.port}/${pgconfig.database}
+      username: ${pgconfig.username}
+      password: ${pgconfig.password}
+      maximum-pool-size: 10
+      minimum-idle: 0
+      connection-timeout: 2500
+      idle-timeout: 60000

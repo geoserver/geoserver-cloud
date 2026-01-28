@@ -18,12 +18,16 @@ import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurity
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerFacade;
+import org.geoserver.config.GeoServerLoaderProxy;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
+import org.geoserver.ows.LocalWorkspace;
 import org.geoserver.platform.GeoServerEnvironment;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStoreFactory;
+import org.geoserver.security.ResourceAccessManager;
 import org.geoserver.security.SecureCatalogImpl;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geoserver.security.impl.DefaultResourceAccessManager;
@@ -38,7 +42,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 
+/**
+ * Base configuration to set up the core catalog and configuration geoserver components
+ * <p>
+ * A specialized catalog back-end, such as datadir and pgconfig, would provide a <code>@Configuration</code>
+ * class that implements the marker interface {@link GeoServerBackendConfigurer}, that must provide at least
+ * the following beans:
+ * <ul>
+ *  <li>GeoServerConfigurationLock configurationLock
+ *  <li>UpdateSequence updateSequence
+ *  <li>ExtendedCatalogFacade catalogFacade
+ *  <li>GeoServerLoader geoServerLoaderImpl
+ *  <li>GeoServerFacade geoserverFacade
+ *  <li>ResourceStore resourceStoreImpl
+ *  <li>GeoServerResourceLoader resourceLoader
+ * </ul>
+ */
 // proxyBeanMethods = true required to avoid circular reference exceptions, especially related to
 // GeoServerExtensions still being created
 @Configuration(proxyBeanMethods = true)
@@ -46,14 +67,19 @@ import org.springframework.context.annotation.Lazy;
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.core")
 public class CoreBackendConfiguration {
 
+    /**
+     * A {@link GeoServerLoaderProxy} that doesn't act as a BeanPostProcessor
+     */
     @Lazy
     @Bean
-    //    @DependsOn({"geoServerLoaderImpl"})
     CloudGeoServerLoaderProxy geoServerLoader(
             @Qualifier("rawCatalog") CatalogImpl catalog, @Qualifier("geoServer") GeoServer geoserver) {
         return new CloudGeoServerLoaderProxy(catalog, geoserver);
     }
 
+    /**
+     * Base catalog
+     */
     @ConditionalOnMissingBean(CatalogPlugin.class)
     @DependsOn({"resourceLoader", "catalogFacade"})
     @Bean
@@ -68,6 +94,9 @@ public class CoreBackendConfiguration {
         return rawCatalog;
     }
 
+    /**
+     * Default implementation of GeoServer global and service configuration manager.
+     */
     @ConditionalOnMissingBean(GeoServerImpl.class)
     @Bean(name = "geoServer")
     GeoServerImpl geoServer(
@@ -77,17 +106,28 @@ public class CoreBackendConfiguration {
         return gs;
     }
 
+    /**
+     * Factory for {@link XStreamPersister} instances.
+     */
     @Bean
     XStreamPersisterFactory xstreamPersisterFactory() {
         return new XStreamPersisterFactory();
     }
 
+    /**
+     * Utility class uses to process GeoServer extension points.
+     */
     @Bean
     GeoServerExtensions extensions() {
         return new GeoServerExtensions();
     }
 
-    /** Usually provided by gs-main */
+    /**
+     * Utility class uses to process GeoServer configuration workflow through
+     * external environment variables.
+     * <p>
+     * Usually provided by gs-main
+     */
     @ConditionalOnMissingBean
     @DependsOn("extensions")
     @Bean
@@ -110,7 +150,10 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * Added to {@literal gs-main.jar} in 2.22.x as
+     * Default implementation of {@link ResourceAccessManager}, loads simple access rules from a properties file or a
+     * Properties object
+     * <p>
+     *      * Added to {@literal gs-main.jar} in 2.22.x as
      *
      * <pre>
      * {@code
@@ -135,6 +178,9 @@ public class CoreBackendConfiguration {
     }
 
     /**
+     * A cache for layer group containment, it speeds up looking up layer groups
+     * containing a particular layer (recursively).
+     * <p>
      * Actual {@link LayerGroupContainmentCache}, matches if the config property {@code
      * geoserver.security.layergroup-containmentcache=true}
      *
@@ -153,7 +199,8 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * Default {@link LayerGroupContainmentCache} is a no-op, matches if the config property {@code
+     * The default {@link LayerGroupContainmentCache} is a no-op, matches if the config
+     * property {@code
      * geoserver.security.layergroup-containmentcache=false} or is not specified
      *
      * @see #enabledLayerGroupContainmentCache(Catalog)
@@ -172,11 +219,26 @@ public class CoreBackendConfiguration {
 
     @ConditionalOnGeoServerSecurityDisabled
     @Bean(name = {"catalog", "secureCatalog"})
+    @Primary
     Catalog secureCatalogDisabled(@Qualifier("rawCatalog") Catalog rawCatalog) {
         return rawCatalog;
     }
 
     /**
+     * Catalog decorator handling cases when a {@link LocalWorkspace} is set, becomes the primary {@code catalog} bean (i.e. outer-most decorator)
+     *
+     * @return {@link LocalWorkspaceCatalog} decorator if {@code properties.isLocalWorkspace() ==
+     *     true}, {@code advertisedCatalog} otherwise
+     */
+    @Bean(name = {"catalog", "localWorkspaceCatalog"})
+    @Primary
+    Catalog localWorkspaceCatalog(
+            @Qualifier("advertisedCatalog") Catalog advertisedCatalog, CatalogProperties properties) {
+        return properties.isLocalWorkspace() ? new LocalWorkspaceCatalog(advertisedCatalog) : advertisedCatalog;
+    }
+
+    /**
+     * Filters out the non advertised layers and resources.
      * @return {@link AdvertisedCatalog} decorator if {@code properties.isAdvertised() == true},
      *     {@code secureCatalog} otherwise.
      */
@@ -191,20 +253,18 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * @return {@link LocalWorkspaceCatalog} decorator if {@code properties.isLocalWorkspace() ==
-     *     true}, {@code advertisedCatalog} otherwise
+     * File or Resource access to GeoServer data directory. In addition to paths Catalog objects such as workspace or
+     * FeatureTypeInfo can be used to locate resources.
      */
-    @Bean(name = {"catalog", "localWorkspaceCatalog"})
-    Catalog localWorkspaceCatalog(
-            @Qualifier("advertisedCatalog") Catalog advertisedCatalog, CatalogProperties properties) {
-        return properties.isLocalWorkspace() ? new LocalWorkspaceCatalog(advertisedCatalog) : advertisedCatalog;
-    }
-
     @Bean
     GeoServerDataDirectory dataDirectory(GeoServerResourceLoader resourceLoader) {
         return new GeoServerDataDirectory(resourceLoader);
     }
 
+    /**
+     * Factory for ResourceStore creation. Looks for a resourceStoreImpl bean before falling back to the
+     * dataDirectoryResourceStore bean. Used to override ResourceStore implementation if desired.
+     */
     @Bean
     ResourceStoreFactory resourceStore() {
         return new ResourceStoreFactory();

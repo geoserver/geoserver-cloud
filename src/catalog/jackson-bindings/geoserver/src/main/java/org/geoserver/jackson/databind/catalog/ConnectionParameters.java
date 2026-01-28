@@ -4,6 +4,7 @@
  */
 package org.geoserver.jackson.databind.catalog;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,6 +21,7 @@ import java.util.Map;
  */
 public class ConnectionParameters extends LinkedHashMap<String, Object> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public ConnectionParameters() {

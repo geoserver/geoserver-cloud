@@ -11,4 +11,5 @@
 
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.testcontainers" level="INFO"/>
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

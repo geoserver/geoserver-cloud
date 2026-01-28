@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import java.io.IOException;
+import java.io.Serial;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
@@ -54,6 +55,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     /** see {@link #writeCollection} */
     static final String COLLECTION_CONTENT_TYPE_KEY = "contentType";
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected transient GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);

@@ -18,6 +18,9 @@
     <module>event-bus</module>
     <module>backends</module>
   </modules>
+  <properties>
+    <java.version>21</java.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>

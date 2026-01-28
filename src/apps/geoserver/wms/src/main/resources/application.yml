@@ -1,0 +1,23 @@
+spring:
+  application.name: wms
+  config:
+    name: geoserver # load externalized configuration from geoserver.yml
+    import:
+      - classpath:geoserver_spring_boot_profiles.yml
+      - classpath:geoserver_spring_cloud_profiles.yml
+  # and always include the service specific settings from the profile
+  profiles.include: ${spring.application.name}
+  # also ask for geoserver.yml when loading the externalized config through a config-server
+  cloud.config.name: geoserver
+
+# Fixed per-service value to support conditional activation of extensions.
+# This property is checked by @ConditionalOnGeoServerWMS
+geoserver.service.wms.enabled: true
+geoserver.base-path: /wms
+---
+spring.config.activate.on-profile: "bootstrap-standalone"
+spring.config.import: ${standalone.config.location:file:/etc/geoserver/geoserver.yml}
+---
+spring.config.activate.on-profile: local
+server.port: 9102
+management.server.port: 8102

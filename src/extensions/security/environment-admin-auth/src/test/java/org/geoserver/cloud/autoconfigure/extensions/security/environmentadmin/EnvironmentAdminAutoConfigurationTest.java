@@ -13,6 +13,7 @@ import org.geoserver.security.GeoServerSecurityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -74,9 +75,13 @@ class EnvironmentAdminAutoConfigurationTest {
                         "geoserver.admin.username=admin",
                         "geoserver.admin.password=")
                 .run(context -> {
-                    assertThat(context).hasFailed();
-                    assertThat(context.getStartupFailure().getMessage())
-                            .contains("password not provided through config property geoserver.admin.password");
+                    assertThat(context)
+                            .hasFailed()
+                            .getFailure()
+                            .isInstanceOf(BeanCreationException.class)
+                            .rootCause()
+                            .hasMessageContaining(
+                                    "password not provided through config property geoserver.admin.password");
                 });
     }
 
@@ -89,9 +94,13 @@ class EnvironmentAdminAutoConfigurationTest {
                         "geoserver.admin.username=",
                         "geoserver.admin.password=s3cr3t")
                 .run(context -> {
-                    assertThat(context).hasFailed();
-                    assertThat(context.getStartupFailure().getMessage())
-                            .contains("admin username not provided through config property geoserver.admin.username");
+                    assertThat(context)
+                            .hasFailed()
+                            .getFailure()
+                            .isInstanceOf(BeanCreationException.class)
+                            .rootCause()
+                            .hasMessageContaining(
+                                    "admin username not provided through config property geoserver.admin.username");
                 });
     }
 

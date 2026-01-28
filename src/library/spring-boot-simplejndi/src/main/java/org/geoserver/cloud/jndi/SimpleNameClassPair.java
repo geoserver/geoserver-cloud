@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.jndi;
 
+import java.io.Serial;
 import java.util.Objects;
 
 /**
@@ -12,6 +13,7 @@ import java.util.Objects;
  */
 class SimpleNameClassPair extends javax.naming.NameClassPair {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public SimpleNameClassPair(String name, String className) {

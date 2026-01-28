@@ -34,7 +34,7 @@ public class MdcPropagationTestCommand {
 
     @Bean
     public CommandLineRunner testMdcLogging() {
-        return args -> {
+        return _ -> {
             // Log without MDC
             log.info("Logging without MDC");
 

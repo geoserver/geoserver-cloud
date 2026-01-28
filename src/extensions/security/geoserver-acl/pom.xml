@@ -16,18 +16,29 @@
     </dependency>
     <!-- ACL security dependencies -->
     <dependency>
-      <groupId>org.geoserver.acl.plugin</groupId>
-      <artifactId>gs-acl-client-plugin</artifactId>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-acl-plugin</artifactId>
     </dependency>
     <dependency>
       <!-- Use a CachingAuthorizationService decorator for the API client AuthorizationServiceClientAdaptor -->
-      <groupId>org.geoserver.acl.integration</groupId>
-      <artifactId>gs-acl-cache</artifactId>
+      <groupId>org.geoserver.acl.infrastructure</groupId>
+      <artifactId>gs-acl-spring-cache-adapter</artifactId>
     </dependency>
     <dependency>
       <!-- Integrate with spring-cloud-bus to evict cached authorizations upon incoming rule and adminrule events -->
-      <groupId>org.geoserver.acl.integration</groupId>
-      <artifactId>gs-acl-spring-cloud-bus</artifactId>
+      <groupId>org.geoserver.acl.infrastructure</groupId>
+      <artifactId>gs-acl-spring-cloud-bus-adapter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-bus</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>
@@ -35,14 +46,62 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wms</artifactId>
       <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- optional for AclWebUIAutoConfiguration -->
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-core</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- optional for AclWebUIAutoConfiguration -->
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-sec-core</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- optional for AclWpsAutoConfiguration -->
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-wps-core</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-autoconfigure-processor</artifactId>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

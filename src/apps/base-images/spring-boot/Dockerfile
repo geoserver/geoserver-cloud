@@ -22,11 +22,6 @@ curl \
 && rm -rf /var/cache/apt/* \
 && rm -rf /var/lib/apt/lists/*
 
-# Starting with Spring Boot 3, -Dspring.cloud.bootstrap.enabled=true must be passed as an environment variable
-# or System property (-Dspring.cloud.bootstrap.enabled=true) to enable the bootstrap context, that we require
-# for Spring Cloud integration with the discovery and config services (mostly used only in docker compose set ups)
-ENV SPRING_CLOUD_BOOTSTRAP_ENABLED=true
-
 COPY target/config/ /etc/geoserver/
 
 RUN mkdir -p /opt/app/bin
@@ -51,4 +46,4 @@ HEALTHCHECK \
 --retries=5 \
 CMD curl -f -s -o /dev/null localhost:8081/actuator/health || exit 1
 
-CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.JarLauncher
+CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher

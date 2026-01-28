@@ -11,14 +11,17 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 /**
  * @since 1.0
  */
 @AutoConfiguration
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
+@SuppressWarnings("java:S1118")
+// Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnWebApplication
+@Configuration
 @EnableMethodSecurity(jsr250Enabled = true)
 public class UpdateSequenceControllerAutoConfiguration {
 

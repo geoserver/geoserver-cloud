@@ -186,11 +186,10 @@ class WebUIApplicationTest {
 
         // This should exist in WebUI service
         assertThat(context.containsBean("webUiConditionalBean")).isTrue();
-        if (context.containsBean("webUiConditionalBean")) {
-            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
-                    context.getBean("webUiConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
-            assertThat(bean.getServiceName()).isEqualTo("WebUI");
-        }
+
+        ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                context.getBean("webUiConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+        assertThat(bean.getServiceName()).isEqualTo("WebUI");
 
         // These should not exist in WebUI service
         assertThat(context.containsBean("wfsConditionalBean")).isFalse();

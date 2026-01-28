@@ -11,4 +11,5 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

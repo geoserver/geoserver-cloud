@@ -41,7 +41,6 @@ format-java:
 
 .PHONY: install
 install: build-tools
-	./mvnw clean install -DskipTests -ntp -U -T1C -pl src/starters/spring-boot3,src/starters/observability-spring-boot-3 -am
 	./mvnw clean install -DskipTests -ntp -U -T1C
 
 .PHONY: package
@@ -57,61 +56,45 @@ build-image: build-base-images build-image-infrastructure build-image-geoserver
 
 .PHONY: build-base-images
 build-base-images: package-base-images
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build jre
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build spring-boot
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build spring-boot3
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build geoserver-common
+	TAG=$(TAG) docker compose -f docker-build/base-images.yml build jre
+	TAG=$(TAG) docker compose -f docker-build/base-images.yml build spring-boot
+	TAG=$(TAG) docker compose -f docker-build/base-images.yml build geoserver-common
 
 .PHONY: build-image-infrastructure
 build-image-infrastructure: package-infrastructure-images
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/infrastructure.yml build
+	TAG=$(TAG) docker compose -f docker-build/infrastructure.yml build
 
 # This uses $(MAKECMDGOALS) (all targets specified) and filters out the target itself ($@), passing the rest as arguments. The %: rule tells make to ignore any unrecognized "targets" (which are actually your service names).
 # Then you can call:
 #  make build-image-geoserver wcs wfs
 .PHONY: build-image-geoserver
 build-image-geoserver: package-geoserver-images
-	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0  TAG=$(TAG) \
-	docker compose -f docker-build/geoserver.yml build $(filter-out $@ build-image build-image-multiplatform,$(MAKECMDGOALS))
+	TAG=$(TAG) docker compose -f docker-build/geoserver.yml build $(filter-out $@ build-image build-image-multiplatform,$(MAKECMDGOALS))
 
 .PHONY: build-image-multiplatform
 build-image-multiplatform: build-base-images-multiplatform build-image-infrastructure-multiplatform build-image-geoserver-multiplatform
 
 .PHONY: build-base-images-multiplatform
 build-base-images-multiplatform: package-base-images
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	docker compose -f docker-build/base-images-multiplatform.yml build jre --push \
-	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot --push \
-	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot3 --push \
-	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	   docker compose -f docker-build/base-images-multiplatform.yml build geoserver-common --push
+	TAG=$(TAG) docker compose -f docker-build/base-images-multiplatform.yml build jre --push \
+	&& TAG=$(TAG) docker compose -f docker-build/base-images-multiplatform.yml build spring-boot --push \
+	&& TAG=$(TAG) docker compose -f docker-build/base-images-multiplatform.yml build geoserver-common --push
 
 .PHONY: build-image-infrastructure-multiplatform
 build-image-infrastructure-multiplatform: package-infrastructure-images
-	COMPOSE_DOCKER_CLI_BUILD=1 \
-	DOCKER_BUILDKIT=1 \
-	TAG=$(TAG) \
-	docker compose -f docker-build/infrastructure-multiplatform.yml build --push
+	TAG=$(TAG) docker compose -f docker-build/infrastructure-multiplatform.yml build --push
 
 # This uses $(MAKECMDGOALS) (all targets specified) and filters out the target itself ($@), passing the rest as arguments. The %: rule tells make to ignore any unrecognized "targets" (which are actually your service names).
 # Then you can call:
 #  make build-image-geoserver-multiplatform wcs wfs
 .PHONY: build-image-geoserver-multiplatform
 build-image-geoserver-multiplatform: package-geoserver-images
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
-	docker compose -f docker-build/geoserver-multiplatform.yml build --push $(filter-out $@ build-image build-image-multiplatform,$(MAKECMDGOALS))
+	TAG=$(TAG) docker compose -f docker-build/geoserver-multiplatform.yml build --push $(filter-out $@ build-image build-image-multiplatform,$(MAKECMDGOALS))
 
 .PHONY: package-base-images
 package-base-images:
 ifeq ($(REPACKAGE), true)
-	./mvnw clean package -DskipTests -T1C -ntp -am -pl src/apps/base-images/jre,src/apps/base-images/spring-boot,src/apps/base-images/spring-boot3,src/apps/base-images/geoserver
+	./mvnw clean package -DskipTests -T1C -ntp -am -pl src/apps/base-images/jre,src/apps/base-images/spring-boot,src/apps/base-images/geoserver
 else
 	@echo "Not re-packaging base images, assuming the target/*-bin.jar files exist"
 endif
@@ -189,7 +172,7 @@ run-acceptance-tests-datadir:
 
 .PHONY: clean-acceptance-tests-datadir
 clean-acceptance-tests-datadir:
-	(cd compose/ && TAG=$(TAG) ./acceptance_datadir down -v)
+	(cd compose/ && TAG=$(TAG) ./acceptance_datadir down -v --remove-orphans)
 
 .PHONY: acceptance-tests-pgconfig
 acceptance-tests-pgconfig: build-acceptance start-acceptance-tests-pgconfig run-acceptance-tests-pgconfig
@@ -204,22 +187,7 @@ run-acceptance-tests-pgconfig:
 
 .PHONY: clean-acceptance-tests-pgconfig
 clean-acceptance-tests-pgconfig:
-	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig down -v)
-
-.PHONY: acceptance-tests-jdbcconfig
-acceptance-tests-jdbcconfig: build-acceptance start-acceptance-tests-jdbcconfig run-acceptance-tests-jdbcconfig
-
-.PHONY: start-acceptance-tests-jdbcconfig
-start-acceptance-tests-jdbcconfig:
-	(cd compose/ && ./acceptance_jdbcconfig up -d)
-
-.PHONY: run-acceptance-tests-jdbcconfig
-run-acceptance-tests-jdbcconfig:
-	(cd compose/ && ./acceptance_jdbcconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
-
-.PHONY: clean-acceptance-tests-jdbcconfig
-clean-acceptance-tests-jdbcconfig:
-	(cd compose/ && ./acceptance_jdbcconfig down -v)
+	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig down -v --remove-orphans)
 
 # Prevent make from treating service names as targets when using $(MAKECMDGOALS) in build-image-geoserver/build-image-geoserver-multiplatform
 %:

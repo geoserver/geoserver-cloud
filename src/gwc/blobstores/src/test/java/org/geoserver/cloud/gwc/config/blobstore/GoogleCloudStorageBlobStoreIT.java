@@ -99,7 +99,7 @@ class GoogleCloudStorageBlobStoreIT {
 
     @Test
     void testPutGet() throws Exception {
-        final String layerName = names.get(0);
+        final String layerName = names.getFirst();
         final long[] xyz = new long[] {0, 0, 0};
         final String gridSetId = "EPSG:3857";
         final String format = "image/png";

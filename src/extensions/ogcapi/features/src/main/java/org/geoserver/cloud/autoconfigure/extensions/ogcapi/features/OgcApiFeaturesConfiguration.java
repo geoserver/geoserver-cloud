@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.extensions.ogcapi.features;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWFS;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;

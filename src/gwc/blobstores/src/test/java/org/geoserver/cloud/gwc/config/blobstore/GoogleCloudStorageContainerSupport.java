@@ -8,13 +8,13 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import io.aiven.testcontainers.fakegcsserver.FakeGcsServerContainer;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import org.geowebcache.layer.TileLayerDispatcher;
 import org.geowebcache.locks.MemoryLockProvider;
 import org.geowebcache.storage.StorageException;
 import org.geowebcache.storage.blobstore.gcs.GoogleCloudStorageBlobStore;
 import org.geowebcache.storage.blobstore.gcs.GoogleCloudStorageBlobStoreInfo;
-import org.junit.Assume;
+import org.junit.jupiter.api.Assumptions;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.utility.DockerImageName;
 
@@ -38,9 +38,9 @@ public class GoogleCloudStorageContainerSupport {
 
     public void before() throws Exception {
         // Skip tests if Docker is not available
-        Assume.assumeTrue(
-                "Docker is not available, skipping Testcontainers tests.",
-                DockerClientFactory.instance().isDockerAvailable());
+        Assumptions.assumeTrue(
+                DockerClientFactory.instance().isDockerAvailable(),
+                "Docker is not available, skipping Testcontainers tests.");
 
         gcsEmulator = new FakeGcsServerContainer(IMAGE_NAME);
 

@@ -108,7 +108,7 @@ public class TestMdcVerificationFilter implements GlobalFilter, Ordered {
                         }
                         return ctx;
                     })
-                    .doFinally(signalType -> {
+                    .doFinally(_ -> {
                         // Store something in MDC map for verification
                         Map<String, String> testMap = new java.util.HashMap<>();
                         testMap.put("test.verification", "true");

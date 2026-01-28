@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.extensions.ogcapi.features.OgcApiFeaturesAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.extensions.ogcapi.features.OgcApiFeaturesConformancesModuleAutoConfiguration

@@ -9,15 +9,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.regex.Pattern;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
@@ -134,11 +136,11 @@ class AccessLogFilterTest {
         when(exchange1.getRequest()).thenReturn(request1);
         when(exchange1.getResponse()).thenReturn(response1);
         when(request1.getURI()).thenReturn(java.net.URI.create("http://localhost/api/data"));
-        when(request1.getMethodValue()).thenReturn("GET");
-        when(response1.getRawStatusCode()).thenReturn(200);
+        when(request1.getMethod()).thenReturn(HttpMethod.GET);
+        when(response1.getStatusCode()).thenReturn(HttpStatusCode.valueOf(200));
 
         // Configure chain
-        WebFilterChain chain1 = exch -> Mono.empty();
+        WebFilterChain chain1 = _ -> Mono.empty();
 
         // Create filter and execute
         AccessLogWebfluxFilter filter = new AccessLogWebfluxFilter(config);
@@ -162,11 +164,11 @@ class AccessLogFilterTest {
         when(exchange2.getRequest()).thenReturn(request2);
         when(exchange2.getResponse()).thenReturn(response2);
         when(request2.getURI()).thenReturn(java.net.URI.create("http://localhost/api/data"));
-        when(request2.getMethodValue()).thenReturn("GET");
-        when(response2.getRawStatusCode()).thenReturn(500);
+        when(request2.getMethod()).thenReturn(HttpMethod.GET);
+        when(response2.getStatusCode()).thenReturn(HttpStatusCode.valueOf(500));
 
         // Configure chain
-        WebFilterChain chain2 = exch -> Mono.empty();
+        WebFilterChain chain2 = _ -> Mono.empty();
 
         // Create filter and execute
         AccessLogWebfluxFilter filter = new AccessLogWebfluxFilter(config);

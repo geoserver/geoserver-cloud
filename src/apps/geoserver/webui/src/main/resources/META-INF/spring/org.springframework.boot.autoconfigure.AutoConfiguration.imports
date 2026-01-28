@@ -1,0 +1,2 @@
+org.geoserver.cloud.autoconfigure.web.cloudnative.CloudNativeUIAutoConfiguration
+org.geoserver.cloud.autoconfigure.web.core.WebUIApplicationAutoConfiguration

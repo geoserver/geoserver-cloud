@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.web.core;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.web")

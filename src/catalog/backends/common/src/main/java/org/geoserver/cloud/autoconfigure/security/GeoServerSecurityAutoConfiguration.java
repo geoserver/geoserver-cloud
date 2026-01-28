@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.security;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;

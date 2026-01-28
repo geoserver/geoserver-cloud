@@ -16,11 +16,11 @@ import org.geoserver.cloud.wms.controller.kml.KMLIconsController;
 import org.geoserver.cloud.wms.controller.kml.KMLReflectorController;
 import org.geoserver.gwc.wms.CachingExtendedCapabilitiesProvider;
 import org.geoserver.ows.FlatKvpParser;
+import org.geoserver.ows.kvp.BBoxKvpParser;
 import org.geoserver.ows.kvp.CQLFilterKvpParser;
 import org.geoserver.ows.kvp.SortByKvpParser;
 import org.geoserver.ows.kvp.ViewParamsKvpParser;
 import org.geoserver.ows.util.NumericKvpParser;
-import org.geoserver.wfs.kvp.BBoxKvpParser;
 import org.geoserver.wfs.xml.v1_1_0.WFSConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +72,15 @@ abstract class WmsApplicationTest {
     }
 
     @Test
+    void testExpectedBeansFromGsWmsGml() {
+        expectBean("wmsGetFeatureInfoGML2", org.geoserver.wms.featureinfo.GML2FeatureInfoOutputFormat.class);
+        expectBean("wmsGetFeatureInfoXML2", org.geoserver.wms.featureinfo.XML2FeatureInfoOutputFormat.class);
+        expectBean("wmsGetFeatureInfoGML3", org.geoserver.wms.featureinfo.GML3FeatureInfoOutputFormat.class);
+        expectBean("wmsGetFeatureInfoXML311", org.geoserver.wms.featureinfo.XML311FeatureInfoOutputFormat.class);
+        expectBean("wmsFilterKvpParser", org.geoserver.wms.kvp.FilterKvpParser.class);
+    }
+
+    @Test
     void testGwcWmsIntegration() {
         expectBean("gwcWMSExtendedCapabilitiesProvider", CachingExtendedCapabilitiesProvider.class);
         expectBean("gwcGetMapAdvise", ForwardGetMapToGwcAspect.class);
@@ -97,11 +106,10 @@ abstract class WmsApplicationTest {
     void testServiceConditionalAnnotations() {
         // This should exist in WMS service
         assertThat(context.containsBean("wmsConditionalBean")).isTrue();
-        if (context.containsBean("wmsConditionalBean")) {
-            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
-                    context.getBean("wmsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
-            assertThat(bean.getServiceName()).isEqualTo("WMS");
-        }
+
+        ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                context.getBean("wmsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+        assertThat(bean.getServiceName()).isEqualTo("WMS");
 
         // These should not exist in WMS service
         assertThat(context.containsBean("wfsConditionalBean")).isFalse();

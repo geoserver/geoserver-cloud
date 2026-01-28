@@ -67,7 +67,7 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
     }
 
     @Override
-    public void addLayer(final @NonNull TileLayer tl) {
+    public synchronized void addLayer(final @NonNull TileLayer tl) {
         GeoServerTileLayer tileLayer = checkAddPreconditions(tl);
         completeWithDefaults(tileLayer);
         super.addLayer(tl);

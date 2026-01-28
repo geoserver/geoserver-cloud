@@ -166,7 +166,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         checkInitialized();
         GeoServerTileLayerInfo info = null;
         Optional<Resource> resource = findFile(tileLayerId);
-        if (!resource.isPresent()) {
+        if (resource.isEmpty()) {
             return null;
         }
         final Resource file = resource.get();
@@ -299,7 +299,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     private void closeSilently(DirectoryStream<Path> directoryStream) {
         try {
             directoryStream.close();
-        } catch (IOException e) {
+        } catch (IOException _) {
             log.warn("Error closing directory stream for {}", baseDirectory);
         }
     }
@@ -323,12 +323,17 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         listeners.forEach(l -> notify(l, layerId, eventType));
     }
 
-    private void notify(TileLayerCatalogListener l, String layerId, Type eventType) {
+    private void notify(@NonNull TileLayerCatalogListener listener, String layerId, Type eventType) {
         try {
-            l.onEvent(layerId, eventType);
+            listener.onEvent(layerId, eventType);
         } catch (RuntimeException e) {
-            String listener = l == null ? null : l.getClass().getCanonicalName();
-            log.warn("Error notifying listener of {} change event for TileLayer {}", listener, eventType, layerId, e);
+            String listenerType = listener.getClass().getCanonicalName();
+            log.warn(
+                    "Error notifying listener {} of {} change event for TileLayer {}",
+                    listenerType,
+                    eventType,
+                    layerId,
+                    e);
         }
     }
 
