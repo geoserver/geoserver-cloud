@@ -1,0 +1,170 @@
+# Define a shared environment block for all services
+x-variables:
+  environment: &common_env
+    SPRING_PROFILES_INCLUDE: config-first
+    SPRING_PROFILES_ACTIVE: datadir
+    GEOSERVER_DATA_DIR: /opt/app/data_directory
+    GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+    GEOSERVER_BASE_PATH: /geoserver/cloud
+
+x-gs-dependencies: &gs-dependencies
+  rabbitmq:
+    condition: service_healthy
+    required: true
+  discovery:
+    condition: service_healthy
+    required: true
+  config:
+    condition: service_healthy
+    required: true
+
+volumes:
+  shared_data_directory:
+  geowebcache_data:
+
+services:
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    user: "1000:1000"
+    restart: unless-stopped
+    tmpfs:
+      - /var/lib/rabbitmq:size=512m,mode=1777  # Store RabbitMQ data in memory
+    healthcheck:
+      test: rabbitmq-diagnostics is_running
+      start_period: 10s
+      interval: 15s
+      timeout: 30s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+
+  # Spring Cloud Config service, provides centralized configuration to all
+  # microservices. Being a Discovery First Bootstrap configuration, it'll
+  # register itself with the Eureka discovery service and can be scaled
+  config:
+    image: geoservercloud/geoserver-cloud-config:3.0.0-SNAPSHOT
+    user: 1000:1000 # set the userid:groupid the container runs as
+    environment:
+      # default to `native` loading the config embedded in /etc/geoserver
+      # use `git` to fetch the config from a git repository, and CONFIG_GIT_URI to change
+      # the default repository https://github.com/geoserver/geoserver-cloud-config.git
+      SPRING_PROFILES_ACTIVE: native
+      # If using the `git` profile, get the config from this tag
+      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v3.0.0-SNAPSHOT
+    # Uncomment to bind to a local filesystem directory if using the 'native' profile
+    #volumes:
+    #  - ./config:/etc/geoserver
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 256M
+
+  discovery:
+    image: "geoservercloud/geoserver-cloud-discovery:3.0.0-SNAPSHOT"
+    user: "1000:1000"
+    depends_on:
+      - config
+    ports:
+      - 8761:8761
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 256M
+
+  # Application facade, provides a single entry point routing to all
+  # microservices (e.g. http://localhost:9090/geoserver/cloud/wms, http://localhost:9090/geoserver/cloud/wfs, etc)
+  gateway:
+    image: geoservercloud/geoserver-cloud-gateway:3.0.0-SNAPSHOT
+    user: 1000:1000 # set the userid:groupid the container runs as
+    depends_on:
+      discovery:
+        condition: service_healthy
+    environment:
+      <<: *common_env
+    ports:
+      - 9090:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 1G
+
+  # GeoServer template service configuration
+  geoserver_template:
+    image: geoservercloud/geoserver-cloud-webui:3.0.0-SNAPSHOT
+    user: "1000:1000"
+    environment:
+      <<: *common_env
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
+      - geowebcache_data:/data/geowebcache
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  # GeoServer microservices
+  wfs:
+    image: geoservercloud/geoserver-cloud-wfs:3.0.0-SNAPSHOT
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  wms:
+    image: geoservercloud/geoserver-cloud-wms:3.0.0-SNAPSHOT
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  wcs:
+    image: geoservercloud/geoserver-cloud-wcs:3.0.0-SNAPSHOT
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  wps:
+    image: geoservercloud/geoserver-cloud-wps:3.0.0-SNAPSHOT
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  restconfig:
+    image: geoservercloud/geoserver-cloud-rest:3.0.0-SNAPSHOT
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  webui:
+    image: geoservercloud/geoserver-cloud-webui:3.0.0-SNAPSHOT
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  gwc:
+    image: geoservercloud/geoserver-cloud-gwc:3.0.0-SNAPSHOT
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
