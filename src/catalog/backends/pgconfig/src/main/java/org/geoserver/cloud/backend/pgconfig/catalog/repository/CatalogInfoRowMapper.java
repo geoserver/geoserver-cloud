@@ -5,8 +5,6 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.UncheckedIOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -30,7 +28,7 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.springframework.jdbc.core.RowMapper;
-import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * @since 1.4
@@ -494,11 +492,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         if (null == encoded) {
             return null;
         }
-        try {
-            return objectMapper.readValue(encoded, valueType);
-        } catch (JacksonException e) {
-            throw new UncheckedIOException(e);
-        }
+        return objectMapper.readValue(encoded, valueType);
     }
 
     public static <I extends CatalogInfo> CatalogInfoRowMapper<I> newInstance() {

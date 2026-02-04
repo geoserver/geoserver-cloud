@@ -5,28 +5,29 @@
 
 package org.geotools.jackson.databind.filter.dto;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.function.UnaryOperator;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeAll;
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.module.SimpleModule;
 
 public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSerializationTest {
 
     @BeforeAll
     static void setUpMapper() {
-        objectMapper = ObjectMapperUtil.newObjectMapper();
-
         // use the custom serializer from below to ensure that
         // "value" attribute appears before "contentType" attribute
         SimpleModule serializerOverrideModule = new SimpleModule();
         serializerOverrideModule.addSerializer(Literal.class, new ChangedAttributeOrderLiteralSerializer());
 
         // our custom serializer for this test class will be prioritized as we add our module as latest
-        objectMapper.registerModule(serializerOverrideModule);
+        // In Jackson 3, ObjectMapper is immutable, so we use rebuild() to add the module
+        objectMapper = ObjectMapperUtil.newObjectMapper()
+                .rebuild()
+                .addModule(serializerOverrideModule)
+                .build();
     }
 
     /**
@@ -38,8 +39,7 @@ public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSeri
     @SuppressWarnings("serial")
     private static class ChangedAttributeOrderLiteralSerializer extends LiteralSerializer {
         @Override
-        protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializationContext provider)
-                throws IOException {
+        protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializationContext provider) {
 
             final Class<?> contentType = findContentType(collection, provider);
 

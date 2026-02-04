@@ -5,8 +5,8 @@
 
 package org.geotools.jackson.databind.geojson;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * @since 1.0

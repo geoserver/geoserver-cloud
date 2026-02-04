@@ -5,15 +5,6 @@
 
 package org.geotools.jackson.databind.filter.dto;
 
-import com.fasterxml.jackson.core.Base64Variant;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import java.io.IOException;
 import java.io.Serial;
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -25,9 +16,16 @@ import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.mapstruct.factory.Mappers;
-import tools.jackson.databind.DatabindException;
+import tools.jackson.core.Base64Variant;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.WritableTypeId;
+import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.type.TypeFactory;
 
 /**
  *
@@ -72,16 +70,16 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     }
 
     @Override
-    public void serializeWithType(Literal value, JsonGenerator g, SerializationContext provider, TypeSerializer typeSer)
-            throws IOException {
+    public void serializeWithType(
+            Literal value, JsonGenerator g, SerializationContext provider, TypeSerializer typeSer) {
 
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, typeSer.typeId(value, JsonToken.VALUE_STRING));
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, provider, typeSer.typeId(value, JsonToken.VALUE_STRING));
         serialize(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, provider, typeIdDef);
     }
 
     @Override
-    public void serialize(Literal literal, JsonGenerator gen, SerializationContext serializers) throws IOException {
+    public void serialize(Literal literal, JsonGenerator gen, SerializationContext serializers) {
 
         final Object value = literal.getValue();
 
@@ -90,7 +88,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         gen.writeEndObject();
     }
 
-    protected void writeValue(final Object value, JsonGenerator gen, SerializationContext provider) throws IOException {
+    protected void writeValue(final Object value, JsonGenerator gen, SerializationContext provider) {
         if (value == null) {
             gen.writeNullProperty(VALUE_KEY);
         } else {
@@ -98,8 +96,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         }
     }
 
-    private void writeNonNullValue(final @NonNull Object value, JsonGenerator gen, SerializationContext provider)
-            throws IOException {
+    private void writeNonNullValue(final @NonNull Object value, JsonGenerator gen, SerializationContext provider) {
         Class<?> type = value.getClass();
 
         if (type.isArray()) {
@@ -114,8 +111,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     }
 
     private void serializeNonCollectionObject(
-            final @NonNull Object value, JsonGenerator gen, SerializationContext provider, Class<?> type)
-            throws IOException {
+            final @NonNull Object value, JsonGenerator gen, SerializationContext provider, Class<?> type) {
 
         if (type.isAnonymousClass()) {
             Class<?> enclosingClass = type.getEnclosingClass();
@@ -126,22 +122,22 @@ public class LiteralSerializer extends StdSerializer<Literal> {
             }
         }
 
-        ValueSerializer<Object> valueSerializer = findValueSerializer(provider, type);
-        final Class<Object> handledType = valueSerializer.handledType();
+        @SuppressWarnings("unchecked")
+        ValueSerializer<Object> valueSerializer = (ValueSerializer<Object>) findValueSerializer(provider, type);
+        final Class<?> handledType = valueSerializer.handledType();
         String typeName = classNameMapper().classToCanonicalName(type.isEnum() ? type : handledType);
         gen.writeStringProperty(TYPE_KEY, typeName);
         gen.writeName(VALUE_KEY);
         valueSerializer.serialize(value, gen, provider);
     }
 
-    protected ValueSerializer<Object> findValueSerializer(SerializationContext provider, final Class<?> type)
-            throws DatabindException {
+    protected ValueSerializer<?> findValueSerializer(SerializationContext provider, final Class<?> type) {
         TypeFactory typeFactory = provider.getTypeFactory();
         JavaType javaType = typeFactory.constructType(type);
         return provider.findValueSerializer(javaType);
     }
 
-    private void writeMap(Map<?, ?> value, JsonGenerator gen) throws IOException {
+    private void writeMap(Map<?, ?> value, JsonGenerator gen) {
         gen.writeStringProperty(TYPE_KEY, classNameMapper().classToCanonicalName(Map.class));
 
         gen.writeName(VALUE_KEY);
@@ -149,12 +145,12 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         for (Map.Entry<?, ?> e : value.entrySet()) {
             String k = e.getKey().toString();
             Literal v = Literal.valueOf(e.getValue());
-            gen.writeObjectProperty(k, v);
+            gen.writePOJOProperty(k, v);
         }
         gen.writeEndObject();
     }
 
-    private void writeArray(Object array, JsonGenerator gen, SerializationContext provider) throws IOException {
+    private void writeArray(Object array, JsonGenerator gen, SerializationContext provider) {
         // e.g. int[], java.lang.String[], etc.
         final String arrayTypeStr = classNameMapper().classToCanonicalName(array.getClass());
         gen.writeStringProperty(TYPE_KEY, arrayTypeStr);
@@ -175,8 +171,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         }
     }
 
-    protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializationContext provider)
-            throws IOException {
+    protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializationContext provider) {
 
         final Class<?> contentType = findContentType(collection, provider);
 
@@ -199,8 +194,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         gen.writeEndArray();
     }
 
-    protected Class<?> findContentType(Collection<?> collection, SerializationContext provider)
-            throws DatabindException {
+    protected Class<?> findContentType(Collection<?> collection, SerializationContext provider) {
         List<?> types = collection.stream()
                 .filter(Objects::nonNull)
                 .map(Object::getClass)
@@ -212,7 +206,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         }
         if (types.size() == 1) {
             Class<?> type = (Class<?>) types.get(0);
-            ValueSerializer<Object> valueSerializer = findValueSerializer(provider, type);
+            ValueSerializer<?> valueSerializer = findValueSerializer(provider, type);
             return valueSerializer.handledType();
         }
 

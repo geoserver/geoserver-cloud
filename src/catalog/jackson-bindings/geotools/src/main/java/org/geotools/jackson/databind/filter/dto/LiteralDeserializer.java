@@ -10,13 +10,6 @@ import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.COLLECT
 import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.TYPE_KEY;
 import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.VALUE_KEY;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +21,13 @@ import java.util.Map;
 import java.util.Set;
 import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.NullNode;
 
 /**
  *
@@ -50,7 +49,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
     private static GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
 
     @Override
-    public Literal deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
+    public Literal deserialize(JsonParser parser, DeserializationContext ctxt) {
         expect(parser.currentToken(), JsonToken.START_OBJECT);
         final Class<?> type = readType(parser);
         if (null == type) {
@@ -59,13 +58,13 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
         final Class<?> contentType;
         final Object value;
 
-        String fieldName = parser.nextFieldName();
+        String fieldName = parser.nextName();
         requireNonNull(fieldName, "expected contentType or value attribute, got null");
         if (COLLECTION_CONTENT_TYPE_KEY.equals(fieldName)) {
             String contentTypeVal = parser.nextStringValue();
             requireNonNull(contentTypeVal, "expected value for contentType, got null");
             contentType = classNameMapper.canonicalNameToClass(contentTypeVal);
-            fieldName = parser.nextFieldName();
+            fieldName = parser.nextName();
         } else {
             contentType = null;
         }
@@ -86,13 +85,13 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
         return Literal.valueOf(value);
     }
 
-    private Object readMap(JsonParser parser, DeserializationContext ctxt) throws IOException {
+    private Object readMap(JsonParser parser, DeserializationContext ctxt) {
         JsonToken nextToken = parser.nextToken();
         expect(nextToken, JsonToken.START_OBJECT);
 
         Map<String, Object> parsed = new LinkedHashMap<>();
         String key;
-        while (null != (key = parser.nextFieldName())) {
+        while (null != (key = parser.nextName())) {
             expect(parser.nextToken(), JsonToken.START_OBJECT);
             Literal valueLiteral = ctxt.readValue(parser, Literal.class);
             Object value = valueLiteral.getValue();
@@ -106,7 +105,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
     }
 
     private Collection<Object> readCollection(
-            Class<?> type, Class<?> contentType, JsonParser parser, DeserializationContext ctxt) throws IOException {
+            Class<?> type, Class<?> contentType, JsonParser parser, DeserializationContext ctxt) {
 
         JsonToken nextToken = parser.nextToken();
         expect(nextToken, JsonToken.START_ARRAY);
@@ -117,7 +116,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
         return value;
     }
 
-    private Object readArray(Class<?> arrayType, JsonParser parser, DeserializationContext ctxt) throws IOException {
+    private Object readArray(Class<?> arrayType, JsonParser parser, DeserializationContext ctxt) {
         JsonToken nextToken = parser.nextToken();
         Object value;
         if (byte[].class.equals(arrayType)) {
@@ -139,8 +138,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
         return value;
     }
 
-    private List<Object> readList(Class<?> contentType, JsonParser parser, DeserializationContext ctxt)
-            throws IOException {
+    private List<Object> readList(Class<?> contentType, JsonParser parser, DeserializationContext ctxt) {
 
         JsonToken nextToken = parser.currentToken();
         expect(nextToken, JsonToken.START_ARRAY);
@@ -164,7 +162,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
             // able to parse a list of that type
             // (order issue is probably related to JSONB storage in postgres)
             nextToken = parser.nextToken();
-            if (nextToken == JsonToken.FIELD_NAME) {
+            if (nextToken == JsonToken.PROPERTY_NAME) {
                 String fieldName = parser.currentName();
                 expectFieldName(fieldName, COLLECTION_CONTENT_TYPE_KEY);
 
@@ -192,8 +190,8 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
         return value;
     }
 
-    private Class<?> readType(JsonParser parser) throws IOException {
-        final String typeFieldName = parser.nextFieldName();
+    private Class<?> readType(JsonParser parser) {
+        final String typeFieldName = parser.nextName();
         if (VALUE_KEY.equals(typeFieldName)) {
             // value can only be the first fieldname if it's null
             JsonToken nextToken = parser.nextToken();
@@ -234,7 +232,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
     }
 
     private static List<Object> convertArrayNodeToArrayList(
-            Class<?> contentTypeClass, DeserializationContext ctxt, ArrayNode valuesArrayNode) throws IOException {
+            Class<?> contentTypeClass, DeserializationContext ctxt, ArrayNode valuesArrayNode) {
         List<Object> value;
         ArrayList<Object> valuesList = new ArrayList<>();
         for (JsonNode node : valuesArrayNode) {

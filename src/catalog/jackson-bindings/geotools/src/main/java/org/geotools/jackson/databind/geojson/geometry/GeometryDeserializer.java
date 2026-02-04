@@ -5,14 +5,6 @@
 
 package org.geotools.jackson.databind.geojson.geometry;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.NumericNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +22,14 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BooleanNode;
+import tools.jackson.databind.node.NumericNode;
+import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.node.StringNode;
 
 public class GeometryDeserializer<T extends Geometry> extends ValueDeserializer<T> {
@@ -51,7 +50,7 @@ public class GeometryDeserializer<T extends Geometry> extends ValueDeserializer<
 
     @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public T deserialize(JsonParser p, DeserializationContext ctxt) {
 
         return (T) readGeometry(p.readValueAsTree());
     }
@@ -195,7 +194,7 @@ public class GeometryDeserializer<T extends Geometry> extends ValueDeserializer<
         for (int coord = 0; coord < size; coord++) {
             ArrayNode coordNode = (ArrayNode) coordinates.get(coord);
             for (int d = 0; d < dimension; d++) {
-                sequence.setOrdinate(coord, d, coordNode.get(d).asDouble());
+                sequence.setOrdinate(coord, d, parseDouble(coordNode.get(d)));
             }
         }
         return sequence;
@@ -209,9 +208,26 @@ public class GeometryDeserializer<T extends Geometry> extends ValueDeserializer<
         CoordinateSequence coordinate =
                 geometryFactory.getCoordinateSequenceFactory().create(1, dimensions, hasM ? 1 : 0);
         for (int d = 0; d < dimensions; d++) {
-            coordinate.setOrdinate(0, d, coordinateArray.get(d).asDouble());
+            coordinate.setOrdinate(0, d, parseDouble(coordinateArray.get(d)));
         }
         return geometryFactory.createPoint(coordinate);
+    }
+
+    /**
+     * Parse a double value from a JSON node, handling special string values like "NaN", "Infinity", "-Infinity".
+     * Jackson 3's asDouble() no longer auto-parses these string representations.
+     */
+    private double parseDouble(JsonNode node) {
+        if (node.isTextual()) {
+            String text = node.asText();
+            return switch (text) {
+                case "NaN" -> Double.NaN;
+                case "Infinity" -> Double.POSITIVE_INFINITY;
+                case "-Infinity" -> Double.NEGATIVE_INFINITY;
+                default -> Double.parseDouble(text);
+            };
+        }
+        return node.asDouble();
     }
 
     public static boolean isGeometry(JsonNode value) {

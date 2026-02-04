@@ -5,7 +5,6 @@
 
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.UncheckedIOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,6 +17,7 @@ import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigStyleRepo
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * @since 1.7

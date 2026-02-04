@@ -4,14 +4,13 @@
  */
 package org.geoserver.jackson.databind.catalog;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Map;
 import org.geotools.jackson.databind.filter.dto.Literal;
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 
@@ -30,8 +29,7 @@ public class ConnectionParametersSerializer extends ValueSerializer<ConnectionPa
     }
 
     @Override
-    public void serialize(ConnectionParameters value, JsonGenerator gen, SerializationContext serializers)
-            throws IOException {
+    public void serialize(ConnectionParameters value, JsonGenerator gen, SerializationContext serializers) {
 
         if (value == null) {
             gen.writeNull();
@@ -51,10 +49,10 @@ public class ConnectionParametersSerializer extends ValueSerializer<ConnectionPa
             } else if (shouldWrapAsLiteral(val)) {
                 // Complex type, wrap in Literal
                 Literal literal = Literal.valueOf(val);
-                gen.writeObjectProperty(key, literal);
+                gen.writePOJOProperty(key, literal);
             } else {
                 // Primitive type
-                gen.writeObjectProperty(key, val);
+                gen.writePOJOProperty(key, val);
             }
         }
         gen.writeEndObject();

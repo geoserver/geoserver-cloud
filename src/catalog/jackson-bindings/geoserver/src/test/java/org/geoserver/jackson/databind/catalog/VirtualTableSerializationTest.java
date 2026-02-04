@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Test to verify our VirtualTable serialization fixes work correctly
@@ -32,8 +33,9 @@ class VirtualTableSerializationTest {
 
     @BeforeEach
     void setup() {
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new GeoServerCatalogModule());
+        // In Jackson 3, ObjectMapper is immutable - use builder pattern
+        objectMapper =
+                JsonMapper.builder().addModule(new GeoServerCatalogModule()).build();
     }
 
     @Test

@@ -6,9 +6,9 @@
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.experimental.UtilityClass;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import tools.jackson.databind.ObjectMapper;
 
 @UtilityClass
 public class PgconfigObjectMapper {
@@ -33,10 +33,11 @@ public class PgconfigObjectMapper {
      *     src/main/resources/db/pgconfig/migration/postgresql/V1_0__Catalog_Tables.sql}
      */
     public static ObjectMapper newObjectMapper() {
-        ObjectMapper mapper = ObjectMapperUtil.newObjectMapper();
         // encode nulls as nulls, default from ObjectMapperUtil.newObjectMapper() is
-        // Include.NON_EMPTY
-        mapper.setDefaultPropertyInclusion(Include.ALWAYS);
-        return mapper;
+        // Include.NON_EMPTY. Jackson 3 ObjectMapper is immutable, use rebuild().
+        return ObjectMapperUtil.newObjectMapper()
+                .rebuild()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(Include.ALWAYS))
+                .build();
     }
 }

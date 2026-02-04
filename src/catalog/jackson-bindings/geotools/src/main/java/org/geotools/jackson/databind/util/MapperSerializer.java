@@ -5,17 +5,16 @@
 
 package org.geotools.jackson.databind.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import java.io.IOException;
 import java.io.Serial;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * Generic {@link ValueSerializer} that applies a function from the original object type to the
@@ -41,18 +40,19 @@ public class MapperSerializer<I, D> extends StdSerializer<I> {
     }
 
     @Override
-    public void serializeWithType(I value, JsonGenerator gen, SerializationContext serializers, TypeSerializer typeSer)
-            throws IOException {
+    public void serializeWithType(
+            I value, JsonGenerator gen, SerializationContext serializers, TypeSerializer typeSer) {
 
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, typeSer.typeId(value, type, JsonToken.VALUE_STRING));
+        WritableTypeId typeIdDef =
+                typeSer.writeTypePrefix(gen, serializers, typeSer.typeId(value, type, JsonToken.VALUE_STRING));
 
-        serialize(value, gen, null);
+        serialize(value, gen, serializers);
 
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(gen, serializers, typeIdDef);
     }
 
     @Override
-    public void serialize(I value, JsonGenerator gen, SerializationContext provider) throws IOException {
+    public void serialize(I value, JsonGenerator gen, SerializationContext provider) {
 
         D dto;
         try {

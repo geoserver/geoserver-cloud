@@ -184,7 +184,8 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     }
 
     @Bean
-    PgconfigLockProvider pgconfigLockProvider(@Qualifier("pgconfigLockRegistry") LockRegistry pgconfigLockRegistry) {
+    PgconfigLockProvider pgconfigLockProvider(
+            @Qualifier("pgconfigLockRegistry") JdbcLockRegistry pgconfigLockRegistry) {
         log.debug("Creating {}", PgconfigLockProvider.class.getSimpleName());
         return new PgconfigLockProvider(pgconfigLockRegistry);
     }
@@ -193,7 +194,7 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
      * @return
      */
     @Bean
-    LockRegistry pgconfigLockRegistry(@Qualifier("pgconfigLockRepository") LockRepository pgconfigLockRepository) {
+    JdbcLockRegistry pgconfigLockRegistry(@Qualifier("pgconfigLockRepository") LockRepository pgconfigLockRepository) {
         log.debug("Creating {}", LockRegistry.class.getSimpleName());
         return new JdbcLockRegistry(pgconfigLockRepository);
     }
