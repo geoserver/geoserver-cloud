@@ -23,7 +23,7 @@
     <java.sdk.version>25</java.sdk.version>
     <spring-cloud.version>2025.1.1</spring-cloud.version>
     <spring-boot.version>4.0.2</spring-boot.version>
-    <jackson.version>2.20.1</jackson.version>
+    <jackson.version>3.0.4</jackson.version>
     <gs.version>3.0.0-SNAPSHOT</gs.version>
     <gt.version>35-SNAPSHOT</gt.version>
     <wicket.version>10.7.0</wicket.version>
@@ -80,9 +80,7 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <!-- Upgrade jackson from the 2.13.5 version provided by spring-boot to 2.14.2 which supports snakeyaml 2.0 -->
-        <!-- Note the trick for it to take effect and override all  deps is to declare it before the spring-boot bom -->
-        <groupId>com.fasterxml.jackson</groupId>
+        <groupId>tools.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
         <version>${jackson.version}</version>
         <type>pom</type>
