@@ -68,13 +68,11 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation-test</artifactId>
-      <version>4.0.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux-test</artifactId>
-      <version>4.0.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -97,13 +95,11 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-resttestclient</artifactId>
-      <version>4.0.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-restclient</artifactId>
-      <version>4.0.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>

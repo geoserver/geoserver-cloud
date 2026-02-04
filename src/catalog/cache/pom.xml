@@ -27,7 +27,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-cache</artifactId>
-      <version>4.0.2</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -63,7 +62,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-cache-test</artifactId>
-      <version>4.0.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>

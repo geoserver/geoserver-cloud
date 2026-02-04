@@ -12,7 +12,6 @@
     <module>src</module>
   </modules>
   <properties>
-    <maven.compiler.release>17</maven.compiler.release>
     <revision>3.0.0-SNAPSHOT</revision>
     <fmt.skip>false</fmt.skip>
     <sortpom.skip>${fmt.skip}</sortpom.skip>

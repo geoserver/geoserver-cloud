@@ -34,7 +34,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
-      <version>4.0.2</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -73,7 +72,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator-test</artifactId>
-      <version>4.0.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
