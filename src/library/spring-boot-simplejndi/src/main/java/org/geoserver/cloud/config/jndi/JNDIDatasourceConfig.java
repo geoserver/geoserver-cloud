@@ -7,7 +7,7 @@ package org.geoserver.cloud.config.jndi;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceProperties;
 
 /**
  * @since 1.0
