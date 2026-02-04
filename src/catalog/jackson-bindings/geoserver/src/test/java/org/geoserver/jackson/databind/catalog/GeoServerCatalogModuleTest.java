@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.Serializable;
@@ -94,6 +93,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import si.uom.SI;
+import tools.jackson.core.JacksonException;
 
 /**
  * Verifies that all {@link CatalogInfo} can be sent over the wire and parsed
@@ -141,7 +141,7 @@ public abstract class GeoServerCatalogModuleTest {
         return catalogInfoRoundtripTest(orig, assertEquals);
     }
 
-    @SneakyThrows(JsonProcessingException.class)
+    @SneakyThrows(JacksonException.class)
     @SuppressWarnings({"unchecked", "rawtypes"})
     private <T extends CatalogInfo> T catalogInfoRoundtripTest(final T orig, boolean assertEquals) {
         ObjectWriter writer = objectMapper.writer();
@@ -556,7 +556,7 @@ public abstract class GeoServerCatalogModuleTest {
         return ff.equals(ff.property(propertyName), ff.literal(literal));
     }
 
-    @SneakyThrows(JsonProcessingException.class)
+    @SneakyThrows(JacksonException.class)
     private <T> T roundTrip(T orig, Class<? super T> clazz) {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();

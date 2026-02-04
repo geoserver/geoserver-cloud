@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 1.0
  */
 @RestController
-@RequestMapping("${geoserver.base-path:}")
+@RequestMapping({"${geoserver.base-path:}", "${geoserver.base-path:}/"})
 @RequiredArgsConstructor
 public class UpdateSequenceController {
 

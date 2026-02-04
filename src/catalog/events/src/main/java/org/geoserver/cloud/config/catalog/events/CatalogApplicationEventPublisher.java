@@ -6,7 +6,6 @@
 package org.geoserver.cloud.config.catalog.events;
 
 import com.google.common.annotations.VisibleForTesting;
-import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -46,6 +45,7 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.GeoServerImpl;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.config.UpdateSequence;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 

@@ -5,7 +5,6 @@
 
 package org.geoserver.catalog.plugin.forwarding;
 
-import jakarta.annotation.Nullable;
 import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
@@ -23,6 +22,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A decorator for {@link CatalogFacade} that forwards all method calls to an underlying facade instance.

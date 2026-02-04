@@ -158,6 +158,6 @@ public class GatewaySharedAuthenticationPreFilter implements GlobalFilter, Order
 
     private boolean impersonationAttempt(ServerWebExchange exchange) {
         HttpHeaders headers = exchange.getRequest().getHeaders();
-        return headers.containsKey(X_GSCLOUD_USERNAME) || headers.containsKey(X_GSCLOUD_ROLES);
+        return headers.containsHeader(X_GSCLOUD_USERNAME) || headers.containsHeader(X_GSCLOUD_ROLES);
     }
 }

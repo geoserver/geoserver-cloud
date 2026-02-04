@@ -39,7 +39,7 @@ public class SeedControllerOverride extends org.geowebcache.rest.controller.Seed
      * </pre>
      */
     @Override
-    @PostMapping("/seed/{layer:^(?!.*\\.(?:xml|json)$).+}")
+    @PostMapping({"/seed/{layer:^(?!.*\\.(?:xml|json)$).+}"})
     public ResponseEntity<?> doPost(
             HttpServletRequest request,
             InputStream inputStream,

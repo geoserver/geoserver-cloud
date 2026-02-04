@@ -13,8 +13,8 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.style.ToStringCreator;
-import org.springframework.lang.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultWorkspaceSet")

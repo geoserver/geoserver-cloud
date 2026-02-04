@@ -8,18 +8,18 @@ package org.geotools.jackson.databind.util;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.io.Serial;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 /**
- * Generic {@link JsonSerializer} that applies a function from the original object type to the
- * encoded object type before {@link JsonGenerator#writeObject(Object) writing} it
+ * Generic {@link ValueSerializer} that applies a function from the original object type to the
+ * encoded object type before {@link JsonGenerator#writePOJO(Object) writing} it
  *
  * @param <I> object model type
  * @param <D> DTO type
@@ -41,7 +41,7 @@ public class MapperSerializer<I, D> extends StdSerializer<I> {
     }
 
     @Override
-    public void serializeWithType(I value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+    public void serializeWithType(I value, JsonGenerator gen, SerializationContext serializers, TypeSerializer typeSer)
             throws IOException {
 
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, typeSer.typeId(value, type, JsonToken.VALUE_STRING));
@@ -52,7 +52,7 @@ public class MapperSerializer<I, D> extends StdSerializer<I> {
     }
 
     @Override
-    public void serialize(I value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(I value, JsonGenerator gen, SerializationContext provider) throws IOException {
 
         D dto;
         try {
@@ -62,7 +62,7 @@ public class MapperSerializer<I, D> extends StdSerializer<I> {
             throw e;
         }
         try {
-            gen.writeObject(dto);
+            gen.writePOJO(dto);
         } catch (RuntimeException e) {
             log.error(
                     "Error writing value mapped from {} to {}",

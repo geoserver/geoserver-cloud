@@ -7,7 +7,6 @@ package org.geoserver.jackson.databind.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.util.Optional;
@@ -33,6 +32,7 @@ import org.geoserver.wfs.WFSInfo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
 
 /**
  * Verifies that all GeoServer config ({@link GeoServerInfo}, etc) object types can be sent over the
@@ -74,7 +74,7 @@ public abstract class GeoServerConfigModuleTest {
         proxyResolver = new ProxyUtils(() -> catalog, Optional.of(geoserver));
     }
 
-    private <T extends Info> void roundtripTest(@NonNull final T orig) throws JsonProcessingException {
+    private <T extends Info> void roundtripTest(@NonNull final T orig) throws JacksonException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);

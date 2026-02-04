@@ -51,7 +51,6 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         super.configureContentNegotiation(configurer);
-        configurer.favorPathExtension(true);
     }
 
     /**

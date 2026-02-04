@@ -6,7 +6,6 @@
 package org.geoserver.catalog.plugin;
 
 import com.google.common.collect.Iterators;
-import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +31,7 @@ import org.geoserver.ows.Dispatcher;
 import org.geoserver.ows.LocalWorkspace;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A catalog facade that enforces workspace isolation in GeoServer Cloud, restricting visibility of

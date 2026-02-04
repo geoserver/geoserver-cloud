@@ -5,8 +5,6 @@
 package org.geoserver.jackson.databind.catalog;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -14,6 +12,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Map;
 import org.geotools.jackson.databind.filter.dto.Literal;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 /**
  * Custom serializer for Store connection parameters.
@@ -22,7 +22,7 @@ import org.geotools.jackson.databind.filter.dto.Literal;
  * This serializer handles complex types like ReferencedEnvelope by wrapping them in a Literal.
  * </p>
  */
-public class ConnectionParametersSerializer extends JsonSerializer<ConnectionParameters> {
+public class ConnectionParametersSerializer extends ValueSerializer<ConnectionParameters> {
 
     @Override
     public Class<ConnectionParameters> handledType() {
@@ -30,7 +30,7 @@ public class ConnectionParametersSerializer extends JsonSerializer<ConnectionPar
     }
 
     @Override
-    public void serialize(ConnectionParameters value, JsonGenerator gen, SerializerProvider serializers)
+    public void serialize(ConnectionParameters value, JsonGenerator gen, SerializationContext serializers)
             throws IOException {
 
         if (value == null) {
@@ -44,17 +44,17 @@ public class ConnectionParametersSerializer extends JsonSerializer<ConnectionPar
             Object val = entry.getValue();
 
             if (val == null) {
-                gen.writeNullField(key);
+                gen.writeNullProperty(key);
             } else if (shouldConvertToString(val)) {
                 // Values like URI, URL, File, Path should be serialized as strings
-                gen.writeStringField(key, val.toString());
+                gen.writeStringProperty(key, val.toString());
             } else if (shouldWrapAsLiteral(val)) {
                 // Complex type, wrap in Literal
                 Literal literal = Literal.valueOf(val);
-                gen.writeObjectField(key, literal);
+                gen.writeObjectProperty(key, literal);
             } else {
                 // Primitive type
-                gen.writeObjectField(key, val);
+                gen.writeObjectProperty(key, val);
             }
         }
         gen.writeEndObject();

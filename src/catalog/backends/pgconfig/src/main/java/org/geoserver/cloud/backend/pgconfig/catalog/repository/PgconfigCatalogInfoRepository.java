@@ -5,7 +5,6 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.UncheckedIOException;
 import java.sql.Connection;
@@ -37,6 +36,7 @@ import org.geotools.api.filter.sort.SortOrder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import tools.jackson.core.JacksonException;
 
 /**
  * @since 1.4
@@ -381,7 +381,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
     protected String encode(T info) {
         try {
             return infoMapper.writeValueAsString(info);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new UncheckedIOException(e);
         }
     }

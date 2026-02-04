@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import org.geoserver.config.ServiceInfo;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ServiceInfoRemoved")

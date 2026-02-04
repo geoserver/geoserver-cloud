@@ -10,8 +10,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationContext;
-import org.springframework.lang.Nullable;
 
 /**
  * Local {@link ApplicationContext} event issued to replace the tightly coupled {@link

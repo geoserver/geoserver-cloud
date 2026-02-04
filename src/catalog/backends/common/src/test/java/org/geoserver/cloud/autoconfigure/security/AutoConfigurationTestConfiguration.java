@@ -9,9 +9,9 @@ import org.springframework.boot.actuate.autoconfigure.security.servlet.Managemen
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration

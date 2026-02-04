@@ -45,7 +45,7 @@ import org.geotools.jackson.databind.util.MapperSerializer;
 import org.mapstruct.factory.Mappers;
 
 /**
- * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer configuration objects
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoServer configuration objects
  * ({@link GeoServerInfo} and related) bindings.
  *
  * <p>Depends on {@link GeoServerCatalogModule}

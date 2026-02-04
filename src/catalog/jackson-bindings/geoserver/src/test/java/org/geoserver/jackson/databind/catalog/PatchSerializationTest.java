@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.util.Arrays;
@@ -95,6 +94,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import si.uom.SI;
+import tools.jackson.core.JacksonException;
 
 /**
  * Verifies that {@link Patch patches} can be JSON round-tripped. As a
@@ -714,7 +714,7 @@ public abstract class PatchSerializationTest {
         metadataMapWithCogSettings(cog, cogs);
     }
 
-    protected void metadataMapWithCogSettings(CogSettings cog, CogSettingsStore cogs) throws JsonProcessingException {
+    protected void metadataMapWithCogSettings(CogSettings cog, CogSettingsStore cogs) throws JacksonException {
 
         MetadataMap mdm = new MetadataMap(Map.of("cogSettings", cog, "cogSettingsStore", cogs));
 
@@ -745,14 +745,14 @@ public abstract class PatchSerializationTest {
         return testPatch(patch);
     }
 
-    private Patch testPatch(Patch patch) throws JsonProcessingException {
+    private Patch testPatch(Patch patch) throws JacksonException {
         Patch resolved = testPatchNoEquals(patch);
 
         assertEquals(patch, resolved);
         return resolved;
     }
 
-    private Patch testPatchNoEquals(Patch patch) throws JsonProcessingException {
+    private Patch testPatchNoEquals(Patch patch) throws JacksonException {
         Patch decoded = roundtrip(patch);
         Patch resolved = resolve(decoded);
         print("resolved: {}", resolved);
@@ -779,7 +779,7 @@ public abstract class PatchSerializationTest {
         return proxyResolver.resolve(decoded);
     }
 
-    private Patch roundtrip(Patch patch) throws JsonProcessingException {
+    private Patch roundtrip(Patch patch) throws JacksonException {
         Object patchValue = patch.getPatches().get(0).getValue();
         boolean encodeByReference = ProxyUtils.encodeByReference(patchValue);
 
@@ -805,7 +805,7 @@ public abstract class PatchSerializationTest {
         return decoded;
     }
 
-    protected String asJson(Patch patch) throws JsonProcessingException {
+    protected String asJson(Patch patch) throws JacksonException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         return writer.writeValueAsString(patch);

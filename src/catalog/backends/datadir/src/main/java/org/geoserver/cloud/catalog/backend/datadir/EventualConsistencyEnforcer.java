@@ -33,7 +33,7 @@ import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.impl.GeoServerLifecycleHandler;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Manages deferred catalog operations to ensure eventual consistency when distributed events arrive

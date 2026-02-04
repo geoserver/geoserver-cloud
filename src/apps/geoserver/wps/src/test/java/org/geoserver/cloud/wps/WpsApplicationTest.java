@@ -13,9 +13,10 @@ import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConf
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,6 +26,7 @@ import org.xmlunit.assertj3.XmlAssert;
 
 @SpringBootTest(classes = WpsApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@AutoConfigureTestRestTemplate
 class WpsApplicationTest {
 
     static @TempDir Path datadir;

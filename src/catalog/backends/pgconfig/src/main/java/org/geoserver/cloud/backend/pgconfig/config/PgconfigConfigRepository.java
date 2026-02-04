@@ -5,7 +5,6 @@
 
 package org.geoserver.cloud.backend.pgconfig.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
@@ -28,6 +27,7 @@ import org.geoserver.config.plugin.ConfigRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import tools.jackson.core.JacksonException;
 
 /**
  * @since 1.4
@@ -261,7 +261,7 @@ public class PgconfigConfigRepository implements ConfigRepository {
     private String encode(Info info) {
         try {
             return infoMapper.writeValueAsString(info);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new UncheckedIOException(e);
         }
     }
@@ -269,7 +269,7 @@ public class PgconfigConfigRepository implements ConfigRepository {
     private static <C extends Info> C decode(String value, Class<C> type) {
         try {
             return infoMapper.readValue(value, type);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new UncheckedIOException(e);
         }
     }

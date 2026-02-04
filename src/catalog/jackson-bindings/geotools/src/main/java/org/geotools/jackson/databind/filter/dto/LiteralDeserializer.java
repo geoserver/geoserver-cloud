@@ -13,7 +13,6 @@ import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.VALUE_K
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -29,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.databind.ValueDeserializer;
 
 /**
  *
@@ -45,7 +45,7 @@ import org.mapstruct.factory.Mappers;
  *
  * @since 1.0
  */
-public class LiteralDeserializer extends JsonDeserializer<Literal> {
+public class LiteralDeserializer extends ValueDeserializer<Literal> {
 
     private static GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
 
@@ -62,7 +62,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
         String fieldName = parser.nextFieldName();
         requireNonNull(fieldName, "expected contentType or value attribute, got null");
         if (COLLECTION_CONTENT_TYPE_KEY.equals(fieldName)) {
-            String contentTypeVal = parser.nextTextValue();
+            String contentTypeVal = parser.nextStringValue();
             requireNonNull(contentTypeVal, "expected value for contentType, got null");
             contentType = classNameMapper.canonicalNameToClass(contentTypeVal);
             fieldName = parser.nextFieldName();
@@ -168,7 +168,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
                 String fieldName = parser.currentName();
                 expectFieldName(fieldName, COLLECTION_CONTENT_TYPE_KEY);
 
-                String contentTypeVal = parser.nextTextValue();
+                String contentTypeVal = parser.nextStringValue();
                 requireNonNull(contentTypeVal, "expected value for contentType, got null");
 
                 contentType = classNameMapper.canonicalNameToClass(contentTypeVal);
@@ -209,7 +209,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
         }
 
         expectFieldName(typeFieldName, TYPE_KEY);
-        final String typeString = parser.nextTextValue();
+        final String typeString = parser.nextStringValue();
         requireNonNull(typeString, "type is null");
         return classNameMapper.canonicalNameToClass(typeString);
     }
@@ -252,7 +252,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
                         // but "value" does with a null value
                         valuesList.add(null);
                     } else if (typeNode != null) {
-                        String typeVal = typeNode.asText();
+                        String typeVal = typeNode.asString();
                         Class<?> type = classNameMapper.canonicalNameToClass(typeVal);
                         Object val = ctxt.readTreeAsValue(valueNode, type);
                         valuesList.add(val);

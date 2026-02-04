@@ -48,7 +48,7 @@ import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A support index for {@link DefaultMemoryCatalogFacade}, can perform fast lookups of {@link

@@ -5,7 +5,6 @@
 
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.UncheckedIOException;
 import java.sql.ResultSet;
@@ -18,6 +17,7 @@ import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigObjectMap
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigStyleRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import tools.jackson.core.JacksonException;
 
 /**
  * @since 1.7
@@ -87,7 +87,7 @@ class PgconfigTileLayerInfoRowMapper implements RowMapper<TileLayerInfo> {
         try {
             String tileInfoValue = rs.getString("tilelayer");
             tileLayerInfo = objectMapper.readValue(tileInfoValue, TileLayerInfo.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new UncheckedIOException(e);
         }
         PublishedInfo publishedInfo = publishedMapper.mapRow(rs, rowNum);
@@ -95,7 +95,7 @@ class PgconfigTileLayerInfoRowMapper implements RowMapper<TileLayerInfo> {
         return tileLayerInfo;
     }
 
-    @SneakyThrows(JsonProcessingException.class)
+    @SneakyThrows(JacksonException.class)
     public static String encode(@NonNull TileLayerInfo info) {
         return objectMapper.writeValueAsString(info);
     }

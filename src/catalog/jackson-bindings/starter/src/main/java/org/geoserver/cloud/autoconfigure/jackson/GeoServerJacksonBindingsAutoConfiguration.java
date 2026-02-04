@@ -5,7 +5,6 @@
 
 package org.geoserver.cloud.autoconfigure.jackson;
 
-import com.fasterxml.jackson.databind.Module;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -13,10 +12,11 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import tools.jackson.databind.JacksonModule;
 
 /**
  * Spring boot {@link EnableAutoConfiguration @EnableAutoConfiguration} to register GeoServer
- * jackson databind {@link Module modules}.
+ * jackson databind {@link JacksonModule modules}.
  *
  * <p>Configuration enablement is conditional on the presence of {@link GeoServerCatalogModule} on
  * the classpath. Add an explicit dependency on {@code gs-cloud-core:gs-jackson-bindings} to use it.

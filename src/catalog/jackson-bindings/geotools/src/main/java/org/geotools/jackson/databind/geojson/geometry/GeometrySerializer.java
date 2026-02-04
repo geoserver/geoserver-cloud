@@ -8,7 +8,6 @@ package org.geotools.jackson.databind.geojson.geometry;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
@@ -24,6 +23,7 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import tools.jackson.databind.SerializationContext;
 
 public class GeometrySerializer extends StdSerializer<Geometry> {
     @Serial
@@ -35,7 +35,7 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
 
     @Override
     public void serializeWithType(
-            Geometry value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+            Geometry value, JsonGenerator gen, SerializationContext serializers, TypeSerializer typeSer)
             throws IOException {
 
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, typeSer.typeId(value, JsonToken.START_OBJECT));
@@ -46,7 +46,7 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
     }
 
     @Override
-    public void serialize(Geometry value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(Geometry value, JsonGenerator gen, SerializationContext serializers) throws IOException {
 
         serialize(value, gen);
     }
@@ -67,17 +67,17 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
 
     private void serializeContent(Geometry geometry, JsonGenerator generator, String customNameProperty)
             throws IOException {
-        generator.writeStringField("type", geometry.getGeometryType());
+        generator.writeStringProperty("type", geometry.getGeometryType());
         writeDimensions(geometry, generator);
         if (customNameProperty != null) {
-            generator.writeStringField("name", customNameProperty);
+            generator.writeStringProperty("name", customNameProperty);
         }
         if (geometry instanceof GeometryCollection
                 && !(geometry instanceof MultiPoint
                         || geometry instanceof MultiLineString
                         || geometry instanceof MultiPolygon)) {
 
-            generator.writeFieldName("geometries");
+            generator.writeName("geometries");
             generator.writeStartArray();
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
                 serialize(geometry.getGeometryN(i), generator, customNameProperty);
@@ -85,7 +85,7 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
             generator.writeEndArray();
             return;
         }
-        generator.writeFieldName("coordinates");
+        generator.writeName("coordinates");
         writeGeometry(geometry, generator);
     }
 
@@ -98,8 +98,8 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         if (sampleSequence != null && sampleSequence.getDimension() > 2) {
             int outputDimension = sampleSequence.getDimension();
             boolean hasM = sampleSequence.hasM();
-            generator.writeNumberField("dimensions", outputDimension);
-            generator.writeBooleanField("hasM", hasM);
+            generator.writeNumberProperty("dimensions", outputDimension);
+            generator.writeBooleanProperty("hasM", hasM);
         }
     }
 

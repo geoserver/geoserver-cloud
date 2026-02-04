@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 

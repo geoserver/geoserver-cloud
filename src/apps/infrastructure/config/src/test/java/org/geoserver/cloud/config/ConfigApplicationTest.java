@@ -14,9 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 @Slf4j
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"native", "test"})
+@AutoConfigureTestRestTemplate
 class ConfigApplicationTest {
 
     @Autowired

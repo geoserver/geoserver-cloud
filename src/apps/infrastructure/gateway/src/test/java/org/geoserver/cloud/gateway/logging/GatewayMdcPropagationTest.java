@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.HttpStatusCode;
@@ -32,6 +33,7 @@ import reactor.test.StepVerifier;
         classes = {GatewayApplication.class, org.geoserver.cloud.gateway.config.TestMdcConfiguration.class},
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"test", "json-logs"})
+@AutoConfigureWebTestClient
 @Slf4j
 class GatewayMdcPropagationTest {
 

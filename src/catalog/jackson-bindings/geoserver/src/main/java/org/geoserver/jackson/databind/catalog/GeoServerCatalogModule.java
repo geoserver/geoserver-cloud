@@ -51,7 +51,7 @@ import org.geotools.jdbc.VirtualTable;
 import org.mapstruct.factory.Mappers;
 
 /**
- * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer {@link CatalogInfo}
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoServer {@link CatalogInfo}
  * bindings.
  *
  * <p>Depends on {@link GeoToolsGeoJsonModule} and {@link GeoToolsFilterModule}.

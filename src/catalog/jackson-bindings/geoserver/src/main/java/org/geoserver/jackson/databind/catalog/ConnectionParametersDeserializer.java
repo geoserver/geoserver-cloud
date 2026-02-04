@@ -7,9 +7,9 @@ package org.geoserver.jackson.databind.catalog;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
 import org.geotools.jackson.databind.filter.dto.Literal;
+import tools.jackson.databind.ValueDeserializer;
 
 /**
  * Custom deserializer for Store connection parameters.
@@ -18,7 +18,7 @@ import org.geotools.jackson.databind.filter.dto.Literal;
  * This deserializer handles Literal objects in the map, extracting their values.
  * </p>
  */
-public class ConnectionParametersDeserializer extends JsonDeserializer<ConnectionParameters> {
+public class ConnectionParametersDeserializer extends ValueDeserializer<ConnectionParameters> {
 
     @Override
     public ConnectionParameters deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {

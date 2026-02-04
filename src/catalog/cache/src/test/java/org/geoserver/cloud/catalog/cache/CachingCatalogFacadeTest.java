@@ -58,12 +58,15 @@ import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.verification.VerificationModeFactory;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
 
+@ExtendWith(MockitoExtension.class)
 class CachingCatalogFacadeTest {
 
     @Mock

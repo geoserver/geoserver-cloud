@@ -6,13 +6,13 @@
 package org.geotools.jackson.databind.filter.dto;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.function.UnaryOperator;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeAll;
+import tools.jackson.databind.SerializationContext;
 
 public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSerializationTest {
 
@@ -38,7 +38,7 @@ public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSeri
     @SuppressWarnings("serial")
     private static class ChangedAttributeOrderLiteralSerializer extends LiteralSerializer {
         @Override
-        protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializerProvider provider)
+        protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializationContext provider)
                 throws IOException {
 
             final Class<?> contentType = findContentType(collection, provider);
@@ -46,19 +46,19 @@ public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSeri
             final UnaryOperator<Object> valueMapper =
                     Literal.class.equals(contentType) ? Literal::valueOf : UnaryOperator.identity();
 
-            gen.writeStringField(TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
+            gen.writeStringProperty(TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
 
-            gen.writeFieldName(VALUE_KEY);
+            gen.writeName(VALUE_KEY);
             gen.writeStartArray();
             for (Object v : collection) {
                 v = valueMapper.apply(v);
-                gen.writeObject(v);
+                gen.writePOJO(v);
             }
             gen.writeEndArray();
 
             if (null != contentType) {
                 String singleContentTypeValue = classNameMapper.classToCanonicalName(contentType);
-                gen.writeStringField(COLLECTION_CONTENT_TYPE_KEY, singleContentTypeValue);
+                gen.writeStringProperty(COLLECTION_CONTENT_TYPE_KEY, singleContentTypeValue);
             }
         }
     }

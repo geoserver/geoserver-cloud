@@ -6,8 +6,6 @@
 package org.geotools.jackson.databind.filter;
 
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.Serial;
@@ -38,9 +36,11 @@ import org.geotools.measure.Measure;
 import org.geotools.util.NumberRange;
 import org.locationtech.jts.geom.Geometry;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
 
 /**
- * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoTools {@link Filter} and
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoTools {@link Filter} and
  * {@link Expression} bindings.
  *
  * <p>Depends on {@link GeoToolsGeoJsonModule} to being able of encoding and decoding JTS {@link
@@ -106,7 +106,7 @@ public class GeoToolsFilterModule extends SimpleModule {
         addCustomLiteralValueSerializers();
     }
 
-    private <T> GeoToolsFilterModule addSerializer(Class<T> type, JsonSerializer<T> set, JsonDeserializer<T> deser) {
+    private <T> GeoToolsFilterModule addSerializer(Class<T> type, ValueSerializer<T> set, ValueDeserializer<T> deser) {
         super.addSerializer(type, set);
         super.addDeserializer(type, deser);
         return this;

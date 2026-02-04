@@ -7,13 +7,11 @@ package org.geotools.jackson.databind.geojson.geometry;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -32,8 +30,10 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.node.StringNode;
 
-public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T> {
+public class GeometryDeserializer<T extends Geometry> extends ValueDeserializer<T> {
 
     private static final String COORDINATES_PROPERTY = "coordinates";
 
@@ -63,7 +63,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
     }
 
     private Geometry readGeometry(ObjectNode geometryNode, int dimensions, boolean hasM) {
-        final String type = geometryNode.findValue("type").asText();
+        final String type = geometryNode.findValue("type").asString();
         switch (type) {
             case Geometry.TYPENAME_POINT:
                 return readPoint(geometryNode, dimensions, hasM);
@@ -219,7 +219,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
             return false;
         }
         JsonNode typeNode = value.get("type");
-        return typeNode instanceof TextNode textNode && isGeometry(textNode.asText());
+        return typeNode instanceof StringNode textNode && isGeometry(textNode.asText());
     }
 
     private static final Set<String> geomTypes = new HashSet<>(Arrays.asList( //

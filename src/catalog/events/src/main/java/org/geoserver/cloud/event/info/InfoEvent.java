@@ -24,8 +24,8 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.style.ToStringCreator;
-import org.springframework.lang.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({

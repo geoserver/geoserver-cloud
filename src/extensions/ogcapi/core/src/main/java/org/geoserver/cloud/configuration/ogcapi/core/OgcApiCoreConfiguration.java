@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
+import tools.jackson.databind.JacksonModule;
 
 /**
  * Provides all components of {@code gs-ogcapi-core} jar's
@@ -113,8 +114,8 @@ public class OgcApiCoreConfiguration {
      * Registers the {@link CloseableIteratorModule} as a bean.
      *
      * <p>This ensures the module is automatically picked up by Spring Boot's auto-configured {@link
-     * com.fasterxml.jackson.databind.ObjectMapper}, which is particularly important in GeoServer Cloud where Spring Boot's
-     * {@link org.springframework.http.converter.json.MappingJackson2HttpMessageConverter} is used instead of the custom
+     * com.fasterxml.jackson.databind.json.JsonMapper}, which is particularly important in GeoServer Cloud where Spring Boot's
+     * {@link org.springframework.http.converter.json.JacksonJsonHttpMessageConverter} is used instead of the custom
      * GeoServer one.
      *
      * <p>The module is also discoverable via Java ServiceLoader (see {@code
@@ -122,7 +123,7 @@ public class OgcApiCoreConfiguration {
      * used.
      */
     @Bean
-    com.fasterxml.jackson.databind.Module closeableIteratorModule() {
+    JacksonModule closeableIteratorModule() {
         return new CloseableIteratorModule();
     }
 }

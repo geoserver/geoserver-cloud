@@ -22,7 +22,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
 /**
- * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoJSON bindings for JTS {@link
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoJSON bindings for JTS {@link
  * Geometry geometries}.
  *
  * <p>When running a spring-boot application, being on the classpath should be enough to get this

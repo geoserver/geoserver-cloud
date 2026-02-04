@@ -35,10 +35,10 @@ import org.geoserver.cloud.event.catalog.DefaultDataStoreSet;
 import org.geoserver.cloud.event.catalog.DefaultNamespaceSet;
 import org.geoserver.cloud.event.catalog.DefaultWorkspaceSet;
 import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
-import org.springframework.lang.Nullable;
 
 /**
  * @see CachingCatalogFacadeContainmentSupport

@@ -8,7 +8,6 @@ package org.geoserver.jackson.databind.catalog;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
@@ -17,6 +16,7 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.databind.SerializationContext;
 
 public class CatalogInfoSerializer<I extends CatalogInfo> extends StdSerializer<I> {
     @Serial
@@ -32,14 +32,14 @@ public class CatalogInfoSerializer<I extends CatalogInfo> extends StdSerializer<
     }
 
     @Override
-    public void serialize(CatalogInfo info, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(CatalogInfo info, JsonGenerator gen, SerializationContext provider) throws IOException {
 
         CatalogInfoDto dto = mapper.map(info);
-        gen.writeObject(dto);
+        gen.writePOJO(dto);
     }
 
     @Override
-    public void serializeWithType(I value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+    public void serializeWithType(I value, JsonGenerator gen, SerializationContext serializers, TypeSerializer typeSer)
             throws IOException {
 
         WritableTypeId typeIdDef =

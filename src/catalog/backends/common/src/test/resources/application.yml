@@ -9,7 +9,7 @@ spring:
   cloud.bus.enabled: false
   autoconfigure:
     exclude:
-    - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+    - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
 
 
 eureka.client.enabled: false

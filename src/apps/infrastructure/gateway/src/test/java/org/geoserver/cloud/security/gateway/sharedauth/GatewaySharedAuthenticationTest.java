@@ -31,9 +31,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration.EnableWebFluxConfiguration;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -56,7 +57,9 @@ import org.springframework.web.server.session.WebSessionStore;
         classes = GatewayApplication.class, //
         webEnvironment = WebEnvironment.RANDOM_PORT,
         properties = {"geoserver.security.gateway-shared-auth.enabled=true"})
-@ActiveProfiles("test") // bootstrap-test.yml disables config and discovery
+@ActiveProfiles("test")
+@AutoConfigureTestRestTemplate
+// bootstrap-test.yml disables config and discovery
 @WireMockTest
 // @TestMethodOrder is not really needed, just used to run tests in the workflow order, but tests
 // are isolated

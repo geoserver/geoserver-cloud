@@ -5,7 +5,6 @@
 
 package org.geoserver.catalog.plugin;
 
-import jakarta.annotation.Nullable;
 import java.io.Closeable;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +26,7 @@ import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An enhanced version of {@link CatalogFacade} providing additional methods for querying and manipulating
