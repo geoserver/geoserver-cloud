@@ -19,7 +19,7 @@ import org.geoserver.cloud.logging.mdc.config.HttpRequestMdcConfigProperties;
 import org.geoserver.cloud.logging.mdc.config.SpringEnvironmentMdcConfigProperties;
 import org.slf4j.MDC;
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.boot.web.reactive.filter.OrderedWebFilter;
+import org.springframework.boot.webflux.filter.OrderedWebFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.http.server.reactive.ServerHttpRequest;

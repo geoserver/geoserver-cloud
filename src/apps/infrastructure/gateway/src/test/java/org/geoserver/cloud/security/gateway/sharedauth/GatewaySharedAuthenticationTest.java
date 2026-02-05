@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration.EnableWebFluxConfiguration;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -324,10 +323,11 @@ class GatewaySharedAuthenticationTest {
     @Test
     @Order(5)
     @DisplayName("post-filter removes user and roles headers from the final response")
+    @SuppressWarnings("removal")
     void postFilterRemovesOutgoingSharedAuthHeaders(WireMockRuntimeInfo runtimeInfo) {
         ResponseEntity<Void> response = login();
         HttpHeaders responseHeaders = response.getHeaders();
-        assertThat(responseHeaders)
+        assertThat(responseHeaders.asMultiValueMap())
                 .as("GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-username response header")
                 .doesNotContainKey("x-gsc-username")
                 .as("GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-roles response header")
@@ -362,6 +362,7 @@ class GatewaySharedAuthenticationTest {
         return URI.create(mapping.getRequest().getUrl());
     }
 
+    @SuppressWarnings("removal")
     ResponseEntity<Void> login() {
         HttpEntity<?> entity = withHeaders( //
                 "Accept", "text/html,application/xhtml+xml", //
@@ -371,11 +372,13 @@ class GatewaySharedAuthenticationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         HttpHeaders headers = response.getHeaders();
 
-        assertThat(headers).containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
+        assertThat(headers.asMultiValueMap())
+                .containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
 
         return response;
     }
 
+    @SuppressWarnings("removal")
     ResponseEntity<Void> logout(@NonNull String gatewaySessionId) {
         HttpEntity<?> entity = withHeaders( //
                 "Accept", "text/html,application/xhtml+xml", //
@@ -386,7 +389,8 @@ class GatewaySharedAuthenticationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         HttpHeaders headers = response.getHeaders();
 
-        assertThat(headers).containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
+        assertThat(headers.asMultiValueMap())
+                .containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
 
         return response;
     }

@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.boot.web.reactive.filter.OrderedWebFilter;
+import org.springframework.boot.webflux.filter.OrderedWebFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;

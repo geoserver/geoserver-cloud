@@ -5,13 +5,12 @@
 
 package org.geoserver.cloud.test;
 
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.TestPropertySource;
@@ -26,7 +25,6 @@ import org.springframework.test.context.TestPropertySource;
         exclude = { //
             DataSourceAutoConfiguration.class, //
             DataSourceTransactionManagerAutoConfiguration.class, //
-            HibernateJpaAutoConfiguration.class, //
             SecurityAutoConfiguration.class, //
             UserDetailsServiceAutoConfiguration.class, //
             ManagementWebSecurityAutoConfiguration.class

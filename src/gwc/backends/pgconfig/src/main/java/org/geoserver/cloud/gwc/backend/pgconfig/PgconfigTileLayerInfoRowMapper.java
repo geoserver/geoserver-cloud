@@ -5,7 +5,6 @@
 
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
-import java.io.UncheckedIOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import lombok.NonNull;
@@ -83,13 +82,10 @@ class PgconfigTileLayerInfoRowMapper implements RowMapper<TileLayerInfo> {
      */
     @Override
     public TileLayerInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-        TileLayerInfo tileLayerInfo;
-        try {
-            String tileInfoValue = rs.getString("tilelayer");
-            tileLayerInfo = objectMapper.readValue(tileInfoValue, TileLayerInfo.class);
-        } catch (JacksonException e) {
-            throw new UncheckedIOException(e);
-        }
+
+        String tileInfoValue = rs.getString("tilelayer");
+        TileLayerInfo tileLayerInfo = objectMapper.readValue(tileInfoValue, TileLayerInfo.class);
+
         PublishedInfo publishedInfo = publishedMapper.mapRow(rs, rowNum);
         tileLayerInfo.setPublished(publishedInfo);
         return tileLayerInfo;

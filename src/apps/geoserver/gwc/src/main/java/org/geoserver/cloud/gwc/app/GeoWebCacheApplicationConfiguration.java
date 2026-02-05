@@ -25,11 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.format.support.FormattingConversionService;
-import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
 @Configuration
 public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
@@ -57,22 +53,23 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
      * "Deprecate use of path extensions in request mapping and content negotiation" {@code
      * https://github.com/spring-projects/spring-framework/issues/24179}
      */
-    @SuppressWarnings("deprecation")
-    @Bean
-    @Override
-    public RequestMappingHandlerMapping requestMappingHandlerMapping(
-            @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
-            @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-            @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
-
-        RequestMappingHandlerMapping handlerMapping =
-                super.requestMappingHandlerMapping(contentNegotiationManager, conversionService, resourceUrlProvider);
-
-        handlerMapping.setUseSuffixPatternMatch(true);
-        handlerMapping.setUseRegisteredSuffixPatternMatch(true);
-
-        return handlerMapping;
-    }
+    //    @SuppressWarnings("deprecation")
+    //    @Bean
+    //    @Override
+    //    public RequestMappingHandlerMapping requestMappingHandlerMapping(
+    //            @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
+    //            @Qualifier("mvcConversionService") FormattingConversionService conversionService,
+    //            @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
+    //
+    //        RequestMappingHandlerMapping handlerMapping =
+    //                super.requestMappingHandlerMapping(contentNegotiationManager, conversionService,
+    // resourceUrlProvider);
+    //
+    //        handlerMapping.setUseSuffixPatternMatch(true);
+    //        handlerMapping.setUseRegisteredSuffixPatternMatch(true);
+    //
+    //        return handlerMapping;
+    //    }
 
     @Bean
     SetRequestPathInfoFilter setRequestPathInfoFilter() {

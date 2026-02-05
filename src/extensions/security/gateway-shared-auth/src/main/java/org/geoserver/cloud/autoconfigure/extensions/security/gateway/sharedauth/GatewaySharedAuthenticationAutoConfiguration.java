@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.core.Authentication;
@@ -26,7 +25,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
  *
  * <p>
  * When a user is logged in through the regular web ui's authentication form,
- * the {@link Authentication} object is held in the web ui's {@link Session}.
+ * the {@link Authentication} object is held in the web ui's servlet session.
  * Hence, further requests to stateless services, as they're on separate
  * containers, don't share the webui session, and hence are executed as
  * anonymous.
