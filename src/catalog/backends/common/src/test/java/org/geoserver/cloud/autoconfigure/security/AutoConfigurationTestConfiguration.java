@@ -5,13 +5,12 @@
 
 package org.geoserver.cloud.autoconfigure.security;
 
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -21,7 +20,6 @@ import org.springframework.context.annotation.Configuration;
             UserDetailsServiceAutoConfiguration.class,
             ManagementContextAutoConfiguration.class,
             ManagementWebSecurityAutoConfiguration.class,
-            FreeMarkerAutoConfiguration.class,
             DataSourceAutoConfiguration.class
         })
 public class AutoConfigurationTestConfiguration {}
