@@ -14,11 +14,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.junit.MatcherAssume.assumeThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,81 +33,72 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
-import org.geoserver.platform.resource.ResourceTheoryTest;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/**
- * Note by inheriting from {@link ResourceTheoryTest}, this is a Junit 4 test class and must be
- * {@code public}
- */
 @Slf4j
-@RunWith(Theories.class)
-public class PgconfigResourceTest extends ResourceTheoryTest {
+class PgconfigResourceTest {
 
-    /**
-     * This is a JUnit 4 test, manually calling start()/stop()
-     */
-    public static PgConfigTestContainer container = new PgConfigTestContainer();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
     @TempDir
-    public File tmpDir;
+    File tmpDir;
 
     private PgconfigResourceStore store;
     private File cacheDirectory;
 
-    @DataPoints
-    public static String[] testPaths() {
-        return new String[] {
-            "FileA",
-            "FileB",
-            "DirC",
-            "DirC/FileD",
-            "DirC/DirC1",
-            "DirC/DirC1/DirC2",
-            "DirC/DirC1/DirC2/FileC2",
-            "DirC/DirC1/DirC2/FileC3",
-            "DirE",
-            "UndefF",
-            "DirC/UndefF",
-            "DirE/UndefF",
-            "DirE/UndefD/UndefF"
-        };
+    static Stream<String> testPaths() {
+        return Stream.of(
+                "FileA",
+                "FileB",
+                "DirC",
+                "DirC/FileD",
+                "DirC/DirC1",
+                "DirC/DirC1/DirC2",
+                "DirC/DirC1/DirC2/FileC2",
+                "DirC/DirC1/DirC2/FileC3",
+                "DirE",
+                "UndefF",
+                "DirC/UndefF",
+                "DirE/UndefF",
+                "DirE/UndefD/UndefF");
+    }
+
+    static String[] testPathsArray() {
+        return testPaths().toArray(String[]::new);
     }
 
     @BeforeAll
-    public static void containerSetup() {
+    static void containerSetup() {
         container.start();
         container.setUp();
     }
 
     @AfterAll
-    public static void containerTeardown() {
+    static void containerTeardown() {
         container.stop();
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
         cacheDirectory = newFolder(tmpDir, "junit");
@@ -118,13 +109,13 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @AfterEach
-    public void cleanDb() throws Exception {
+    void cleanDb() throws Exception {
         DataSource dataSource = container.getDataSource();
         new JdbcTemplate(dataSource).update("DELETE FROM resourcestore WHERE parentid IS NOT NULL");
     }
 
     private void setupTestData(JdbcTemplate template) throws Exception {
-        for (String path : testPaths()) {
+        for (String path : testPathsArray()) {
             boolean undef = Paths.name(path).contains("Undef");
             if (undef) {
                 continue;
@@ -167,9 +158,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         return lockRepository;
     }
 
-    @Override
     protected Resource getDirectory() {
-        return Arrays.stream(testPaths())
+        return Arrays.stream(testPathsArray())
                 .filter(path -> Paths.name(path).contains("Dir"))
                 .map(store::get)
                 .map(PgconfigResource.class::cast)
@@ -178,9 +168,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 .orElseThrow();
     }
 
-    @Override
     protected Resource getResource() {
-        return Arrays.stream(testPaths())
+        return Arrays.stream(testPathsArray())
                 .filter(path -> Paths.name(path).contains("File"))
                 .map(store::get)
                 .map(PgconfigResource.class::cast)
@@ -189,9 +178,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 .orElseThrow();
     }
 
-    @Override
     protected Resource getUndefined() {
-        return Arrays.stream(testPaths())
+        return Arrays.stream(testPathsArray())
                 .filter(path -> Paths.name(path).contains("UndefF"))
                 .map(store::get)
                 .map(PgconfigResource.class::cast)
@@ -200,27 +188,15 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 .orElseThrow();
     }
 
-    @Override
     protected Resource getResource(String path) {
         return store.get(path);
     }
 
-    @Override
-    @Disabled("This behaviour is specific to the file based implementation")
-    public void theoryAlteringFileAltersResource(String path) throws Exception {
-        // disabled
-    }
-
-    @Override
-    @Disabled("This behaviour is specific to the file based implementation")
-    public void theoryAddingFileToDirectoryAddsResource(String path) {
-        // disabled
-    }
-
-    @Theory
-    public void theoryRenamedDirectoryRenamesChildren(String path) {
+    @ParameterizedTest
+    @MethodSource("testPaths")
+    void theoryRenamedDirectoryRenamesChildren(String path) {
         final Resource res = getResource(path);
-        assumeThat(res, is(directory()));
+        assumeTrue(res.getType() == Type.DIRECTORY, "Resource is not a directory");
 
         final String newpath = "new/path/to" + path;
 
