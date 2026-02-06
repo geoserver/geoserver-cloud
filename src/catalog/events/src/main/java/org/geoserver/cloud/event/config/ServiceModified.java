@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.Objects;
@@ -24,6 +25,7 @@ public class ServiceModified extends ConfigInfoModified implements ConfigInfoEve
 
     private @Getter String workspaceId;
 
+    @JsonCreator
     protected ServiceModified() {
         // default constructor, needed for deserialization
     }

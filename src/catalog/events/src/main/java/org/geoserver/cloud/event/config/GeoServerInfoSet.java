@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.geoserver.config.GeoServer;
@@ -16,6 +17,7 @@ import org.geoserver.config.GeoServerInfo;
 @SuppressWarnings("serial")
 public class GeoServerInfoSet extends ConfigInfoAdded<GeoServerInfo> implements ConfigInfoEvent {
 
+    @JsonCreator
     protected GeoServerInfoSet() {
         // default constructor, needed for deserialization
     }

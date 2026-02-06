@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import org.geoserver.cloud.event.info.InfoAdded;
 @SuppressWarnings("serial")
 public class CatalogInfoAdded extends InfoAdded<CatalogInfo> {
 
+    @JsonCreator
     protected CatalogInfoAdded() {}
 
     CatalogInfoAdded(long updateSequence, @NonNull CatalogInfo object) {

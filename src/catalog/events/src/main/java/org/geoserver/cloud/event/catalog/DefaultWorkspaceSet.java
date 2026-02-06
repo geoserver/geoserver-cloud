@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class DefaultWorkspaceSet extends CatalogInfoModified {
     private @Getter @Nullable String newWorkspaceId;
 
     /** default constructor, needed for deserialization */
+    @JsonCreator
     protected DefaultWorkspaceSet() {
         //
     }

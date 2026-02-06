@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class DefaultNamespaceSet extends CatalogInfoModified {
 
     private @Getter String newNamespaceId;
 
+    @JsonCreator
     protected DefaultNamespaceSet() {}
 
     DefaultNamespaceSet(long updateSequence, @Nullable String newNamespaceId, @NonNull Patch patch) {

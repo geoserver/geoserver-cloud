@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.Objects;
@@ -31,6 +32,7 @@ public class DefaultDataStoreSet extends CatalogInfoModified {
     private @Getter String workspaceId;
     private @Getter String defaultDataStoreId;
 
+    @JsonCreator
     protected DefaultDataStoreSet() {}
 
     DefaultDataStoreSet(

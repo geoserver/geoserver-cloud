@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class SettingsRemoved extends ConfigInfoRemoved {
 
     private @Getter String workspaceId;
 
+    @JsonCreator
     protected SettingsRemoved() {
         // default constructor, needed for deserialization
     }
