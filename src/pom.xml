@@ -143,6 +143,18 @@
         <version>5.2.3</version>
       </dependency>
       <dependency>
+        <!-- declare to exclude slf4j-reload4j-->
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-geotiff</artifactId>
+        <version>${gt.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-reload4j</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-platform</artifactId>
         <version>${gs.version}</version>
@@ -553,6 +565,10 @@
           <exclusion>
             <groupId>org.geoserver.web</groupId>
             <artifactId>gs-web-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-reload4j</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
