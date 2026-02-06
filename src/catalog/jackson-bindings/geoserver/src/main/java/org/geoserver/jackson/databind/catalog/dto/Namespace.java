@@ -5,6 +5,7 @@
 
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +17,10 @@ import lombok.ToString;
 @JsonTypeName("NamespaceInfo")
 public class Namespace extends CatalogInfoDto {
     private String name;
+
+    @JsonProperty("uri")
     private String URI;
+
     private boolean isolated;
     private MetadataMapDto metadata;
 }
