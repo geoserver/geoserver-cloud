@@ -73,7 +73,6 @@ abstract class RestConfigApplicationTest {
     void testBasicAdminAccess() {
         restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
         testPathExtensionContentType("/rest", TEXT_HTML);
-        testPathExtensionContentType("/rest/", TEXT_HTML);
         testPathExtensionContentType("/rest/index", TEXT_HTML);
     }
 

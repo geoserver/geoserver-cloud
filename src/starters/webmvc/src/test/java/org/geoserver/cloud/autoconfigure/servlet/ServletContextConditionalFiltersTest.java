@@ -18,8 +18,6 @@ import org.geoserver.platform.AdvancedDispatchFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,7 +25,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.context.request.RequestContextListener;
 
 @SpringBootTest(classes = TestConfiguration.class)
-@EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class})
 @TestPropertySource(
         properties = {
             "geoserver.servlet.filter.session-debug.enabled=false",

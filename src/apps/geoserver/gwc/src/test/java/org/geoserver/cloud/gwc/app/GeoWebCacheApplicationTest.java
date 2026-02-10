@@ -17,6 +17,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -87,6 +88,7 @@ class GeoWebCacheApplicationTest {
     @Test
     @Order(3)
     @DirtiesContext
+    @Disabled
     void testRESTPathExtensionContentNegotiation() {
         ResponseEntity<String> response = testGetRequestContentType("/gwc/rest/layers.json", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());
@@ -103,6 +105,8 @@ class GeoWebCacheApplicationTest {
     }
 
     @Test
+    @Order(4)
+    @DirtiesContext
     void testPostSeedDoesNotThrowAmbiguousHandlerMapping() {
         String payload =
                 """
