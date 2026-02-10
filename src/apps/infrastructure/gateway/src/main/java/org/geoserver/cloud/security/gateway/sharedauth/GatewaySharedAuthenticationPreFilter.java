@@ -20,8 +20,6 @@ import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
@@ -31,8 +29,8 @@ import reactor.core.publisher.Mono;
  * {@link GlobalFilter} working in tandem with {@link GatewaySharedAuthenticationPostFilter} to
  * enable sharing the webui form-based authentication object with the other services.
  *
- * <p>When a user is logged in through the regular web ui's authentication form, the {@link
- * Authentication} object is held in the web ui's {@link WebSession}. Hence, further requests to
+ * <p>When a user is logged in through the regular web ui's authentication form, the {@code
+ * org.springframework.security.core.Authentication} object is held in the web ui's {@link WebSession}. Hence, further requests to
  * stateless services, as they're on separate containers, don't share the webui session, and hence
  * are executed as anonymous.
  *
@@ -43,7 +41,7 @@ import reactor.core.publisher.Mono;
  * <p>The webui container will send a couple response headers with the authenticated user name and
  * roles. The gateway will store them in its own session, and forward them to all services as
  * request headers. The stateless services will intercept these request headers and impersonate the
- * authenticated user as a {@link PreAuthenticatedAuthenticationToken}.
+ * authenticated user as a {@code org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken}.
  *
  * <p>At the same time, the gateway will take care of removing the webui response headers from the
  * responses sent to the clients, and from incoming client requests.

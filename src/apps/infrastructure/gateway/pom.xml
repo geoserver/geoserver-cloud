@@ -54,16 +54,6 @@
       <artifactId>lombok</artifactId>
     </dependency>
     <dependency>
-      <!-- required by package org.geoserver.cloud.security.gateway.sharedauth -->
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-core</artifactId>
-    </dependency>
-    <dependency>
-      <!-- required by package org.geoserver.cloud.security.gateway.sharedauth -->
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-web</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure-processor</artifactId>
       <optional>true</optional>

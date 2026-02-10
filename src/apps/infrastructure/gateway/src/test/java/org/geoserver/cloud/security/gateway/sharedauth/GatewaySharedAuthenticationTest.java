@@ -168,9 +168,10 @@ class GatewaySharedAuthenticationTest {
     @DynamicPropertySource
     static void registerRoutes(DynamicPropertyRegistry registry) {
         String targetUrl = wmRuntimeInfo.getHttpBaseUrl();
-        registry.add("spring.cloud.gateway.routes[0].id", () -> "wiremock");
-        registry.add("spring.cloud.gateway.routes[0].uri", () -> targetUrl);
-        registry.add("spring.cloud.gateway.routes[0].predicates[0]", () -> "Path=/**");
+        // Spring Cloud Gateway 5.0+ uses 'spring.cloud.gateway.server.webflux' namespace
+        registry.add("spring.cloud.gateway.server.webflux.routes[0].id", () -> "wiremock");
+        registry.add("spring.cloud.gateway.server.webflux.routes[0].uri", () -> targetUrl);
+        registry.add("spring.cloud.gateway.server.webflux.routes[0].predicates[0]", () -> "Path=/**");
     }
 
     @Autowired

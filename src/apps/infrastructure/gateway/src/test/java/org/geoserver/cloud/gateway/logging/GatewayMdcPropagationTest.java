@@ -134,13 +134,13 @@ class GatewayMdcPropagationTest {
         }
 
         // Make a real HTTP request to trigger the filter chain
-        // For an empty gateway with no routes defined, we expect a 404
+        // Use a path that doesn't match any configured routes to get a 404
         webClient
                 .get()
-                .uri("/test/mdc-test")
+                .uri("/nonexistent/mdc-test")
                 .exchange()
                 .expectStatus()
-                .isEqualTo(HttpStatusCode.valueOf(404)) // No routes are configured
+                .isEqualTo(HttpStatusCode.valueOf(404)) // No matching route
                 .returnResult(String.class)
                 .getResponseBody()
                 .blockLast(Duration.ofSeconds(5));
