@@ -11,8 +11,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = true)
 @ImportFilteredResource({
     "jar:gs-web-wfs-.*!/applicationContext.xml",
-    "jar:gs-wfs-.*!/applicationContext.xml",
-    "jar:gs-dxf-core-.*!/applicationContext.xml#name=.*"
-    // FlatGeobuf moved to output-formats/flatgeobuf extension
+    "jar:gs-wfs-core.*!/applicationContext.xml",
+    "jar:gs-wfs1_x-.*!/applicationContext.xml",
+    "jar:gs-wfs2_x-.*!/applicationContext.xml",
+    "jar:gs-dxf-core-.*!/applicationContext.xml"
 })
 public class WfsConfiguration {}
