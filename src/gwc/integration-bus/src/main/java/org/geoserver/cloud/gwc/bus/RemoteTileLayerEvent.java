@@ -5,10 +5,10 @@
 
 package org.geoserver.cloud.gwc.bus;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import java.io.Serial;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
@@ -20,7 +20,6 @@ import org.springframework.context.ApplicationContext;
  *
  * @since 1.0
  */
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class RemoteTileLayerEvent extends RemoteGeoWebCacheEvent {
 
@@ -30,6 +29,11 @@ public class RemoteTileLayerEvent extends RemoteGeoWebCacheEvent {
     private @Getter @Setter String publishedId;
     private @Getter @Setter String name;
     private @Getter @Setter String oldName;
+
+    @JsonCreator
+    protected RemoteTileLayerEvent() {
+        // default constructor, needed for deserialization
+    }
 
     public RemoteTileLayerEvent(Object source, @NonNull String originService) {
         super(source, originService);

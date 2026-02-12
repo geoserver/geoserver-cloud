@@ -5,17 +5,16 @@
 
 package org.geoserver.cloud.gwc.bus;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import java.io.Serial;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
 /**
  * @since 1.0
  */
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class RemoteBlobStoreEvent extends RemoteGeoWebCacheEvent {
 
@@ -24,6 +23,11 @@ public class RemoteBlobStoreEvent extends RemoteGeoWebCacheEvent {
 
     private @Getter @Setter String blobStoreId;
     private @Getter @Setter String oldName;
+
+    @JsonCreator
+    protected RemoteBlobStoreEvent() {
+        // default constructor, needed for deserialization
+    }
 
     public RemoteBlobStoreEvent(Object source, @NonNull String originService) {
         super(source, originService);
