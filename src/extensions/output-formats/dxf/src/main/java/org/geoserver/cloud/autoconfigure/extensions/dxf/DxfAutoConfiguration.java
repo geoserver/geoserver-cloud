@@ -8,6 +8,7 @@ package org.geoserver.cloud.autoconfigure.extensions.dxf;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWFS;
+import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWPS;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.platform.ModuleStatus;
@@ -34,6 +35,7 @@ import org.springframework.context.annotation.Import;
  *     output format functionality</li>
  * <li>A nested {@code WebUIConfiguration} class that enables DXF in the
  *     WebUI for WFS admin pages and layer preview</li>
+ * <li>A nested {@code WPSConfiguration} class that enables DXF PPIO in the WPS service</li>
  * </ul>
  *
  * <p>
@@ -42,14 +44,18 @@ import org.springframework.context.annotation.Import;
  * <li>The required DXFOutputFormat class is on the classpath
  *     ({@code ConditionalOnDxf})</li>
  * <li>The geoserver.extension.dxf.enabled property is true (the default)</li>
- * <li>The respective service is available (WFS, WebUI)</li>
+ * <li>The respective service is available (WFS, WebUI, WPS)</li>
  * </ul>
  *
  * @since 2.27.0
  */
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-@Import({DxfAutoConfiguration.DxfOutputFormatConfiguration.class, DxfAutoConfiguration.WebUIConfiguration.class})
+@Import({
+    DxfAutoConfiguration.DxfOutputFormatConfiguration.class,
+    DxfAutoConfiguration.WebUIConfiguration.class,
+    DxfAutoConfiguration.WPSConfiguration.class
+})
 @EnableConfigurationProperties(DxfConfigProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.dxf")
 public class DxfAutoConfiguration {
@@ -65,6 +71,7 @@ public class DxfAutoConfiguration {
         status.setComponent("DXF extension");
         status.setAvailable(true);
         status.setEnabled(config.isEnabled());
+        status.setCategory(ModuleStatus.Category.EXTENSION);
         return status;
     }
 
@@ -84,8 +91,8 @@ public class DxfAutoConfiguration {
     @Configuration
     @ConditionalOnDxf
     @ConditionalOnGeoServerWFS
-    @ImportFilteredResource("jar:gs-dxf-core-.*!/applicationContext.xml#name=.*")
-    public static class DxfOutputFormatConfiguration {
+    @ImportFilteredResource("jar:gs-dxf-core-.*!/applicationContext.xml#name=DXFOutputFormat")
+    static class DxfOutputFormatConfiguration {
         @PostConstruct
         void log() {
             log.info("DXF WFS output format extension enabled");
@@ -103,16 +110,36 @@ public class DxfAutoConfiguration {
      * <li>DXF format in the WFS service admin page</li>
      * <li>UI components for configuring and managing DXF outputs</li>
      * </ul>
-     *
-     * <p>
-     * This demonstrates how a single extension can be required by multiple services
-     * to provide a complete user experience.
      */
     @Configuration
     @ConditionalOnDxf
     @ConditionalOnGeoServerWebUI
-    @ImportFilteredResource("jar:gs-dxf-core-.*!/applicationContext.xml#name=.*")
-    public static class WebUIConfiguration {
+    @ImportFilteredResource("jar:gs-dxf-core-.*!/applicationContext.xml#name=DXFOutputFormat")
+    static class WebUIConfiguration {
+        @PostConstruct
+        void log() {
+            log.info("DXF WebUI output format extension enabled");
+        }
+    }
+
+    /**
+     * Configuration class that enables DXF in the WPS service.
+     *
+     * <p>
+     * This configuration is activated when both the DXF extension is enabled
+     * and the WPS service is available. It enables:
+     * <ul>
+     * <li>org.geoserver.wps.ppio.DXFPPIO</li>
+     * </ul>
+     */
+    @Configuration
+    @ConditionalOnDxf
+    @ConditionalOnGeoServerWPS
+    @ImportFilteredResource({
+        "jar:gs-dxf-core-.*!/applicationContext.xml#name=DXFOutputFormat",
+        "jar:gs-dxf-wps-.*!/applicationContext.xml"
+    })
+    static class WPSConfiguration {
         @PostConstruct
         void log() {
             log.info("DXF WebUI output format extension enabled");

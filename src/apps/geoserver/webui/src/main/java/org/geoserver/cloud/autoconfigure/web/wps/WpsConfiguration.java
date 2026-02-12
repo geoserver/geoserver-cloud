@@ -13,8 +13,6 @@ import org.springframework.context.annotation.Configuration;
     // exclude wpsRequestBuilder, DemosAutoConfiguration takes care of it
     "jar:gs-web-wps-.*!/applicationContext.xml#name=^(?!wpsRequestBuilder).*$",
     "jar:gs-wps-.*!/applicationContext.xml",
-    "jar:gs-wcs-.*!/applicationContext.xml",
-    "jar:gs-dxf-core-.*!/applicationContext.xml#name=.*",
-    "jar:gs-dxf-wps-.*!/applicationContext.xml#name=.*"
+    "jar:gs-wcs-.*!/applicationContext.xml"
 })
 public class WpsConfiguration {}
