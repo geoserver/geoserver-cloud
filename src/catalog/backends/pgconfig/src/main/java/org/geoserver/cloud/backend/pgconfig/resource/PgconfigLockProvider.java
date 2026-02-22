@@ -6,10 +6,12 @@
 package org.geoserver.cloud.backend.pgconfig.resource;
 
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.platform.resource.LockAdapter;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource.Lock;
+import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.support.locks.LockRegistry;
 
 /**
@@ -23,10 +25,11 @@ import org.springframework.integration.support.locks.LockRegistry;
  */
 @Slf4j
 public class PgconfigLockProvider implements LockProvider {
+    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(LockAdapter.class);
 
-    private LockRegistry registry;
+    private JdbcLockRegistry registry;
 
-    public PgconfigLockProvider(LockRegistry registry) {
+    public PgconfigLockProvider(JdbcLockRegistry registry) {
         Objects.requireNonNull(registry);
         this.registry = registry;
     }
@@ -41,5 +44,33 @@ public class PgconfigLockProvider implements LockProvider {
 
         log.debug("Acquired lock on {}", path);
         return new LockAdapter(path, lock);
+    }
+
+    /** Adapts a {@link java.util.concurrent.locks.Lock} as a {@link org.geoserver.platform.resource.Resource.Lock} */
+    private static class LockAdapter implements Lock {
+
+        private String key;
+        private java.util.concurrent.locks.Lock lock;
+        private boolean released;
+
+        public LockAdapter(String key, java.util.concurrent.locks.Lock lock) {
+            Objects.requireNonNull(lock);
+            this.key = key;
+            this.lock = lock;
+        }
+
+        @Override
+        public void release() {
+            if (!released) {
+                released = true;
+                if (LOGGER.isLoggable(Level.FINER)) {
+                    LOGGER.finer("Releasing lock on " + key);
+                }
+                this.lock.unlock();
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.fine("Released lock on " + key);
+                }
+            }
+        }
     }
 }

@@ -28,6 +28,7 @@ import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.config.UpdateSequence;
+import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceStore;
@@ -47,7 +48,7 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
     private static final String CLUSTER_LOCK_NAME = "UPDATE_SEQUENCE";
 
     /** Provides the cluster aware {@link ResourceStore#getLockProvider LockProvider} */
-    private final @NonNull ResourceStore resourceStore;
+    private final @NonNull FileSystemResourceStore resourceStore;
 
     private final @NonNull GeoServerDataDirectory dd;
     private final @NonNull XStreamPersisterFactory xpf;

@@ -14,24 +14,6 @@ import org.springframework.context.annotation.Configuration;
  * that shall be provided by the enabled {@link GeoServerBackendConfigurer}, as defined in {@code
  * gs-cloud-catalog-backend-starter}.
  *
- * <p>For instance:
- *
- * <ul>
- *   <li>{@link GeoServerBackendConfigurer#accessRulesDao}
- *   <li>{@link GeoServerBackendConfigurer#catalogFacade}
- *   <li>{@link GeoServerBackendConfigurer#dataDirectory}
- *   <li>{@link GeoServerBackendConfigurer#extensions}
- *   <li>{@link GeoServerBackendConfigurer#geoServer}
- *   <li>{@link GeoServerBackendConfigurer#geoserverFacade}
- *   <li>{@link GeoServerBackendConfigurer#geoServerLoader}
- *   <li>{@link GeoServerBackendConfigurer#geoServerSecurityManager}
- *   <li>{@link GeoServerBackendConfigurer#rawCatalog}
- *   <li>{@link GeoServerBackendConfigurer#resourceLoader}
- *   <li>{@link GeoServerBackendConfigurer#resourceStoreImpl}
- *   <li>{@link GeoServerBackendConfigurer#secureCatalog}
- *   <li>{@link GeoServerBackendConfigurer#xstreamPersisterFactory}
- * </ul>
- *
  * <p>Other excluded beans that are not used in geoserver-cloud:
  *
  * <p>We let spring-boot's {@code ForwardedHeaderFilter} take care of reflecting the

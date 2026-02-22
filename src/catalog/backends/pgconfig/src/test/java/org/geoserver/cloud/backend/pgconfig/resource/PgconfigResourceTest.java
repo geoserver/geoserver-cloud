@@ -51,7 +51,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
-import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Slf4j
@@ -144,7 +143,7 @@ class PgconfigResourceTest {
     /**
      * @return
      */
-    private LockRegistry pgconfigLockRegistry() {
+    private JdbcLockRegistry pgconfigLockRegistry() {
         return new JdbcLockRegistry(pgconfigLockRepository());
     }
 

@@ -7,20 +7,28 @@ package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
 import java.io.File;
 import lombok.NonNull;
+import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.platform.resource.LockProvider;
 
 /**
  * @since 1.4
  */
 public class PgconfigGeoServerResourceLoader extends GeoServerResourceLoader {
 
+    private @NonNull PgconfigResourceStore resourceStore;
+
     /**
      * @param resourceStore
      */
-    public PgconfigGeoServerResourceLoader(@NonNull ResourceStore resourceStore) {
+    public PgconfigGeoServerResourceLoader(@NonNull PgconfigResourceStore resourceStore) {
         super(resourceStore);
+        this.resourceStore = resourceStore;
         File baseDirectory = resourceStore.get("").dir();
         setBaseDirectory(baseDirectory);
+    }
+
+    public @NonNull LockProvider getLockProvider() {
+        return resourceStore.getLockProvider();
     }
 }

@@ -32,7 +32,6 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamServiceLoader;
 import org.geoserver.platform.GeoServerExtensions;
-import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource.Lock;
 
 /**
@@ -49,7 +48,7 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
      *     config when starting off an empty config
      */
     public PgconfigGeoServerLoader(
-            @NonNull GeoServerResourceLoader resourceLoader, @NonNull GeoServerConfigurationLock configLock) {
+            @NonNull PgconfigGeoServerResourceLoader resourceLoader, @NonNull GeoServerConfigurationLock configLock) {
         super(resourceLoader);
         this.configLock = configLock;
     }
@@ -72,7 +71,8 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
     @Override
     protected void initializeDefaultStyles(Catalog catalog) throws IOException {
         if (anyStyleMissing(catalog, DEFAULT_POINT, DEFAULT_LINE, DEFAULT_POLYGON, DEFAULT_RASTER, DEFAULT_GENERIC)) {
-            final Lock lock = resourceLoader.getLockProvider().acquire("DEFAULT_STYLES");
+            PgconfigGeoServerResourceLoader loader = (PgconfigGeoServerResourceLoader) resourceLoader;
+            final Lock lock = loader.getLockProvider().acquire("DEFAULT_STYLES");
             try {
                 super.initializeDefaultStyles(catalog);
             } finally {

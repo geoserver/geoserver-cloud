@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Disabled;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
-import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -68,7 +67,7 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
         return catalog;
     }
 
-    private LockRegistry pgconfigLockRegistry() {
+    private JdbcLockRegistry pgconfigLockRegistry() {
         return new JdbcLockRegistry(pgconfigLockRepository());
     }
 

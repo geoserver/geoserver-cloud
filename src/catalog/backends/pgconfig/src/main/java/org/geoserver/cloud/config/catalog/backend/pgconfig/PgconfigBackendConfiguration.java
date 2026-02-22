@@ -21,9 +21,7 @@ import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.DatabaseMigrationConfiguration.Migrations;
 import org.geoserver.config.GeoServerLoader;
-import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.LockProvider;
-import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
@@ -147,7 +145,7 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
 
     @Bean
     GeoServerLoader geoServerLoaderImpl(
-            GeoServerResourceLoader resourceLoader, GeoServerConfigurationLock configurationLock) {
+            PgconfigGeoServerResourceLoader resourceLoader, GeoServerConfigurationLock configurationLock) {
         log.debug("Creating GeoServerLoader {}", PgconfigGeoServerLoader.class.getSimpleName());
         return new PgconfigGeoServerLoader(resourceLoader, configurationLock);
     }
@@ -163,7 +161,7 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     }
 
     @Bean
-    ResourceStore resourceStoreImpl(
+    PgconfigResourceStore resourceStoreImpl(
             @Qualifier("pgconfigLockProvider") PgconfigLockProvider lockProvider,
             FileSystemResourceStoreCache resourceStoreCache,
             @Qualifier("pcconfigJdbcTemplate") JdbcTemplate template) {
@@ -178,7 +176,8 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     }
 
     @Bean
-    GeoServerResourceLoader resourceLoader(@Qualifier("resourceStoreImpl") ResourceStore resourceStore) {
+    PgconfigGeoServerResourceLoader resourceLoader(
+            @Qualifier("resourceStoreImpl") PgconfigResourceStore resourceStore) {
         log.debug("Creating GeoServerResourceLoader {}", PgconfigGeoServerResourceLoader.class.getSimpleName());
         return new PgconfigGeoServerResourceLoader(resourceStore);
     }
