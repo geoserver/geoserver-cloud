@@ -12,7 +12,6 @@ import org.geoserver.cloud.gwc.repository.CachingTileLayerCatalog;
 import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
 import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
 import org.geoserver.cloud.gwc.repository.ResourceStoreTileLayerCatalog;
-import org.geoserver.gwc.ConfigurableBlobStore;
 import org.geoserver.gwc.config.DefaultGwcInitializer;
 import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.config.GWCInitializer;
@@ -22,6 +21,7 @@ import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geowebcache.config.TileLayerConfiguration;
 import org.geowebcache.grid.GridSetBroker;
+import org.geowebcache.layer.TileLayerDispatcher;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -49,12 +49,8 @@ public class DefaultTileLayerCatalogConfiguration {
      *       and it's not the case for GS cloud
      */
     @Bean
-    DefaultGwcInitializer gwcInitializer(
-            GWCConfigPersister configPersister,
-            ConfigurableBlobStore blobStore,
-            GeoServerTileLayerConfiguration geoseverTileLayers,
-            GeoServerConfigurationLock lock) {
-        return new DefaultGwcInitializer(configPersister, blobStore, geoseverTileLayers, lock);
+    DefaultGwcInitializer gwcInitializer(GWCConfigPersister configPersister, GeoServerConfigurationLock lock) {
+        return new DefaultGwcInitializer(configPersister, lock);
     }
 
     /**

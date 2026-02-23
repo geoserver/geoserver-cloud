@@ -34,8 +34,6 @@ public class TileLayerInfo {
 
     private boolean enabled;
 
-    private Boolean inMemoryCached;
-
     private String blobStoreId;
 
     private Set<String> mimeFormats = Set.of();

@@ -23,7 +23,6 @@ import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerInfoRepository;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfoRepository;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
-import org.geoserver.gwc.ConfigurableBlobStore;
 import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.config.GWCInitializer;
 import org.geoserver.gwc.layer.TileLayerCatalog;
@@ -65,12 +64,8 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
      * @param configLock
      */
     @Bean
-    PgconfigGwcInitializer gwcInitializer(
-            GWCConfigPersister configPersister,
-            ConfigurableBlobStore blobStore,
-            GeoServerTileLayerConfiguration tileLayerCatalog,
-            GeoServerConfigurationLock configLock) {
-        return new PgconfigGwcInitializer(configPersister, blobStore, tileLayerCatalog, configLock);
+    PgconfigGwcInitializer gwcInitializer(GWCConfigPersister configPersister, GeoServerConfigurationLock configLock) {
+        return new PgconfigGwcInitializer(configPersister, configLock);
     }
 
     @Bean(name = "gwcCatalogConfiguration")
