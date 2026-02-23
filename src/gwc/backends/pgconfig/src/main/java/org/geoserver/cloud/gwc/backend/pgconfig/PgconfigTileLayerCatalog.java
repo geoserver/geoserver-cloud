@@ -51,6 +51,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
     final @NonNull TileLayerInfoRepository repository;
     final @NonNull GridSetBroker gridsetBroker;
+    final @NonNull Supplier<Catalog> catalogSupplier;
     final @NonNull UnaryOperator<PublishedInfo> publishedResolver;
     final @NonNull GWCConfigPersister defaultsProvider;
 
@@ -64,6 +65,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
         this.repository = repository;
         this.gridsetBroker = gridsetBroker;
+        this.catalogSupplier = catalog;
 
         UnaryOperator<PublishedInfo> resolve = PgconfigCatalogFacade.resolvingFunction(catalog);
         UnaryOperator<PublishedInfo> proxify = ModificationProxyDecorator::wrap;
@@ -244,7 +246,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
         GeoServerTileLayerInfo info = infoMapper.map(pgTileLayerInfo);
         completeWithDefaults(info, published);
-        return new GeoServerTileLayer(published, this.gridsetBroker, info);
+        return new GeoServerTileLayer(catalogSupplier.get(), published.getId(), this.gridsetBroker, info);
     }
 
     TileLayerInfo toInfo(GeoServerTileLayer tileLayer) {
