@@ -6,6 +6,7 @@
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.emptySet;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.TileLayerInfoUtil;
+import org.geoserver.ows.LocalPublished;
 import org.geoserver.ows.LocalWorkspace;
 import org.geowebcache.config.BaseConfiguration;
 import org.geowebcache.config.TileLayerConfiguration;
@@ -115,23 +117,53 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
     @Override
     public int getLayerCount() {
+        PublishedInfo localPublished = LocalPublished.get();
+        if (localPublished != null) {
+            return containsLayer(localPublished.prefixedName()) ? 1 : 0;
+        }
+
+        WorkspaceInfo localWorkspace = LocalWorkspace.get();
+        if (localWorkspace != null) {
+            return repository.count(localWorkspace.getName());
+        }
+
         return repository.count();
     }
 
     @Override
     public Set<String> getLayerNames() {
+        PublishedInfo localPublished = LocalPublished.get();
+        if (localPublished != null) {
+            String prefixedName = localPublished.prefixedName();
+            return containsLayer(prefixedName) ? Set.of(prefixedName) : emptySet();
+        }
+
+        WorkspaceInfo localWorkspace = LocalWorkspace.get();
+        if (localWorkspace != null) {
+            return repository.findAllNames(localWorkspace.getName());
+        }
         return repository.findAllNames();
     }
 
     @Override
     public List<GeoServerTileLayer> getLayers() {
-        try (Stream<TileLayerInfo> pginfos = repository.findAll()) {
-            return pginfos.map(this::toLayer).toList();
+        try (Stream<GeoServerTileLayer> stream = streamLayers()) {
+            return stream.toList();
         }
     }
 
     public Stream<GeoServerTileLayer> streamLayers() {
-        return repository.findAll().map(this::toLayer);
+        PublishedInfo localPublished = LocalPublished.get();
+        if (localPublished != null) {
+            String prefixedName = localPublished.prefixedName();
+            return getLayer(prefixedName).stream().map(GeoServerTileLayer.class::cast);
+        }
+
+        WorkspaceInfo localWorkspace = LocalWorkspace.get();
+        Stream<TileLayerInfo> pginfos =
+                (localWorkspace != null) ? repository.findAll(localWorkspace.getName()) : repository.findAll();
+
+        return pginfos.map(this::toLayer);
     }
 
     @Override

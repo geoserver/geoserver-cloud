@@ -169,4 +169,29 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
     private PgconfigTileLayerInfoRowMapper mapper() {
         return PgconfigTileLayerInfoRowMapper.newInstance(template.getJdbcTemplate());
     }
+
+    @Override
+    public Stream<TileLayerInfo> findAll(String workspaceName) throws DataAccessException {
+        String query =
+                """
+                        SELECT %s FROM "%s" WHERE "workspace.name" = ?
+                        """
+                        .formatted(MAPPED_COLUMNS, tileLayersQueryTable);
+        return template.queryForStream(query, mapper(), workspaceName);
+    }
+
+    @Override
+    public Set<String> findAllNames(String workspaceName) throws DataAccessException {
+        String query = "SELECT name FROM \"%s\" WHERE \"workspace.name\" = ?".formatted(tileLayersQueryTable);
+        try (var stream = template.queryForStream(query, (rs, rn) -> rs.getString(1), workspaceName)) {
+            return stream.collect(Collectors.toCollection(TreeSet::new));
+        }
+    }
+
+    @Override
+    public int count(String workspaceName) throws DataAccessException {
+        String query = "SELECT count(*) FROM \"%s\" WHERE \"workspace.name\" = ?".formatted(tileLayersQueryTable);
+        Integer count = template.queryForObject(query, Integer.class, workspaceName);
+        return count == null ? 0 : count;
+    }
 }
