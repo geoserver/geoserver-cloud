@@ -160,4 +160,26 @@ public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
                 })
                 .orElseGet(() -> repository.exists(workspace, layer));
     }
+
+    @Override
+    public Stream<TileLayerInfo> findAll(String workspaceName) throws DataAccessException {
+        return repository.findAll(workspaceName);
+    }
+
+    @Override
+    public int count(String workspaceName) throws DataAccessException {
+        return repository.count(workspaceName);
+    }
+
+    @Override
+    public Set<String> findAllNames(String workspaceName) throws DataAccessException {
+        Set<String> allNames = this.cachedNames;
+
+        if (allNames != null) {
+            return allNames.stream()
+                    .filter(name -> workspaceName.equals(InfoEvent.prefix(name).orElse(null)))
+                    .collect(java.util.stream.Collectors.toSet());
+        }
+        return repository.findAllNames(workspaceName);
+    }
 }

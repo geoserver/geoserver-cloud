@@ -32,4 +32,10 @@ public interface TileLayerInfoRepository {
     Set<String> findAllNames() throws DataAccessException;
 
     boolean exists(String workspaceName, String localName) throws DataAccessException;
+
+    Stream<TileLayerInfo> findAll(String workspaceName) throws DataAccessException;
+
+    Set<String> findAllNames(String workspaceName) throws DataAccessException;
+
+    int count(String workspaceName) throws DataAccessException;
 }
