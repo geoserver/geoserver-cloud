@@ -34,7 +34,8 @@
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <flyway.version>11.16.0</flyway.version>
-    <tileverse.version>1.3.0</tileverse.version>
+    <tileverse.version>1.3.3</tileverse.version>
+    <cloud-dependencies-bom.version>1.0.1</cloud-dependencies-bom.version>
     <testcontainers.version>2.0.3</testcontainers.version>
     <fork.javac>false</fork.javac>
     <maven.compiler.release>${java.version}</maven.compiler.release>
@@ -60,9 +61,17 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <!-- Cloud SDK dependency management (Azure, GCS, AWS SDK v2) with Netty exclusions -->
       <dependency>
         <groupId>io.tileverse</groupId>
-        <artifactId>tileverse-dependencies</artifactId>
+        <artifactId>cloud-dependencies-bom</artifactId>
+        <version>${cloud-dependencies-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.tileverse</groupId>
+        <artifactId>tileverse-bom</artifactId>
         <version>${tileverse.version}</version>
         <type>pom</type>
         <scope>import</scope>
@@ -643,11 +652,6 @@
             <groupId>org.geoserver.web</groupId>
             <artifactId>gs-web-core</artifactId>
           </exclusion>
-          <exclusion>
-            <!-- exclude netty, we don't want all the transitive dependencies, will use azure-core-http-jdk-httpclient instead-->
-            <groupId>com.azure</groupId>
-            <artifactId>azure-core-http-netty</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -737,17 +741,6 @@
             <artifactId>junit</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <!-- override pmtiles and rangereader deps from gt-pmtiles 34.2. Remove once aligned -->
-      <dependency>
-        <groupId>io.tileverse.pmtiles</groupId>
-        <artifactId>tileverse-pmtiles</artifactId>
-        <version>${tileverse.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.tileverse.rangereader</groupId>
-        <artifactId>tileverse-rangereader-all</artifactId>
-        <version>${tileverse.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -1040,6 +1033,35 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>2.3</version>
+          </dependency>
+          <dependency>
+            <!--
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-formats:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.community:gs-pmtiles-store:jar:3.0.0-SNAPSHOT:compile
+[ERROR]         +-org.geotools:gt-pmtiles:jar:35-SNAPSHOT:compile
+[ERROR]           +-io.tileverse.pmtiles:tileverse-pmtiles:jar:1.3.3:compile
+[ERROR]             +-org.apache.commons:commons-compress:jar:1.28.0:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.importer:gs-importer-core:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.apache.commons:commons-compress:jar:1.26.1:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.importer:gs-importer-web:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.apache.commons:commons-compress:jar:1.26.1:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.importer:gs-importer-rest:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.apache.commons:commons-compress:jar:1.26.1:compile
+            -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.28.0</version>
           </dependency>
           <dependency>
             <!--
