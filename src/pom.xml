@@ -23,7 +23,8 @@
     <java.sdk.version>25</java.sdk.version>
     <spring-cloud.version>2025.1.1</spring-cloud.version>
     <spring-boot.version>4.0.2</spring-boot.version>
-    <jackson.version>3.0.4</jackson.version>
+    <jackson.version>3.1.0</jackson.version>
+    <jackson2.version>2.21.0</jackson2.version>
     <gs.version>3.0.0-SNAPSHOT</gs.version>
     <gt.version>35-SNAPSHOT</gt.version>
     <wicket.version>10.7.0</wicket.version>
@@ -44,6 +45,21 @@
   </properties>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <!-- jackson 2 required for dependencyConvergence -->
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson2.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>tools.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>io.tileverse</groupId>
         <artifactId>tileverse-dependencies</artifactId>
@@ -75,13 +91,6 @@
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-bom</artifactId>
         <version>2.21.1</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>tools.jackson</groupId>
-        <artifactId>jackson-bom</artifactId>
-        <version>${jackson.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
