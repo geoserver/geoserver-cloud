@@ -20,6 +20,8 @@ import org.geoserver.platform.GeoServerEnvironment;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.FileSystemResourceStore;
+import org.geoserver.platform.resource.LockProvider;
+import org.geoserver.platform.resource.MemoryLockProvider;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,6 +64,11 @@ public class GeoWebCacheContextRunner {
 
     @AutoConfiguration
     private static class AddGeoServerDependenciesConfiguration {
+
+        @Bean
+        LockProvider lockProvider() {
+            return new MemoryLockProvider();
+        }
 
         @Bean(name = {"rawCatalog", "catalog"})
         @ConditionalOnMissingBean
