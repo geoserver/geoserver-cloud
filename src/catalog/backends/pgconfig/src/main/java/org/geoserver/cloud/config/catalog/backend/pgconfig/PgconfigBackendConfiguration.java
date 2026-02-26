@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
+import java.time.Duration;
 import java.util.function.Predicate;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -160,11 +161,27 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         return new PgconfigGeoServerFacade(configRepository);
     }
 
+    /**
+     * Creates the {@link PgconfigResourceStore} bean.
+     *
+     * <p>The return type is the concrete class rather than the {@link
+     * org.geoserver.platform.resource.ResourceStore ResourceStore} interface because {@link
+     * PgconfigGeoServerResourceLoader} needs access to {@link
+     * PgconfigResourceStore#getLockProvider()}, which is not part of the {@code ResourceStore}
+     * contract. This works because {@link
+     * org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigTransactionManagerAutoConfiguration
+     * PgconfigTransactionManagerAutoConfiguration} enables CGLIB proxying (via
+     * {@code @EnableTransactionManagement(proxyTargetClass = true)}), ensuring the transaction proxy
+     * preserves the concrete type.
+     *
+     * @see PgconfigGeoServerResourceLoader#getLockProvider()
+     */
     @Bean
     PgconfigResourceStore resourceStoreImpl(
             @Qualifier("pgconfigLockProvider") PgconfigLockProvider lockProvider,
             FileSystemResourceStoreCache resourceStoreCache,
             @Qualifier("pcconfigJdbcTemplate") JdbcTemplate template) {
+
         log.debug("Creating ResourceStore {}", PgconfigResourceStore.class.getSimpleName());
         Predicate<String> localOnlyFilter = PgconfigResourceStore.defaultIgnoredResources();
         return new PgconfigResourceStore(resourceStoreCache, template, lockProvider, localOnlyFilter);
@@ -175,6 +192,16 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         return FileSystemResourceStoreCache.newTempDirInstance();
     }
 
+    /**
+     * Creates the {@link PgconfigGeoServerResourceLoader} bean.
+     *
+     * <p>Injects the concrete {@link PgconfigResourceStore} (not the {@link
+     * org.geoserver.platform.resource.ResourceStore ResourceStore} interface) because {@link
+     * PgconfigGeoServerResourceLoader} needs {@link PgconfigResourceStore#getLockProvider()} to
+     * provide the lock provider to {@link PgconfigGeoServerLoader}.
+     *
+     * @see #resourceStoreImpl
+     */
     @Bean
     PgconfigGeoServerResourceLoader resourceLoader(
             @Qualifier("resourceStoreImpl") PgconfigResourceStore resourceStore) {
@@ -189,13 +216,11 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         return new PgconfigLockProvider(pgconfigLockRegistry);
     }
 
-    /**
-     * @return
-     */
     @Bean
     JdbcLockRegistry pgconfigLockRegistry(@Qualifier("pgconfigLockRepository") LockRepository pgconfigLockRepository) {
         log.debug("Creating {}", LockRegistry.class.getSimpleName());
-        return new JdbcLockRegistry(pgconfigLockRepository);
+        Duration ttl = Duration.ofSeconds(30);
+        return new JdbcLockRegistry(pgconfigLockRepository, ttl);
     }
 
     @Bean
@@ -215,8 +240,6 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         // override default table prefix "INT" by "RESOURCE_" (matching table definition
         // RESOURCE_LOCK in init.XXX.sql
         lockRepository.setPrefix("RESOURCE_");
-        // time in ms to expire dead locks (10k is the default)
-        lockRepository.setTimeToLive(300_000);
         // Explicitly initialize the lock repository to ensure transaction template is created
         lockRepository.afterSingletonsInstantiated();
         return lockRepository;
