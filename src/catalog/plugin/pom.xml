@@ -40,7 +40,7 @@
     <dependency>
       <!-- required to always have WMSInfo/Impl on the classpath -->
       <groupId>org.geoserver</groupId>
-      <artifactId>gs-wms</artifactId>
+      <artifactId>gs-wms-core</artifactId>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
