@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
@@ -43,7 +42,7 @@ class ConnectionParametersSerializerTest {
     }
 
     @Test
-    void testSimpleTypesNotWrapped() throws IOException {
+    void testSimpleTypesNotWrapped() {
         ConnectionParameters params = new ConnectionParameters();
         params.put("string", "test");
         params.put("integer", 123);

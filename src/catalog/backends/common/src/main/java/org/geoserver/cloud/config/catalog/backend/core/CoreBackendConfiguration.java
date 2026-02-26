@@ -77,7 +77,7 @@ public class CoreBackendConfiguration {
     @Bean
     GlobalLockProvider lockProvider(LockProvider suppliedLockProvider) {
         GlobalLockProvider globalLockProvider = new GlobalLockProvider();
-        globalLockProvider.setDelegate(globalLockProvider);
+        globalLockProvider.setDelegate(suppliedLockProvider);
         return globalLockProvider;
     }
 

@@ -29,7 +29,7 @@ class StripingFileLockTest {
     @BeforeEach
     void setUp() throws IOException {
         File file = new File(tempDir, "test.locks");
-        file.createNewFile();
+        assertThat(file.createNewFile()).isTrue();
         provider = new StripingFileLockProvider(file);
     }
 

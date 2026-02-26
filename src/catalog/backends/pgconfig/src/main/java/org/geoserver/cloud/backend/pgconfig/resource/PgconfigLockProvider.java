@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource.Lock;
+import org.geotools.util.logging.Logging;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.support.locks.LockRegistry;
 
@@ -25,7 +26,7 @@ import org.springframework.integration.support.locks.LockRegistry;
  */
 @Slf4j
 public class PgconfigLockProvider implements LockProvider {
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(LockAdapter.class);
+    private static final Logger LOGGER = Logging.getLogger(PgconfigLockProvider.class);
 
     private JdbcLockRegistry registry;
 

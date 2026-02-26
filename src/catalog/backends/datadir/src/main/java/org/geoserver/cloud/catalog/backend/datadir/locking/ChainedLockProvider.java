@@ -54,6 +54,7 @@ public class ChainedLockProvider implements LockProvider {
      * @throws RuntimeException if any provider fails to acquire its lock
      */
     @Override
+    @SuppressWarnings("java:S2139") // log then re-throw exception is what we want
     public Lock acquire(String path) {
         LOGGER.fine(() -> "Acquiring primary lock on [%s] using %s"
                 .formatted(path, first.getClass().getSimpleName()));

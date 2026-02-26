@@ -39,7 +39,7 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
     }
 
     @Bean
-    SetRequestPathInfoFilter setRequestPathInfoFilter(ApplicationContext appContext) {
+    SetRequestPathInfoFilter setRequestPathInfoFilter() {
         return new SetRequestPathInfoFilter();
     }
 

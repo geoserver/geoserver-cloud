@@ -77,8 +77,6 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
         // override default table prefix "INT" by "RESOURCE_" (matching table definition
         // RESOURCE_LOCK in init.XXX.sql
         lockRepository.setPrefix("RESOURCE_");
-        // time in ms to expire dead locks (10k is the default)
-        lockRepository.setTimeToLive(300_000);
         return lockRepository;
     }
 

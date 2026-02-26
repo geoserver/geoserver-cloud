@@ -126,9 +126,9 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
             value = parser.getBinaryValue();
         } else {
             expect(nextToken, JsonToken.START_ARRAY);
-            Class<?> componentType = arrayType.getComponentType();
-            List<Object> list = readList(componentType, parser, ctxt);
-            Object array = Array.newInstance(componentType, list.size());
+            Class<?> arrayComponentType = arrayType.getComponentType();
+            List<Object> list = readList(arrayComponentType, parser, ctxt);
+            Object array = Array.newInstance(arrayComponentType, list.size());
             for (int i = 0; i < list.size(); i++) {
                 Object v = list.get(i);
                 Array.set(array, i, v);
@@ -138,56 +138,64 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
         return value;
     }
 
-    private List<Object> readList(Class<?> contentType, JsonParser parser, DeserializationContext ctxt) {
+    private List<Object> readList(Class<?> arrayComponentType, JsonParser parser, DeserializationContext ctxt) {
 
         JsonToken nextToken = parser.currentToken();
         expect(nextToken, JsonToken.START_ARRAY);
+
+        if (null == arrayComponentType) {
+            return convertNodeToListUnknownContentType(parser, ctxt);
+        }
+
         List<Object> value = new ArrayList<>();
-        if (null == contentType) {
-            // store the values to parse the collection later
-            ArrayNode valuesArrayNode = parser.readValueAs(ArrayNode.class);
-
-            if (valuesArrayNode.isEmpty()) {
-                return value;
-            }
-
-            if (isOnlyNulls(valuesArrayNode)) {
-                return convertArrayNodeToArrayList(contentType, ctxt, valuesArrayNode);
-            }
-
-            // we only end up here if the "value" field appeared
-            // before the "contentType" field during the previous parsing
-
-            // but we have to know the contentType to be
-            // able to parse a list of that type
-            // (order issue is probably related to JSONB storage in postgres)
-            nextToken = parser.nextToken();
-            if (nextToken == JsonToken.PROPERTY_NAME) {
-                String fieldName = parser.currentName();
-                expectFieldName(fieldName, COLLECTION_CONTENT_TYPE_KEY);
-
-                String contentTypeVal = parser.nextStringValue();
-                requireNonNull(contentTypeVal, "expected value for contentType, got null");
-
-                contentType = classNameMapper.canonicalNameToClass(contentTypeVal);
-            }
-
-            value = convertArrayNodeToArrayList(contentType, ctxt, valuesArrayNode);
-        } else {
-            while ((nextToken = parser.nextToken()) != JsonToken.END_ARRAY) {
-                Object item;
-                if (JsonToken.VALUE_NULL == nextToken) {
-                    item = null;
-                } else {
-                    item = ctxt.readValue(parser, contentType);
-                    if (item instanceof Literal literal) {
-                        item = literal.getValue();
-                    }
+        while ((nextToken = parser.nextToken()) != JsonToken.END_ARRAY) {
+            Object item = null;
+            if (JsonToken.VALUE_NULL != nextToken) {
+                item = ctxt.readValue(parser, arrayComponentType);
+                if (item instanceof Literal literal) {
+                    item = literal.getValue();
                 }
-                value.add(item);
             }
+            value.add(item);
         }
         return value;
+    }
+
+    private List<Object> convertNodeToListUnknownContentType(JsonParser parser, DeserializationContext ctxt) {
+        // store the values to parse the collection later
+        ArrayNode valuesArrayNode = parser.readValueAs(ArrayNode.class);
+
+        if (valuesArrayNode.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        if (isOnlyNulls(valuesArrayNode)) {
+            return convertArrayNodeToArrayList(null, ctxt, valuesArrayNode);
+        }
+
+        return convertArrayNodeToArrayList(null, parser, ctxt, valuesArrayNode);
+    }
+
+    private List<Object> convertArrayNodeToArrayList(
+            Class<?> arrayComponentType, JsonParser parser, DeserializationContext ctxt, ArrayNode valuesArrayNode) {
+        JsonToken nextToken;
+        // we only end up here if the "value" field appeared
+        // before the "contentType" field during the previous parsing
+        // but we have to know the contentType to be
+        // able to parse a list of that type
+        // (order issue is probably related to JSONB storage in postgres)
+        nextToken = parser.nextToken();
+        if (nextToken == JsonToken.PROPERTY_NAME) {
+            String fieldName = parser.currentName();
+            expectFieldName(fieldName, COLLECTION_CONTENT_TYPE_KEY);
+
+            String contentTypeVal = parser.nextStringValue();
+            requireNonNull(contentTypeVal, "expected value for contentType, got null");
+
+            arrayComponentType = classNameMapper.canonicalNameToClass(contentTypeVal);
+        }
+
+        return convertArrayNodeToArrayList(arrayComponentType, ctxt, valuesArrayNode);
     }
 
     private Class<?> readType(JsonParser parser) {
@@ -232,14 +240,14 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
     }
 
     private static List<Object> convertArrayNodeToArrayList(
-            Class<?> contentTypeClass, DeserializationContext ctxt, ArrayNode valuesArrayNode) {
+            Class<?> arrayComponentType, DeserializationContext ctxt, ArrayNode valuesArrayNode) {
         List<Object> value;
         ArrayList<Object> valuesList = new ArrayList<>();
         for (JsonNode node : valuesArrayNode) {
             if (node instanceof NullNode) {
                 valuesList.add(null);
-            } else if (contentTypeClass != null) {
-                if (Literal.class.isAssignableFrom(contentTypeClass)) {
+            } else if (arrayComponentType != null) {
+                if (Literal.class.isAssignableFrom(arrayComponentType)) {
                     // some special care in case of Literal.class
                     final JsonNode literalNode = node.get("Literal");
                     final JsonNode valueNode = literalNode.get("value");
@@ -257,7 +265,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
                     }
                 } else {
                     // finally parse a collection with the now known "arbitrary" content type
-                    Object item = ctxt.readTreeAsValue(node, contentTypeClass);
+                    Object item = ctxt.readTreeAsValue(node, arrayComponentType);
                     valuesList.add(item);
                 }
             }

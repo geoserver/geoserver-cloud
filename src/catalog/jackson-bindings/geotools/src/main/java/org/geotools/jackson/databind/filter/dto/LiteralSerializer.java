@@ -5,7 +5,6 @@
 
 package org.geotools.jackson.databind.filter.dto;
 
-import java.io.Serial;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
@@ -53,19 +52,13 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     /** see {@link #writeCollection} */
     static final String COLLECTION_CONTENT_TYPE_KEY = "contentType";
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    protected transient GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
+    final GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
 
     public LiteralSerializer() {
         super(Literal.class);
     }
 
     protected GeoToolsValueMappers classNameMapper() {
-        if (classNameMapper == null) {
-            classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
-        }
         return classNameMapper;
     }
 
@@ -122,8 +115,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
             }
         }
 
-        @SuppressWarnings("unchecked")
-        ValueSerializer<Object> valueSerializer = (ValueSerializer<Object>) findValueSerializer(provider, type);
+        ValueSerializer<Object> valueSerializer = findValueSerializer(provider, type);
         final Class<?> handledType = valueSerializer.handledType();
         String typeName = classNameMapper().classToCanonicalName(type.isEnum() ? type : handledType);
         gen.writeStringProperty(TYPE_KEY, typeName);
@@ -131,7 +123,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         valueSerializer.serialize(value, gen, provider);
     }
 
-    protected ValueSerializer<?> findValueSerializer(SerializationContext provider, final Class<?> type) {
+    protected ValueSerializer<Object> findValueSerializer(SerializationContext provider, final Class<?> type) {
         TypeFactory typeFactory = provider.getTypeFactory();
         JavaType javaType = typeFactory.constructType(type);
         return provider.findValueSerializer(javaType);

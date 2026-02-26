@@ -324,15 +324,17 @@ class GatewaySharedAuthenticationTest {
     @Test
     @Order(5)
     @DisplayName("post-filter removes user and roles headers from the final response")
-    @SuppressWarnings("removal")
     void postFilterRemovesOutgoingSharedAuthHeaders(WireMockRuntimeInfo runtimeInfo) {
         ResponseEntity<Void> response = login();
         HttpHeaders responseHeaders = response.getHeaders();
-        assertThat(responseHeaders.asMultiValueMap())
+
+        assertThat(responseHeaders.get("x-gsc-username"))
                 .as("GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-username response header")
-                .doesNotContainKey("x-gsc-username")
+                .isNull();
+
+        assertThat(responseHeaders.get("x-gsc-roles"))
                 .as("GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-roles response header")
-                .doesNotContainKey("x-gsc-roles");
+                .isNull();
     }
 
     private String getGatewaySessionId(HttpHeaders responseHeaders) {
@@ -363,7 +365,6 @@ class GatewaySharedAuthenticationTest {
         return URI.create(mapping.getRequest().getUrl());
     }
 
-    @SuppressWarnings("removal")
     ResponseEntity<Void> login() {
         HttpEntity<?> entity = withHeaders( //
                 "Accept", "text/html,application/xhtml+xml", //
@@ -373,13 +374,11 @@ class GatewaySharedAuthenticationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         HttpHeaders headers = response.getHeaders();
 
-        assertThat(headers.asMultiValueMap())
-                .containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
+        assertThat(headers.get("Location")).containsOnly("http://0.0.0.0:9090/geoserver/cloud/web");
 
         return response;
     }
 
-    @SuppressWarnings("removal")
     ResponseEntity<Void> logout(@NonNull String gatewaySessionId) {
         HttpEntity<?> entity = withHeaders( //
                 "Accept", "text/html,application/xhtml+xml", //
@@ -389,9 +388,7 @@ class GatewaySharedAuthenticationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         HttpHeaders headers = response.getHeaders();
-
-        assertThat(headers.asMultiValueMap())
-                .containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
+        assertThat(headers.get("Location")).containsOnly("http://0.0.0.0:9090/geoserver/cloud/web");
 
         return response;
     }

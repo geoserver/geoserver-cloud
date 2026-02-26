@@ -36,7 +36,6 @@ public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSeri
      * is a real scenario in data originating from postgres JSONB columns.
      *
      */
-    @SuppressWarnings("serial")
     private static class ChangedAttributeOrderLiteralSerializer extends LiteralSerializer {
         @Override
         protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializationContext provider) {

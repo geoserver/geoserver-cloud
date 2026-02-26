@@ -152,8 +152,6 @@ class PgconfigResourceTest {
         DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
         // override default table prefix "INT" by "RESOURCE_" (matching table RESOURCE_LOCK in flyway ddl scripts)
         lockRepository.setPrefix("RESOURCE_");
-        // time in ms to expire dead locks (10k is the default)
-        lockRepository.setTimeToLive(300_000);
         return lockRepository;
     }
 
@@ -221,7 +219,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void testDefaultIgnoredDirs() {
+    void testDefaultIgnoredDirs() {
         assertFileSystemDir("temp");
         assertFileSystemDir("tmp");
         assertFileSystemDir("legendsamples");
@@ -230,7 +228,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void testRemoveIgnoredDirs() {
+    void testRemoveIgnoredDirs() {
         testRemoveIgnoredDir("temp");
         testRemoveIgnoredDir("tmp");
         testRemoveIgnoredDir("legendsamples");
@@ -248,7 +246,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void testRemoveIgnoredFiles() {
+    void testRemoveIgnoredFiles() {
         assertFileSystemFile("temp/sample.png");
         assertFileSystemFile("tmp/sample.png");
         assertFileSystemFile("legendsamples/sample.png");
@@ -272,7 +270,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void testRemoveFileSystemOnlyResource() {
+    void testRemoveFileSystemOnlyResource() {
         testRemoveFilesystemOnlyFile("temp/sample.png");
         testRemoveFilesystemOnlyFile("tmp/sample.png");
         testRemoveFilesystemOnlyFile("legendsamples/sample.png");
@@ -281,7 +279,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void testRootResourceReturnsFilesystemResourcesForIgnoredPatterns() {
+    void testRootResourceReturnsFilesystemResourcesForIgnoredPatterns() {
         testRootResourceFilesystem("temp");
         testRootResourceFilesystem("tmp");
         testRootResourceFilesystem("legendsamples");
@@ -318,7 +316,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void trestRemovePathInDatabase() {
+    void trestRemovePathInDatabase() {
         store.get("workspaces").dir();
         store.get("workspaces/ws1").dir();
         store.get("workspaces/ws1/workspace.xml").file();
@@ -331,7 +329,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void trestMovePathInDatabase() {
+    void trestMovePathInDatabase() {
         store.get("workspaces").dir();
         store.get("workspaces/ws1").dir();
         store.move("workspaces/ws1", "workspaces/ws2");
@@ -346,7 +344,7 @@ class PgconfigResourceTest {
      * even if the workspace name is already equal to the namespace prefix
      */
     @Test
-    public void trestMoveSameTarget() {
+    void trestMoveSameTarget() {
         store.get("workspaces").dir();
         store.get("workspaces/ws1").dir();
         store.get("workspaces/ws1/workspace.xml").file();
@@ -359,7 +357,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void trestMovePathFilesystemOnly() {
+    void trestMovePathFilesystemOnly() {
         store.get("legendsamples").dir();
         store.get("legendsamples/sample.png").file();
 
@@ -371,7 +369,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void trestMovePathFilesystemOnlyToDatabaseIsUnsupported() {
+    void trestMovePathFilesystemOnlyToDatabaseIsUnsupported() {
         store.get("legendsamples").dir();
         store.get("legendsamples/sample.png").file();
 
@@ -385,7 +383,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void testIgnoresFileSystemOnlyResourcesInDb() throws SQLException {
+    void testIgnoresFileSystemOnlyResourcesInDb() throws SQLException {
         // for pre 1.8.1 backwards compatibility, ignore fs-only resources already in the db
         DataSource ds = container.getDataSource();
         String sql =
@@ -448,7 +446,7 @@ class PgconfigResourceTest {
      * </p>
      */
     @Test
-    public void testUpdateStateHandlesDeletedResource() throws Exception {
+    void testUpdateStateHandlesDeletedResource() throws Exception {
         // Create a test resource in the database
         String path = "security/rest.properties";
         PgconfigResource resource = (PgconfigResource) store.get(path);
@@ -493,7 +491,7 @@ class PgconfigResourceTest {
      */
     @Test
     @SuppressWarnings("java:S2925") // Thread.sleep
-    public void testUpdateStateHandlesModifiedResource() throws Exception {
+    void testUpdateStateHandlesModifiedResource() throws Exception {
         // Create a test resource in the database
         String path = "security/updated.properties";
         PgconfigResource resource = (PgconfigResource) store.get(path);
@@ -550,7 +548,7 @@ class PgconfigResourceTest {
     }
 
     @Test
-    public void testWriteNewResource() throws IOException {
+    void testWriteNewResource() throws IOException {
         Resource resource = store.get("security/masterpw/default/passwd");
         assertEquals(UNDEFINED, resource.getType());
 

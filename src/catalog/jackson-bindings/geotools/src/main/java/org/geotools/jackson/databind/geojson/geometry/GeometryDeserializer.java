@@ -218,8 +218,8 @@ public class GeometryDeserializer<T extends Geometry> extends ValueDeserializer<
      * Jackson 3's asDouble() no longer auto-parses these string representations.
      */
     private double parseDouble(JsonNode node) {
-        if (node.isTextual()) {
-            String text = node.asText();
+        if (node.isString()) {
+            String text = node.asString();
             return switch (text) {
                 case "NaN" -> Double.NaN;
                 case "Infinity" -> Double.POSITIVE_INFINITY;
@@ -235,7 +235,7 @@ public class GeometryDeserializer<T extends Geometry> extends ValueDeserializer<
             return false;
         }
         JsonNode typeNode = value.get("type");
-        return typeNode instanceof StringNode textNode && isGeometry(textNode.asText());
+        return typeNode instanceof StringNode textNode && isGeometry(textNode.asString());
     }
 
     private static final Set<String> geomTypes = new HashSet<>(Arrays.asList( //

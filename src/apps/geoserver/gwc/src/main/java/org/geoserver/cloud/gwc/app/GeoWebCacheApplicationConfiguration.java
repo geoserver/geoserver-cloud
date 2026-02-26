@@ -112,6 +112,7 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
 
     static HttpServletRequest adaptRequest(HttpServletRequest request) {
         final String requestURI = request.getRequestURI();
+        @SuppressWarnings("java:S1075") // base path is fixed
         final String restBasePath = "/gwc/rest";
         final int restIdx = requestURI.indexOf(restBasePath);
         if (restIdx > -1) {

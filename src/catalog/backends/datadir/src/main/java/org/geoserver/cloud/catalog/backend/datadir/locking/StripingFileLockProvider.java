@@ -61,12 +61,17 @@ class StripingFileLockProvider implements LockProvider, Closeable {
 
     private FileChannel channel;
 
+    @SuppressWarnings("java:S5164")
     private static final ThreadLocal<Map<String, StripingFileLock>> LOCKS =
             ThreadLocal.withInitial(ConcurrentHashMap::new);
 
     public StripingFileLockProvider(File locksFile) {
-        if (!locksFile.isFile()) throw new IllegalArgumentException(locksFile.getAbsolutePath() + " is not a file");
-        if (!locksFile.canWrite()) throw new IllegalArgumentException(locksFile.getAbsolutePath() + " is not writable");
+        if (!locksFile.isFile()) {
+            throw new IllegalArgumentException(locksFile.getAbsolutePath() + " is not a file");
+        }
+        if (!locksFile.canWrite()) {
+            throw new IllegalArgumentException(locksFile.getAbsolutePath() + " is not writable");
+        }
         this.locksFile = locksFile;
     }
 
@@ -113,7 +118,9 @@ class StripingFileLockProvider implements LockProvider, Closeable {
     }
 
     public void setWaitBeforeRetry(int millis) {
-        if (millis <= 0) throw new IllegalArgumentException("waitBeforeRetry must be positive or zero");
+        if (millis <= 0) {
+            throw new IllegalArgumentException("waitBeforeRetry must be positive or zero");
+        }
         this.waitBeforeRetry = millis;
     }
 
@@ -122,7 +129,9 @@ class StripingFileLockProvider implements LockProvider, Closeable {
     }
 
     public void setMaxLockAttempts(int maxAttempts) {
-        if (maxAttempts <= 0) throw new IllegalArgumentException("maxLockAttempts must be positive or zero");
+        if (maxAttempts <= 0) {
+            throw new IllegalArgumentException("maxLockAttempts must be positive or zero");
+        }
         this.maxLockAttempts = maxAttempts;
     }
 
@@ -140,7 +149,12 @@ class StripingFileLockProvider implements LockProvider, Closeable {
                 throw new IllegalStateException("Locks directory does not exist or is not a directory: " + parent);
             }
             try {
-                file.createNewFile();
+                boolean created = file.createNewFile();
+                if (created) {
+                    LOGGER.finest("Created locks file");
+                } else {
+                    LOGGER.info("Locks file created by another process");
+                }
             } catch (IOException e) {
                 throw new IllegalStateException("Error creating locks file " + file, e);
             }

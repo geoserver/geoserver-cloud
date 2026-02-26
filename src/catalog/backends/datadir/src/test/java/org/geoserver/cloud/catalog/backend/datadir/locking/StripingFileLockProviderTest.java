@@ -10,7 +10,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.io.File;
 import java.io.IOException;
 import org.geoserver.platform.resource.Resource.Lock;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
 
 class StripingFileLockProviderTest {
@@ -18,15 +20,18 @@ class StripingFileLockProviderTest {
     @TempDir
     File tempDir;
 
-    private File createLocksFile() throws IOException {
-        File file = new File(tempDir, "test.locks");
+    private File locksFile;
+
+    @BeforeEach
+    void createateLocksFile(TestInfo testInfo) throws IOException {
+        File file = new File(tempDir, testInfo.getDisplayName() + ".locks");
         file.createNewFile();
-        return file;
+        this.locksFile = file;
     }
 
     @Test
-    void acquireAndRelease() throws Exception {
-        StripingFileLockProvider provider = new StripingFileLockProvider(createLocksFile());
+    void acquireAndRelease() {
+        StripingFileLockProvider provider = new StripingFileLockProvider(locksFile);
         Lock lock = provider.acquire("myKey");
         assertThat(lock).isNotNull();
         lock.release();
@@ -34,8 +39,8 @@ class StripingFileLockProviderTest {
     }
 
     @Test
-    void reentrantLockingIncrements() throws Exception {
-        StripingFileLockProvider provider = new StripingFileLockProvider(createLocksFile());
+    void reentrantLockingIncrements() {
+        StripingFileLockProvider provider = new StripingFileLockProvider(locksFile);
         Lock lock1 = provider.acquire("myKey");
         Lock lock2 = provider.acquire("myKey");
         // both return the same StripingFileLock due to ThreadLocal caching
@@ -47,8 +52,8 @@ class StripingFileLockProviderTest {
     }
 
     @Test
-    void differentKeysProduceDifferentLocks() throws Exception {
-        StripingFileLockProvider provider = new StripingFileLockProvider(createLocksFile());
+    void differentKeysProduceDifferentLocks() {
+        StripingFileLockProvider provider = new StripingFileLockProvider(locksFile);
         Lock lock1 = provider.acquire("key1");
         Lock lock2 = provider.acquire("key2");
         assertThat(lock2).isNotSameAs(lock1);
@@ -64,19 +69,14 @@ class StripingFileLockProviderTest {
     }
 
     @Test
-    void constructorRejectsNonWritableFile() throws Exception {
-        File file = createLocksFile();
-        file.setWritable(false);
-        try {
-            assertThatThrownBy(() -> new StripingFileLockProvider(file)).isInstanceOf(IllegalArgumentException.class);
-        } finally {
-            file.setWritable(true);
-        }
+    void constructorRejectsNonWritableFile() {
+        locksFile.setWritable(false);
+        assertThatThrownBy(() -> new StripingFileLockProvider(locksFile)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void closeClosesChannel() throws Exception {
-        StripingFileLockProvider provider = new StripingFileLockProvider(createLocksFile());
+    void closeClosesChannel() {
+        StripingFileLockProvider provider = new StripingFileLockProvider(locksFile);
         // force channel open
         provider.acquire("key").release();
         provider.close();
@@ -88,16 +88,16 @@ class StripingFileLockProviderTest {
     }
 
     @Test
-    void setWaitBeforeRetryRejectsNonPositive() throws Exception {
-        StripingFileLockProvider provider = new StripingFileLockProvider(createLocksFile());
+    void setWaitBeforeRetryRejectsNonPositive() {
+        StripingFileLockProvider provider = new StripingFileLockProvider(locksFile);
         assertThatThrownBy(() -> provider.setWaitBeforeRetry(0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> provider.setWaitBeforeRetry(-1)).isInstanceOf(IllegalArgumentException.class);
         provider.close();
     }
 
     @Test
-    void setMaxLockAttemptsRejectsNonPositive() throws Exception {
-        StripingFileLockProvider provider = new StripingFileLockProvider(createLocksFile());
+    void setMaxLockAttemptsRejectsNonPositive() {
+        StripingFileLockProvider provider = new StripingFileLockProvider(locksFile);
         assertThatThrownBy(() -> provider.setMaxLockAttempts(0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> provider.setMaxLockAttempts(-1)).isInstanceOf(IllegalArgumentException.class);
         provider.close();
