@@ -26,6 +26,8 @@ import org.geoserver.ows.LocalWorkspace;
 import org.geoserver.platform.GeoServerEnvironment;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.GlobalLockProvider;
+import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.ResourceStoreFactory;
 import org.geoserver.security.ResourceAccessManager;
 import org.geoserver.security.SecureCatalogImpl;
@@ -66,6 +68,18 @@ import org.springframework.context.annotation.Primary;
 @EnableConfigurationProperties(CatalogProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.core")
 public class CoreBackendConfiguration {
+
+    /**
+     * {@code GlobalLockProvider lockProvider} is excluded in {@code GeoServerMainModuleConfiguration} because it
+     * depends on {@code nullLockProvider}. In GeoServer Cloud, a {@link GeoServerBackendConfigurer} is required to supply
+     * a {@link LockProvider} known to perform distributed locking properly.
+     */
+    @Bean
+    GlobalLockProvider lockProvider(LockProvider suppliedLockProvider) {
+        GlobalLockProvider globalLockProvider = new GlobalLockProvider();
+        globalLockProvider.setDelegate(globalLockProvider);
+        return globalLockProvider;
+    }
 
     /**
      * A {@link GeoServerLoaderProxy} that doesn't act as a BeanPostProcessor

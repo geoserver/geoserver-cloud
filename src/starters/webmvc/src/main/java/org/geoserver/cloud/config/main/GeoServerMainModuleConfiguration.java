@@ -55,7 +55,8 @@ public class GeoServerMainModuleConfiguration {
 
     private static final String OVERRIDDEN_BEAN_NAMES =
             """
-            rawCatalog\
+            lockProvider\
+            |rawCatalog\
             |secureCatalog\
             |localWorkspaceCatalog\
             |catalog\
