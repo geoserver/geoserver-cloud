@@ -10,9 +10,10 @@ This is a major version upgrade with significant changes:
 
 | Component | 2.28.x | 3.0.0 |
 |-----------|--------|-------|
-| Spring Boot | 2.7.x | 3.5.x |
+| Spring Boot | 2.7.x | 4.0.x |
+| Spring Cloud | 2022.0.x | 2025.1.x |
 | GeoServer | 2.28.x | 3.0.x |
-| Java (minimum) | 11 | 17+ |
+| Java (minimum) | 11 | 25+ |
 
 ## Breaking Changes
 
@@ -59,7 +60,7 @@ The JDBC Config backend has been completely removed from GeoServer Cloud 3.0.0. 
 
 ### Spring Cloud Gateway Properties
 
-Spring Boot 3 includes a major upgrade to Spring Cloud Gateway. The gateway configuration namespace has changed:
+Spring Boot 4 includes a major upgrade to Spring Cloud Gateway. The gateway configuration namespace has changed:
 
 #### Old Structure (2.28.x)
 
@@ -124,7 +125,7 @@ GeoServer Cloud 3.0.0 has migrated from commons-httpclient to Apache HttpClient 
 
 To migrate from GeoServer Cloud 2.28.x to 3.0.0:
 
-1. **Update Java Version**: Ensure your deployment environment uses Java 17 or later.
+1. **Update Java Version**: Ensure your deployment environment uses Java 25 or later.
 
 2. **Add Config-First Profile** (if using Spring Cloud Config Server): Add `SPRING_PROFILES_INCLUDE: config-first` to all GeoServer service environment variables in your Docker Compose or Kubernetes configuration.
 
@@ -142,7 +143,7 @@ To migrate from GeoServer Cloud 2.28.x to 3.0.0:
 
 ### REST API Style Uploads
 
-REST API style uploads using path extensions (`.sld`, `.css`, etc.) may not work correctly due to Spring Boot 3 removing suffix pattern matching by default. This requires an upstream GeoServer fix.
+REST API style uploads using path extensions (`.sld`, `.css`, etc.) may not work correctly due to Spring Boot 4 removing suffix pattern matching by default. This requires an upstream GeoServer fix.
 
 **Workaround**: Use the `Content-Type` header instead of file extensions when uploading styles via the REST API.
 
@@ -152,7 +153,7 @@ For developers building custom extensions or running tests:
 
 ### Test Framework Changes
 
-Spring Boot 3 has deprecated `@MockBean` in favor of `@MockitoBean`:
+Spring Boot 4 has deprecated `@MockBean` in favor of `@MockitoBean`:
 
 ```java
 // Old (2.28.x)
@@ -168,5 +169,5 @@ private SomeService someService;
 
 - The Docker images include all configuration changes by default in `/etc/geoserver`
 - Service names in gateway routes have been shortened for consistency
-- All Spring Cloud dependencies have been upgraded to be compatible with Spring Boot 3.5
+- All Spring Cloud dependencies have been upgraded to Spring Cloud 2025.1.x, compatible with Spring Boot 4.0
 - If using custom externalized configuration files, review the [geoserver-cloud-config](https://github.com/geoserver/geoserver-cloud-config) repository for the complete set of changes
