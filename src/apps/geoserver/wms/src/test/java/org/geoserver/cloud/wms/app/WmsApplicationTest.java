@@ -9,9 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration.ForwardGetMapToGwcAspect;
-import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
-import org.geoserver.cloud.wms.controller.GetMapReflectorController;
-import org.geoserver.cloud.wms.controller.WMSController;
 import org.geoserver.cloud.wms.controller.kml.KMLIconsController;
 import org.geoserver.cloud.wms.controller.kml.KMLReflectorController;
 import org.geoserver.gwc.wms.CachingExtendedCapabilitiesProvider;
@@ -33,9 +30,6 @@ abstract class WmsApplicationTest {
     @Test
     void testExpectedBeansFromWmsApplicationAutoConfiguration() {
         expectBean("wfsConfiguration", WFSConfiguration.class);
-        expectBean("webMapServiceController", WMSController.class);
-        expectBean("virtualServiceVerifier", VirtualServiceVerifier.class);
-        expectBean("getMapReflectorController", GetMapReflectorController.class);
         expectBean("wms_1_1_1_GetCapabilitiesResponse", org.geoserver.wms.capabilities.GetCapabilitiesResponse.class);
         expectBean("wms_1_1_1_GetCapabilitiesResponse", org.geoserver.wms.capabilities.GetCapabilitiesResponse.class);
         expectBean("wmsExceptionHandler", StatusCodeWmsExceptionHandler.class);

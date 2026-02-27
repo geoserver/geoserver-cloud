@@ -1,1 +1,1 @@
-org.geoserver.cloud.wfs.config.WfsAutoConfiguration
+org.geoserver.cloud.autoconfigure.wfs.WfsApplicationAutoConfiguration
