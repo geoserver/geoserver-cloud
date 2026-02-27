@@ -12,7 +12,6 @@ import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.gwc.backend.DefaultTileLayerCatalogAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.gwc.core.GeoWebCacheAutoConfiguration;
-import org.geoserver.cloud.config.catalog.backend.datadirectory.NoServletContextDataDirectoryResourceStore;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.plugin.GeoServerImpl;
@@ -20,6 +19,7 @@ import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.GeoServerEnvironment;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -91,7 +91,7 @@ public class GeoWebCacheContextRunner {
         @Bean
         @ConditionalOnMissingBean(name = "resourceStoreImpl")
         ResourceStore resourceStoreImpl(@Qualifier("tempDir") File tmpDir) {
-            return new NoServletContextDataDirectoryResourceStore(tmpDir);
+            return new FileSystemResourceStore(tmpDir);
         }
 
         @Bean
