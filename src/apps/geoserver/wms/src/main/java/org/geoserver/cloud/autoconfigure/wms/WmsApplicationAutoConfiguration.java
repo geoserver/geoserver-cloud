@@ -35,7 +35,9 @@ import org.springframework.core.env.PropertyResolver;
 @AutoConfiguration(before = WMSIntegrationAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ImportFilteredResource({
-    "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST,
+    "jar:gs-wms-core-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST,
+    "jar:gs-wms1_1-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST,
+    "jar:gs-wms1_3-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST,
     "jar:gs-wms-gml-.*!/applicationContext.xml",
     "jar:gs-wfs-core-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST,
     "jar:gs-wfs1_x-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST,
@@ -65,7 +67,8 @@ public class WmsApplicationAutoConfiguration {
             """
             ^(?!\
             legendSample\
-            |wmsExceptionHandler\
+            |wms11ExceptionHandler\
+            |wms13ExceptionHandler\
             ).*$\
             """;
 
@@ -110,7 +113,7 @@ public class WmsApplicationAutoConfiguration {
     }
 
     /**
-     * Overrides the {@link #WMS_BEANS_BLACKLIST excluded wmsExceptionHandler} bean
+     * Overrides the {@link #WMS_BEANS_BLACKLIST excluded wms11ExceptionHandler and wms13ExceptionHandler} bean
      * with a {@link StatusCodeWmsExceptionHandler} to support setting a non 200
      * status code on http responses.
      * <p>

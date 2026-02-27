@@ -11,17 +11,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = true)
 @ImportFilteredResource({
     "jar:gs-web-wms-.*!/applicationContext.xml",
-    "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsConfiguration.WMS_BEANS_REGEX,
-    "jar:gs-wfs-core.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_BEANS_REGEX,
-    "jar:gs-wfs1_x-.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_BEANS_REGEX,
-    "jar:gs-wfs2_x-.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_BEANS_REGEX
+    "jar:gs-wms-core.*!/applicationContext.xml#name=" + WmsConfiguration.WMS_EXCLUDE_BEANS_REGEX,
+    "jar:gs-wms1_1-.*!/applicationContext.xml#name=" + WmsConfiguration.WMS_EXCLUDE_BEANS_REGEX,
+    "jar:gs-wms1_3-.*!/applicationContext.xml#name=" + WmsConfiguration.WMS_EXCLUDE_BEANS_REGEX,
+    "jar:gs-wfs-core.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_INCLUDE_BEANS_REGEX,
+    "jar:gs-wfs1_x-.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_INCLUDE_BEANS_REGEX,
+    "jar:gs-wfs2_x-.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_INCLUDE_BEANS_REGEX
 })
 public class WmsConfiguration {
 
-    static final String WFS_BEANS_REGEX =
+    static final String WFS_INCLUDE_BEANS_REGEX =
             "^(gml.*OutputFormat|bboxKvpParser|xmlConfiguration.*|gml[1-9]*SchemaBuilder|wfsXsd.*|wfsSqlViewKvpParser).*$";
 
-    static final String WMS_BEANS_REGEX =
+    static final String WMS_EXCLUDE_BEANS_REGEX =
             """
             ^(?!\
             legendSample\
@@ -46,9 +48,7 @@ public class WmsConfiguration {
             |metaTileCache\
             |wmsClasspathPublisherMapping\
             |.*LegendGraphicResponse\
-            |wmsGIFLegendOutputFormat\
-            |wmsJPEGLegendGraphicOutputFormat\
-            |wmsJSONLegendOutputFormat\
+            |.*LegendOutputFormat\
             ).*$\
             """;
 }

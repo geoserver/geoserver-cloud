@@ -5,7 +5,6 @@
 
 package org.geoserver.catalog.plugin;
 
-import jakarta.annotation.Nullable;
 import java.rmi.server.UID;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,6 +39,7 @@ import org.geoserver.catalog.plugin.CatalogInfoLookup.StoreInfoLookup;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.StyleInfoLookup;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.WorkspaceInfoLookup;
 import org.geoserver.ows.util.OwsUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A default in-memory implementation of {@link CatalogFacade} that uses {@link CatalogInfoLookup}

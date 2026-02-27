@@ -5,9 +5,6 @@
 
 package org.geotools.jackson.databind.geojson;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.Serial;
 import lombok.extern.slf4j.Slf4j;
 import org.geotools.jackson.databind.geojson.geometry.GeometryDeserializer;
@@ -20,14 +17,17 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import tools.jackson.core.Version;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
- * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoJSON bindings for JTS {@link
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoJSON bindings for JTS {@link
  * Geometry geometries}.
  *
  * <p>When running a spring-boot application, being on the classpath should be enough to get this
  * module auto-registered to all {@link ObjectMapper}s, by means of being registered under {@code
- * META-INF/services/com.fasterxml.jackson.databind.Module}.
+ * META-INF/services/tools.jackson.databind.Module}.
  *
  * <p>To register the module for a specific {@link ObjectMapper}, either:
  *

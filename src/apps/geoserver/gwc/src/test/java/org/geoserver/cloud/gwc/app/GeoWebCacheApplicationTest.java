@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -23,9 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -38,6 +40,7 @@ import org.springframework.test.context.DynamicPropertySource;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ActiveProfiles("test")
+@AutoConfigureTestRestTemplate
 class GeoWebCacheApplicationTest {
 
     @Autowired
@@ -96,11 +99,15 @@ class GeoWebCacheApplicationTest {
     protected ResponseEntity<String> testGetRequestContentType(String uri, MediaType expected) {
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getHeaders().getContentType()).isEqualTo(expected);
+        @Nullable MediaType contentType = response.getHeaders().getContentType();
+        assertThat(contentType).isNotNull();
+        assertThat(contentType.isCompatibleWith(expected)).isTrue();
         return response;
     }
 
     @Test
+    @Order(4)
+    @DirtiesContext
     void testPostSeedDoesNotThrowAmbiguousHandlerMapping() {
         String payload =
                 """

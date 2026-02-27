@@ -15,7 +15,6 @@
     <module>infrastructure</module>
     <module>geoserver</module>
   </modules>
-  <dependencies></dependencies>
   <build>
     <pluginManagement>
       <plugins>
@@ -39,10 +38,6 @@
                   <exclude>
                     <groupId>org.projectlombok</groupId>
                     <artifactId>lombok</artifactId>
-                  </exclude>
-                  <exclude>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
                   </exclude>
                 </excludes>
               </configuration>

@@ -5,9 +5,6 @@
 
 package org.geoserver.jackson.databind.config;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.Serial;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +40,12 @@ import org.geoserver.wps.WPSInfo;
 import org.geotools.jackson.databind.util.MapperDeserializer;
 import org.geotools.jackson.databind.util.MapperSerializer;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.core.Version;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
- * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer configuration objects
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoServer configuration objects
  * ({@link GeoServerInfo} and related) bindings.
  *
  * <p>Depends on {@link GeoServerCatalogModule}

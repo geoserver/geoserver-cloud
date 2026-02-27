@@ -13,16 +13,6 @@ import static org.locationtech.jts.geom.Geometry.TYPENAME_MULTIPOLYGON;
 import static org.locationtech.jts.geom.Geometry.TYPENAME_POINT;
 import static org.locationtech.jts.geom.Geometry.TYPENAME_POLYGON;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +27,15 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /** DTO type for {@link VirtualTable} */
 @Data
@@ -58,11 +57,10 @@ public class VirtualTableDto {
     /**
      * Custom serializer to convert geometry class types to string representation
      */
-    public static class GeometryTypesSerializer extends JsonSerializer<Map<String, Class<? extends Geometry>>> {
+    public static class GeometryTypesSerializer extends ValueSerializer<Map<String, Class<? extends Geometry>>> {
         @Override
         public void serialize(
-                Map<String, Class<? extends Geometry>> value, JsonGenerator gen, SerializerProvider serializers)
-                throws IOException {
+                Map<String, Class<? extends Geometry>> value, JsonGenerator gen, SerializationContext serializers) {
             if (value == null) {
                 gen.writeNull();
                 return;
@@ -71,7 +69,7 @@ public class VirtualTableDto {
             gen.writeStartObject();
             for (Map.Entry<String, Class<? extends Geometry>> entry : value.entrySet()) {
                 String attName = entry.getKey();
-                gen.writeFieldName(attName);
+                gen.writeName(attName);
                 Class<? extends Geometry> geomType = entry.getValue();
                 if (geomType == null) {
                     gen.writeNull();
@@ -86,11 +84,10 @@ public class VirtualTableDto {
     /**
      * Custom deserializer to convert string back to geometry class types
      */
-    public static class GeometryTypesDeserializer extends JsonDeserializer<Map<String, Class<? extends Geometry>>> {
+    public static class GeometryTypesDeserializer extends ValueDeserializer<Map<String, Class<? extends Geometry>>> {
         @Override
         @SuppressWarnings("java:S1168") // if stringMap is null we do want to return null instead of empty
-        public Map<String, Class<? extends Geometry>> deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+        public Map<String, Class<? extends Geometry>> deserialize(JsonParser p, DeserializationContext ctxt) {
             Map<String, String> stringMap = p.readValueAs(new TypeReference<Map<String, String>>() {});
             if (stringMap == null) {
                 return null;

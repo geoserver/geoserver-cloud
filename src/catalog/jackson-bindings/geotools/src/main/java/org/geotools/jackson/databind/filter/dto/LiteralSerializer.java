@@ -5,19 +5,6 @@
 
 package org.geotools.jackson.databind.filter.dto;
 
-import com.fasterxml.jackson.core.Base64Variant;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import java.io.IOException;
-import java.io.Serial;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
@@ -28,6 +15,16 @@ import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.core.Base64Variant;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.WritableTypeId;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.type.TypeFactory;
 
 /**
  *
@@ -55,33 +52,27 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     /** see {@link #writeCollection} */
     static final String COLLECTION_CONTENT_TYPE_KEY = "contentType";
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    protected transient GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
+    final GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
 
     public LiteralSerializer() {
         super(Literal.class);
     }
 
     protected GeoToolsValueMappers classNameMapper() {
-        if (classNameMapper == null) {
-            classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
-        }
         return classNameMapper;
     }
 
     @Override
-    public void serializeWithType(Literal value, JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
-            throws IOException {
+    public void serializeWithType(
+            Literal value, JsonGenerator g, SerializationContext provider, TypeSerializer typeSer) {
 
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, typeSer.typeId(value, JsonToken.VALUE_STRING));
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, provider, typeSer.typeId(value, JsonToken.VALUE_STRING));
         serialize(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, provider, typeIdDef);
     }
 
     @Override
-    public void serialize(Literal literal, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(Literal literal, JsonGenerator gen, SerializationContext serializers) {
 
         final Object value = literal.getValue();
 
@@ -90,16 +81,15 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         gen.writeEndObject();
     }
 
-    protected void writeValue(final Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    protected void writeValue(final Object value, JsonGenerator gen, SerializationContext provider) {
         if (value == null) {
-            gen.writeNullField(VALUE_KEY);
+            gen.writeNullProperty(VALUE_KEY);
         } else {
             writeNonNullValue(value, gen, provider);
         }
     }
 
-    private void writeNonNullValue(final @NonNull Object value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+    private void writeNonNullValue(final @NonNull Object value, JsonGenerator gen, SerializationContext provider) {
         Class<?> type = value.getClass();
 
         if (type.isArray()) {
@@ -114,8 +104,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     }
 
     private void serializeNonCollectionObject(
-            final @NonNull Object value, JsonGenerator gen, SerializerProvider provider, Class<?> type)
-            throws IOException {
+            final @NonNull Object value, JsonGenerator gen, SerializationContext provider, Class<?> type) {
 
         if (type.isAnonymousClass()) {
             Class<?> enclosingClass = type.getEnclosingClass();
@@ -126,40 +115,39 @@ public class LiteralSerializer extends StdSerializer<Literal> {
             }
         }
 
-        JsonSerializer<Object> valueSerializer = findValueSerializer(provider, type);
-        final Class<Object> handledType = valueSerializer.handledType();
+        ValueSerializer<Object> valueSerializer = findValueSerializer(provider, type);
+        final Class<?> handledType = valueSerializer.handledType();
         String typeName = classNameMapper().classToCanonicalName(type.isEnum() ? type : handledType);
-        gen.writeStringField(TYPE_KEY, typeName);
-        gen.writeFieldName(VALUE_KEY);
+        gen.writeStringProperty(TYPE_KEY, typeName);
+        gen.writeName(VALUE_KEY);
         valueSerializer.serialize(value, gen, provider);
     }
 
-    protected JsonSerializer<Object> findValueSerializer(SerializerProvider provider, final Class<?> type)
-            throws JsonMappingException {
+    protected ValueSerializer<Object> findValueSerializer(SerializationContext provider, final Class<?> type) {
         TypeFactory typeFactory = provider.getTypeFactory();
         JavaType javaType = typeFactory.constructType(type);
         return provider.findValueSerializer(javaType);
     }
 
-    private void writeMap(Map<?, ?> value, JsonGenerator gen) throws IOException {
-        gen.writeStringField(TYPE_KEY, classNameMapper().classToCanonicalName(Map.class));
+    private void writeMap(Map<?, ?> value, JsonGenerator gen) {
+        gen.writeStringProperty(TYPE_KEY, classNameMapper().classToCanonicalName(Map.class));
 
-        gen.writeFieldName(VALUE_KEY);
+        gen.writeName(VALUE_KEY);
         gen.writeStartObject();
         for (Map.Entry<?, ?> e : value.entrySet()) {
             String k = e.getKey().toString();
             Literal v = Literal.valueOf(e.getValue());
-            gen.writeObjectField(k, v);
+            gen.writePOJOProperty(k, v);
         }
         gen.writeEndObject();
     }
 
-    private void writeArray(Object array, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    private void writeArray(Object array, JsonGenerator gen, SerializationContext provider) {
         // e.g. int[], java.lang.String[], etc.
         final String arrayTypeStr = classNameMapper().classToCanonicalName(array.getClass());
-        gen.writeStringField(TYPE_KEY, arrayTypeStr);
+        gen.writeStringProperty(TYPE_KEY, arrayTypeStr);
 
-        gen.writeFieldName(VALUE_KEY);
+        gen.writeName(VALUE_KEY);
         final int length = Array.getLength(array);
         if (byte[].class.equals(array.getClass())) {
             byte[] data = (byte[]) array;
@@ -169,38 +157,36 @@ public class LiteralSerializer extends StdSerializer<Literal> {
             gen.writeStartArray();
             for (int i = 0; i < length; i++) {
                 Object v = Array.get(array, i);
-                gen.writeObject(v);
+                gen.writePOJO(v);
             }
             gen.writeEndArray();
         }
     }
 
-    protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+    protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializationContext provider) {
 
         final Class<?> contentType = findContentType(collection, provider);
 
         final UnaryOperator<Object> valueMapper =
                 Literal.class.equals(contentType) ? Literal::valueOf : UnaryOperator.identity();
 
-        gen.writeStringField(TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
+        gen.writeStringProperty(TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
 
         if (null != contentType) {
             String singleContentTypeValue = classNameMapper.classToCanonicalName(contentType);
-            gen.writeStringField(COLLECTION_CONTENT_TYPE_KEY, singleContentTypeValue);
+            gen.writeStringProperty(COLLECTION_CONTENT_TYPE_KEY, singleContentTypeValue);
         }
 
-        gen.writeFieldName(VALUE_KEY);
+        gen.writeName(VALUE_KEY);
         gen.writeStartArray();
         for (Object v : collection) {
             v = valueMapper.apply(v);
-            gen.writeObject(v);
+            gen.writePOJO(v);
         }
         gen.writeEndArray();
     }
 
-    protected Class<?> findContentType(Collection<?> collection, SerializerProvider provider)
-            throws JsonMappingException {
+    protected Class<?> findContentType(Collection<?> collection, SerializationContext provider) {
         List<?> types = collection.stream()
                 .filter(Objects::nonNull)
                 .map(Object::getClass)
@@ -212,7 +198,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         }
         if (types.size() == 1) {
             Class<?> type = (Class<?>) types.get(0);
-            JsonSerializer<Object> valueSerializer = findValueSerializer(provider, type);
+            ValueSerializer<?> valueSerializer = findValueSerializer(provider, type);
             return valueSerializer.handledType();
         }
 

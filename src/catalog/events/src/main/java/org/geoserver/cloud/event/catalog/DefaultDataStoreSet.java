@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.Objects;
@@ -19,8 +20,8 @@ import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.catalog.plugin.PropertyDiff.Change;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.style.ToStringCreator;
-import org.springframework.lang.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultDataStoreSet")
@@ -31,6 +32,7 @@ public class DefaultDataStoreSet extends CatalogInfoModified {
     private @Getter String workspaceId;
     private @Getter String defaultDataStoreId;
 
+    @JsonCreator
     protected DefaultDataStoreSet() {}
 
     DefaultDataStoreSet(

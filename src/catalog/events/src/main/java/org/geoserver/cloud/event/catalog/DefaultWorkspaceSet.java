@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Getter;
@@ -13,8 +14,8 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.style.ToStringCreator;
-import org.springframework.lang.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultWorkspaceSet")
@@ -24,6 +25,7 @@ public class DefaultWorkspaceSet extends CatalogInfoModified {
     private @Getter @Nullable String newWorkspaceId;
 
     /** default constructor, needed for deserialization */
+    @JsonCreator
     protected DefaultWorkspaceSet() {
         //
     }

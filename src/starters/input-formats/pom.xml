@@ -15,7 +15,6 @@
       <groupId>org.geoserver.cloud.extensions</groupId>
       <artifactId>gs-cloud-extension-vector-formats</artifactId>
     </dependency>
-
     <!-- Raster data formats -->
     <dependency>
       <groupId>org.geoserver.cloud.extensions</groupId>

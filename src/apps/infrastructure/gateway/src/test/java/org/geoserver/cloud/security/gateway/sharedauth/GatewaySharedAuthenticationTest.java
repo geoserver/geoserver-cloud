@@ -30,10 +30,10 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration.EnableWebFluxConfiguration;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -56,7 +56,9 @@ import org.springframework.web.server.session.WebSessionStore;
         classes = GatewayApplication.class, //
         webEnvironment = WebEnvironment.RANDOM_PORT,
         properties = {"geoserver.security.gateway-shared-auth.enabled=true"})
-@ActiveProfiles("test") // bootstrap-test.yml disables config and discovery
+@ActiveProfiles("test")
+@AutoConfigureTestRestTemplate
+// bootstrap-test.yml disables config and discovery
 @WireMockTest
 // @TestMethodOrder is not really needed, just used to run tests in the workflow order, but tests
 // are isolated
@@ -166,9 +168,10 @@ class GatewaySharedAuthenticationTest {
     @DynamicPropertySource
     static void registerRoutes(DynamicPropertyRegistry registry) {
         String targetUrl = wmRuntimeInfo.getHttpBaseUrl();
-        registry.add("spring.cloud.gateway.routes[0].id", () -> "wiremock");
-        registry.add("spring.cloud.gateway.routes[0].uri", () -> targetUrl);
-        registry.add("spring.cloud.gateway.routes[0].predicates[0]", () -> "Path=/**");
+        // Spring Cloud Gateway 5.0+ uses 'spring.cloud.gateway.server.webflux' namespace
+        registry.add("spring.cloud.gateway.server.webflux.routes[0].id", () -> "wiremock");
+        registry.add("spring.cloud.gateway.server.webflux.routes[0].uri", () -> targetUrl);
+        registry.add("spring.cloud.gateway.server.webflux.routes[0].predicates[0]", () -> "Path=/**");
     }
 
     @Autowired
@@ -324,11 +327,14 @@ class GatewaySharedAuthenticationTest {
     void postFilterRemovesOutgoingSharedAuthHeaders(WireMockRuntimeInfo runtimeInfo) {
         ResponseEntity<Void> response = login();
         HttpHeaders responseHeaders = response.getHeaders();
-        assertThat(responseHeaders)
+
+        assertThat(responseHeaders.get("x-gsc-username"))
                 .as("GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-username response header")
-                .doesNotContainKey("x-gsc-username")
+                .isNull();
+
+        assertThat(responseHeaders.get("x-gsc-roles"))
                 .as("GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-roles response header")
-                .doesNotContainKey("x-gsc-roles");
+                .isNull();
     }
 
     private String getGatewaySessionId(HttpHeaders responseHeaders) {
@@ -368,7 +374,7 @@ class GatewaySharedAuthenticationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         HttpHeaders headers = response.getHeaders();
 
-        assertThat(headers).containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
+        assertThat(headers.get("Location")).containsOnly("http://0.0.0.0:9090/geoserver/cloud/web");
 
         return response;
     }
@@ -382,8 +388,7 @@ class GatewaySharedAuthenticationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         HttpHeaders headers = response.getHeaders();
-
-        assertThat(headers).containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
+        assertThat(headers.get("Location")).containsOnly("http://0.0.0.0:9090/geoserver/cloud/web");
 
         return response;
     }

@@ -5,9 +5,6 @@
 
 package org.geoserver.jackson.databind.catalog;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.Serial;
 import java.util.Arrays;
 import java.util.function.Function;
@@ -49,9 +46,12 @@ import org.geotools.jackson.databind.util.MapperDeserializer;
 import org.geotools.jackson.databind.util.MapperSerializer;
 import org.geotools.jdbc.VirtualTable;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.core.Version;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
- * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer {@link CatalogInfo}
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoServer {@link CatalogInfo}
  * bindings.
  *
  * <p>Depends on {@link GeoToolsGeoJsonModule} and {@link GeoToolsFilterModule}.

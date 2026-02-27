@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.geotools.api.filter.expression.Function;
 import org.geotools.api.filter.expression.Literal;
 import org.geotools.jackson.databind.filter.dto.Expression;
@@ -17,6 +16,7 @@ import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Test suite for {@link GeoToolsFilterModule} serialization and deserialization of {@link

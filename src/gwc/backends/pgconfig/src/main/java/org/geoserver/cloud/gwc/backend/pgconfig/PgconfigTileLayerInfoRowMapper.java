@@ -5,9 +5,6 @@
 
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.UncheckedIOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import lombok.NonNull;
@@ -18,6 +15,8 @@ import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigObjectMap
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigStyleRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * @since 1.7
@@ -83,19 +82,16 @@ class PgconfigTileLayerInfoRowMapper implements RowMapper<TileLayerInfo> {
      */
     @Override
     public TileLayerInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-        TileLayerInfo tileLayerInfo;
-        try {
-            String tileInfoValue = rs.getString("tilelayer");
-            tileLayerInfo = objectMapper.readValue(tileInfoValue, TileLayerInfo.class);
-        } catch (JsonProcessingException e) {
-            throw new UncheckedIOException(e);
-        }
+
+        String tileInfoValue = rs.getString("tilelayer");
+        TileLayerInfo tileLayerInfo = objectMapper.readValue(tileInfoValue, TileLayerInfo.class);
+
         PublishedInfo publishedInfo = publishedMapper.mapRow(rs, rowNum);
         tileLayerInfo.setPublished(publishedInfo);
         return tileLayerInfo;
     }
 
-    @SneakyThrows(JsonProcessingException.class)
+    @SneakyThrows(JacksonException.class)
     public static String encode(@NonNull TileLayerInfo info) {
         return objectMapper.writeValueAsString(info);
     }

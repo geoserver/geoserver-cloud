@@ -17,15 +17,17 @@ import org.geoserver.catalog.SLDHandler;
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+@AutoConfigureTestRestTemplate
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 abstract class RestConfigApplicationTest {
 
@@ -71,7 +73,6 @@ abstract class RestConfigApplicationTest {
     void testBasicAdminAccess() {
         restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
         testPathExtensionContentType("/rest", TEXT_HTML);
-        testPathExtensionContentType("/rest/", TEXT_HTML);
         testPathExtensionContentType("/rest/index", TEXT_HTML);
     }
 

@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * <p>A backend configuration class extending {@link GeoServerBackendConfigurer} must provide the following
  * core beans to establish a complete GeoServer catalog and configuration storage backend:
  * <ul>
+ *  <li>{@code LockProvider} - distributed locks provider
  *  <li>{@code ExtendedCatalogFacade catalogFacade} - Core catalog persistence layer
  *  <li>{@code GeoServerFacade geoserverFacade} - Configuration persistence layer
  *  <li>{@code GeoServerConfigurationLock configurationLock} - Distributed locking for configuration changes

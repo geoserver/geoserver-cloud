@@ -21,7 +21,7 @@ import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geotools.api.filter.Filter;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A raw data access API for {@link CatalogInfo} back-end implementations in GeoServer.

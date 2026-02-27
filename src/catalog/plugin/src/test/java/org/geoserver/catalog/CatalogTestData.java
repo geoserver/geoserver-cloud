@@ -44,7 +44,7 @@ import org.geotools.api.util.InternationalString;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.process.factory.AnnotationDrivenProcessFactory;
 import org.geotools.util.Converters;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides or populates a catalog; use {@link CatalogTestData#empty

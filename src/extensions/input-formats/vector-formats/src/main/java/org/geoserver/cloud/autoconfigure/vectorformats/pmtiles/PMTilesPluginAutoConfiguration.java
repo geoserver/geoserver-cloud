@@ -5,8 +5,8 @@
 
 package org.geoserver.cloud.autoconfigure.vectorformats.pmtiles;
 
+import jakarta.annotation.PostConstruct;
 import java.util.Optional;
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWMS;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;

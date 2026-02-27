@@ -24,7 +24,7 @@ import org.geoserver.platform.GeoServerResourceLoader;
  * DefaultCatalogFacade#beforeSaved}, despite it having the following comment:
  *
  * <pre>
- * {@code TODO: protect this original object, perhaps with another proxy};
+ * {@code protect this original object, perhaps with another proxy};
  * </pre>
  *
  * While {@link CatalogPlugin} fixes it by both using the modification proxy as the source, and by

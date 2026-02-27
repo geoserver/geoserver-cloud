@@ -5,17 +5,16 @@
 
 package org.geoserver.cloud.gwc.bus;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import java.io.Serial;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
 /**
  * @since 1.0
  */
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class RemoteGridsetEvent extends RemoteGeoWebCacheEvent {
 
@@ -23,6 +22,11 @@ public class RemoteGridsetEvent extends RemoteGeoWebCacheEvent {
     private static final long serialVersionUID = 1L;
 
     private @Getter @Setter String gridsetId;
+
+    @JsonCreator
+    protected RemoteGridsetEvent() {
+        // default constructor, needed for deserialization
+    }
 
     public RemoteGridsetEvent(Object source, @NonNull String originService) {
         super(source, originService);

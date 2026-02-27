@@ -4,26 +4,25 @@
  */
 package org.geoserver.jackson.databind.ogcapi.features;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.IOException;
 import java.io.Serial;
 import java.lang.reflect.Field;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.ogcapi.v1.features.CQL2Conformance;
 import org.geoserver.ogcapi.v1.features.ECQLConformance;
 import org.geoserver.ogcapi.v1.features.FeatureConformance;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * Jackson module for serializing and deserializing OGC API Features Conformance classes.
  * <p>
- * This module is registered through the SPI mechanism via META-INF/services/com.fasterxml.jackson.databind.Module
+ * This module is registered through the SPI mechanism via META-INF/services/tools.jackson.databind.JacksonModule
  * to ensure it's picked up by the {@code PgconfigObjectMapper} utility class.
  * <p>
  * NOTE: This module particularly addresses a bug in {@link CQL2Conformance#isAdvanced()} which can throw
@@ -61,15 +60,14 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
     /**
      * Custom serializer for CQL2Conformance that safely handles the problematic isAdvanced() method.
      */
-    static class CQL2ConformanceSerializer extends JsonSerializer<CQL2Conformance> {
+    static class CQL2ConformanceSerializer extends ValueSerializer<CQL2Conformance> {
         @Override
         public Class<CQL2Conformance> handledType() {
             return CQL2Conformance.class;
         }
 
         @Override
-        public void serialize(CQL2Conformance value, JsonGenerator gen, SerializerProvider serializers)
-                throws IOException {
+        public void serialize(CQL2Conformance value, JsonGenerator gen, SerializationContext serializers) {
 
             if (value == null) {
                 gen.writeNull();
@@ -96,29 +94,29 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
             gen.writeEndObject();
         }
 
-        private void writeNullSafe(JsonGenerator gen, String fieldName, Boolean value) throws IOException {
+        private void writeNullSafe(JsonGenerator gen, String fieldName, Boolean value) {
             if (value != null) {
-                gen.writeBooleanField(fieldName, value);
+                gen.writeBooleanProperty(fieldName, value);
             } else {
-                gen.writeNullField(fieldName);
+                gen.writeNullProperty(fieldName);
             }
         }
 
         @SuppressWarnings("java:S3011") // /setAccessible required because method and variable typed don't match
-        private void writeAdvancedField(JsonGenerator gen, CQL2Conformance value) throws IOException {
+        private void writeAdvancedField(JsonGenerator gen, CQL2Conformance value) {
             try {
                 Field field = CQL2Conformance.class.getDeclaredField("advanced");
                 field.setAccessible(true);
                 Boolean advanced = (Boolean) field.get(value);
 
                 if (advanced != null) {
-                    gen.writeBooleanField("advanced", advanced);
+                    gen.writeBooleanProperty("advanced", advanced);
                 } else {
-                    gen.writeNullField("advanced");
+                    gen.writeNullProperty("advanced");
                 }
             } catch (Exception _) {
                 // If anything goes wrong, write null
-                gen.writeNullField("advanced");
+                gen.writeNullProperty("advanced");
             }
         }
     }
@@ -126,14 +124,14 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
     /**
      * Custom deserializer for CQL2Conformance that handles all possible fields.
      */
-    static class CQL2ConformanceDeserializer extends JsonDeserializer<CQL2Conformance> {
+    static class CQL2ConformanceDeserializer extends ValueDeserializer<CQL2Conformance> {
         @Override
         public Class<CQL2Conformance> handledType() {
             return CQL2Conformance.class;
         }
 
         @Override
-        public CQL2Conformance deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public CQL2Conformance deserialize(JsonParser p, DeserializationContext ctxt) {
 
             if (p.currentToken() == JsonToken.VALUE_NULL) {
                 return null;
@@ -185,15 +183,14 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
     /**
      * Custom serializer for ECQLConformance.
      */
-    static class ECQLConformanceSerializer extends JsonSerializer<ECQLConformance> {
+    static class ECQLConformanceSerializer extends ValueSerializer<ECQLConformance> {
         @Override
         public Class<ECQLConformance> handledType() {
             return ECQLConformance.class;
         }
 
         @Override
-        public void serialize(ECQLConformance value, JsonGenerator gen, SerializerProvider serializers)
-                throws IOException {
+        public void serialize(ECQLConformance value, JsonGenerator gen, SerializationContext serializers) {
 
             if (value == null) {
                 gen.writeNull();
@@ -208,11 +205,11 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
             gen.writeEndObject();
         }
 
-        private void writeNullSafe(JsonGenerator gen, String fieldName, Boolean value) throws IOException {
+        private void writeNullSafe(JsonGenerator gen, String fieldName, Boolean value) {
             if (value != null) {
-                gen.writeBooleanField(fieldName, value);
+                gen.writeBooleanProperty(fieldName, value);
             } else {
-                gen.writeNullField(fieldName);
+                gen.writeNullProperty(fieldName);
             }
         }
     }
@@ -220,14 +217,14 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
     /**
      * Custom deserializer for ECQLConformance.
      */
-    static class ECQLConformanceDeserializer extends JsonDeserializer<ECQLConformance> {
+    static class ECQLConformanceDeserializer extends ValueDeserializer<ECQLConformance> {
         @Override
         public Class<ECQLConformance> handledType() {
             return ECQLConformance.class;
         }
 
         @Override
-        public ECQLConformance deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public ECQLConformance deserialize(JsonParser p, DeserializationContext ctxt) {
             if (p.currentToken() == JsonToken.VALUE_NULL) {
                 return null;
             }
@@ -264,15 +261,14 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
     /**
      * Custom serializer for FeatureConformance.
      */
-    static class FeatureConformanceSerializer extends JsonSerializer<FeatureConformance> {
+    static class FeatureConformanceSerializer extends ValueSerializer<FeatureConformance> {
         @Override
         public Class<FeatureConformance> handledType() {
             return FeatureConformance.class;
         }
 
         @Override
-        public void serialize(FeatureConformance value, JsonGenerator gen, SerializerProvider serializers)
-                throws IOException {
+        public void serialize(FeatureConformance value, JsonGenerator gen, SerializationContext serializers) {
 
             if (value == null) {
                 gen.writeNull();
@@ -297,11 +293,11 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
             gen.writeEndObject();
         }
 
-        private void writeNullSafe(JsonGenerator gen, String fieldName, Boolean value) throws IOException {
+        private void writeNullSafe(JsonGenerator gen, String fieldName, Boolean value) {
             if (value != null) {
-                gen.writeBooleanField(fieldName, value);
+                gen.writeBooleanProperty(fieldName, value);
             } else {
-                gen.writeNullField(fieldName);
+                gen.writeNullProperty(fieldName);
             }
         }
     }
@@ -309,14 +305,14 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
     /**
      * Custom deserializer for FeatureConformance.
      */
-    static class FeatureConformanceDeserializer extends JsonDeserializer<FeatureConformance> {
+    static class FeatureConformanceDeserializer extends ValueDeserializer<FeatureConformance> {
         @Override
         public Class<FeatureConformance> handledType() {
             return FeatureConformance.class;
         }
 
         @Override
-        public FeatureConformance deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public FeatureConformance deserialize(JsonParser p, DeserializationContext ctxt) {
             if (p.currentToken() == JsonToken.VALUE_NULL) {
                 return null;
             }

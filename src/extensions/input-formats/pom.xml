@@ -13,5 +13,4 @@
     <module>raster-formats</module>
     <module>vector-formats</module>
   </modules>
-  <dependencies></dependencies>
 </project>

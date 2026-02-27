@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * <p>Copied from {@link GeoServerGWCDispatcherController}
  */
 @Controller
-@RequestMapping("/gwc")
+@RequestMapping({"/gwc", "/gwc/"})
 @RequiredArgsConstructor
 public class GeoWebCacheController {
 

@@ -8,8 +8,6 @@ package org.geoserver.gwc.config;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
-import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
-import org.geoserver.gwc.ConfigurableBlobStore;
 import org.geoserver.gwc.layer.CatalogConfiguration;
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.slf4j.Logger;
@@ -33,12 +31,9 @@ import org.slf4j.Logger;
 public class DefaultGwcInitializer extends AbstractGwcInitializer {
 
     public DefaultGwcInitializer(
-            @NonNull GWCConfigPersister configPersister,
-            @NonNull ConfigurableBlobStore blobStore,
-            @NonNull GeoServerTileLayerConfiguration geoseverTileLayers,
-            @NonNull GeoServerConfigurationLock configLock) {
+            @NonNull GWCConfigPersister configPersister, @NonNull GeoServerConfigurationLock configLock) {
 
-        super(configPersister, blobStore, geoseverTileLayers, configLock);
+        super(configPersister, configLock);
     }
 
     @Override

@@ -5,28 +5,29 @@
 
 package org.geotools.jackson.databind.filter.dto;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.function.UnaryOperator;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeAll;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.module.SimpleModule;
 
 public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSerializationTest {
 
     @BeforeAll
     static void setUpMapper() {
-        objectMapper = ObjectMapperUtil.newObjectMapper();
-
         // use the custom serializer from below to ensure that
         // "value" attribute appears before "contentType" attribute
         SimpleModule serializerOverrideModule = new SimpleModule();
         serializerOverrideModule.addSerializer(Literal.class, new ChangedAttributeOrderLiteralSerializer());
 
         // our custom serializer for this test class will be prioritized as we add our module as latest
-        objectMapper.registerModule(serializerOverrideModule);
+        // In Jackson 3, ObjectMapper is immutable, so we use rebuild() to add the module
+        objectMapper = ObjectMapperUtil.newObjectMapper()
+                .rebuild()
+                .addModule(serializerOverrideModule)
+                .build();
     }
 
     /**
@@ -35,30 +36,28 @@ public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSeri
      * is a real scenario in data originating from postgres JSONB columns.
      *
      */
-    @SuppressWarnings("serial")
     private static class ChangedAttributeOrderLiteralSerializer extends LiteralSerializer {
         @Override
-        protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializerProvider provider)
-                throws IOException {
+        protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializationContext provider) {
 
             final Class<?> contentType = findContentType(collection, provider);
 
             final UnaryOperator<Object> valueMapper =
                     Literal.class.equals(contentType) ? Literal::valueOf : UnaryOperator.identity();
 
-            gen.writeStringField(TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
+            gen.writeStringProperty(TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
 
-            gen.writeFieldName(VALUE_KEY);
+            gen.writeName(VALUE_KEY);
             gen.writeStartArray();
             for (Object v : collection) {
                 v = valueMapper.apply(v);
-                gen.writeObject(v);
+                gen.writePOJO(v);
             }
             gen.writeEndArray();
 
             if (null != contentType) {
                 String singleContentTypeValue = classNameMapper.classToCanonicalName(contentType);
-                gen.writeStringField(COLLECTION_CONTENT_TYPE_KEY, singleContentTypeValue);
+                gen.writeStringProperty(COLLECTION_CONTENT_TYPE_KEY, singleContentTypeValue);
             }
         }
     }

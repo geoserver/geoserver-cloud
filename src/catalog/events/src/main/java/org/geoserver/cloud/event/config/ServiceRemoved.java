@@ -5,13 +5,14 @@
 
 package org.geoserver.cloud.event.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import org.geoserver.config.ServiceInfo;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ServiceInfoRemoved")
@@ -21,6 +22,7 @@ public class ServiceRemoved extends ConfigInfoRemoved {
 
     private @Getter @Nullable String workspaceId;
 
+    @JsonCreator
     protected ServiceRemoved() {
         // default constructor, needed for deserialization
     }

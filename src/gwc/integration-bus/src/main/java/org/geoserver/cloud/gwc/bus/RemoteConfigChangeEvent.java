@@ -5,18 +5,22 @@
 
 package org.geoserver.cloud.gwc.bus;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.geoserver.cloud.gwc.event.ConfigChangeEvent;
 
 /**
  * @since 1.9
  */
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("serial")
 public class RemoteConfigChangeEvent extends RemoteGeoWebCacheEvent {
+
+    @JsonCreator
+    protected RemoteConfigChangeEvent() {
+        // default constructor, needed for deserialization
+    }
 
     public RemoteConfigChangeEvent(Object source, @NonNull String originService) {
         super(source, originService);

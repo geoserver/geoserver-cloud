@@ -7,7 +7,6 @@ package org.geotools.jackson.databind.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.geotools.jackson.databind.filter.dto.Filter;
 import org.geotools.jackson.databind.filter.dto.SortBy;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Test suite for {@link GeoToolsFilterModule} serialization and deserialization of {@link

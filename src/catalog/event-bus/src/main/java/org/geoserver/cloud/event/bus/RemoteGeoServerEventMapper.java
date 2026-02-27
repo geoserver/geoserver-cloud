@@ -41,7 +41,7 @@ class RemoteGeoServerEventMapper {
     public RemoteGeoServerEvent toRemote(GeoServerEvent anyLocalCatalogOrConfigEvent) {
         String origin = localBusServiceId();
         Destination destination = destinationService();
-        RemoteGeoServerEvent remote = new RemoteGeoServerEvent(this, anyLocalCatalogOrConfigEvent, origin, destination);
+        RemoteGeoServerEvent remote = new RemoteGeoServerEvent(this, origin, destination, anyLocalCatalogOrConfigEvent);
         anyLocalCatalogOrConfigEvent.setOrigin(origin);
         anyLocalCatalogOrConfigEvent.setId(remote.getId());
         return remote;

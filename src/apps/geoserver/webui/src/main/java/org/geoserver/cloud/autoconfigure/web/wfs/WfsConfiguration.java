@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
     "jar:gs-web-wfs-.*!/applicationContext.xml",
     "jar:gs-wfs-core.*!/applicationContext.xml",
     "jar:gs-wfs1_x-.*!/applicationContext.xml",
-    "jar:gs-wfs2_x-.*!/applicationContext.xml",
-    "jar:gs-dxf-core-.*!/applicationContext.xml"
+    "jar:gs-wfs2_x-.*!/applicationContext.xml"
 })
 public class WfsConfiguration {}

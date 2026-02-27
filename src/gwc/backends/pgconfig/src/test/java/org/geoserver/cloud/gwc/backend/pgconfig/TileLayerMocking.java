@@ -104,7 +104,6 @@ class TileLayerMocking {
                 .setGutter(5)
                 .setExpireCacheList(List.of(new TileLayerInfo.ExpirationRule(12, 100)))
                 .setMimeFormats(Set.of("image/png", "image/jpeg"))
-                .setInMemoryCached(false)
                 .setGridSubsets(gridSubsets);
     }
 

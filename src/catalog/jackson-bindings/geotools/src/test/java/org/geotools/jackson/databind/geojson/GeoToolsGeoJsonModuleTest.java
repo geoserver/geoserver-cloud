@@ -8,8 +8,6 @@ package org.geotools.jackson.databind.geojson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.EnumSet;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +26,8 @@ import org.locationtech.jts.io.Ordinate;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Test suite for {@link GeoToolsGeoJsonModule}, assuming it's registered to an
@@ -52,7 +52,7 @@ public abstract class GeoToolsGeoJsonModuleTest {
     protected abstract ObjectMapper newObjectMapper();
 
     @Test
-    void testEmptyGeometries() throws JsonProcessingException {
+    void testEmptyGeometries() throws JacksonException {
         roundtripTest("POINT EMPTY");
         roundtripTest("LINESTRING EMPTY");
         roundtripTest("POLYGON EMPTY");
@@ -63,7 +63,7 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     @Test
-    void testPoint() throws JsonProcessingException {
+    void testPoint() throws JacksonException {
         roundtripTest("POINT(0 1)");
         roundtripTest("POINT Z(0 1 2)");
         roundtripTest("POINT M(0 1 3)");
@@ -71,7 +71,7 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     @Test
-    void testMultiPoint() throws JsonProcessingException {
+    void testMultiPoint() throws JacksonException {
         roundtripTest("MULTIPOINT(0 1, -1 -2)");
         roundtripTest("MULTIPOINT Z(0 1 2, -1 -2 -3)");
         roundtripTest("MULTIPOINT M(0 1 3, -1 -2 -4)");
@@ -79,7 +79,7 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     @Test
-    void testLineString() throws JsonProcessingException {
+    void testLineString() throws JacksonException {
         roundtripTest("LINESTRING(0 1, 4 5)");
         roundtripTest("LINESTRING Z(0 1 2, 4 5 6)");
         roundtripTest("LINESTRING M(0 1 3, 4 5 7)");
@@ -87,7 +87,7 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     @Test
-    void testMultiLineString() throws JsonProcessingException {
+    void testMultiLineString() throws JacksonException {
         roundtripTest("MULTILINESTRING((0 1, 4 5), (-1 -2, -5 -6))");
         roundtripTest("MULTILINESTRING Z((0 1 2, 4 5 6), (-1 -2 -3, -5 -6 -7))");
         roundtripTest("MULTILINESTRING M((0 1 3, 4 5 7), (-1 -2 -4, -5 -6 -8))");
@@ -95,7 +95,7 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     @Test
-    void testPolygon() throws JsonProcessingException {
+    void testPolygon() throws JacksonException {
         roundtripTest("POLYGON   ((0 0, 10 10, 20 0, 0 0),(1 1, 9 9, 19 1, 1 1))");
         roundtripTest("POLYGON  Z((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1))");
         roundtripTest("POLYGON  M((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1))");
@@ -103,7 +103,7 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     @Test
-    void testMultiPolygon() throws JsonProcessingException {
+    void testMultiPolygon() throws JacksonException {
         roundtripTest("MULTIPOLYGON   (((0 0, 10 10, 20 0, 0 0)), ((1 1, 9 9, 19 1, 1 1)))");
         roundtripTest("MULTIPOLYGON  Z(((0 0 0, 10 10 1, 20 0 2, 0 0 0)), ((1 1 1, 9 9 2, 19 1 3, 1 1 1)))");
         roundtripTest("MULTIPOLYGON  M(((0 0 0, 10 10 1, 20 0 2, 0 0 0)), ((1 1 1, 9 9 2, 19 1 3, 1 1 1)))");
@@ -112,7 +112,7 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     @Test
-    void testGeometryCollection() throws JsonProcessingException {
+    void testGeometryCollection() throws JacksonException {
         roundtripTest(
                 """
                 GEOMETRYCOLLECTION(POINT EMPTY,\
@@ -139,11 +139,11 @@ public abstract class GeoToolsGeoJsonModuleTest {
                 """);
     }
 
-    private Geometry roundtripTest(String wkt) throws JsonProcessingException {
+    private Geometry roundtripTest(String wkt) throws JacksonException {
         return roundtripTest(geom(wkt));
     }
 
-    private Geometry roundtripTest(Geometry orig) throws JsonProcessingException {
+    private Geometry roundtripTest(Geometry orig) throws JacksonException {
         String preWkt = toWKT(orig);
         String serialized = objectMapper.writeValueAsString(orig);
         print("serialized: {}", serialized);

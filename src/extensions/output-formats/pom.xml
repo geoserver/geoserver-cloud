@@ -14,5 +14,4 @@
     <module>flatgeobuf</module>
     <module>dxf</module>
   </modules>
-  <dependencies></dependencies>
 </project>

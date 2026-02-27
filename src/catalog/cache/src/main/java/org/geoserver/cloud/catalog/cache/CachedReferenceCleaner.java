@@ -22,7 +22,7 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.AbstractCatalogVisitor;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @RequiredArgsConstructor
 @Slf4j(topic = "org.geoserver.cloud.catalog.cache")

@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.EqualsAndHashCode;
@@ -23,6 +24,7 @@ public class SettingsModified extends ConfigInfoModified implements ConfigInfoEv
 
     private @Getter String workspaceId;
 
+    @JsonCreator
     protected SettingsModified() {
         // default constructor, needed for deserialization
     }

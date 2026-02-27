@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.EqualsAndHashCode;
@@ -18,6 +19,7 @@ import org.geoserver.config.GeoServerInfo;
 @SuppressWarnings("serial")
 public class GeoServerInfoModified extends ConfigInfoModified implements ConfigInfoEvent {
 
+    @JsonCreator
     protected GeoServerInfoModified() {
         // default constructor, needed for deserialization
     }

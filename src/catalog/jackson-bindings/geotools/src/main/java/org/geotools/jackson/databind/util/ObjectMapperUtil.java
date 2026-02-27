@@ -6,13 +6,13 @@
 package org.geotools.jackson.databind.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import lombok.experimental.UtilityClass;
-import org.yaml.snakeyaml.DumperOptions.Version;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.yaml.YAMLFactory;
+import tools.jackson.dataformat.yaml.YAMLMapper;
+import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
 /**
  * @since 1.0
@@ -21,25 +21,24 @@ import org.yaml.snakeyaml.DumperOptions.Version;
 public class ObjectMapperUtil {
 
     public static ObjectMapper newObjectMapper() {
-        return newObjectMapper(null);
+        return JsonMapper.builder()
+                .findAndAddModules()
+                .changeDefaultPropertyInclusion(v -> v.withValueInclusion(Include.NON_EMPTY))
+                .disable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build();
     }
 
     public static ObjectMapper newYAMLObjectMapper() {
-        YAMLFactory yamlFactory = YAMLFactory.builder() //
-                .yamlVersionToWrite(Version.V1_1) //
-                .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID) //
-                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER) //
-                .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES) //
+        YAMLFactory yamlFactory = YAMLFactory.builder()
+                .disable(YAMLWriteFeature.USE_NATIVE_TYPE_ID)
+                .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
+                .enable(YAMLWriteFeature.MINIMIZE_QUOTES)
                 .build();
-        return newObjectMapper(yamlFactory);
-    }
 
-    public static ObjectMapper newObjectMapper(JsonFactory jsonFactory) {
-        ObjectMapper objectMapper = new ObjectMapper(jsonFactory);
-        objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
-        objectMapper.disable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
-        objectMapper.findAndRegisterModules();
-
-        return objectMapper;
+        return YAMLMapper.builder(yamlFactory)
+                .findAndAddModules()
+                .changeDefaultPropertyInclusion(v -> v.withValueInclusion(Include.NON_EMPTY))
+                .disable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build();
     }
 }

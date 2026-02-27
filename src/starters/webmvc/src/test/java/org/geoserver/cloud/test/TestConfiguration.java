@@ -5,13 +5,9 @@
 
 package org.geoserver.cloud.test;
 
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.TestPropertySource;
@@ -26,10 +22,6 @@ import org.springframework.test.context.TestPropertySource;
         exclude = { //
             DataSourceAutoConfiguration.class, //
             DataSourceTransactionManagerAutoConfiguration.class, //
-            HibernateJpaAutoConfiguration.class, //
-            SecurityAutoConfiguration.class, //
-            UserDetailsServiceAutoConfiguration.class, //
-            ManagementWebSecurityAutoConfiguration.class
         })
 @TestPropertySource(properties = {"geoserver.backend.data-directory.enabled=true"})
 public class TestConfiguration {}

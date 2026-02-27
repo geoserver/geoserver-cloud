@@ -4,12 +4,11 @@
  */
 package org.geoserver.jackson.databind.catalog;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import java.io.IOException;
 import org.geotools.jackson.databind.filter.dto.Literal;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 /**
  * Custom deserializer for Store connection parameters.
@@ -18,14 +17,14 @@ import org.geotools.jackson.databind.filter.dto.Literal;
  * This deserializer handles Literal objects in the map, extracting their values.
  * </p>
  */
-public class ConnectionParametersDeserializer extends JsonDeserializer<ConnectionParameters> {
+public class ConnectionParametersDeserializer extends ValueDeserializer<ConnectionParameters> {
 
     @Override
-    public ConnectionParameters deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public ConnectionParameters deserialize(JsonParser p, DeserializationContext ctxt) {
         ConnectionParameters result = new ConnectionParameters();
 
         if (p.currentToken() != JsonToken.START_OBJECT) {
-            throw new IOException("Expected START_OBJECT token, got " + p.currentToken());
+            throw new IllegalStateException("Expected START_OBJECT token, got " + p.currentToken());
         }
 
         // Read all fields in the object
@@ -47,7 +46,7 @@ public class ConnectionParametersDeserializer extends JsonDeserializer<Connectio
         return result;
     }
 
-    private Object readValue(JsonParser p, DeserializationContext ctxt) throws IOException {
+    private Object readValue(JsonParser p, DeserializationContext ctxt) {
         // For object values, try to parse as Literal
         if (p.currentToken() == JsonToken.START_OBJECT) {
             try {

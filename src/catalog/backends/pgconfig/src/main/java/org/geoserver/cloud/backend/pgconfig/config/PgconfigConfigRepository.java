@@ -5,9 +5,6 @@
 
 package org.geoserver.cloud.backend.pgconfig.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -28,6 +25,7 @@ import org.geoserver.config.plugin.ConfigRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * @since 1.4
@@ -259,19 +257,11 @@ public class PgconfigConfigRepository implements ConfigRepository {
     }
 
     private String encode(Info info) {
-        try {
-            return infoMapper.writeValueAsString(info);
-        } catch (JsonProcessingException e) {
-            throw new UncheckedIOException(e);
-        }
+        return infoMapper.writeValueAsString(info);
     }
 
     private static <C extends Info> C decode(String value, Class<C> type) {
-        try {
-            return infoMapper.readValue(value, type);
-        } catch (JsonProcessingException e) {
-            throw new UncheckedIOException(e);
-        }
+        return infoMapper.readValue(value, type);
     }
 
     private static @NonNull String infoType(Class<? extends CatalogInfo> clazz) {

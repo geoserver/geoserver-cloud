@@ -5,7 +5,6 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
-import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,6 +27,7 @@ import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.expression.Literal;
 import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Duplicates a supported filter making it directly translatable to SQL taking

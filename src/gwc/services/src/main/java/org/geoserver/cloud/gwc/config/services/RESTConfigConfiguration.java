@@ -16,32 +16,36 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.core.Ordered;
 
 /**
- * The original {@literal geowebcache-rest-context.xml}:
+ * The original {@literal gs-gwc-rest.jar!applicationContext.xml}:
  *
  * <pre>{@code
- * <!-- Used by org.geoserver.rest.RestConfiguration when setting up converters -->
- * <bean id="gwcConverter" class="org.geowebcache.rest.converter.GWCConverter">
- * <constructor-arg ref="gwcAppCtx" />
- * </bean>
+ *   <!-- Used by org.geoserver.rest.RestConfiguration when setting up converters -->
+ *   <bean id="gwcConverter" class="org.geowebcache.rest.converter.GWCConverter">
+ *     <constructor-arg ref="gwcAppCtx" />
+ *   </bean>
  *
- * <bean id="GWCGeoServerRESTConfigurationProvider" class="org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider">
- * <description>
- * XmlConfiguration contributor to set up XStream with GeoServer provided configuration objects for GWC's REST API
- * </description>
- * <constructor-arg ref="catalog"/>
- * </bean>
+ *   <bean id="GWCGeoServerRESTConfigurationProvider" class="org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider">
+ *     <description>
+ *       XmlConfiguration contributor to set up XStream with GeoServer provided configuration objects for GWC's REST API
+ *     </description>
+ *     <constructor-arg ref="catalog"/>
+ *   </bean>
  *
- * <!-- Specific URL mapping for GWC WMTS REST API -->
- * <bean id="gwcWmtsRestUrlHandlerMapping" class="org.geoserver.gwc.controller.GwcUrlHandlerMapping">
- * <constructor-arg ref="catalog" />
- * <constructor-arg type="java.lang.String" value="/gwc/rest/wmts" />
- * <property name="alwaysUseFullPath" value="true" />
- * <property name="order" value="10" />
- * </bean>
+ *   <!-- Specific URL mapping for GWC WMTS REST API -->
+ *   <bean id="gwcWmtsRestUrlHandlerMapping" class="org.geoserver.gwc.controller.GwcUrlHandlerMapping">
+ *     <constructor-arg ref="catalog" />
+ *     <constructor-arg type="java.lang.String" value="/gwc/rest/wmts" />
+ *     <property name="alwaysUseFullPath" value="true" />
+ *     <property name="order" value="10" />
+ *   </bean>
  *
- * <context:component-scan base-package="org.geowebcache.rest, org.geowebcache.diskquota.rest.controller" />
+ *   <context:component-scan base-package="org.geowebcache.rest, org.geowebcache.diskquota.rest.controller" />
+ *
+ * </beans>
+ *
  * }</pre>
  *
  * <p>scans too much. We're only scanning {@literal org.geowebcache.rest}. {@literal
@@ -121,14 +125,13 @@ public class RESTConfigConfiguration {
      * }</pre>
      *
      * @param catalog
-     * @param catalog
      */
     @Bean
     @SuppressWarnings({"deprecation", "java:S1874"})
     GwcUrlHandlerMapping gwcWmtsRestUrlHandlerMapping(Catalog catalog) {
         GwcUrlHandlerMapping handler = new GwcUrlHandlerMapping(catalog, "/gwc/rest/wmts");
         handler.setAlwaysUseFullPath(true);
-        handler.setOrder(10);
+        handler.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return handler;
     }
 }

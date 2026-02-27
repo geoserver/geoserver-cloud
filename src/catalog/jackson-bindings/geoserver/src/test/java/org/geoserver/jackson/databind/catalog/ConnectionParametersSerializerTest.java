@@ -10,9 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
@@ -23,6 +21,8 @@ import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
 import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Tests for {@link ConnectionParameters} serialization and deserialization.
@@ -33,14 +33,16 @@ class ConnectionParametersSerializerTest {
 
     @BeforeEach
     void setUp() {
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new GeoServerCatalogModule());
-        objectMapper.registerModule(new GeoToolsGeoJsonModule());
-        objectMapper.registerModule(new GeoToolsFilterModule());
+        // In Jackson 3, ObjectMapper is immutable - use builder pattern
+        objectMapper = JsonMapper.builder()
+                .addModule(new GeoServerCatalogModule())
+                .addModule(new GeoToolsGeoJsonModule())
+                .addModule(new GeoToolsFilterModule())
+                .build();
     }
 
     @Test
-    void testSimpleTypesNotWrapped() throws IOException {
+    void testSimpleTypesNotWrapped() {
         ConnectionParameters params = new ConnectionParameters();
         params.put("string", "test");
         params.put("integer", 123);

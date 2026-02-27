@@ -13,5 +13,4 @@
     <module>spring-boot</module>
     <module>geoserver</module>
   </modules>
-  <dependencies></dependencies>
 </project>

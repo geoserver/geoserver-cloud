@@ -20,10 +20,8 @@ import org.geoserver.ogcapi.AnnotatedHTMLMessageConverter;
 import org.geoserver.ogcapi.ByteArrayMessageConverter;
 import org.geoserver.ogcapi.DefaultAPIExceptionHandler;
 import org.geoserver.ogcapi.FreemarkerTemplateSupport;
-import org.geoserver.ogcapi.JSONSchemaMessageConverter;
 import org.geoserver.ogcapi.LocalWorkspaceCallback;
 import org.geoserver.ogcapi.OGCAPIXStreamPersisterInitializer;
-import org.geoserver.ogcapi.OpenAPIMessageConverter;
 import org.geoserver.ows.ClasspathPublisher;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -83,11 +81,9 @@ class OgcApiCoreConfigurationTest {
                 .hasSingleBean(APIDispatcher.class)
                 .hasSingleBean(APIConfigurationSupport.class)
                 .hasSingleBean(AnnotatedHTMLMessageConverter.class)
-                .hasSingleBean(OpenAPIMessageConverter.class)
                 .hasSingleBean(DefaultAPIExceptionHandler.class)
                 .hasSingleBean(OGCAPIXStreamPersisterInitializer.class)
                 .hasSingleBean(LocalWorkspaceCallback.class)
-                .hasSingleBean(JSONSchemaMessageConverter.class)
                 .hasSingleBean(ByteArrayMessageConverter.class)
                 .hasSingleBean(FreemarkerTemplateSupport.class)
                 .hasBean("apiClasspathPublisherMapping")

@@ -14,11 +14,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,99 +33,88 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
-import org.geoserver.platform.resource.ResourceTheoryTest;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
-import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/**
- * Note by inheriting from {@link ResourceTheoryTest}, this is a Junit 4 test class and must be
- * {@code public}
- */
 @Slf4j
-@RunWith(Theories.class)
-public class PgconfigResourceTest extends ResourceTheoryTest {
+class PgconfigResourceTest {
 
-    /**
-     * This is a JUnit 4 test, manually calling start()/stop()
-     */
-    public static PgConfigTestContainer container = new PgConfigTestContainer();
+    static PgConfigTestContainer container = new PgConfigTestContainer();
 
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
+    @TempDir
+    File tmpDir;
 
     private PgconfigResourceStore store;
     private File cacheDirectory;
 
-    @DataPoints
-    public static String[] testPaths() {
-        return new String[] {
-            "FileA",
-            "FileB",
-            "DirC",
-            "DirC/FileD",
-            "DirC/DirC1",
-            "DirC/DirC1/DirC2",
-            "DirC/DirC1/DirC2/FileC2",
-            "DirC/DirC1/DirC2/FileC3",
-            "DirE",
-            "UndefF",
-            "DirC/UndefF",
-            "DirE/UndefF",
-            "DirE/UndefD/UndefF"
-        };
+    static Stream<String> testPaths() {
+        return Stream.of(
+                "FileA",
+                "FileB",
+                "DirC",
+                "DirC/FileD",
+                "DirC/DirC1",
+                "DirC/DirC1/DirC2",
+                "DirC/DirC1/DirC2/FileC2",
+                "DirC/DirC1/DirC2/FileC3",
+                "DirE",
+                "UndefF",
+                "DirC/UndefF",
+                "DirE/UndefF",
+                "DirE/UndefD/UndefF");
     }
 
-    @BeforeClass
-    public static void containerSetup() {
+    static String[] testPathsArray() {
+        return testPaths().toArray(String[]::new);
+    }
+
+    @BeforeAll
+    static void containerSetup() {
         container.start();
         container.setUp();
     }
 
-    @AfterClass
-    public static void containerTeardown() {
+    @AfterAll
+    static void containerTeardown() {
         container.stop();
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
-        cacheDirectory = newFolder(tmpDir.getRoot(), "junit");
+        cacheDirectory = newFolder(tmpDir, "junit");
         FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         store = new PgconfigResourceStore(
                 cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
         setupTestData(template);
     }
 
-    @After
-    public void cleanDb() throws Exception {
+    @AfterEach
+    void cleanDb() throws Exception {
         DataSource dataSource = container.getDataSource();
         new JdbcTemplate(dataSource).update("DELETE FROM resourcestore WHERE parentid IS NOT NULL");
     }
 
     private void setupTestData(JdbcTemplate template) throws Exception {
-        for (String path : testPaths()) {
+        for (String path : testPathsArray()) {
             boolean undef = Paths.name(path).contains("Undef");
             if (undef) {
                 continue;
@@ -154,7 +143,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     /**
      * @return
      */
-    private LockRegistry pgconfigLockRegistry() {
+    private JdbcLockRegistry pgconfigLockRegistry() {
         return new JdbcLockRegistry(pgconfigLockRepository());
     }
 
@@ -163,14 +152,11 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
         // override default table prefix "INT" by "RESOURCE_" (matching table RESOURCE_LOCK in flyway ddl scripts)
         lockRepository.setPrefix("RESOURCE_");
-        // time in ms to expire dead locks (10k is the default)
-        lockRepository.setTimeToLive(300_000);
         return lockRepository;
     }
 
-    @Override
     protected Resource getDirectory() {
-        return Arrays.stream(testPaths())
+        return Arrays.stream(testPathsArray())
                 .filter(path -> Paths.name(path).contains("Dir"))
                 .map(store::get)
                 .map(PgconfigResource.class::cast)
@@ -179,9 +165,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 .orElseThrow();
     }
 
-    @Override
     protected Resource getResource() {
-        return Arrays.stream(testPaths())
+        return Arrays.stream(testPathsArray())
                 .filter(path -> Paths.name(path).contains("File"))
                 .map(store::get)
                 .map(PgconfigResource.class::cast)
@@ -190,9 +175,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 .orElseThrow();
     }
 
-    @Override
     protected Resource getUndefined() {
-        return Arrays.stream(testPaths())
+        return Arrays.stream(testPathsArray())
                 .filter(path -> Paths.name(path).contains("UndefF"))
                 .map(store::get)
                 .map(PgconfigResource.class::cast)
@@ -201,27 +185,15 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 .orElseThrow();
     }
 
-    @Override
     protected Resource getResource(String path) {
         return store.get(path);
     }
 
-    @Override
-    @Ignore("This behaviour is specific to the file based implementation")
-    public void theoryAlteringFileAltersResource(String path) throws Exception {
-        // disabled
-    }
-
-    @Override
-    @Ignore("This behaviour is specific to the file based implementation")
-    public void theoryAddingFileToDirectoryAddsResource(String path) {
-        // disabled
-    }
-
-    @Theory
-    public void theoryRenamedDirectoryRenamesChildren(String path) {
+    @ParameterizedTest
+    @MethodSource("testPaths")
+    void theoryRenamedDirectoryRenamesChildren(String path) {
         final Resource res = getResource(path);
-        assumeThat(res, is(directory()));
+        assumeTrue(res.getType() == Type.DIRECTORY, "Resource is not a directory");
 
         final String newpath = "new/path/to" + path;
 
@@ -247,7 +219,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void testDefaultIgnoredDirs() {
+    void testDefaultIgnoredDirs() {
         assertFileSystemDir("temp");
         assertFileSystemDir("tmp");
         assertFileSystemDir("legendsamples");
@@ -256,7 +228,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void testRemoveIgnoredDirs() {
+    void testRemoveIgnoredDirs() {
         testRemoveIgnoredDir("temp");
         testRemoveIgnoredDir("tmp");
         testRemoveIgnoredDir("legendsamples");
@@ -274,7 +246,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void testRemoveIgnoredFiles() {
+    void testRemoveIgnoredFiles() {
         assertFileSystemFile("temp/sample.png");
         assertFileSystemFile("tmp/sample.png");
         assertFileSystemFile("legendsamples/sample.png");
@@ -298,7 +270,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void testRemoveFileSystemOnlyResource() {
+    void testRemoveFileSystemOnlyResource() {
         testRemoveFilesystemOnlyFile("temp/sample.png");
         testRemoveFilesystemOnlyFile("tmp/sample.png");
         testRemoveFilesystemOnlyFile("legendsamples/sample.png");
@@ -307,7 +279,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void testRootResourceReturnsFilesystemResourcesForIgnoredPatterns() {
+    void testRootResourceReturnsFilesystemResourcesForIgnoredPatterns() {
         testRootResourceFilesystem("temp");
         testRootResourceFilesystem("tmp");
         testRootResourceFilesystem("legendsamples");
@@ -344,7 +316,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void trestRemovePathInDatabase() {
+    void trestRemovePathInDatabase() {
         store.get("workspaces").dir();
         store.get("workspaces/ws1").dir();
         store.get("workspaces/ws1/workspace.xml").file();
@@ -357,7 +329,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void trestMovePathInDatabase() {
+    void trestMovePathInDatabase() {
         store.get("workspaces").dir();
         store.get("workspaces/ws1").dir();
         store.move("workspaces/ws1", "workspaces/ws2");
@@ -372,7 +344,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
      * even if the workspace name is already equal to the namespace prefix
      */
     @Test
-    public void trestMoveSameTarget() {
+    void trestMoveSameTarget() {
         store.get("workspaces").dir();
         store.get("workspaces/ws1").dir();
         store.get("workspaces/ws1/workspace.xml").file();
@@ -385,7 +357,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void trestMovePathFilesystemOnly() {
+    void trestMovePathFilesystemOnly() {
         store.get("legendsamples").dir();
         store.get("legendsamples/sample.png").file();
 
@@ -397,7 +369,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void trestMovePathFilesystemOnlyToDatabaseIsUnsupported() {
+    void trestMovePathFilesystemOnlyToDatabaseIsUnsupported() {
         store.get("legendsamples").dir();
         store.get("legendsamples/sample.png").file();
 
@@ -411,7 +383,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void testIgnoresFileSystemOnlyResourcesInDb() throws SQLException {
+    void testIgnoresFileSystemOnlyResourcesInDb() throws SQLException {
         // for pre 1.8.1 backwards compatibility, ignore fs-only resources already in the db
         DataSource ds = container.getDataSource();
         String sql =
@@ -474,7 +446,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
      * </p>
      */
     @Test
-    public void testUpdateStateHandlesDeletedResource() throws Exception {
+    void testUpdateStateHandlesDeletedResource() throws Exception {
         // Create a test resource in the database
         String path = "security/rest.properties";
         PgconfigResource resource = (PgconfigResource) store.get(path);
@@ -519,7 +491,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
      */
     @Test
     @SuppressWarnings("java:S2925") // Thread.sleep
-    public void testUpdateStateHandlesModifiedResource() throws Exception {
+    void testUpdateStateHandlesModifiedResource() throws Exception {
         // Create a test resource in the database
         String path = "security/updated.properties";
         PgconfigResource resource = (PgconfigResource) store.get(path);
@@ -560,8 +532,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         // Check lastmodified() which should trigger updateState()
         long updatedLastModified = resource.lastmodified();
         assertTrue(
-                "Last modified timestamp should be updated: " + initialLastModified + " vs " + updatedLastModified,
-                updatedLastModified > initialLastModified);
+                updatedLastModified > initialLastModified,
+                "Last modified timestamp should be updated: " + initialLastModified + " vs " + updatedLastModified);
 
         // Verify the content was updated
         try (InputStream in = resource.in()) {
@@ -576,7 +548,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void testWriteNewResource() throws IOException {
+    void testWriteNewResource() throws IOException {
         Resource resource = store.get("security/masterpw/default/passwd");
         assertEquals(UNDEFINED, resource.getType());
 

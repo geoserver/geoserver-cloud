@@ -9,7 +9,6 @@ import static java.util.Collections.unmodifiableList;
 
 import com.github.f4b6a3.ulid.Ulid;
 import com.github.f4b6a3.ulid.UlidCreator;
-import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +60,7 @@ import org.geotools.api.filter.identity.Identifier;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.util.Converters;
 import org.geotools.util.logging.Logging;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Alternative to {@link org.geoserver.catalog.impl.CatalogImpl} to improve separation of concerns

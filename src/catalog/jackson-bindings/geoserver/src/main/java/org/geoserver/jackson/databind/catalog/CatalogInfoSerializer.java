@@ -5,18 +5,17 @@
 
 package org.geoserver.jackson.databind.catalog;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import java.io.IOException;
 import java.io.Serial;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.WritableTypeId;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 public class CatalogInfoSerializer<I extends CatalogInfo> extends StdSerializer<I> {
     @Serial
@@ -32,21 +31,21 @@ public class CatalogInfoSerializer<I extends CatalogInfo> extends StdSerializer<
     }
 
     @Override
-    public void serialize(CatalogInfo info, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(CatalogInfo info, JsonGenerator gen, SerializationContext provider) {
 
         CatalogInfoDto dto = mapper.map(info);
-        gen.writeObject(dto);
+        gen.writePOJO(dto);
     }
 
     @Override
-    public void serializeWithType(I value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
-            throws IOException {
+    public void serializeWithType(
+            I value, JsonGenerator gen, SerializationContext serializers, TypeSerializer typeSer) {
 
         WritableTypeId typeIdDef =
-                typeSer.writeTypePrefix(gen, typeSer.typeId(value, infoType, JsonToken.VALUE_STRING));
+                typeSer.writeTypePrefix(gen, serializers, typeSer.typeId(value, infoType, JsonToken.VALUE_STRING));
 
-        serialize(value, gen, null);
+        serialize(value, gen, serializers);
 
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(gen, serializers, typeIdDef);
     }
 }

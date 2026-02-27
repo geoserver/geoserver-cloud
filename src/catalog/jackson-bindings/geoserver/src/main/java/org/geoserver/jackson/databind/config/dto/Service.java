@@ -57,7 +57,6 @@ public abstract class Service extends ConfigInfoDto {
     private String maintainer;
     private String fees;
     private String accessConstraints;
-    private List<String> versions;
     private List<Keyword> keywords;
     private List<String> exceptionFormats;
     private MetadataLink metadataLink;
@@ -65,6 +64,12 @@ public abstract class Service extends ConfigInfoDto {
     private String schemaBaseURL;
     private boolean verbose;
     private MetadataMapDto metadata;
+    private List<String> versions;
+
+    /**
+     * @since 3.0
+     */
+    private List<String> disabledVersions;
 
     /**
      * @since geoserver 2.20.0

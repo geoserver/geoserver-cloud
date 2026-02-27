@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.Objects;
@@ -18,6 +19,7 @@ import org.geoserver.cloud.event.info.InfoRemoved;
 @SuppressWarnings("serial")
 public class CatalogInfoRemoved extends InfoRemoved {
 
+    @JsonCreator
     protected CatalogInfoRemoved() {}
 
     CatalogInfoRemoved(long updateSequence, @NonNull CatalogInfo info) {

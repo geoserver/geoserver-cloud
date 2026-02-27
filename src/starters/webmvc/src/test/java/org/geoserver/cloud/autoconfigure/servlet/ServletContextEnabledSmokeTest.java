@@ -16,8 +16,6 @@ import org.geoserver.filters.ThreadLocalsCleanupFilter;
 import org.geoserver.platform.AdvancedDispatchFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,7 +23,6 @@ import org.springframework.web.context.request.RequestContextListener;
 
 /** Smoke test to load the servlet context beans with auto-configuration enabled */
 @SpringBootTest(classes = TestConfiguration.class)
-@EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
 class ServletContextEnabledSmokeTest extends DataDirectoryTempSupport {
 

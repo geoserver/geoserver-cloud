@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,12 +59,16 @@ import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.verification.VerificationModeFactory;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.LenientStubber;
 import org.mockito.verification.VerificationMode;
 
+@ExtendWith(MockitoExtension.class)
 class CachingCatalogFacadeTest {
 
     @Mock
@@ -97,29 +102,30 @@ class CachingCatalogFacadeTest {
 
     private <I extends CatalogInfo> I stub(Class<I> type, String id, String name) {
         I info = mock(type);
-        when(info.getId()).thenReturn(id);
+        LenientStubber lenient = lenient();
+        lenient.when(info.getId()).thenReturn(id);
         if (info instanceof WorkspaceInfo i) {
-            when(i.getName()).thenReturn(name);
-            when(subject.getWorkspace(id)).thenReturn(i);
+            lenient.when(i.getName()).thenReturn(name);
+            lenient.when(subject.getWorkspace(id)).thenReturn(i);
         } else if (info instanceof NamespaceInfo i) {
-            when(i.getPrefix()).thenReturn(name);
-            when(subject.getNamespace(id)).thenReturn(i);
+            lenient.when(i.getPrefix()).thenReturn(name);
+            lenient.when(subject.getNamespace(id)).thenReturn(i);
         } else if (info instanceof StoreInfo i) {
-            when(i.getName()).thenReturn(name);
-            when(subject.getStore(id, StoreInfo.class)).thenReturn(i);
+            lenient.when(i.getName()).thenReturn(name);
+            lenient.when(subject.getStore(id, StoreInfo.class)).thenReturn(i);
         } else if (info instanceof ResourceInfo i) {
-            when(i.getName()).thenReturn(name);
-            when(subject.getResource(id, ResourceInfo.class)).thenReturn(i);
+            lenient.when(i.getName()).thenReturn(name);
+            lenient.when(subject.getResource(id, ResourceInfo.class)).thenReturn(i);
         } else if (info instanceof PublishedInfo i) {
-            when(i.getName()).thenReturn(name);
+            lenient.when(i.getName()).thenReturn(name);
             if (info instanceof LayerInfo l) {
-                when(subject.getLayer(id)).thenReturn(l);
+                lenient.when(subject.getLayer(id)).thenReturn(l);
             } else {
-                when(subject.getLayerGroup(id)).thenReturn((LayerGroupInfo) i);
+                lenient.when(subject.getLayerGroup(id)).thenReturn((LayerGroupInfo) i);
             }
         } else if (info instanceof StyleInfo i) {
-            when(i.getName()).thenReturn(name);
-            when(subject.getStyle(id)).thenReturn(i);
+            lenient.when(i.getName()).thenReturn(name);
+            lenient.when(subject.getStyle(id)).thenReturn(i);
         }
         return info;
     }

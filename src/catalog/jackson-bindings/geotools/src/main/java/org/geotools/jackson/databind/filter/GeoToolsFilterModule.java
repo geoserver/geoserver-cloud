@@ -5,11 +5,6 @@
 
 package org.geotools.jackson.databind.filter;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.Serial;
 import java.util.Locale;
 import java.util.Map;
@@ -38,9 +33,14 @@ import org.geotools.measure.Measure;
 import org.geotools.util.NumberRange;
 import org.locationtech.jts.geom.Geometry;
 import org.mapstruct.factory.Mappers;
+import tools.jackson.core.Version;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
- * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoTools {@link Filter} and
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoTools {@link Filter} and
  * {@link Expression} bindings.
  *
  * <p>Depends on {@link GeoToolsGeoJsonModule} to being able of encoding and decoding JTS {@link
@@ -48,7 +48,7 @@ import org.mapstruct.factory.Mappers;
  *
  * <p>When running a spring-boot application, being on the classpath should be enough to get this
  * module auto-registered to all {@link ObjectMapper}s, by means of being registered under {@code
- * META-INF/services/com.fasterxml.jackson.databind.Module}.
+ * META-INF/services/tools.jackson.databind.Module}.
  *
  * <p>To register the module for a specific {@link ObjectMapper}, either:
  *
@@ -106,7 +106,7 @@ public class GeoToolsFilterModule extends SimpleModule {
         addCustomLiteralValueSerializers();
     }
 
-    private <T> GeoToolsFilterModule addSerializer(Class<T> type, JsonSerializer<T> set, JsonDeserializer<T> deser) {
+    private <T> GeoToolsFilterModule addSerializer(Class<T> type, ValueSerializer<T> set, ValueDeserializer<T> deser) {
         super.addSerializer(type, set);
         super.addDeserializer(type, deser);
         return this;

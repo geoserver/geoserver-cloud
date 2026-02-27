@@ -20,10 +20,10 @@ import org.geoserver.cloud.backend.pgconfig.catalog.repository.LoggingTemplate;
 import org.geoserver.gwc.layer.CatalogConfiguration;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.platform.resource.ResourceStore;
+import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.lang.Nullable;
 
 /**
  * Implementation of {@link TileLayerInfoRepository} for {@link CatalogConfiguration} to manage

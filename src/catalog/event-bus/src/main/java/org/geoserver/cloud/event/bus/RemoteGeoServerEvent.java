@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.bus;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -20,18 +21,21 @@ public class RemoteGeoServerEvent extends RemoteApplicationEvent {
     @NonNull
     private GeoServerEvent event;
 
-    /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
+    /**
+     * Deserialization-time constructor, {@link #getSource()} will be {@code null}
+     */
     @SuppressWarnings("java:S2637") // final fields initialized by deserialization
+    @JsonCreator
     protected RemoteGeoServerEvent() {
         // default constructor, needed for deserialization
     }
 
     /** Publish-time constructor, {@link #getSource()} won't be {@code null} */
     public RemoteGeoServerEvent(
-            Object source,
-            @NonNull GeoServerEvent event,
+            @NonNull Object source,
             @NonNull String originService,
-            @NonNull Destination destination) {
+            @NonNull Destination destination,
+            @NonNull GeoServerEvent event) {
         super(source, originService, destination);
         this.event = event;
     }

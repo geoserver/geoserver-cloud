@@ -5,17 +5,16 @@
 
 package org.geotools.jackson.databind.util;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import java.io.IOException;
 import java.util.function.Function;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
 /**
- * Generic {@link JsonDeserializer} that applies a function from an for-the-wire POJO type to the
+ * Generic {@link ValueDeserializer} that applies a function from an for-the-wire POJO type to the
  * the original object type after {@link JsonParser#readValueAs(Class)} reading it.
  *
  * @param <D> DTO type
@@ -23,13 +22,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MapperDeserializer<D, T> extends JsonDeserializer<T> {
+public class MapperDeserializer<D, T> extends ValueDeserializer<T> {
 
     private final @NonNull Class<D> from;
     private final Function<D, T> mapper;
 
     @Override
-    public T deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
+    public T deserialize(JsonParser parser, DeserializationContext ctxt) {
 
         D dto;
         T value;

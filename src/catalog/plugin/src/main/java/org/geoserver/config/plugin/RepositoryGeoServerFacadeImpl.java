@@ -7,7 +7,6 @@ package org.geoserver.config.plugin;
 
 import static java.util.Objects.requireNonNull;
 
-import jakarta.annotation.Nullable;
 import java.lang.reflect.Proxy;
 import java.rmi.server.UID;
 import java.util.Collection;
@@ -35,6 +34,7 @@ import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.ows.util.OwsUtils;
 import org.geotools.util.logging.Logging;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Default implementation of {@link GeoServerFacade} backed by a pluggable {@link ConfigRepository}

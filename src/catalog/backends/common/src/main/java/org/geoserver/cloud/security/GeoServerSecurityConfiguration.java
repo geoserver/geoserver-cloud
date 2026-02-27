@@ -20,8 +20,6 @@ import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.security.CloudGeoServerSecurityFilterChainProxy;
 import org.geoserver.security.GeoServerSecurityFilterChainProxy;
 import org.geoserver.security.GeoServerSecurityManager;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +31,9 @@ import org.springframework.security.authentication.AuthenticationProvider;
  * Loads geoserver security bean definitions from {@code
  * classpath*:/applicationSecurityContext.xml}.
  *
- * <p>Note that if spring boot auto-configuration is enabled, at the very least {@link
- * SecurityAutoConfiguration} or {@link UserDetailsServiceAutoConfiguration} must be disabled, for
+ * <p>Note that if spring boot auto-configuration is enabled, at the very least {@code
+ * org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration} or
+ * {@code org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration} must be disabled, for
  * example using the following annotation in a {@link Configuration @Configuration} class:
  *
  * <pre>{@code

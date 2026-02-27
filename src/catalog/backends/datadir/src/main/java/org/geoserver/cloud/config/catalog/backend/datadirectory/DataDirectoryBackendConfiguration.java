@@ -20,6 +20,7 @@ import org.geoserver.catalog.plugin.locking.LockingCatalog;
 import org.geoserver.catalog.plugin.locking.LockingGeoServer;
 import org.geoserver.cloud.catalog.backend.datadir.EventualConsistencyEnforcer;
 import org.geoserver.cloud.catalog.backend.datadir.EventuallyConsistentCatalogFacade;
+import org.geoserver.cloud.catalog.backend.datadir.locking.DistributedFileLockProvider;
 import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties.EventualConsistencyConfig;
@@ -31,6 +32,7 @@ import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.platform.config.UpdateSequence;
+import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.GeoServerSecurityManager;
@@ -136,16 +138,11 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
     @Primary
     @Bean
     UpdateSequence updateSequence(
-            @Qualifier("resourceStoreImpl") ResourceStore resourceStore, GeoServerResourceLoader resourceLoader) {
+            @Qualifier("resourceStoreImpl") FileSystemResourceStore resourceStore,
+            GeoServerResourceLoader resourceLoader) {
         GeoServerDataDirectory dd = new GeoServerDataDirectory(resourceLoader);
         XStreamPersisterFactory xpf = new XStreamPersisterFactory();
         return new DataDirectoryUpdateSequence(resourceStore, dd, xpf);
-    }
-
-    @Bean
-    GeoServerConfigurationLock configurationLock(@Qualifier("resourceStoreImpl") ResourceStore resourceStoreImpl) {
-        LockProvider lockProvider = resourceStoreImpl.getLockProvider();
-        return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
     @Bean
@@ -232,11 +229,23 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
     }
 
     @Bean(name = {"resourceStoreImpl"})
-    ResourceStore resourceStoreImpl(DataDirectoryProperties config) {
+    ResourceStore resourceStoreImpl(
+            DataDirectoryProperties config, @Qualifier("distributedFileLockProvider") LockProvider lockProvider) {
+
         File dataDirectory = config.dataDirectory().toFile();
-        NoServletContextDataDirectoryResourceStore store =
-                new NoServletContextDataDirectoryResourceStore(dataDirectory);
-        store.setLockProvider(new NoServletContextFileLockProvider(dataDirectory));
+        FileSystemResourceStore store = new FileSystemResourceStore(dataDirectory);
+        store.setLockProvider(lockProvider);
         return store;
+    }
+
+    @Bean
+    GeoServerConfigurationLock configurationLock(@Qualifier("distributedFileLockProvider") LockProvider lockProvider) {
+        return new LockProviderGeoServerConfigurationLock(lockProvider);
+    }
+
+    @Bean
+    LockProvider distributedFileLockProvider(DataDirectoryProperties config) {
+        File dataDirectory = config.dataDirectory().toFile();
+        return new DistributedFileLockProvider(dataDirectory);
     }
 }

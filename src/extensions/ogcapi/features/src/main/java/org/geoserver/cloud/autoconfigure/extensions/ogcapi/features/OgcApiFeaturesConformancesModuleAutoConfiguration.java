@@ -4,10 +4,10 @@
  */
 package org.geoserver.cloud.autoconfigure.extensions.ogcapi.features;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.geoserver.jackson.databind.ogcapi.features.OgcApiFeaturesConformancesModule;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Contributes an {@link OgcApiFeaturesConformancesModule} to the default spring boot {@link ObjectMapper}, required

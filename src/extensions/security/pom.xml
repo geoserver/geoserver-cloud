@@ -17,5 +17,4 @@
     <module>jdbc</module>
     <module>ldap</module>
   </modules>
-  <dependencies></dependencies>
 </project>

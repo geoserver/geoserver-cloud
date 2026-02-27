@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.event.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -39,6 +40,7 @@ public class CatalogInfoModified extends InfoModified {
     private @NonNull @Getter String oldName;
 
     @SuppressWarnings("java:S2637")
+    @JsonCreator
     protected CatalogInfoModified() {
         // no-op default constructor for deserialization
     }
