@@ -46,18 +46,6 @@ class WcsApplicationTest {
         expectBean("debugCoverageResponseDelegate", org.geoserver.wcs.responses.DebugCoverageResponseDelegate.class);
         expectBean("coverageCleaner", org.geoserver.wcs.CoverageCleanerCallback.class);
         expectBean("wcsResourceVoter", org.geoserver.wcs.WCSResourceVoter.class);
-        expectBean("legacyWcsLoader", org.geoserver.wcs.WCSLoader.class);
-        expectBean("wcsFactoryExtension", org.geoserver.wcs.WCSFactoryExtension.class);
-        expectBean("wcsURLMapping", org.geoserver.ows.OWSHandlerMapping.class);
-        expectBean("wcsLocalWorkspaceURLManger", org.geoserver.ows.LocalWorkspaceURLMangler.class);
-        expectBean("cqlKvpParser", org.geoserver.ows.kvp.CQLFilterKvpParser.class);
-        expectBean("coverageResponseDelegateFactory", org.geoserver.wcs.responses.CoverageResponseDelegateFinder.class);
-        expectBean(
-                "geotiffCoverageResponseDelegate", org.geoserver.wcs.responses.GeoTIFFCoverageResponseDelegate.class);
-        expectBean("imgCoverageResponseDelegate", org.geoserver.wcs.responses.IMGCoverageResponseDelegate.class);
-        expectBean("debugCoverageResponseDelegate", org.geoserver.wcs.responses.DebugCoverageResponseDelegate.class);
-        expectBean("coverageCleaner", org.geoserver.wcs.CoverageCleanerCallback.class);
-        expectBean("wcsResourceVoter", org.geoserver.wcs.WCSResourceVoter.class);
     }
 
     @Test

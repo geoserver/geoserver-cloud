@@ -9,12 +9,8 @@ import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
-import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.cloud.wms.app.StatusCodeWmsExceptionHandler;
-import org.geoserver.cloud.wms.controller.GetMapReflectorController;
-import org.geoserver.cloud.wms.controller.WMSController;
 import org.geoserver.config.GeoServer;
-import org.geoserver.ows.Dispatcher;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.Service;
 import org.geoserver.wfs.xml.FeatureTypeSchemaBuilder;
@@ -26,7 +22,6 @@ import org.geoserver.wms.capabilities.LegendSample;
 import org.geoserver.wms.capabilities.LegendSampleImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.PropertyResolver;
 
@@ -89,29 +84,17 @@ public class WmsApplicationAutoConfiguration {
         return new WFSConfiguration(geoServer, schemaBuilder, new WFS(schemaBuilder));
     }
 
-    @Bean
-    WMSController webMapServiceController(
-            Dispatcher geoserverDispatcher,
-            org.geoserver.ows.ClasspathPublisher classPathPublisher,
-            VirtualServiceVerifier virtualServiceVerifier) {
-        return new WMSController(geoserverDispatcher, classPathPublisher, virtualServiceVerifier);
-    }
-
-    @Bean
-    VirtualServiceVerifier virtualServiceVerifier(@Qualifier("rawCatalog") Catalog catalog) {
-        return new VirtualServiceVerifier(catalog);
-    }
-
-    @ConditionalOnProperty(
-            prefix = "geoserver.wms",
-            name = "reflector.enabled",
-            havingValue = "true",
-            matchIfMissing = true)
-    @Bean
-    GetMapReflectorController getMapReflectorController(Dispatcher geoserverDispatcher) {
-        return new GetMapReflectorController(geoserverDispatcher);
-    }
-
+    // TODO: make it configurable again
+    //    @ConditionalOnProperty(
+    //            prefix = "geoserver.wms",
+    //            name = "reflector.enabled",
+    //            havingValue = "true",
+    //            matchIfMissing = true)
+    //    @Bean
+    //    GetMapReflectorController getMapReflectorController(Dispatcher geoserverDispatcher) {
+    //        return new GetMapReflectorController(geoserverDispatcher);
+    //    }
+    //
     /**
      * Overrides the {@link #WMS_BEANS_BLACKLIST excluded wms11ExceptionHandler and wms13ExceptionHandler} bean
      * with a {@link StatusCodeWmsExceptionHandler} to support setting a non 200

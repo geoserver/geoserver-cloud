@@ -3,15 +3,11 @@
  * application directory.
  */
 
-package org.geoserver.cloud.wfs.config;
+package org.geoserver.cloud.autoconfigure.wfs;
 
-import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
-import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration(after = GeoServerWebMvcMainAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
@@ -20,10 +16,4 @@ import org.springframework.context.annotation.Bean;
     "jar:gs-wfs1_x-.*!/applicationContext.xml",
     "jar:gs-wfs2_x-.*!/applicationContext.xml"
 })
-public class WfsAutoConfiguration {
-
-    @Bean
-    VirtualServiceVerifier virtualServiceVerifier(@Qualifier("rawCatalog") Catalog catalog) {
-        return new VirtualServiceVerifier(catalog);
-    }
-}
+public class WfsApplicationAutoConfiguration {}
