@@ -150,7 +150,7 @@ class StripingFileLock implements Resource.Lock {
     private long getBucket(String lockKey) {
         // Simply hashing the lock key generated a significant number of collisions,
         // doing the SHA1 digest of it provides a much better distribution
-        @SuppressWarnings("java:S4790")
+        @SuppressWarnings("java:S4790")//sha1 is good enough for hashing
         byte[] sha1 = DigestUtils.sha1(lockKey);
         long hash = ByteBuffer.wrap(sha1).getLong();
         return Math.abs(hash) % MAX_LOCKS;
