@@ -8,6 +8,7 @@ package org.geotools.jackson.databind.util;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.experimental.UtilityClass;
 import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.yaml.YAMLFactory;
@@ -25,6 +26,8 @@ public class ObjectMapperUtil {
                 .findAndAddModules()
                 .changeDefaultPropertyInclusion(v -> v.withValueInclusion(Include.NON_EMPTY))
                 .disable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                // helps when reverting to a prior version
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
     }
 
