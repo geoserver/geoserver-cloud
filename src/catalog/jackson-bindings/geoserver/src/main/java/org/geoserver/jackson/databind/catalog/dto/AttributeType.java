@@ -19,7 +19,6 @@ import org.geotools.jackson.databind.dto.NumberRangeDto;
 public class AttributeType {
     private String name;
     private String featureType;
-
     private int minOccurs;
     private int maxOccurs;
     private boolean nillable;
