@@ -5,6 +5,7 @@
 
 package org.geoserver.jackson.databind.config.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.HashSet;
@@ -53,7 +54,10 @@ public abstract class Service extends ConfigInfoDto {
     private boolean enabled;
     private String onlineResource;
     private String title;
+
+    @JsonProperty("abstract")
     private String Abstract;
+
     private String maintainer;
     private String fees;
     private String accessConstraints;
@@ -101,12 +105,25 @@ public abstract class Service extends ConfigInfoDto {
         private WatermarkInfoImpl watermark;
         // enum, direct use
         private WMSInterpolation interpolation;
+
+        @JsonProperty("srs")
         private List<String> SRS;
+
+        @JsonProperty("getMapMimeTypes")
         private Set<String> GetMapMimeTypes;
+
+        @JsonProperty("getMapMimeTypeCheckingEnabled")
         private boolean GetMapMimeTypeCheckingEnabled;
+
+        @JsonProperty("getFeatureInfoMimeTypes")
         private Set<String> GetFeatureInfoMimeTypes;
+
+        @JsonProperty("getFeatureInfoMimeTypeCheckingEnabled")
         private boolean GetFeatureInfoMimeTypeCheckingEnabled;
+
+        @JsonProperty("bboxforEachCRS")
         private Boolean BBOXForEachCRS;
+
         private int maxBuffer;
         private int maxRequestMemory;
         private int maxRenderingTime;
@@ -164,7 +181,9 @@ public abstract class Service extends ConfigInfoDto {
     @ToString(callSuper = true)
     @JsonTypeName("WFSInfo")
     public static class WfsService extends Service {
+        @JsonProperty("gml")
         private Map<Version, GMLInfoImpl> GML;
+
         private int maxFeatures;
         private ServiceLevel serviceLevel;
         private boolean featureBounding;
@@ -173,7 +192,10 @@ public abstract class Service extends ConfigInfoDto {
         private boolean hitsIgnoreMaxFeatures;
         private boolean includeWFSRequestDumpFile;
         private Integer maxNumberOfFeaturesForPreview;
+
+        @JsonProperty("srs")
         private List<String> SRS;
+
         private Boolean allowGlobalQueries;
         private boolean simpleConversionEnabled;
 
@@ -203,13 +225,20 @@ public abstract class Service extends ConfigInfoDto {
     @ToString(callSuper = true)
     @JsonTypeName("WCSInfo")
     public static class WcsService extends Service {
+        @JsonProperty("gmlprefixing")
         private boolean GMLPrefixing;
+
         private long maxInputMemory;
         private long maxOutputMemory;
         private OverviewPolicy overviewPolicy;
         private boolean subsamplingEnabled;
+
+        @JsonProperty("latLon")
         private boolean LatLon;
+
+        @JsonProperty("srs")
         private List<String> SRS;
+
         private int maxRequestedDimensionValues;
         private int defaultDeflateCompressionLevel;
     }

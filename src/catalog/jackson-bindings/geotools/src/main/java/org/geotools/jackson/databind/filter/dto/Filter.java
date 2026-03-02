@@ -5,6 +5,7 @@
 
 package org.geotools.jackson.databind.filter.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Date;
@@ -78,6 +79,7 @@ public abstract class Filter {
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
     public static class NativeFilter extends Filter {
+        @JsonProperty("native")
         private String Native;
     }
 

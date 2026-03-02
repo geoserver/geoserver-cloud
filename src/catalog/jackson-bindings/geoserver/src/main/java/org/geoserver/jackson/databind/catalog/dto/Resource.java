@@ -5,6 +5,7 @@
 
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +38,18 @@ public abstract class Resource extends CatalogInfoDto {
     private List<String> alias;
     private String title;
     private String description;
+
+    @JsonProperty("abstract")
     private String Abstract;
+
     private List<Keyword> keywords;
     private List<MetadataLink> metadataLinks;
     private List<DataLink> dataLinks;
     private CRS nativeCRS;
+
+    @JsonProperty("srs")
     private String SRS;
+
     private Envelope nativeBoundingBox;
     private Envelope latLonBoundingBox;
     private ProjectionPolicy projectionPolicy;
