@@ -5,6 +5,7 @@
 
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import java.util.List;
 import lombok.Data;
@@ -28,7 +29,10 @@ public abstract class Published extends CatalogInfoDto {
 
     private String name;
     private String title;
+
+    @JsonProperty("abstract")
     private String Abstract;
+
     private boolean enabled;
     private boolean advertised;
     private List<AuthorityURL> authorityURLs;

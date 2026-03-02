@@ -7,9 +7,9 @@ package org.geoserver.jackson.databind.catalog;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeEach;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Base class for backwards-compatibility tests that verify deserialization from known JSON text

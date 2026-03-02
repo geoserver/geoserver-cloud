@@ -5,6 +5,7 @@
 
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -32,6 +33,8 @@ public class LayerGroupStyle {
     private String title;
     private Map<String, String> internationalTitle;
 
+    @JsonProperty("abstract")
     private String Abstract;
+
     private Map<String, String> internationalAbstract;
 }

@@ -5,6 +5,7 @@
 
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,5 +17,6 @@ import lombok.ToString;
 @JsonTypeName("CoverageStoreInfo")
 public class CoverageStore extends Store {
 
+    @JsonProperty("url")
     private String URL;
 }
