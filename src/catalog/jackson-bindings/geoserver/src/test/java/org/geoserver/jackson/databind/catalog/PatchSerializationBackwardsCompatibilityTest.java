@@ -19,7 +19,7 @@ import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.ServiceInfo;
-import org.geoserver.jackson.databind.catalog.dto.InfoReference;
+import org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  * calls {@link #decode(String, Class)} to verify deserialization.
  *
  * <p>Note: CatalogInfo and ServiceInfo objects used as Patch values are encoded as {@link
- * InfoReference} (by type and id), not as full objects. After deserialization, these are converted
+ * ResolvingProxyDto} (by type and id), not as full objects. After deserialization, these are converted
  * to proxy Info objects by the {@link org.geoserver.jackson.databind.mapper.PatchMapper}.
  */
 class PatchSerializationBackwardsCompatibilityTest extends BackwardsCompatibilityTestSupport {
@@ -116,7 +116,7 @@ class PatchSerializationBackwardsCompatibilityTest extends BackwardsCompatibilit
                       "name": "resource",
                       "value": {
                         "Literal": {
-                          "type": "org.geoserver.jackson.databind.catalog.dto.InfoReference",
+                          "type": "org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto",
                           "value": {
                             "type": "FEATURETYPE",
                             "id": "ft1"
@@ -142,7 +142,7 @@ class PatchSerializationBackwardsCompatibilityTest extends BackwardsCompatibilit
                       "name": "namespace",
                       "value": {
                         "Literal": {
-                          "type": "org.geoserver.jackson.databind.catalog.dto.InfoReference",
+                          "type": "org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto",
                           "value": {
                             "type": "NAMESPACE",
                             "id": "ns1"
@@ -168,7 +168,7 @@ class PatchSerializationBackwardsCompatibilityTest extends BackwardsCompatibilit
                       "name": "store",
                       "value": {
                         "Literal": {
-                          "type": "org.geoserver.jackson.databind.catalog.dto.InfoReference",
+                          "type": "org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto",
                           "value": {
                             "type": "COVERAGESTORE",
                             "id": "cs1"
@@ -194,7 +194,7 @@ class PatchSerializationBackwardsCompatibilityTest extends BackwardsCompatibilit
                       "name": "layer",
                       "value": {
                         "Literal": {
-                          "type": "org.geoserver.jackson.databind.catalog.dto.InfoReference",
+                          "type": "org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto",
                           "value": {
                             "type": "LAYER",
                             "id": "layer1"
@@ -260,7 +260,7 @@ class PatchSerializationBackwardsCompatibilityTest extends BackwardsCompatibilit
                       "name": "wmsService",
                       "value": {
                         "Literal": {
-                          "type": "org.geoserver.jackson.databind.catalog.dto.InfoReference",
+                          "type": "org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto",
                           "value": {
                             "type": "SERVICE",
                             "id": "wms-id"
@@ -286,7 +286,7 @@ class PatchSerializationBackwardsCompatibilityTest extends BackwardsCompatibilit
                       "name": "wfsService",
                       "value": {
                         "Literal": {
-                          "type": "org.geoserver.jackson.databind.catalog.dto.InfoReference",
+                          "type": "org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto",
                           "value": {
                             "type": "SERVICE",
                             "id": "wfs-id"

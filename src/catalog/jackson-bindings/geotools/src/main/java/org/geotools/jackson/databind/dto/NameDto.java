@@ -5,10 +5,12 @@
 
 package org.geotools.jackson.databind.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 
 /** DTO for {@link org.geotools.api.feature.type.Name} */
 @Data
+@JsonTypeName("Name")
 public class NameDto {
     private String namespaceURI;
     private String localPart;

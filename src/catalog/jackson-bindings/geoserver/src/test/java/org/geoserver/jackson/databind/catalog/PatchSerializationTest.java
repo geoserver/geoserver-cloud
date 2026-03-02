@@ -66,7 +66,7 @@ import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
 import org.geoserver.jackson.databind.catalog.mapper.GeoServerValueObjectsMapper;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
-import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
+import org.geoserver.jackson.databind.config.mapper.GeoServerConfigMapper;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.security.decorators.DecoratingDataStoreInfo;

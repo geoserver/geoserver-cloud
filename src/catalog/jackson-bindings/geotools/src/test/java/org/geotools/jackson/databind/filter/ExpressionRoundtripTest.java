@@ -32,15 +32,15 @@ import org.geotools.api.referencing.FactoryException;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.filter.FunctionFinder;
 import org.geotools.geometry.jts.Geometries;
-import org.geotools.jackson.databind.filter.dto.Expression;
-import org.geotools.jackson.databind.filter.dto.Expression.Add;
-import org.geotools.jackson.databind.filter.dto.Expression.BinaryExpression;
-import org.geotools.jackson.databind.filter.dto.Expression.Divide;
-import org.geotools.jackson.databind.filter.dto.Expression.Function;
-import org.geotools.jackson.databind.filter.dto.Expression.Multiply;
-import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
-import org.geotools.jackson.databind.filter.dto.Expression.Subtract;
-import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.AddDto;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.BinaryExpressionDto;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.DivideDto;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.FunctionDto;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.MultiplyDto;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.PropertyNameDto;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.SubtractDto;
+import org.geotools.jackson.databind.filter.dto.LiteralDto;
 import org.geotools.jackson.databind.filter.model.TestDto;
 import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.Disabled;
@@ -52,7 +52,7 @@ import org.locationtech.jts.io.WKTReader;
 import si.uom.SI;
 
 /**
- * Abstract test suite for {@link Expression} Data Transfer Objects or POJOS; to be used both for
+ * Abstract test suite for {@link ExpressionDto} Data Transfer Objects or POJOS; to be used both for
  * testing serialization/deserialization and mapping to and from {@link
  * org.geotools.api.filter.expression.Expression}
  */
@@ -66,25 +66,25 @@ public abstract class ExpressionRoundtripTest {
         }
     }
 
-    protected abstract <E extends Expression> E roundtripTest(E dto) throws Exception;
+    protected abstract <E extends ExpressionDto> E roundtripTest(E dto) throws Exception;
 
-    protected abstract Expression.FunctionName roundtripTest(Expression.FunctionName dto) throws Exception;
+    protected abstract ExpressionDto.FunctionNameDto roundtripTest(ExpressionDto.FunctionNameDto dto) throws Exception;
 
     @Test
     void propertySimple() throws Exception {
-        PropertyName dto = propertyName("states");
+        PropertyNameDto dto = propertyName("states");
         roundtripTest(dto);
     }
 
     @Test
     void propertyNamePrefixedNoNamespaceContext() throws Exception {
-        PropertyName dto = propertyName("topp:states");
+        PropertyNameDto dto = propertyName("topp:states");
         roundtripTest(dto);
     }
 
     @Test
     void propertyNameNamespaceContext() throws Exception {
-        PropertyName dto = propertyName("topp:states");
+        PropertyNameDto dto = propertyName("topp:states");
         Map<String, String> context = new HashMap<>();
         // automatically added by NamespaceSupport
         context.put("xml", "http://www.w3.org/XML/1998/namespace");
@@ -96,27 +96,29 @@ public abstract class ExpressionRoundtripTest {
 
     @Test
     void binaryExpressionAdd() throws Exception {
-        BinaryExpression dto = new Add().setExpression1(propertyName("name")).setExpression2(literal(Long.MAX_VALUE));
+        BinaryExpressionDto dto =
+                new AddDto().setExpression1(propertyName("name")).setExpression2(literal(Long.MAX_VALUE));
         roundtripTest(dto);
     }
 
     @Test
     void binaryExpressionSubtract() throws Exception {
-        BinaryExpression dto =
-                new Subtract().setExpression1(propertyName("name")).setExpression2(literal(1000));
+        BinaryExpressionDto dto =
+                new SubtractDto().setExpression1(propertyName("name")).setExpression2(literal(1000));
         roundtripTest(dto);
     }
 
     @Test
     void binaryExpressionDivide() throws Exception {
-        BinaryExpression dto = new Divide().setExpression1(propertyName("name")).setExpression2(literal(1000));
+        BinaryExpressionDto dto =
+                new DivideDto().setExpression1(propertyName("name")).setExpression2(literal(1000));
         roundtripTest(dto);
     }
 
     @Test
     void binaryExpressionMultiply() throws Exception {
-        BinaryExpression dto =
-                new Multiply().setExpression1(propertyName("name")).setExpression2(literal(1000));
+        BinaryExpressionDto dto =
+                new MultiplyDto().setExpression1(propertyName("name")).setExpression2(literal(1000));
         roundtripTest(dto);
     }
 
@@ -328,12 +330,12 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(literal(new TestDto[] {a, b, c, d, e}));
     }
 
-    protected Literal literal(Object value) {
-        return new Literal().setValue(value);
+    protected LiteralDto literal(Object value) {
+        return new LiteralDto().setValue(value);
     }
 
-    private PropertyName propertyName(String name) {
-        return new PropertyName().setPropertyName(name);
+    private PropertyNameDto propertyName(String name) {
+        return new PropertyNameDto().setPropertyName(name);
     }
 
     private Geometry samplePoint() {
@@ -419,8 +421,8 @@ public abstract class ExpressionRoundtripTest {
         assertNull(functionName.getNamespaceURI(), "Unexpected non-null function name nsURI");
         assertEquals(name, functionName.getLocalPart());
 
-        List<Expression> parameters = buildParameters(arguments);
-        Function dto = new Function();
+        List<ExpressionDto> parameters = buildParameters(arguments);
+        FunctionDto dto = new FunctionDto();
         dto.setName(name);
         dto.setParameters(parameters);
 
@@ -435,7 +437,7 @@ public abstract class ExpressionRoundtripTest {
         assertNotNull(functionName);
         assertNotNull(argumentNames);
 
-        Expression.FunctionName dto = new Expression.FunctionName();
+        ExpressionDto.FunctionNameDto dto = new ExpressionDto.FunctionNameDto();
         dto.setName(name);
         dto.setArgumentCount(argumentCount);
         dto.getArgumentNames().addAll(argumentNames);
@@ -444,18 +446,18 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(dto);
     }
 
-    private List<Expression> buildParameters(List<Parameter<?>> arguments) {
-        List<Expression> parameters = new ArrayList<>();
+    private List<ExpressionDto> buildParameters(List<Parameter<?>> arguments) {
+        List<ExpressionDto> parameters = new ArrayList<>();
         arguments.forEach(p -> parameters.addAll(buildSampleParameter(p)));
         return parameters;
     }
 
-    private List<Expression> buildSampleParameter(Parameter<?> p) {
+    private List<ExpressionDto> buildSampleParameter(Parameter<?> p) {
         int occurs = p.isRequired().booleanValue() ? p.getMinOccurs() : 1;
         return IntStream.range(0, occurs).mapToObj(i -> buildSampleParam(p)).toList();
     }
 
-    private Expression buildSampleParam(Parameter<?> p) {
+    private ExpressionDto buildSampleParam(Parameter<?> p) {
         Object val = p.getDefaultValue();
         if (val == null) {
             val = sampleValue(p.getType());

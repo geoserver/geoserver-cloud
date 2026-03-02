@@ -20,7 +20,7 @@ public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSeri
         // use the custom serializer from below to ensure that
         // "value" attribute appears before "contentType" attribute
         SimpleModule serializerOverrideModule = new SimpleModule();
-        serializerOverrideModule.addSerializer(Literal.class, new ChangedAttributeOrderLiteralSerializer());
+        serializerOverrideModule.addSerializer(LiteralDto.class, new ChangedAttributeOrderLiteralSerializer());
 
         // our custom serializer for this test class will be prioritized as we add our module as latest
         // In Jackson 3, ObjectMapper is immutable, so we use rebuild() to add the module
@@ -43,7 +43,7 @@ public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSeri
             final Class<?> contentType = findContentType(collection, provider);
 
             final UnaryOperator<Object> valueMapper =
-                    Literal.class.equals(contentType) ? Literal::valueOf : UnaryOperator.identity();
+                    LiteralDto.class.equals(contentType) ? LiteralDto::valueOf : UnaryOperator.identity();
 
             gen.writeStringProperty(TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
 

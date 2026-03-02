@@ -11,11 +11,11 @@ import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
-import org.geoserver.jackson.databind.catalog.dto.Coverage;
-import org.geoserver.jackson.databind.catalog.dto.FeatureType;
-import org.geoserver.jackson.databind.catalog.dto.Resource;
-import org.geoserver.jackson.databind.catalog.dto.WMSLayer;
-import org.geoserver.jackson.databind.catalog.dto.WMTSLayer;
+import org.geoserver.jackson.databind.catalog.dto.CoverageInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.FeatureTypeInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.ResourceInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WMSLayerInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WMTSLayerInfoDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +24,7 @@ import org.mapstruct.Mapping;
 @AnnotateWith(value = Generated.class)
 public interface ResourceMapper {
 
-    default Resource map(ResourceInfo o) {
+    default ResourceInfoDto map(ResourceInfo o) {
         if (o == null) {
             return null;
         } else if (o instanceof FeatureTypeInfo ft) {
@@ -39,16 +39,16 @@ public interface ResourceMapper {
         throw new IllegalArgumentException("Unknown ResourceInfo type: %s".formatted(o));
     }
 
-    default ResourceInfo map(Resource o) {
+    default ResourceInfo map(ResourceInfoDto o) {
         if (o == null) {
             return null;
-        } else if (o instanceof FeatureType ft) {
+        } else if (o instanceof FeatureTypeInfoDto ft) {
             return map(ft);
-        } else if (o instanceof Coverage cov) {
+        } else if (o instanceof CoverageInfoDto cov) {
             return map(cov);
-        } else if (o instanceof WMSLayer wms) {
+        } else if (o instanceof WMSLayerInfoDto wms) {
             return map(wms);
-        } else if (o instanceof WMTSLayer wmts) {
+        } else if (o instanceof WMTSLayerInfoDto wmts) {
             return map(wmts);
         }
         throw new IllegalArgumentException("Unknown Resource type: %s".formatted(o));
@@ -57,28 +57,28 @@ public interface ResourceMapper {
     @Mapping(target = "catalog", ignore = true)
     @Mapping(target = "featureType", ignore = true)
     @Mapping(source = "store", target = "store", qualifiedByName = "dataStoreInfo")
-    FeatureTypeInfo map(FeatureType o);
+    FeatureTypeInfo map(FeatureTypeInfoDto o);
 
-    FeatureType map(FeatureTypeInfo o);
+    FeatureTypeInfoDto map(FeatureTypeInfo o);
 
     @Mapping(target = "catalog", ignore = true)
     @Mapping(source = "store", target = "store", qualifiedByName = "coverageStoreInfo")
-    CoverageInfo map(Coverage o);
+    CoverageInfo map(CoverageInfoDto o);
 
-    Coverage map(CoverageInfo o);
+    CoverageInfoDto map(CoverageInfo o);
 
     @Mapping(target = "catalog", ignore = true)
     @Mapping(target = "remoteStyleInfos", ignore = true)
     @Mapping(target = "styles", ignore = true)
     @Mapping(target = "allAvailableRemoteStyles", ignore = true)
     @Mapping(source = "store", target = "store", qualifiedByName = "wmsStoreInfo")
-    WMSLayerInfo map(WMSLayer o);
+    WMSLayerInfo map(WMSLayerInfoDto o);
 
-    WMSLayer map(WMSLayerInfo o);
+    WMSLayerInfoDto map(WMSLayerInfo o);
 
     @Mapping(target = "catalog", ignore = true)
     @Mapping(source = "store", target = "store", qualifiedByName = "wmtsStoreInfo")
-    WMTSLayerInfo map(WMTSLayer o);
+    WMTSLayerInfo map(WMTSLayerInfoDto o);
 
-    WMTSLayer map(WMTSLayerInfo o);
+    WMTSLayerInfoDto map(WMTSLayerInfo o);
 }

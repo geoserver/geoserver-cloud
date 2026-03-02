@@ -7,7 +7,7 @@ package org.geoserver.jackson.databind.catalog.mapper;
 
 import lombok.Generated;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.jackson.databind.catalog.dto.Workspace;
+import org.geoserver.jackson.databind.catalog.dto.WorkspaceInfoDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 
@@ -15,7 +15,7 @@ import org.mapstruct.Mapper;
 @AnnotateWith(value = Generated.class)
 public interface WorkspaceMapper {
 
-    WorkspaceInfo map(Workspace o);
+    WorkspaceInfo map(WorkspaceInfoDto o);
 
-    Workspace map(WorkspaceInfo o);
+    WorkspaceInfoDto map(WorkspaceInfo o);
 }

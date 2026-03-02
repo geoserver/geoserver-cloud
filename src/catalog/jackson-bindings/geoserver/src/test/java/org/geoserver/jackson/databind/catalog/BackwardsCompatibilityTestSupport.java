@@ -33,13 +33,14 @@ public abstract class BackwardsCompatibilityTestSupport {
         return objectMapper.readValue(json, type);
     }
 
-    protected void assertFilterIsInclude(org.geotools.jackson.databind.filter.dto.Filter filter) {
-        assertThat(filter).isInstanceOf(org.geotools.jackson.databind.filter.dto.Filter.IncludeFilter.class);
+    protected void assertFilterIsInclude(org.geotools.jackson.databind.filter.dto.FilterDto filter) {
+        assertThat(filter).isInstanceOf(org.geotools.jackson.databind.filter.dto.FilterDto.IncludeFilterDto.class);
     }
 
-    protected void assertFilterIsNative(org.geotools.jackson.databind.filter.dto.Filter filter, String expectedNative) {
-        assertThat(filter).isInstanceOf(org.geotools.jackson.databind.filter.dto.Filter.NativeFilter.class);
-        assertThat(((org.geotools.jackson.databind.filter.dto.Filter.NativeFilter) filter).getNative())
+    protected void assertFilterIsNative(
+            org.geotools.jackson.databind.filter.dto.FilterDto filter, String expectedNative) {
+        assertThat(filter).isInstanceOf(org.geotools.jackson.databind.filter.dto.FilterDto.NativeFilterDto.class);
+        assertThat(((org.geotools.jackson.databind.filter.dto.FilterDto.NativeFilterDto) filter).getNative())
                 .isEqualTo(expectedNative);
     }
 }

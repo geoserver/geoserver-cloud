@@ -7,7 +7,7 @@ package org.geoserver.jackson.databind.catalog.mapper;
 
 import lombok.Generated;
 import org.geoserver.catalog.StyleInfo;
-import org.geoserver.jackson.databind.catalog.dto.Style;
+import org.geoserver.jackson.databind.catalog.dto.StyleInfoDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 
@@ -15,7 +15,7 @@ import org.mapstruct.Mapper;
 @AnnotateWith(value = Generated.class)
 public interface StyleMapper {
 
-    StyleInfo map(Style o);
+    StyleInfo map(StyleInfoDto o);
 
-    Style map(StyleInfo o);
+    StyleInfoDto map(StyleInfo o);
 }

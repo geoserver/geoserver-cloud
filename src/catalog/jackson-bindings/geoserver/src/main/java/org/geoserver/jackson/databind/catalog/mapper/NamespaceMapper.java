@@ -7,7 +7,7 @@ package org.geoserver.jackson.databind.catalog.mapper;
 
 import lombok.Generated;
 import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.jackson.databind.catalog.dto.Namespace;
+import org.geoserver.jackson.databind.catalog.dto.NamespaceInfoDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,7 +17,7 @@ import org.mapstruct.Mapping;
 public interface NamespaceMapper {
 
     @Mapping(target = "prefix", source = "name")
-    NamespaceInfo map(Namespace o);
+    NamespaceInfo map(NamespaceInfoDto o);
 
-    Namespace map(NamespaceInfo o);
+    NamespaceInfoDto map(NamespaceInfo o);
 }

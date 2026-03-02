@@ -20,7 +20,7 @@ import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geotools.jackson.databind.dto.CRS;
+import org.geotools.jackson.databind.dto.CoordinateReferenceSystemDto;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -344,7 +344,7 @@ class GeoServerCatalogModuleBackwardsCompatibilityTest extends BackwardsCompatib
                   "wkt": "GEOGCS[\\"WGS 84\\"]"
                 }
                 """;
-        CRS crs = decode(json, CRS.class);
+        CoordinateReferenceSystemDto crs = decode(json, CoordinateReferenceSystemDto.class);
         assertThat(crs.getSrs()).isEqualTo("EPSG:4326");
         assertThat(crs.getWKT()).isEqualTo("GEOGCS[\"WGS 84\"]");
     }
@@ -356,7 +356,7 @@ class GeoServerCatalogModuleBackwardsCompatibilityTest extends BackwardsCompatib
                   "srs": "EPSG:3857"
                 }
                 """;
-        CRS crs = decode(json, CRS.class);
+        CoordinateReferenceSystemDto crs = decode(json, CoordinateReferenceSystemDto.class);
         assertThat(crs.getSrs()).isEqualTo("EPSG:3857");
     }
 
@@ -452,8 +452,8 @@ class GeoServerCatalogModuleBackwardsCompatibilityTest extends BackwardsCompatib
                   }
                 }
                 """;
-        org.geotools.jackson.databind.filter.dto.Filter filter =
-                decode(json, org.geotools.jackson.databind.filter.dto.Filter.class);
+        org.geotools.jackson.databind.filter.dto.FilterDto filter =
+                decode(json, org.geotools.jackson.databind.filter.dto.FilterDto.class);
         assertFilterIsNative(filter, "SELECT * FROM test");
     }
 

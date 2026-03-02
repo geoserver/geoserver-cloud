@@ -5,13 +5,15 @@
 
 package org.geotools.jackson.databind.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import org.geotools.util.NumberRange;
 
 /**
- * @see NumberRange
+ * DTO for {@link NumberRange}
  */
 @Data
+@JsonTypeName("NumberRange")
 public class NumberRangeDto {
 
     private Number min;

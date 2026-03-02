@@ -16,7 +16,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
-import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.dto.LiteralDto;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
 import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,7 +140,7 @@ class ConnectionParametersSerializerTest {
     void testAlreadyWrappedLiteral() throws Exception {
         // Create a ReferencedEnvelope already wrapped in a Literal
         ReferencedEnvelope envelope = new ReferencedEnvelope(-180, 180, -90, 90, CRS.decode("EPSG:4326", true));
-        Literal literal = Literal.valueOf(envelope);
+        LiteralDto literal = LiteralDto.valueOf(envelope);
 
         // Create test params
         ConnectionParameters params = new ConnectionParameters();

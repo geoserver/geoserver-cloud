@@ -23,16 +23,16 @@ import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
-import org.geoserver.jackson.databind.catalog.dto.AttributeType;
-import org.geoserver.jackson.databind.catalog.dto.AuthorityURL;
-import org.geoserver.jackson.databind.catalog.dto.CoverageDimension;
-import org.geoserver.jackson.databind.catalog.dto.DataLink;
-import org.geoserver.jackson.databind.catalog.dto.Dimension;
+import org.geoserver.jackson.databind.catalog.dto.AttributeTypeInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.AuthorityURLInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.CoverageDimensionInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.DataLinkInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.DimensionInfoDto;
 import org.geoserver.jackson.databind.catalog.dto.GridGeometryDto;
-import org.geoserver.jackson.databind.catalog.dto.Keyword;
-import org.geoserver.jackson.databind.catalog.dto.LayerIdentifier;
-import org.geoserver.jackson.databind.catalog.dto.Legend;
-import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
+import org.geoserver.jackson.databind.catalog.dto.KeywordInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.LayerIdentifierInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.LegendInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.MetadataLinkInfoDto;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 import org.geoserver.jackson.databind.catalog.dto.PatchDto;
 import org.geoserver.jackson.databind.catalog.dto.QueryDto;
@@ -133,9 +133,10 @@ public class GeoServerCatalogModule extends SimpleModule {
     }
 
     private void registerValueMappers() {
+        addMapperSerializer(Query.class, VALUE_MAPPER::queryToDto, QueryDto.class, VALUE_MAPPER::dtoToQuery);
         addMapperSerializer(Patch.class, PATCH_MAPPER::patchToDto, PatchDto.class, PATCH_MAPPER::dtoToPatch);
 
-        addMapperSerializer(KeywordInfo.class, VALUE_MAPPER::keyword, Keyword.class, VALUE_MAPPER::keyword);
+        addMapperSerializer(KeywordInfo.class, VALUE_MAPPER::keyword, KeywordInfoDto.class, VALUE_MAPPER::keyword);
 
         addMapperSerializer(
                 VirtualTable.class,
@@ -143,16 +144,24 @@ public class GeoServerCatalogModule extends SimpleModule {
                 VirtualTableDto.class,
                 VALUE_MAPPER::dtoToVirtualTable);
         addMapperSerializer(
-                MetadataLinkInfo.class, VALUE_MAPPER::infoToDto, MetadataLink.class, VALUE_MAPPER::dtoToInfo);
-        addMapperSerializer(LegendInfo.class, VALUE_MAPPER::infoToDto, Legend.class, VALUE_MAPPER::dtoToInfo);
+                MetadataLinkInfo.class, VALUE_MAPPER::infoToDto, MetadataLinkInfoDto.class, VALUE_MAPPER::dtoToInfo);
+        addMapperSerializer(LegendInfo.class, VALUE_MAPPER::infoToDto, LegendInfoDto.class, VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
-                LayerIdentifierInfo.class, VALUE_MAPPER::infoToDto, LayerIdentifier.class, VALUE_MAPPER::dtoToInfo);
-        addMapperSerializer(DataLinkInfo.class, VALUE_MAPPER::infoToDto, DataLink.class, VALUE_MAPPER::dtoToInfo);
-        addMapperSerializer(DimensionInfo.class, VALUE_MAPPER::infoToDto, Dimension.class, VALUE_MAPPER::dtoToInfo);
+                LayerIdentifierInfo.class,
+                VALUE_MAPPER::infoToDto,
+                LayerIdentifierInfoDto.class,
+                VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
-                CoverageDimensionInfo.class, VALUE_MAPPER::infoToDto, CoverageDimension.class, VALUE_MAPPER::dtoToInfo);
+                DataLinkInfo.class, VALUE_MAPPER::infoToDto, DataLinkInfoDto.class, VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
-                AuthorityURLInfo.class, VALUE_MAPPER::infoToDto, AuthorityURL.class, VALUE_MAPPER::dtoToInfo);
+                DimensionInfo.class, VALUE_MAPPER::infoToDto, DimensionInfoDto.class, VALUE_MAPPER::dtoToInfo);
+        addMapperSerializer(
+                CoverageDimensionInfo.class,
+                VALUE_MAPPER::infoToDto,
+                CoverageDimensionInfoDto.class,
+                VALUE_MAPPER::dtoToInfo);
+        addMapperSerializer(
+                AuthorityURLInfo.class, VALUE_MAPPER::infoToDto, AuthorityURLInfoDto.class, VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
                 GridGeometry.class,
                 VALUE_MAPPER::gridGeometry2DToDto,
@@ -166,7 +175,7 @@ public class GeoServerCatalogModule extends SimpleModule {
         addMapperSerializer(Query.class, VALUE_MAPPER::queryToDto, QueryDto.class, VALUE_MAPPER::dtoToQuery);
 
         addMapperSerializer(
-                AttributeTypeInfo.class, VALUE_MAPPER::infoToDto, AttributeType.class, VALUE_MAPPER::dtoToInfo);
+                AttributeTypeInfo.class, VALUE_MAPPER::infoToDto, AttributeTypeInfoDto.class, VALUE_MAPPER::dtoToInfo);
 
         addMapperSerializer(
                 MetadataMap.class, VALUE_MAPPER::metadataMap, MetadataMapDto.class, VALUE_MAPPER::metadataMap);

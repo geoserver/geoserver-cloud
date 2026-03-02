@@ -50,11 +50,11 @@ import org.geotools.api.filter.temporal.OverlappedBy;
 import org.geotools.api.filter.temporal.TContains;
 import org.geotools.api.filter.temporal.TEquals;
 import org.geotools.api.filter.temporal.TOverlaps;
-import org.geotools.jackson.databind.filter.dto.Filter;
-import org.geotools.jackson.databind.filter.dto.Filter.BinaryComparisonOperator;
-import org.geotools.jackson.databind.filter.dto.Filter.BinaryLogicOperator;
-import org.geotools.jackson.databind.filter.dto.Filter.BinarySpatialOperator;
-import org.geotools.jackson.databind.filter.dto.Filter.BinaryTemporalOperator;
+import org.geotools.jackson.databind.filter.dto.FilterDto;
+import org.geotools.jackson.databind.filter.dto.FilterDto.BinaryComparisonOperatorDto;
+import org.geotools.jackson.databind.filter.dto.FilterDto.BinaryLogicOperatorDto;
+import org.geotools.jackson.databind.filter.dto.FilterDto.BinarySpatialOperatorDto;
+import org.geotools.jackson.databind.filter.dto.FilterDto.BinaryTemporalOperatorDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 
@@ -62,80 +62,80 @@ import org.mapstruct.Mapper;
 @AnnotateWith(value = Generated.class)
 interface FilterToDtoMapper {
 
-    default Filter map(org.geotools.api.filter.Filter filter) {
+    default FilterDto map(org.geotools.api.filter.Filter filter) {
         if (filter == null) {
             return null;
         }
-        return (Filter) filter.accept(new MappingFilterVisitor(this), null);
+        return (FilterDto) filter.accept(new MappingFilterVisitor(this), null);
     }
 
-    Filter.NativeFilter toDto(NativeFilter filter);
+    FilterDto.NativeFilterDto toDto(NativeFilter filter);
 
-    Filter.IncludeFilter toDto(IncludeFilter filter);
+    FilterDto.IncludeFilterDto toDto(IncludeFilter filter);
 
-    Filter.ExcludeFilter toDto(ExcludeFilter filter);
+    FilterDto.ExcludeFilterDto toDto(ExcludeFilter filter);
 
-    BinarySpatialOperator.Within toDto(Within filter);
+    BinarySpatialOperatorDto.WithinDto toDto(Within filter);
 
-    BinarySpatialOperator.Touches toDto(Touches filter);
+    BinarySpatialOperatorDto.TouchesDto toDto(Touches filter);
 
-    BinarySpatialOperator.Overlaps toDto(Overlaps filter);
+    BinarySpatialOperatorDto.OverlapsDto toDto(Overlaps filter);
 
-    BinarySpatialOperator.Intersects toDto(Intersects filter);
+    BinarySpatialOperatorDto.IntersectsDto toDto(Intersects filter);
 
-    BinarySpatialOperator.Equals toDto(Equals filter);
+    BinarySpatialOperatorDto.EqualsDto toDto(Equals filter);
 
-    BinarySpatialOperator.DWithin toDto(DWithin filter);
+    BinarySpatialOperatorDto.DWithinDto toDto(DWithin filter);
 
-    BinarySpatialOperator.Disjoint toDto(Disjoint filter);
+    BinarySpatialOperatorDto.DisjointDto toDto(Disjoint filter);
 
-    BinarySpatialOperator.Crosses toDto(Crosses filter);
+    BinarySpatialOperatorDto.CrossesDto toDto(Crosses filter);
 
-    BinarySpatialOperator.Contains toDto(Contains filter);
+    BinarySpatialOperatorDto.ContainsDto toDto(Contains filter);
 
-    BinarySpatialOperator.Beyond toDto(Beyond filter);
+    BinarySpatialOperatorDto.BeyondDto toDto(Beyond filter);
 
-    BinarySpatialOperator.BBOX toDto(BBOX filter);
+    BinarySpatialOperatorDto.BBOXDto toDto(BBOX filter);
 
-    Filter.PropertyIsNil toDto(PropertyIsNil filter);
+    FilterDto.PropertyIsNilDto toDto(PropertyIsNil filter);
 
-    Filter.PropertyIsNull toDto(PropertyIsNull filter);
+    FilterDto.PropertyIsNullDto toDto(PropertyIsNull filter);
 
-    Filter.PropertyIsLike toDto(PropertyIsLike filter);
+    FilterDto.PropertyIsLikeDto toDto(PropertyIsLike filter);
 
-    BinaryComparisonOperator.PropertyIsLessThanOrEqualTo toDto(PropertyIsLessThanOrEqualTo filter);
+    BinaryComparisonOperatorDto.PropertyIsLessThanOrEqualToDto toDto(PropertyIsLessThanOrEqualTo filter);
 
-    BinaryComparisonOperator.PropertyIsLessThan toDto(PropertyIsLessThan filter);
+    BinaryComparisonOperatorDto.PropertyIsLessThanDto toDto(PropertyIsLessThan filter);
 
-    BinaryComparisonOperator.PropertyIsGreaterThanOrEqualTo toDto(PropertyIsGreaterThanOrEqualTo filter);
+    BinaryComparisonOperatorDto.PropertyIsGreaterThanOrEqualToDto toDto(PropertyIsGreaterThanOrEqualTo filter);
 
-    BinaryComparisonOperator.PropertyIsGreaterThan toDto(PropertyIsGreaterThan filter);
+    BinaryComparisonOperatorDto.PropertyIsGreaterThanDto toDto(PropertyIsGreaterThan filter);
 
-    BinaryComparisonOperator.PropertyIsNotEqualTo toDto(PropertyIsNotEqualTo filter);
+    BinaryComparisonOperatorDto.PropertyIsNotEqualToDto toDto(PropertyIsNotEqualTo filter);
 
-    BinaryComparisonOperator.PropertyIsEqualTo toDto(PropertyIsEqualTo filter);
+    BinaryComparisonOperatorDto.PropertyIsEqualToDto toDto(PropertyIsEqualTo filter);
 
-    Filter.PropertyIsBetween toDto(PropertyIsBetween filter);
+    FilterDto.PropertyIsBetweenDto toDto(PropertyIsBetween filter);
 
-    BinaryLogicOperator.And toDto(And filter);
+    BinaryLogicOperatorDto.And toDto(And filter);
 
-    BinaryLogicOperator.Or toDto(Or filter);
+    BinaryLogicOperatorDto.Or toDto(Or filter);
 
-    Filter.Not toDto(Not filter);
+    FilterDto.NotDto toDto(Not filter);
 
-    Filter.Id toDto(Id filter);
+    FilterDto.IdDto toDto(Id filter);
 
-    default Filter.Id.FeatureId map(org.geotools.api.filter.identity.Identifier id) {
+    default FilterDto.IdDto.FeatureId map(org.geotools.api.filter.identity.Identifier id) {
         if (id == null) {
             return null;
         }
-        Filter.Id.FeatureId fid;
+        FilterDto.IdDto.FeatureId fid;
         if (id instanceof ResourceId rid) {
-            Filter.Id.ResourceId resourceId = new Filter.Id.ResourceId();
+            FilterDto.IdDto.ResourceId resourceId = new FilterDto.IdDto.ResourceId();
             fid = resourceId;
             resourceId.setStartTime(rid.getStartTime()).setEndTime(rid.getEndTime());
         } else if (id instanceof FeatureId) {
-            fid = new Filter.Id.FeatureId();
+            fid = new FilterDto.IdDto.FeatureId();
         } else {
             throw new IllegalArgumentException(
                     "Identifier type not supported: %s".formatted(id.getClass().getCanonicalName()));
@@ -146,31 +146,31 @@ interface FilterToDtoMapper {
         return fid;
     }
 
-    BinaryTemporalOperator.TEquals toDto(TEquals filter);
+    BinaryTemporalOperatorDto.TEqualsDto toDto(TEquals filter);
 
-    BinaryTemporalOperator.TContains toDto(TContains filter);
+    BinaryTemporalOperatorDto.TContainsDto toDto(TContains filter);
 
-    BinaryTemporalOperator.OverlappedBy toDto(OverlappedBy filter);
+    BinaryTemporalOperatorDto.OverlappedByDto toDto(OverlappedBy filter);
 
-    BinaryTemporalOperator.MetBy toDto(MetBy filter);
+    BinaryTemporalOperatorDto.MetByDto toDto(MetBy filter);
 
-    BinaryTemporalOperator.Meets toDto(Meets filter);
+    BinaryTemporalOperatorDto.MeetsDto toDto(Meets filter);
 
-    BinaryTemporalOperator.Ends toDto(Ends filter);
+    BinaryTemporalOperatorDto.EndsDto toDto(Ends filter);
 
-    BinaryTemporalOperator.EndedBy toDto(EndedBy filter);
+    BinaryTemporalOperatorDto.EndedByDto toDto(EndedBy filter);
 
-    BinaryTemporalOperator.During toDto(During filter);
+    BinaryTemporalOperatorDto.DuringDto toDto(During filter);
 
-    BinaryTemporalOperator.BegunBy toDto(BegunBy filter);
+    BinaryTemporalOperatorDto.BegunByDto toDto(BegunBy filter);
 
-    BinaryTemporalOperator.Begins toDto(Begins filter);
+    BinaryTemporalOperatorDto.BeginsDto toDto(Begins filter);
 
-    BinaryTemporalOperator.Before toDto(Before filter);
+    BinaryTemporalOperatorDto.BeforeDto toDto(Before filter);
 
-    BinaryTemporalOperator.AnyInteracts toDto(AnyInteracts filter);
+    BinaryTemporalOperatorDto.AnyInteractsDto toDto(AnyInteracts filter);
 
-    BinaryTemporalOperator.After toDto(After filter);
+    BinaryTemporalOperatorDto.AfterDto toDto(After filter);
 
-    BinaryTemporalOperator.TOverlaps toDto(TOverlaps overlaps);
+    BinaryTemporalOperatorDto.TOverlapsDto toDto(TOverlaps overlaps);
 }

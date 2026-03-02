@@ -8,17 +8,20 @@ package org.geoserver.jackson.databind.config.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 
-/** */
+/** DTO for {@link org.geoserver.cog.CogSettings} */
 @JsonTypeName("CogSettings")
 @Data
 public class CogSettingsDto {
-    public enum RangeReaderType {
+
+    /** DTO for {@link org.geoserver.cog.CogSettings.RangeReaderType} */
+    @JsonTypeName("RangeReaderType")
+    public enum RangeReaderTypeDto {
         HTTP,
         S3,
         GS,
         Azure
     }
 
-    private RangeReaderType rangeReaderSettings = RangeReaderType.HTTP;
+    private RangeReaderTypeDto rangeReaderSettings = RangeReaderTypeDto.HTTP;
     private boolean useCachingStream;
 }

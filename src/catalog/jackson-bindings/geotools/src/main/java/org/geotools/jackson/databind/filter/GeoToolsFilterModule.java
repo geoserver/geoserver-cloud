@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
+import org.geotools.api.feature.type.Name;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.capability.FunctionName;
 import org.geotools.api.filter.expression.Expression;
@@ -17,12 +18,16 @@ import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.api.util.InternationalString;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.jackson.databind.dto.CoordinateReferenceSystemDto;
 import org.geotools.jackson.databind.dto.NameDto;
 import org.geotools.jackson.databind.dto.NumberRangeDto;
 import org.geotools.jackson.databind.dto.VersionDto;
-import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto;
+import org.geotools.jackson.databind.filter.dto.FilterDto;
 import org.geotools.jackson.databind.filter.dto.LiteralDeserializer;
+import org.geotools.jackson.databind.filter.dto.LiteralDto;
 import org.geotools.jackson.databind.filter.dto.LiteralSerializer;
+import org.geotools.jackson.databind.filter.dto.SortByDto;
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
 import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
@@ -83,25 +88,16 @@ public class GeoToolsFilterModule extends SimpleModule {
 
         log.debug("registering jackson de/serializers for geotools Filter and Expression");
 
-        addMapperSerializer(
-                Expression.class,
-                EXPRESSIONS::map,
-                org.geotools.jackson.databind.filter.dto.Expression.class,
-                EXPRESSIONS::map);
+        addMapperSerializer(Expression.class, EXPRESSIONS::map, ExpressionDto.class, EXPRESSIONS::map);
 
-        addSerializer(Literal.class, new LiteralSerializer(), new LiteralDeserializer());
+        addSerializer(LiteralDto.class, new LiteralSerializer(), new LiteralDeserializer());
 
-        addMapperSerializer(
-                Filter.class, FILTERS::map, org.geotools.jackson.databind.filter.dto.Filter.class, FILTERS::map);
+        addMapperSerializer(Filter.class, FILTERS::map, FilterDto.class, FILTERS::map);
+
+        addMapperSerializer(SortBy.class, FILTERS::sortByToDto, SortByDto.class, FILTERS::dtoToSortBy);
 
         addMapperSerializer(
-                SortBy.class, FILTERS::map, org.geotools.jackson.databind.filter.dto.SortBy.class, FILTERS::map);
-
-        addMapperSerializer(
-                FunctionName.class,
-                EXPRESSIONS::map,
-                org.geotools.jackson.databind.filter.dto.Expression.FunctionName.class,
-                EXPRESSIONS::map);
+                FunctionName.class, EXPRESSIONS::map, ExpressionDto.FunctionNameDto.class, EXPRESSIONS::map);
 
         addCustomLiteralValueSerializers();
     }
@@ -115,17 +111,18 @@ public class GeoToolsFilterModule extends SimpleModule {
     /** */
     private void addCustomLiteralValueSerializers() {
         addMapperSerializer(
-                CoordinateReferenceSystem.class, VALUES::crs, org.geotools.jackson.databind.dto.CRS.class, VALUES::crs);
-        addMapperSerializer(
-                CoordinateReferenceSystem.class, VALUES::crs, org.geotools.jackson.databind.dto.CRS.class, VALUES::crs);
+                CoordinateReferenceSystem.class,
+                VALUES::crsToDto,
+                CoordinateReferenceSystemDto.class,
+                VALUES::dtoToCrs);
 
         addMapperSerializer(
                 ReferencedEnvelope.class,
                 VALUES::referencedEnvelope,
-                org.geotools.jackson.databind.dto.Envelope.class,
+                org.geotools.jackson.databind.dto.ReferencedEnvelopeDto.class,
                 VALUES::referencedEnvelope);
         addMapperSerializer(java.awt.Color.class, VALUES::awtColorToString, String.class, VALUES::stringToAwtColor);
-        addMapperSerializer(org.geotools.api.feature.type.Name.class, VALUES::map, NameDto.class, VALUES::map);
+        addMapperSerializer(Name.class, VALUES::map, NameDto.class, VALUES::map);
 
         addMapperSerializer(
                 org.geotools.util.Version.class, VALUES::versionToDto, VersionDto.class, VALUES::dtoToVersion);

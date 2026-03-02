@@ -15,17 +15,18 @@ import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 import org.geotools.api.feature.type.Name;
+import org.geotools.api.filter.MultiValuedFilter;
 import org.geotools.api.referencing.FactoryException;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.api.util.InternationalString;
 import org.geotools.data.util.MeasureConverterFactory;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.jackson.databind.dto.CRS;
-import org.geotools.jackson.databind.dto.Envelope;
+import org.geotools.jackson.databind.dto.CoordinateReferenceSystemDto;
 import org.geotools.jackson.databind.dto.NumberRangeDto;
+import org.geotools.jackson.databind.dto.ReferencedEnvelopeDto;
 import org.geotools.jackson.databind.dto.VersionDto;
-import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter.MatchAction;
+import org.geotools.jackson.databind.filter.dto.FilterDto;
 import org.geotools.measure.Measure;
 import org.geotools.referencing.CRS.AxisOrder;
 import org.geotools.referencing.wkt.Formattable;
@@ -50,11 +51,13 @@ public abstract class GeoToolsValueMappers {
     private static final org.geotools.util.Converter measure2Str =
             new MeasureConverterFactory().createConverter(Measure.class, String.class, null);
 
-    public abstract MatchAction matchAction(org.geotools.api.filter.MultiValuedFilter.MatchAction matchAction);
+    public abstract FilterDto.MultiValuedFilterDto.MatchActionDto matchAction(
+            MultiValuedFilter.MatchAction matchAction);
 
-    public abstract org.geotools.api.filter.MultiValuedFilter.MatchAction matchAction(MatchAction matchAction);
+    public abstract MultiValuedFilter.MatchAction matchAction(
+            FilterDto.MultiValuedFilterDto.MatchActionDto matchAction);
 
-    public NamespaceSupport map(Map<String, String> map) {
+    public NamespaceSupport mapToNamespaceSupport(Map<String, String> map) {
         if (map == null) {
             return null;
         }
@@ -74,11 +77,11 @@ public abstract class GeoToolsValueMappers {
         return map;
     }
 
-    public InternationalString map(String message) {
+    public InternationalString stringToI18nString(String message) {
         return convert(message, SimpleInternationalString::new);
     }
 
-    public String map(InternationalString string) {
+    public String i18nStringToDto(InternationalString string) {
         return convert(string, InternationalString::toString);
     }
 
@@ -128,7 +131,7 @@ public abstract class GeoToolsValueMappers {
         return Converters.convert(color, java.awt.Color.class);
     }
 
-    public CoordinateReferenceSystem crs(CRS source) {
+    public CoordinateReferenceSystem dtoToCrs(CoordinateReferenceSystemDto source) {
         if (source == null) {
             return null;
         }
@@ -144,11 +147,11 @@ public abstract class GeoToolsValueMappers {
         }
     }
 
-    public CRS crs(CoordinateReferenceSystem source) {
+    public CoordinateReferenceSystemDto crsToDto(CoordinateReferenceSystem source) {
         if (source == null) {
             return null;
         }
-        CRS crs = new CRS();
+        CoordinateReferenceSystemDto crs = new CoordinateReferenceSystemDto();
 
         String srs = null;
         AxisOrder axisOrder = org.geotools.referencing.CRS.getAxisOrder(source, false);
@@ -175,11 +178,11 @@ public abstract class GeoToolsValueMappers {
         return crs;
     }
 
-    public Envelope referencedEnvelope(ReferencedEnvelope env) {
+    public ReferencedEnvelopeDto referencedEnvelope(ReferencedEnvelope env) {
         if (env == null) {
             return null;
         }
-        Envelope dto = new Envelope();
+        ReferencedEnvelopeDto dto = new ReferencedEnvelopeDto();
         int dimension = env.getDimension();
         double[] coordinates = new double[2 * dimension];
         for (int dim = 0, j = 0; dim < dimension; dim++, j += 2) {
@@ -187,15 +190,15 @@ public abstract class GeoToolsValueMappers {
             coordinates[j + 1] = env.getMaximum(dim);
         }
         dto.setCoordinates(coordinates);
-        dto.setCrs(crs(env.getCoordinateReferenceSystem()));
+        dto.setCrs(crsToDto(env.getCoordinateReferenceSystem()));
         return dto;
     }
 
-    public ReferencedEnvelope referencedEnvelope(Envelope source) {
+    public ReferencedEnvelope referencedEnvelope(ReferencedEnvelopeDto source) {
         if (source == null) {
             return null;
         }
-        CoordinateReferenceSystem crs = crs(source.getCrs());
+        CoordinateReferenceSystem crs = dtoToCrs(source.getCrs());
         ReferencedEnvelope env = new ReferencedEnvelope(crs);
         double[] coords = source.getCoordinates();
         env.init(coords[0], coords[1], coords[2], coords[3]);

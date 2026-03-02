@@ -55,24 +55,24 @@ import org.geoserver.catalog.impl.WMSStoreInfoImpl;
 import org.geoserver.catalog.impl.WMTSLayerInfoImpl;
 import org.geoserver.catalog.impl.WMTSStoreInfoImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
-import org.geoserver.jackson.databind.catalog.dto.Coverage;
-import org.geoserver.jackson.databind.catalog.dto.CoverageDimension;
-import org.geoserver.jackson.databind.catalog.dto.CoverageStore;
-import org.geoserver.jackson.databind.catalog.dto.DataStore;
-import org.geoserver.jackson.databind.catalog.dto.FeatureType;
-import org.geoserver.jackson.databind.catalog.dto.Keyword;
-import org.geoserver.jackson.databind.catalog.dto.Layer;
-import org.geoserver.jackson.databind.catalog.dto.LayerGroup;
-import org.geoserver.jackson.databind.catalog.dto.Legend;
-import org.geoserver.jackson.databind.catalog.dto.Map;
-import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
-import org.geoserver.jackson.databind.catalog.dto.Namespace;
-import org.geoserver.jackson.databind.catalog.dto.Style;
-import org.geoserver.jackson.databind.catalog.dto.WMSLayer;
-import org.geoserver.jackson.databind.catalog.dto.WMSStore;
-import org.geoserver.jackson.databind.catalog.dto.WMTSLayer;
-import org.geoserver.jackson.databind.catalog.dto.WMTSStore;
-import org.geoserver.jackson.databind.catalog.dto.Workspace;
+import org.geoserver.jackson.databind.catalog.dto.CoverageDimensionInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.CoverageInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.CoverageStoreInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.DataStoreInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.FeatureTypeInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.KeywordInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.LayerGroupInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.LayerInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.LegendInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.MapInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.MetadataLinkInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.NamespaceInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.StyleInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WMSLayerInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WMSStoreInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WMTSLayerInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WMTSStoreInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WorkspaceInfoDto;
 import org.geoserver.ows.util.OwsUtils;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.TargetType;
@@ -83,67 +83,69 @@ import org.mapstruct.TargetType;
  */
 public class ObjectFacotries {
 
-    public @ObjectFactory WorkspaceInfo workspaceInfo(Workspace source, @TargetType Class<WorkspaceInfo> type) {
+    public @ObjectFactory WorkspaceInfo workspaceInfo(WorkspaceInfoDto source, @TargetType Class<WorkspaceInfo> type) {
         return create(source.getId(), WorkspaceInfoImpl::new);
     }
 
-    public @ObjectFactory NamespaceInfo namespaceInfo(Namespace source, @TargetType Class<NamespaceInfo> type) {
+    public @ObjectFactory NamespaceInfo namespaceInfo(NamespaceInfoDto source, @TargetType Class<NamespaceInfo> type) {
         return create(source.getId(), NamespaceInfoImpl::new);
     }
 
-    public @ObjectFactory DataStoreInfo dataStoreInfo(DataStore source, @TargetType Class<DataStoreInfo> type) {
+    public @ObjectFactory DataStoreInfo dataStoreInfo(DataStoreInfoDto source, @TargetType Class<DataStoreInfo> type) {
         return create(source.getId(), () -> new DataStoreInfoImpl((Catalog) null));
     }
 
     public @ObjectFactory CoverageStoreInfo coverageStoreInfo(
-            CoverageStore source, @TargetType Class<CoverageStoreInfo> type) {
+            CoverageStoreInfoDto source, @TargetType Class<CoverageStoreInfo> type) {
         return create(source.getId(), () -> new CoverageStoreInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory WMSStoreInfo wmsStoreInfo(WMSStore source, @TargetType Class<WMSStoreInfo> type) {
+    public @ObjectFactory WMSStoreInfo wmsStoreInfo(WMSStoreInfoDto source, @TargetType Class<WMSStoreInfo> type) {
         return create(source.getId(), () -> new WMSStoreInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory WMTSStoreInfo wmtsStoreInfo(WMTSStore source, @TargetType Class<WMTSStoreInfo> type) {
+    public @ObjectFactory WMTSStoreInfo wmtsStoreInfo(WMTSStoreInfoDto source, @TargetType Class<WMTSStoreInfo> type) {
         return create(source.getId(), () -> new WMTSStoreInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory FeatureTypeInfo featureTypeInfo(FeatureType source, @TargetType Class<FeatureTypeInfo> type) {
+    public @ObjectFactory FeatureTypeInfo featureTypeInfo(
+            FeatureTypeInfoDto source, @TargetType Class<FeatureTypeInfo> type) {
         return create(source.getId(), () -> new FeatureTypeInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory CoverageInfo coverageInfo(Coverage source, @TargetType Class<CoverageInfo> type) {
+    public @ObjectFactory CoverageInfo coverageInfo(CoverageInfoDto source, @TargetType Class<CoverageInfo> type) {
         return create(source.getId(), () -> new CoverageInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory WMSLayerInfo wmsLayerInfo(WMSLayer source, @TargetType Class<WMSLayerInfo> type) {
+    public @ObjectFactory WMSLayerInfo wmsLayerInfo(WMSLayerInfoDto source, @TargetType Class<WMSLayerInfo> type) {
         return create(source.getId(), () -> new WMSLayerInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory WMTSLayerInfo wmtsLayerInfo(WMTSLayer source, @TargetType Class<WMTSLayerInfo> type) {
+    public @ObjectFactory WMTSLayerInfo wmtsLayerInfo(WMTSLayerInfoDto source, @TargetType Class<WMTSLayerInfo> type) {
         return create(source.getId(), () -> new WMTSLayerInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory LayerInfo layerInfo(Layer source, @TargetType Class<LayerInfo> type) {
+    public @ObjectFactory LayerInfo layerInfo(LayerInfoDto source, @TargetType Class<LayerInfo> type) {
         return create(source.getId(), LayerInfoImpl::new);
     }
 
-    public @ObjectFactory LayerGroupInfo layerGroupInfo(LayerGroup source, @TargetType Class<LayerGroupInfo> type) {
+    public @ObjectFactory LayerGroupInfo layerGroupInfo(
+            LayerGroupInfoDto source, @TargetType Class<LayerGroupInfo> type) {
         return create(source.getId(), LayerGroupInfoImpl::new);
     }
 
     public @ObjectFactory LayerGroupStyle layerGroupStyle( //
-            org.geoserver.jackson.databind.catalog.dto.LayerGroupStyle source, //
+            org.geoserver.jackson.databind.catalog.dto.LayerGroupStyleDto source, //
             @TargetType Class<LayerGroupStyle> type) {
 
         return create(source.getId(), LayerGroupStyleImpl::new);
     }
 
-    public @ObjectFactory StyleInfo styleInfo(Style source, @TargetType Class<StyleInfo> type) {
+    public @ObjectFactory StyleInfo styleInfo(StyleInfoDto source, @TargetType Class<StyleInfo> type) {
         return create(source.getId(), () -> new StyleInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory MapInfo mapInfo(Map source, @TargetType Class<MapInfo> type) {
+    public @ObjectFactory MapInfo mapInfo(MapInfoDto source, @TargetType Class<MapInfo> type) {
         return create(source.getId(), MapInfoImpl::new);
     }
 
@@ -153,13 +155,13 @@ public class ObjectFacotries {
         return info;
     }
 
-    public @ObjectFactory LegendInfo legendInfo(Legend source) {
+    public @ObjectFactory LegendInfo legendInfo(LegendInfoDto source) {
         LegendInfoImpl l = new LegendInfoImpl();
         l.setId(source.getId());
         return l;
     }
 
-    public @ObjectFactory MetadataLinkInfo metadataLinkInfo(MetadataLink source) {
+    public @ObjectFactory MetadataLinkInfo metadataLinkInfo(MetadataLinkInfoDto source) {
         MetadataLinkInfoImpl l = new MetadataLinkInfoImpl();
         l.setId(source.getId());
         return l;
@@ -177,7 +179,7 @@ public class ObjectFacotries {
         return new AttributeTypeInfoImpl();
     }
 
-    public @ObjectFactory CoverageDimensionInfo coverageDimensionInfo(CoverageDimension dto) {
+    public @ObjectFactory CoverageDimensionInfo coverageDimensionInfo(CoverageDimensionInfoDto dto) {
         CoverageDimensionImpl impl = new CoverageDimensionImpl();
         impl.setId(dto.getId());
         return impl;
@@ -187,11 +189,11 @@ public class ObjectFacotries {
         return new DimensionInfoImpl();
     }
 
-    public @ObjectFactory KeywordInfo keywordInfo(Keyword source) {
+    public @ObjectFactory KeywordInfo keywordInfo(KeywordInfoDto source) {
         return new org.geoserver.catalog.Keyword(source.getValue());
     }
 
-    public @ObjectFactory MetadataLinkInfoImpl metadataLinkInfo() {
+    public @ObjectFactory MetadataLinkInfo metadataLinkInfo() {
         return new MetadataLinkInfoImpl();
     }
 

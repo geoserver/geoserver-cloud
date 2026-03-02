@@ -13,12 +13,12 @@ import static org.locationtech.jts.geom.Geometry.TYPENAME_MULTIPOLYGON;
 import static org.locationtech.jts.geom.Geometry.TYPENAME_POINT;
 import static org.locationtech.jts.geom.Geometry.TYPENAME_POLYGON;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.NonNull;
-import org.geotools.jdbc.VirtualTable;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.LineString;
@@ -37,8 +37,9 @@ import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
-/** DTO type for {@link VirtualTable} */
+/** DTO type for {@link org.geotools.jdbc.VirtualTable} */
 @Data
+@JsonTypeName("VirtualTable")
 public class VirtualTableDto {
 
     private String name;

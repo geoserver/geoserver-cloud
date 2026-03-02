@@ -9,14 +9,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.io.Serial;
 import java.util.LinkedHashMap;
-import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.dto.LiteralDto;
 
 /**
+ * DTO for {@link org.geoserver.catalog.MetadataMap}
  * @since 1.0
  */
 @JsonTypeName("MetadataMap")
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
-public class MetadataMapDto extends LinkedHashMap<String, Literal> {
+public class MetadataMapDto extends LinkedHashMap<String, LiteralDto> {
 
     @Serial
     private static final long serialVersionUID = 1L;

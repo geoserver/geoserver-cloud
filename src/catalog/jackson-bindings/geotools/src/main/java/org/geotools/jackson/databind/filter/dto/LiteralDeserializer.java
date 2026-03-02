@@ -44,16 +44,16 @@ import tools.jackson.databind.node.NullNode;
  *
  * @since 1.0
  */
-public class LiteralDeserializer extends ValueDeserializer<Literal> {
+public class LiteralDeserializer extends ValueDeserializer<LiteralDto> {
 
     private static GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
 
     @Override
-    public Literal deserialize(JsonParser parser, DeserializationContext ctxt) {
+    public LiteralDto deserialize(JsonParser parser, DeserializationContext ctxt) {
         expect(parser.currentToken(), JsonToken.START_OBJECT);
         final Class<?> type = readType(parser);
         if (null == type) {
-            return Literal.valueOf(null);
+            return LiteralDto.valueOf(null);
         }
         final Class<?> contentType;
         final Object value;
@@ -82,7 +82,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
         }
         JsonToken token = parser.nextToken();
         expect(token, JsonToken.END_OBJECT);
-        return Literal.valueOf(value);
+        return LiteralDto.valueOf(value);
     }
 
     private Object readMap(JsonParser parser, DeserializationContext ctxt) {
@@ -93,7 +93,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
         String key;
         while (null != (key = parser.nextName())) {
             expect(parser.nextToken(), JsonToken.START_OBJECT);
-            Literal valueLiteral = ctxt.readValue(parser, Literal.class);
+            LiteralDto valueLiteral = ctxt.readValue(parser, LiteralDto.class);
             Object value = valueLiteral.getValue();
             parsed.put(key, value);
         }
@@ -152,7 +152,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
             Object item = null;
             if (JsonToken.VALUE_NULL != nextToken) {
                 item = ctxt.readValue(parser, arrayComponentType);
-                if (item instanceof Literal literal) {
+                if (item instanceof LiteralDto literal) {
                     item = literal.getValue();
                 }
             }
@@ -247,7 +247,7 @@ public class LiteralDeserializer extends ValueDeserializer<Literal> {
             if (node instanceof NullNode) {
                 valuesList.add(null);
             } else if (arrayComponentType != null) {
-                if (Literal.class.isAssignableFrom(arrayComponentType)) {
+                if (LiteralDto.class.isAssignableFrom(arrayComponentType)) {
                     // some special care in case of Literal.class
                     final JsonNode literalNode = node.get("Literal");
                     final JsonNode valueNode = literalNode.get("value");

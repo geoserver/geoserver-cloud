@@ -4,7 +4,7 @@
  */
 package org.geoserver.jackson.databind.catalog;
 
-import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.dto.LiteralDto;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
@@ -36,7 +36,7 @@ public class ConnectionParametersDeserializer extends ValueDeserializer<Connecti
             Object value = readValue(p, ctxt);
 
             // If it's a Literal, unwrap it
-            if (value instanceof Literal literal) {
+            if (value instanceof LiteralDto literal) {
                 result.put(fieldName, literal.getValue());
             } else {
                 result.put(fieldName, value);
@@ -51,7 +51,7 @@ public class ConnectionParametersDeserializer extends ValueDeserializer<Connecti
         if (p.currentToken() == JsonToken.START_OBJECT) {
             try {
                 // Try to deserialize as a Literal
-                return ctxt.readValue(p, Literal.class);
+                return ctxt.readValue(p, LiteralDto.class);
             } catch (Exception e) {
                 // If Literal deserialization fails, fall back to basic deserialization
                 // for simple types like Map

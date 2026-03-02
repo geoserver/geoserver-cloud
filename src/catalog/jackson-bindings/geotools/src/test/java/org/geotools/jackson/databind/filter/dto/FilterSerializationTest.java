@@ -31,18 +31,18 @@ class FilterSerializationTest extends FilterRoundtripTest {
     }
 
     @SuppressWarnings("unchecked")
-    protected @Override <F extends Filter> F roundtripTest(F dto) throws Exception {
+    protected @Override <F extends FilterDto> F roundtripTest(F dto) throws Exception {
         String serialized = objectMapper.writeValueAsString(dto);
         print("serialized: {}", serialized);
-        Filter deserialized = objectMapper.readValue(serialized, Filter.class);
+        FilterDto deserialized = objectMapper.readValue(serialized, FilterDto.class);
         assertEquals(dto, deserialized);
         return (F) deserialized;
     }
 
-    protected @Override void roundtripTest(SortBy dto) throws Exception {
+    protected @Override void roundtripTest(SortByDto dto) throws Exception {
         String serialized = objectMapper.writeValueAsString(dto);
         print("serialized: {}", serialized);
-        SortBy deserialized = objectMapper.readValue(serialized, SortBy.class);
+        SortByDto deserialized = objectMapper.readValue(serialized, SortByDto.class);
         assertEquals(dto, deserialized);
     }
 }

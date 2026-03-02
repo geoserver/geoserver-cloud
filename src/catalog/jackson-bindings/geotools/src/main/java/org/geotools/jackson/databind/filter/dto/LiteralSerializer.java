@@ -41,7 +41,7 @@ import tools.jackson.databind.type.TypeFactory;
  *
  * @since 1.0
  */
-public class LiteralSerializer extends StdSerializer<Literal> {
+public class LiteralSerializer extends StdSerializer<LiteralDto> {
 
     /** */
     static final String TYPE_KEY = "type";
@@ -55,7 +55,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     final GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
 
     public LiteralSerializer() {
-        super(Literal.class);
+        super(LiteralDto.class);
     }
 
     protected GeoToolsValueMappers classNameMapper() {
@@ -64,7 +64,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
 
     @Override
     public void serializeWithType(
-            Literal value, JsonGenerator g, SerializationContext provider, TypeSerializer typeSer) {
+            LiteralDto value, JsonGenerator g, SerializationContext provider, TypeSerializer typeSer) {
 
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, provider, typeSer.typeId(value, JsonToken.VALUE_STRING));
         serialize(value, g, provider);
@@ -72,7 +72,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     }
 
     @Override
-    public void serialize(Literal literal, JsonGenerator gen, SerializationContext serializers) {
+    public void serialize(LiteralDto literal, JsonGenerator gen, SerializationContext serializers) {
 
         final Object value = literal.getValue();
 
@@ -136,7 +136,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         gen.writeStartObject();
         for (Map.Entry<?, ?> e : value.entrySet()) {
             String k = e.getKey().toString();
-            Literal v = Literal.valueOf(e.getValue());
+            LiteralDto v = LiteralDto.valueOf(e.getValue());
             gen.writePOJOProperty(k, v);
         }
         gen.writeEndObject();
@@ -168,7 +168,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         final Class<?> contentType = findContentType(collection, provider);
 
         final UnaryOperator<Object> valueMapper =
-                Literal.class.equals(contentType) ? Literal::valueOf : UnaryOperator.identity();
+                LiteralDto.class.equals(contentType) ? LiteralDto::valueOf : UnaryOperator.identity();
 
         gen.writeStringProperty(TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
 
@@ -202,7 +202,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
             return valueSerializer.handledType();
         }
 
-        return Literal.class;
+        return LiteralDto.class;
     }
 
     protected Class<?> collectionType(Object value) {
