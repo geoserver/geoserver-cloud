@@ -29,7 +29,7 @@ public class MapperSerializer<I, D> extends StdSerializer<I> {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final transient Function<I, D> mapper;
+    private final Function<I, D> mapper;
 
     private Class<I> type;
 
