@@ -19,7 +19,7 @@ import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BeforeRemoveValidatorTest {
+class BeforeRemoveValidatorTest {
 
     Catalog catalog;
     GeoServerImpl geoServer;
