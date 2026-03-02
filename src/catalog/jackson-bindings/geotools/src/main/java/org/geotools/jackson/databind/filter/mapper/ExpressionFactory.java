@@ -7,8 +7,8 @@ package org.geotools.jackson.databind.filter.mapper;
 
 import org.geotools.api.filter.FilterFactory;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
-import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.PropertyNameDto;
+import org.geotools.jackson.databind.filter.dto.LiteralDto;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.factory.Mappers;
 import org.xml.sax.helpers.NamespaceSupport;
@@ -17,14 +17,14 @@ public class ExpressionFactory {
 
     private final FilterFactory factory = CommonFactoryFinder.getFilterFactory();
 
-    public @ObjectFactory org.geotools.api.filter.expression.PropertyName propertyName(PropertyName source) {
+    public @ObjectFactory org.geotools.api.filter.expression.PropertyName propertyName(PropertyNameDto source) {
         GeoToolsValueMappers values = Mappers.getMapper(GeoToolsValueMappers.class);
         String localName = source.getPropertyName();
-        NamespaceSupport namespaceSupport = values.map(source.getNamespaceContext());
+        NamespaceSupport namespaceSupport = values.mapToNamespaceSupport(source.getNamespaceContext());
         return factory.property(localName, namespaceSupport);
     }
 
-    public @ObjectFactory org.geotools.api.filter.expression.Literal literal(Literal source) {
+    public @ObjectFactory org.geotools.api.filter.expression.Literal literal(LiteralDto source) {
         return factory.literal(source.getValue());
     }
 }

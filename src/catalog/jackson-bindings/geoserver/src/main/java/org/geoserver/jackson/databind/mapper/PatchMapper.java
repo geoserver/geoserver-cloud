@@ -15,13 +15,13 @@ import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.catalog.plugin.resolving.ProxyUtils;
-import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.PatchDto;
+import org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto;
 import org.geoserver.jackson.databind.catalog.mapper.GeoServerValueObjectsMapper;
-import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
-import org.geoserver.jackson.databind.config.dto.mapper.ObjectFacotries;
-import org.geoserver.jackson.databind.config.dto.mapper.WPSMapper;
-import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geoserver.jackson.databind.config.mapper.GeoServerConfigMapper;
+import org.geoserver.jackson.databind.config.mapper.ObjectFactories;
+import org.geoserver.jackson.databind.config.mapper.WPSMapper;
+import org.geotools.jackson.databind.filter.dto.LiteralDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -31,35 +31,35 @@ import org.mapstruct.factory.Mappers;
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         uses = {
-            ObjectFacotries.class,
+            ObjectFactories.class,
             WPSMapper.class,
             GeoServerValueObjectsMapper.class,
-            InfoReferenceMapper.class,
+            ResolvingProxyMapper.class,
             GeoServerConfigMapper.class
         })
 @AnnotateWith(value = Generated.class)
 public abstract class PatchMapper {
 
-    private static final InfoReferenceMapper REFS = Mappers.getMapper(InfoReferenceMapper.class);
+    private static final ResolvingProxyMapper REFS = Mappers.getMapper(ResolvingProxyMapper.class);
 
     @Mapping(target = "propertyNames", ignore = true)
     public abstract Patch dtoToPatch(PatchDto dto);
 
     public abstract PatchDto patchToDto(Patch patch);
 
-    protected @NonNull Literal literalValueToDto(final Object value) {
+    protected @NonNull LiteralDto literalValueToDto(final Object value) {
         Object proxified = valueToDto(value);
-        return Literal.valueOf(proxified);
+        return LiteralDto.valueOf(proxified);
     }
 
-    protected Object literalDtoToValueObject(Literal l) {
+    protected Object literalDtoToValueObject(LiteralDto l) {
         Object value = l == null ? null : l.getValue();
         return dtoToValue(value);
     }
 
     private Object dtoToValue(final Object valueDto) {
         Object value = valueDto;
-        if (valueDto instanceof InfoReference infoRef) {
+        if (valueDto instanceof ResolvingProxyDto infoRef) {
             value = REFS.referenceToInfo(infoRef);
         } else if (valueDto instanceof Collection<?> c) {
             value = copyOf(c, this::dtoToValue);
@@ -73,7 +73,7 @@ public abstract class PatchMapper {
 
     /**
      * If value is an identified {@link Info} (catalog or config object), returns an {@link
-     * InfoReference} instead, to be resolved at the receiving end
+     * ResolvingProxyDto} instead, to be resolved at the receiving end
      */
     @SuppressWarnings("unchecked")
     private <V, R> R valueToDto(final V value) {

@@ -8,7 +8,7 @@ package org.geoserver.jackson.databind.config;
 import lombok.NonNull;
 import org.geoserver.catalog.Info;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
-import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
+import org.geoserver.jackson.databind.config.mapper.GeoServerConfigMapper;
 import org.geotools.jackson.databind.util.MapperDeserializer;
 import org.mapstruct.factory.Mappers;
 

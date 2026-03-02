@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.geotools.jackson.databind.filter.ExpressionRoundtripTest;
-import org.geotools.jackson.databind.filter.dto.Expression;
-import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.FunctionNameDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.mapstruct.factory.Mappers;
 
@@ -24,23 +24,23 @@ class ExpressionMapperTest extends ExpressionRoundtripTest {
     }
 
     @SuppressWarnings("unchecked")
-    protected @Override <E extends Expression> E roundtripTest(E dto) throws Exception {
+    protected @Override <E extends ExpressionDto> E roundtripTest(E dto) throws Exception {
         org.geotools.api.filter.expression.Expression expression = expressions.map(dto);
         assertNotNull(expression);
 
-        Expression roundTripped = expressions.map(expression);
+        ExpressionDto roundTripped = expressions.map(expression);
         assertEquals(dto, roundTripped);
         return (E) roundTripped;
     }
 
-    protected @Override FunctionName roundtripTest(FunctionName dto) throws Exception {
+    protected @Override FunctionNameDto roundtripTest(FunctionNameDto dto) throws Exception {
         org.geotools.api.filter.capability.FunctionName functionName = expressions.map(dto);
         assertNotNull(functionName);
         assertEquals(dto.getName(), functionName.getName());
         assertEquals(dto.getArgumentCount(), functionName.getArgumentCount());
         assertEquals(dto.getArgumentNames(), functionName.getArgumentNames());
 
-        FunctionName roundTripped = expressions.map(functionName);
+        FunctionNameDto roundTripped = expressions.map(functionName);
         assertEquals(dto, roundTripped);
         return roundTripped;
     }

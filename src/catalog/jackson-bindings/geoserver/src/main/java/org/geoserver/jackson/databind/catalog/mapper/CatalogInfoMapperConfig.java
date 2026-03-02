@@ -5,8 +5,8 @@
 
 package org.geoserver.jackson.databind.catalog.mapper;
 
-import org.geoserver.jackson.databind.mapper.InfoReferenceMapper;
 import org.geoserver.jackson.databind.mapper.PatchMapper;
+import org.geoserver.jackson.databind.mapper.ResolvingProxyMapper;
 import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
@@ -18,7 +18,7 @@ import org.mapstruct.ReportingPolicy;
             ObjectFacotries.class,
             GeoToolsValueMappers.class,
             GeoServerValueObjectsMapper.class,
-            InfoReferenceMapper.class,
+            ResolvingProxyMapper.class,
             PatchMapper.class
         })
 public class CatalogInfoMapperConfig {}

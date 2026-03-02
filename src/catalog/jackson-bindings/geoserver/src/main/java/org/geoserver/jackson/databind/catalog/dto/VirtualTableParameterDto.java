@@ -6,11 +6,12 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
-import org.geotools.jdbc.VirtualTableParameter;
 
-/** DTO type for {@link VirtualTableParameter} */
+/** DTO type for {@link org.geotools.jdbc.VirtualTableParameter} */
 @Data
+@JsonTypeName("VirtualTableParameter")
 public class VirtualTableParameterDto {
 
     private String name;

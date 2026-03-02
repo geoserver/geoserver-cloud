@@ -90,7 +90,7 @@ import org.geotools.filter.temporal.OverlappedByImpl;
 import org.geotools.filter.temporal.TContainsImpl;
 import org.geotools.filter.temporal.TEqualsImpl;
 import org.geotools.filter.temporal.TOverlapsImpl;
-import org.geotools.jackson.databind.filter.dto.Filter;
+import org.geotools.jackson.databind.filter.dto.FilterDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
@@ -104,15 +104,15 @@ abstract class DtoToFilterMapper {
     private ExpressionMapper expm = Mappers.getMapper(ExpressionMapper.class);
     private final GeoToolsValueMappers valueMappers = Mappers.getMapper(GeoToolsValueMappers.class);
 
-    private Expression exp(org.geotools.jackson.databind.filter.dto.Expression e) {
+    private Expression exp(org.geotools.jackson.databind.filter.dto.ExpressionDto e) {
         return expm.map(e);
     }
 
-    public org.geotools.api.filter.Filter map(org.geotools.jackson.databind.filter.dto.Filter dto) {
+    public org.geotools.api.filter.Filter map(org.geotools.jackson.databind.filter.dto.FilterDto dto) {
         if (dto == null) {
             return null;
         }
-        final Class<? extends Filter> dtoFilterType = dto.getClass();
+        final Class<? extends FilterDto> dtoFilterType = dto.getClass();
         Method mapperMethod;
         try {
             mapperMethod = getClass().getMethod("toFilter", dtoFilterType);
@@ -128,23 +128,23 @@ abstract class DtoToFilterMapper {
         return filter;
     }
 
-    public abstract IncludeFilter toFilter(Filter.IncludeFilter dto);
+    public abstract IncludeFilter toFilter(FilterDto.IncludeFilterDto dto);
 
-    public abstract ExcludeFilter toFilter(Filter.ExcludeFilter dto);
+    public abstract ExcludeFilter toFilter(FilterDto.ExcludeFilterDto dto);
 
-    public PropertyIsNil toFilter(Filter.PropertyIsNil dto) {
+    public PropertyIsNil toFilter(FilterDto.PropertyIsNilDto dto) {
         return ff.isNil(exp(dto.getExpression()), dto.getNilReason());
     }
 
-    public PropertyIsNull toFilter(Filter.PropertyIsNull dto) {
+    public PropertyIsNull toFilter(FilterDto.PropertyIsNullDto dto) {
         return ff.isNull(exp(dto.getExpression()));
     }
 
-    public NativeFilter toFilter(Filter.NativeFilter dto) {
+    public NativeFilter toFilter(FilterDto.NativeFilterDto dto) {
         return ff.nativeFilter(dto.getNative());
     }
 
-    public PropertyIsLike toFilter(Filter.PropertyIsLike dto) {
+    public PropertyIsLike toFilter(FilterDto.PropertyIsLikeDto dto) {
         MatchAction matchAction = valueMappers.matchAction(dto.getMatchAction());
         return ff.like(
                 exp(dto.getExpression()),
@@ -156,7 +156,7 @@ abstract class DtoToFilterMapper {
                 matchAction);
     }
 
-    public PropertyIsBetween toFilter(Filter.PropertyIsBetween dto) {
+    public PropertyIsBetween toFilter(FilterDto.PropertyIsBetweenDto dto) {
         Expression expression = exp(dto.getExpression());
         Expression lower = exp(dto.getLowerBoundary());
         Expression upper = exp(dto.getUpperBoundary());
@@ -165,22 +165,22 @@ abstract class DtoToFilterMapper {
     }
 
     @IterableMapping(elementTargetType = org.geotools.api.filter.Filter.class)
-    protected abstract List<org.geotools.api.filter.Filter> list(List<Filter> dtos);
+    protected abstract List<org.geotools.api.filter.Filter> list(List<FilterDto> dtos);
 
-    public And toFilter(Filter.BinaryLogicOperator.And dto) {
+    public And toFilter(FilterDto.BinaryLogicOperatorDto.And dto) {
         return ff.and(list(dto.getChildren()));
     }
 
-    public Or toFilter(Filter.BinaryLogicOperator.Or dto) {
+    public Or toFilter(FilterDto.BinaryLogicOperatorDto.Or dto) {
         return ff.or(list(dto.getChildren()));
     }
 
-    public Not toFilter(Filter.Not dto) {
+    public Not toFilter(FilterDto.NotDto dto) {
         return ff.not(map(dto.getFilter()));
     }
 
-    public Id toFilter(Filter.Id dto) {
-        Set<Filter.Id.FeatureId> identifiers =
+    public Id toFilter(FilterDto.IdDto dto) {
+        Set<FilterDto.IdDto.FeatureId> identifiers =
                 dto.getIdentifiers() == null ? Collections.emptySet() : dto.getIdentifiers();
 
         Set<? extends Identifier> ids =
@@ -189,17 +189,17 @@ abstract class DtoToFilterMapper {
         return ff.id(ids);
     }
 
-    Identifier toIdentifier(Filter.Id.FeatureId dto) {
+    Identifier toIdentifier(FilterDto.IdDto.FeatureId dto) {
         if (dto == null) {
             return null;
         }
-        if (dto instanceof Filter.Id.ResourceId rid) {
+        if (dto instanceof FilterDto.IdDto.ResourceId rid) {
             if (rid.getStartTime() != null || rid.getEndTime() != null) {
                 return ff.resourceId(rid.getId(), rid.getStartTime(), rid.getEndTime());
             }
             throw new UnsupportedOperationException();
         }
-        if (dto instanceof Filter.Id.FeatureId) {
+        if (dto instanceof FilterDto.IdDto.FeatureId) {
             String id = dto.getId();
             String featureVersion = dto.getFeatureVersion();
             if (featureVersion == null) {
@@ -220,7 +220,7 @@ abstract class DtoToFilterMapper {
     }
 
     private <T extends org.geotools.api.filter.Filter> T toBinaryOperator(
-            Filter.BinaryOperator dto, TriFunction<Expression, Expression, MatchAction, T> factory) {
+            FilterDto.BinaryOperatorDto dto, TriFunction<Expression, Expression, MatchAction, T> factory) {
 
         Expression e1 = exp(dto.getExpression1());
         Expression e2 = exp(dto.getExpression2());
@@ -229,7 +229,7 @@ abstract class DtoToFilterMapper {
     }
 
     private <T extends org.geotools.api.filter.BinaryComparisonOperator> T toBinaryComparisonOperator(
-            Filter.BinaryComparisonOperator dto,
+            FilterDto.BinaryComparisonOperatorDto dto,
             QuadFunction<Expression, Expression, Boolean, MatchAction, T> factory) {
 
         Expression e1 = exp(dto.getExpression1());
@@ -240,50 +240,50 @@ abstract class DtoToFilterMapper {
         return factory.apply(e1, e2, matchCase, matchAction);
     }
 
-    public Within toFilter(Filter.BinarySpatialOperator.Within dto) {
+    public Within toFilter(FilterDto.BinarySpatialOperatorDto.WithinDto dto) {
         return toBinaryOperator(dto, WithinImpl::new);
     }
 
-    public Touches toFilter(Filter.BinarySpatialOperator.Touches dto) {
+    public Touches toFilter(FilterDto.BinarySpatialOperatorDto.TouchesDto dto) {
         return toBinaryOperator(dto, TouchesImpl::new);
     }
 
-    public Overlaps toFilter(Filter.BinarySpatialOperator.Overlaps dto) {
+    public Overlaps toFilter(FilterDto.BinarySpatialOperatorDto.OverlapsDto dto) {
         return toBinaryOperator(dto, OverlapsImpl::new);
     }
 
-    public Intersects toFilter(Filter.BinarySpatialOperator.Intersects dto) {
+    public Intersects toFilter(FilterDto.BinarySpatialOperatorDto.IntersectsDto dto) {
         return toBinaryOperator(dto, IntersectsImpl::new);
     }
 
-    public Equals toFilter(Filter.BinarySpatialOperator.Equals dto) {
+    public Equals toFilter(FilterDto.BinarySpatialOperatorDto.EqualsDto dto) {
         return toBinaryOperator(dto, EqualsImpl::new);
     }
 
-    public Disjoint toFilter(Filter.BinarySpatialOperator.Disjoint dto) {
+    public Disjoint toFilter(FilterDto.BinarySpatialOperatorDto.DisjointDto dto) {
         return toBinaryOperator(dto, DisjointImpl::new);
     }
 
-    public Crosses toFilter(Filter.BinarySpatialOperator.Crosses dto) {
+    public Crosses toFilter(FilterDto.BinarySpatialOperatorDto.CrossesDto dto) {
         return toBinaryOperator(dto, CrossesImpl::new);
     }
 
-    public Contains toFilter(Filter.BinarySpatialOperator.Contains dto) {
+    public Contains toFilter(FilterDto.BinarySpatialOperatorDto.ContainsDto dto) {
         return toBinaryOperator(dto, ContainsImpl::new);
     }
 
-    public BBOX toFilter(Filter.BinarySpatialOperator.BBOX dto) {
+    public BBOX toFilter(FilterDto.BinarySpatialOperatorDto.BBOXDto dto) {
         return toBinaryOperator(dto, BBOXImpl::new);
     }
 
-    public Beyond toFilter(Filter.BinarySpatialOperator.Beyond dto) {
+    public Beyond toFilter(FilterDto.BinarySpatialOperatorDto.BeyondDto dto) {
         BeyondImpl impl = toBinaryOperator(dto, BeyondImpl::new);
         impl.setDistance(dto.getDistance());
         impl.setUnits(dto.getDistanceUnits());
         return impl;
     }
 
-    public DWithin toFilter(Filter.BinarySpatialOperator.DWithin dto) {
+    public DWithin toFilter(FilterDto.BinarySpatialOperatorDto.DWithinDto dto) {
         DWithinImpl impl = toBinaryOperator(dto, DWithinImpl::new);
         impl.setDistance(dto.getDistance());
         impl.setUnits(dto.getDistanceUnits());
@@ -332,83 +332,85 @@ abstract class DtoToFilterMapper {
         }
     }
 
-    public PropertyIsEqualTo toFilter(Filter.BinaryComparisonOperator.PropertyIsEqualTo dto) {
+    public PropertyIsEqualTo toFilter(FilterDto.BinaryComparisonOperatorDto.PropertyIsEqualToDto dto) {
         return toBinaryComparisonOperator(dto, PropertyEquals::new);
     }
 
-    public PropertyIsNotEqualTo toFilter(Filter.BinaryComparisonOperator.PropertyIsNotEqualTo dto) {
+    public PropertyIsNotEqualTo toFilter(FilterDto.BinaryComparisonOperatorDto.PropertyIsNotEqualToDto dto) {
         return toBinaryComparisonOperator(dto, PropertyNotEquals::new);
     }
 
-    public PropertyIsLessThanOrEqualTo toFilter(Filter.BinaryComparisonOperator.PropertyIsLessThanOrEqualTo dto) {
+    public PropertyIsLessThanOrEqualTo toFilter(
+            FilterDto.BinaryComparisonOperatorDto.PropertyIsLessThanOrEqualToDto dto) {
         return toBinaryComparisonOperator(dto, PropertyLessThanOrEquals::new);
     }
 
-    public PropertyIsLessThan toFilter(Filter.BinaryComparisonOperator.PropertyIsLessThan dto) {
+    public PropertyIsLessThan toFilter(FilterDto.BinaryComparisonOperatorDto.PropertyIsLessThanDto dto) {
         return toBinaryComparisonOperator(dto, PropertyLessThan::new);
     }
 
-    public PropertyIsGreaterThanOrEqualTo toFilter(Filter.BinaryComparisonOperator.PropertyIsGreaterThanOrEqualTo dto) {
+    public PropertyIsGreaterThanOrEqualTo toFilter(
+            FilterDto.BinaryComparisonOperatorDto.PropertyIsGreaterThanOrEqualToDto dto) {
         return toBinaryComparisonOperator(dto, PropertyGreaterThanOrEqual::new);
     }
 
-    public PropertyIsGreaterThan toFilter(Filter.BinaryComparisonOperator.PropertyIsGreaterThan dto) {
+    public PropertyIsGreaterThan toFilter(FilterDto.BinaryComparisonOperatorDto.PropertyIsGreaterThanDto dto) {
         return toBinaryComparisonOperator(dto, PropertyGreaterThan::new);
     }
 
-    public After toFilter(Filter.BinaryTemporalOperator.After dto) {
+    public After toFilter(FilterDto.BinaryTemporalOperatorDto.AfterDto dto) {
         return toBinaryOperator(dto, AfterImpl::new);
     }
 
-    public TEquals toFilter(Filter.BinaryTemporalOperator.TEquals dto) {
+    public TEquals toFilter(FilterDto.BinaryTemporalOperatorDto.TEqualsDto dto) {
         return toBinaryOperator(dto, TEqualsImpl::new);
     }
 
-    public TContains toFilter(Filter.BinaryTemporalOperator.TContains dto) {
+    public TContains toFilter(FilterDto.BinaryTemporalOperatorDto.TContainsDto dto) {
         return toBinaryOperator(dto, TContainsImpl::new);
     }
 
-    public OverlappedBy toFilter(Filter.BinaryTemporalOperator.OverlappedBy dto) {
+    public OverlappedBy toFilter(FilterDto.BinaryTemporalOperatorDto.OverlappedByDto dto) {
         return toBinaryOperator(dto, OverlappedByImpl::new);
     }
 
-    public MetBy toFilter(Filter.BinaryTemporalOperator.MetBy dto) {
+    public MetBy toFilter(FilterDto.BinaryTemporalOperatorDto.MetByDto dto) {
         return toBinaryOperator(dto, MetByImpl::new);
     }
 
-    public Meets toFilter(Filter.BinaryTemporalOperator.Meets dto) {
+    public Meets toFilter(FilterDto.BinaryTemporalOperatorDto.MeetsDto dto) {
         return toBinaryOperator(dto, MeetsImpl::new);
     }
 
-    public Ends toFilter(Filter.BinaryTemporalOperator.Ends dto) {
+    public Ends toFilter(FilterDto.BinaryTemporalOperatorDto.EndsDto dto) {
         return toBinaryOperator(dto, EndsImpl::new);
     }
 
-    public EndedBy toFilter(Filter.BinaryTemporalOperator.EndedBy dto) {
+    public EndedBy toFilter(FilterDto.BinaryTemporalOperatorDto.EndedByDto dto) {
         return toBinaryOperator(dto, EndedByImpl::new);
     }
 
-    public During toFilter(Filter.BinaryTemporalOperator.During dto) {
+    public During toFilter(FilterDto.BinaryTemporalOperatorDto.DuringDto dto) {
         return toBinaryOperator(dto, DuringImpl::new);
     }
 
-    public BegunBy toFilter(Filter.BinaryTemporalOperator.BegunBy dto) {
+    public BegunBy toFilter(FilterDto.BinaryTemporalOperatorDto.BegunByDto dto) {
         return toBinaryOperator(dto, BegunByImpl::new);
     }
 
-    public Begins toFilter(Filter.BinaryTemporalOperator.Begins dto) {
+    public Begins toFilter(FilterDto.BinaryTemporalOperatorDto.BeginsDto dto) {
         return toBinaryOperator(dto, BeginsImpl::new);
     }
 
-    public Before toFilter(Filter.BinaryTemporalOperator.Before dto) {
+    public Before toFilter(FilterDto.BinaryTemporalOperatorDto.BeforeDto dto) {
         return toBinaryOperator(dto, BeforeImpl::new);
     }
 
-    public AnyInteracts toFilter(Filter.BinaryTemporalOperator.AnyInteracts dto) {
+    public AnyInteracts toFilter(FilterDto.BinaryTemporalOperatorDto.AnyInteractsDto dto) {
         return toBinaryOperator(dto, AnyInteractsImpl::new);
     }
 
-    public TOverlaps toFilter(Filter.BinaryTemporalOperator.TOverlaps dto) {
+    public TOverlaps toFilter(FilterDto.BinaryTemporalOperatorDto.TOverlapsDto dto) {
         return toBinaryOperator(dto, TOverlapsImpl::new);
     }
 }

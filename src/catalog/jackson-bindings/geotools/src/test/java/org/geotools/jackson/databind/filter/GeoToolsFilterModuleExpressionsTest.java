@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.geotools.api.filter.expression.Function;
 import org.geotools.api.filter.expression.Literal;
-import org.geotools.jackson.databind.filter.dto.Expression;
-import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.FunctionNameDto;
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.mapstruct.factory.Mappers;
@@ -38,7 +38,7 @@ public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoun
 
     protected abstract ObjectMapper newObjectMapper();
 
-    protected @Override <E extends Expression> E roundtripTest(E dto) throws Exception {
+    protected @Override <E extends ExpressionDto> E roundtripTest(E dto) throws Exception {
         final org.geotools.api.filter.expression.Expression expected = expressionMapper.map(dto);
         String serialized = objectMapper.writeValueAsString(expected);
         print("serialized: {}", serialized);
@@ -54,7 +54,7 @@ public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoun
             assertThat(deserialized).isInstanceOf(Literal.class);
             Object v1 = literal.getValue();
             Object v2 = ((Literal) deserialized).getValue();
-            boolean valueEquals = org.geotools.jackson.databind.filter.dto.Literal.valueEquals(v1, v2);
+            boolean valueEquals = org.geotools.jackson.databind.filter.dto.LiteralDto.valueEquals(v1, v2);
             assertTrue(valueEquals);
         } else {
             assertEquals(expected, deserialized);
@@ -62,7 +62,7 @@ public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoun
         return dto;
     }
 
-    protected @Override FunctionName roundtripTest(FunctionName dto) throws Exception {
+    protected @Override FunctionNameDto roundtripTest(FunctionNameDto dto) throws Exception {
         org.geotools.api.filter.capability.FunctionName expected = expressionMapper.map(dto);
         String serialized = objectMapper.writeValueAsString(expected);
         print("serialized: {}", serialized);

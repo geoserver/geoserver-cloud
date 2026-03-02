@@ -11,18 +11,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.geoserver.catalog.plugin.Query;
-import org.geotools.api.filter.Filter;
-import org.geotools.api.filter.sort.SortBy;
+import org.geotools.jackson.databind.filter.dto.FilterDto;
+import org.geotools.jackson.databind.filter.dto.SortByDto;
 
-/** DTO for {@link Query} */
+/** DTO for {@link org.geoserver.catalog.plugin.Query} */
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Data
 public class QueryDto {
     private @NonNull Class<?> type;
-    private @NonNull Filter filter = Filter.INCLUDE;
-    private @NonNull List<SortBy> sortBy = new ArrayList<>();
+    private @NonNull FilterDto filter = FilterDto.INCLUDE;
+    private @NonNull List<SortByDto> sortBy = new ArrayList<>();
     private Integer offset;
     private Integer count;
 }

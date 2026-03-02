@@ -15,11 +15,11 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.jackson.databind.catalog.ConnectionParameters;
-import org.geoserver.jackson.databind.catalog.dto.CoverageStore;
-import org.geoserver.jackson.databind.catalog.dto.DataStore;
-import org.geoserver.jackson.databind.catalog.dto.Store;
-import org.geoserver.jackson.databind.catalog.dto.WMSStore;
-import org.geoserver.jackson.databind.catalog.dto.WMTSStore;
+import org.geoserver.jackson.databind.catalog.dto.CoverageStoreInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.DataStoreInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.StoreInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WMSStoreInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WMTSStoreInfoDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -27,7 +27,7 @@ import org.mapstruct.Mapping;
 @Mapper(config = CatalogInfoMapperConfig.class)
 @AnnotateWith(value = Generated.class)
 public interface StoreMapper {
-    default Store map(StoreInfo o) {
+    default StoreInfoDto map(StoreInfo o) {
         if (o == null) {
             return null;
         } else if (o instanceof DataStoreInfo ds) {
@@ -43,16 +43,16 @@ public interface StoreMapper {
         throw new IllegalArgumentException("Unknown StoreInfo type: " + o);
     }
 
-    default StoreInfo map(Store o) {
+    default StoreInfo map(StoreInfoDto o) {
         if (o == null) {
             return null;
-        } else if (o instanceof DataStore ds) {
+        } else if (o instanceof DataStoreInfoDto ds) {
             return map(ds);
-        } else if (o instanceof CoverageStore cs) {
+        } else if (o instanceof CoverageStoreInfoDto cs) {
             return map(cs);
-        } else if (o instanceof WMSStore wms) {
+        } else if (o instanceof WMSStoreInfoDto wms) {
             return map(wms);
-        } else if (o instanceof WMTSStore wmts) {
+        } else if (o instanceof WMTSStoreInfoDto wmts) {
             return map(wmts);
         }
 
@@ -76,32 +76,32 @@ public interface StoreMapper {
     @Mapping(target = "error", ignore = true)
     @Mapping(target = "catalog", ignore = true)
     @Mapping(target = "connectionParameters", expression = "java(connectionParamsFromDto(o.getConnectionParameters()))")
-    DataStoreInfo map(DataStore o);
+    DataStoreInfo map(DataStoreInfoDto o);
 
     @Mapping(target = "connectionParameters", expression = "java(connectionParamsToDto(o.getConnectionParameters()))")
-    DataStore map(DataStoreInfo o);
+    DataStoreInfoDto map(DataStoreInfo o);
 
     @Mapping(target = "error", ignore = true)
     @Mapping(target = "catalog", ignore = true)
     @Mapping(target = "connectionParameters", expression = "java(connectionParamsFromDto(o.getConnectionParameters()))")
-    CoverageStoreInfo map(CoverageStore o);
+    CoverageStoreInfo map(CoverageStoreInfoDto o);
 
     @Mapping(target = "connectionParameters", expression = "java(connectionParamsToDto(o.getConnectionParameters()))")
-    CoverageStore map(CoverageStoreInfo o);
+    CoverageStoreInfoDto map(CoverageStoreInfo o);
 
     @Mapping(target = "error", ignore = true)
     @Mapping(target = "catalog", ignore = true)
     @Mapping(target = "connectionParameters", expression = "java(connectionParamsFromDto(o.getConnectionParameters()))")
-    WMSStoreInfo map(WMSStore o);
+    WMSStoreInfo map(WMSStoreInfoDto o);
 
     @Mapping(target = "connectionParameters", expression = "java(connectionParamsToDto(o.getConnectionParameters()))")
-    WMSStore map(WMSStoreInfo o);
+    WMSStoreInfoDto map(WMSStoreInfo o);
 
     @Mapping(target = "error", ignore = true)
     @Mapping(target = "catalog", ignore = true)
     @Mapping(target = "connectionParameters", expression = "java(connectionParamsFromDto(o.getConnectionParameters()))")
-    WMTSStoreInfo map(WMTSStore o);
+    WMTSStoreInfo map(WMTSStoreInfoDto o);
 
     @Mapping(target = "connectionParameters", expression = "java(connectionParamsToDto(o.getConnectionParameters()))")
-    WMTSStore map(WMTSStoreInfo o);
+    WMTSStoreInfoDto map(WMTSStoreInfo o);
 }

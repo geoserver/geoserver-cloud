@@ -8,8 +8,8 @@ package org.geotools.jackson.databind.filter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import lombok.extern.slf4j.Slf4j;
-import org.geotools.jackson.databind.filter.dto.Filter;
-import org.geotools.jackson.databind.filter.dto.SortBy;
+import org.geotools.jackson.databind.filter.dto.FilterDto;
+import org.geotools.jackson.databind.filter.dto.SortByDto;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -41,7 +41,7 @@ public abstract class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTes
 
     protected abstract ObjectMapper newObjectMapper();
 
-    protected @Override <F extends Filter> F roundtripTest(F dto) throws Exception {
+    protected @Override <F extends FilterDto> F roundtripTest(F dto) throws Exception {
         final org.geotools.api.filter.Filter expected = filterMapper.map(dto);
         String serialized = objectMapper.writeValueAsString(expected);
         print("serialized: {}", serialized);
@@ -51,8 +51,8 @@ public abstract class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTes
         return dto;
     }
 
-    protected @Override void roundtripTest(SortBy dto) throws Exception {
-        final org.geotools.api.filter.sort.SortBy expected = filterMapper.map(dto);
+    protected @Override void roundtripTest(SortByDto dto) throws Exception {
+        final org.geotools.api.filter.sort.SortBy expected = filterMapper.dtoToSortBy(dto);
         String serialized = objectMapper.writeValueAsString(expected);
         print("serialized: {}", serialized);
         org.geotools.api.filter.sort.SortBy deserialized;

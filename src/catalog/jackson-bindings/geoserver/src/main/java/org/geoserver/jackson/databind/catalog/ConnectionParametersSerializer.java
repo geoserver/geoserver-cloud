@@ -9,7 +9,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Map;
-import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.dto.LiteralDto;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
@@ -48,7 +48,7 @@ public class ConnectionParametersSerializer extends ValueSerializer<ConnectionPa
                 gen.writeStringProperty(key, val.toString());
             } else if (shouldWrapAsLiteral(val)) {
                 // Complex type, wrap in Literal
-                Literal literal = Literal.valueOf(val);
+                LiteralDto literal = LiteralDto.valueOf(val);
                 gen.writePOJOProperty(key, literal);
             } else {
                 // Primitive type

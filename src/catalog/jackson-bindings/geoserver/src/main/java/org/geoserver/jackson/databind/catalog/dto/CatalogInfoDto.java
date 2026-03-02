@@ -11,14 +11,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * Base DTO for {@link org.geoserver.catalog.CatalogInfo}
+ */
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = Workspace.class),
-    @JsonSubTypes.Type(value = Namespace.class),
-    @JsonSubTypes.Type(value = Style.class),
-    @JsonSubTypes.Type(value = Map.class),
-    @JsonSubTypes.Type(value = Store.class),
-    @JsonSubTypes.Type(value = Resource.class),
-    @JsonSubTypes.Type(value = Published.class)
+    @JsonSubTypes.Type(value = WorkspaceInfoDto.class),
+    @JsonSubTypes.Type(value = NamespaceInfoDto.class),
+    @JsonSubTypes.Type(value = StyleInfoDto.class),
+    @JsonSubTypes.Type(value = MapInfoDto.class),
+    @JsonSubTypes.Type(value = StoreInfoDto.class),
+    @JsonSubTypes.Type(value = ResourceInfoDto.class),
+    @JsonSubTypes.Type(value = PublishedInfoDto.class)
 })
 @Data
 @ToString(callSuper = true)

@@ -24,15 +24,15 @@ import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 import org.geoserver.jackson.databind.config.dto.CogSettingsDto;
 import org.geoserver.jackson.databind.config.dto.CogSettingsStoreDto;
-import org.geoserver.jackson.databind.config.dto.Contact;
-import org.geoserver.jackson.databind.config.dto.CoverageAccess;
-import org.geoserver.jackson.databind.config.dto.GeoServer;
-import org.geoserver.jackson.databind.config.dto.GeoServer.UserDetailsDisplaySettings;
+import org.geoserver.jackson.databind.config.dto.ContactInfoDto;
+import org.geoserver.jackson.databind.config.dto.CoverageAccessInfoDto;
+import org.geoserver.jackson.databind.config.dto.GeoServerInfoDto;
+import org.geoserver.jackson.databind.config.dto.GeoServerInfoDto.UserDetailsDisplaySettingsInfoDto;
 import org.geoserver.jackson.databind.config.dto.ImageProcessingInfoDto;
-import org.geoserver.jackson.databind.config.dto.Logging;
-import org.geoserver.jackson.databind.config.dto.Service;
-import org.geoserver.jackson.databind.config.dto.Settings;
-import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
+import org.geoserver.jackson.databind.config.dto.LoggingInfoDto;
+import org.geoserver.jackson.databind.config.dto.ServiceInfoDto;
+import org.geoserver.jackson.databind.config.dto.SettingsInfoDto;
+import org.geoserver.jackson.databind.config.mapper.GeoServerConfigMapper;
 import org.geoserver.wcs.WCSInfo;
 import org.geoserver.wfs.WFSInfo;
 import org.geoserver.wms.WMSInfo;
@@ -82,31 +82,31 @@ public class GeoServerConfigModule extends SimpleModule {
         log.debug("registering jackson de/serializers for all GeoServer config Info types");
 
         addSerializer(GeoServerInfo.class);
-        addDeserializer(GeoServerInfo.class, GeoServer.class);
+        addDeserializer(GeoServerInfo.class, GeoServerInfoDto.class);
 
         addSerializer(SettingsInfo.class);
-        addDeserializer(SettingsInfo.class, Settings.class);
+        addDeserializer(SettingsInfo.class, SettingsInfoDto.class);
 
         addSerializer(LoggingInfo.class);
-        addDeserializer(LoggingInfo.class, Logging.class);
+        addDeserializer(LoggingInfo.class, LoggingInfoDto.class);
 
-        addDeserializer(ServiceInfo.class, Service.class);
+        addDeserializer(ServiceInfo.class, ServiceInfoDto.class);
         addSerializer(ServiceInfo.class);
 
         addSerializer(WMSInfo.class);
-        addDeserializer(WMSInfo.class, Service.WmsService.class);
+        addDeserializer(WMSInfo.class, ServiceInfoDto.WmsService.class);
 
         addSerializer(WFSInfo.class);
-        addDeserializer(WFSInfo.class, Service.WfsService.class);
+        addDeserializer(WFSInfo.class, ServiceInfoDto.WfsService.class);
 
         addSerializer(WCSInfo.class);
-        addDeserializer(WCSInfo.class, Service.WcsService.class);
+        addDeserializer(WCSInfo.class, ServiceInfoDto.WcsService.class);
 
         addSerializer(WPSInfo.class);
-        addDeserializer(WPSInfo.class, Service.WpsService.class);
+        addDeserializer(WPSInfo.class, ServiceInfoDto.WpsService.class);
 
         addSerializer(WMTSInfo.class);
-        addDeserializer(WMTSInfo.class, Service.WmtsService.class);
+        addDeserializer(WMTSInfo.class, ServiceInfoDto.WmtsService.class);
 
         registerValueSerializers();
     }
@@ -115,7 +115,7 @@ public class GeoServerConfigModule extends SimpleModule {
         addMapperSerializer(
                 CoverageAccessInfo.class,
                 VALUE_MAPPER::coverageAccessInfo,
-                CoverageAccess.class,
+                CoverageAccessInfoDto.class,
                 VALUE_MAPPER::coverageAccessInfo);
 
         addMapperSerializer(
@@ -127,10 +127,11 @@ public class GeoServerConfigModule extends SimpleModule {
         addMapperSerializer(
                 UserDetailsDisplaySettingsInfo.class,
                 VALUE_MAPPER::toDto,
-                UserDetailsDisplaySettings.class,
+                UserDetailsDisplaySettingsInfoDto.class,
                 VALUE_MAPPER::toInfo);
 
-        addMapperSerializer(ContactInfo.class, VALUE_MAPPER::contactInfo, Contact.class, VALUE_MAPPER::contactInfo);
+        addMapperSerializer(
+                ContactInfo.class, VALUE_MAPPER::contactInfo, ContactInfoDto.class, VALUE_MAPPER::contactInfo);
 
         addMapperSerializer(
                 CogSettings.class, VALUE_MAPPER::cogSettings, CogSettingsDto.class, VALUE_MAPPER::cogSettings);

@@ -8,7 +8,7 @@ package org.geotools.jackson.databind.filter.dto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.geotools.jackson.databind.filter.ExpressionRoundtripTest;
-import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
+import org.geotools.jackson.databind.filter.dto.ExpressionDto.FunctionNameDto;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeAll;
 import tools.jackson.databind.ObjectMapper;
@@ -23,18 +23,18 @@ class ExpressionSerializationTest extends ExpressionRoundtripTest {
     }
 
     @SuppressWarnings("unchecked")
-    protected @Override <E extends Expression> E roundtripTest(E dto) throws Exception {
+    protected @Override <E extends ExpressionDto> E roundtripTest(E dto) throws Exception {
         String serialized = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto);
         print("serialized: {}", serialized);
-        Expression deserialized = objectMapper.readValue(serialized, Expression.class);
+        ExpressionDto deserialized = objectMapper.readValue(serialized, ExpressionDto.class);
         assertEquals(dto, deserialized);
         return (E) deserialized;
     }
 
-    protected @Override FunctionName roundtripTest(FunctionName dto) throws Exception {
+    protected @Override FunctionNameDto roundtripTest(FunctionNameDto dto) throws Exception {
         String serialized = objectMapper.writeValueAsString(dto);
         print("serialized: {}", serialized);
-        FunctionName deserialized = objectMapper.readValue(serialized, Expression.FunctionName.class);
+        FunctionNameDto deserialized = objectMapper.readValue(serialized, ExpressionDto.FunctionNameDto.class);
         assertEquals(dto, deserialized);
         return deserialized;
     }

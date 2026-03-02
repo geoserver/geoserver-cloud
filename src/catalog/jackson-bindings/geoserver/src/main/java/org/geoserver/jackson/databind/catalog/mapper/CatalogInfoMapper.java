@@ -15,13 +15,13 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
-import org.geoserver.jackson.databind.catalog.dto.Map;
-import org.geoserver.jackson.databind.catalog.dto.Namespace;
-import org.geoserver.jackson.databind.catalog.dto.Published;
-import org.geoserver.jackson.databind.catalog.dto.Resource;
-import org.geoserver.jackson.databind.catalog.dto.Store;
-import org.geoserver.jackson.databind.catalog.dto.Style;
-import org.geoserver.jackson.databind.catalog.dto.Workspace;
+import org.geoserver.jackson.databind.catalog.dto.MapInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.NamespaceInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.PublishedInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.ResourceInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.StoreInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.StyleInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.WorkspaceInfoDto;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -29,9 +29,9 @@ import org.mapstruct.factory.Mappers;
 @Mapper(config = CatalogInfoMapperConfig.class)
 @AnnotateWith(value = Generated.class)
 public interface CatalogInfoMapper {
-    public static final MapMapper MAP_MAPPER = Mappers.getMapper(MapMapper.class);
+    public static final MapInfoMapper MAPINFO_MAPPER = Mappers.getMapper(MapInfoMapper.class);
     public static final StyleMapper STYLE_MAPPER = Mappers.getMapper(StyleMapper.class);
-    public static final PublishedMapper PUBLISHED_MAPPER = Mappers.getMapper(PublishedMapper.class);
+    public static final PublishedInfoMapper PUBLISHED_MAPPER = Mappers.getMapper(PublishedInfoMapper.class);
     public static final ResourceMapper RESOURCE_MAPPER = Mappers.getMapper(ResourceMapper.class);
     public static final StoreMapper STORE_MAPPER = Mappers.getMapper(StoreMapper.class);
     public static final NamespaceMapper NAMESPACE_MAPPER = Mappers.getMapper(NamespaceMapper.class);
@@ -41,20 +41,20 @@ public interface CatalogInfoMapper {
     default <I extends CatalogInfo> I map(CatalogInfoDto dto) {
         if (dto == null) {
             return null;
-        } else if (dto instanceof Workspace ws) {
+        } else if (dto instanceof WorkspaceInfoDto ws) {
             return (I) WORKSPACE_MAPPER.map(ws);
-        } else if (dto instanceof Namespace ns) {
+        } else if (dto instanceof NamespaceInfoDto ns) {
             return (I) NAMESPACE_MAPPER.map(ns);
-        } else if (dto instanceof Store store) {
+        } else if (dto instanceof StoreInfoDto store) {
             return (I) STORE_MAPPER.map(store);
-        } else if (dto instanceof Resource res) {
+        } else if (dto instanceof ResourceInfoDto res) {
             return (I) RESOURCE_MAPPER.map(res);
-        } else if (dto instanceof Published published) {
+        } else if (dto instanceof PublishedInfoDto published) {
             return (I) PUBLISHED_MAPPER.map(published);
-        } else if (dto instanceof Style style) {
+        } else if (dto instanceof StyleInfoDto style) {
             return (I) STYLE_MAPPER.map(style);
-        } else if (dto instanceof Map map) {
-            return (I) MAP_MAPPER.map(map);
+        } else if (dto instanceof MapInfoDto map) {
+            return (I) MAPINFO_MAPPER.map(map);
         }
 
         throw new IllegalArgumentException(
@@ -77,7 +77,7 @@ public interface CatalogInfoMapper {
         } else if (info instanceof StyleInfo style) {
             return STYLE_MAPPER.map(style);
         } else if (info instanceof MapInfo map) {
-            return MAP_MAPPER.map(map);
+            return MAPINFO_MAPPER.map(map);
         } else if (info instanceof CatalogInfo) {
             return null;
         }
