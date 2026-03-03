@@ -50,7 +50,7 @@ def test_wfs(geoserver_factory):
     with open(f"{RESOURCE_DIR}/wfs_payload.xml") as file:
         data = file.read()
         response = geoserver.rest_service.rest_client.post(
-            f"/{workspace}/wfs/", data=data
+            f"/{workspace}/wfs", data=data
         )
         assert response.status_code == 200
 

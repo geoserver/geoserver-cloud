@@ -11,6 +11,7 @@ import java.io.File;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
 import org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider;
+import org.geoserver.rest.RestControllerAdvice;
 import org.geowebcache.rest.controller.TileLayerController;
 import org.geowebcache.rest.converter.GWCConverter;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,8 +40,10 @@ class RESTConfigAutoConfigurationTest {
     @Test
     void disabledByDefault() {
         runner.run(context -> {
-            assertThat(context).doesNotHaveBean(GWCConverter.class);
-            assertThat(context).doesNotHaveBean(TileLayerController.class);
+            assertThat(context)
+                    .doesNotHaveBean(RestControllerAdvice.class)
+                    .doesNotHaveBean(GWCConverter.class)
+                    .doesNotHaveBean(TileLayerController.class);
         });
     }
 
@@ -48,6 +51,7 @@ class RESTConfigAutoConfigurationTest {
     void enabled() {
         runner.withPropertyValues("gwc.rest-config=true").run(context -> {
             assertThat(context)
+                    .hasSingleBean(RestControllerAdvice.class)
                     .hasSingleBean(GWCConverter.class)
                     .hasSingleBean(TileLayerController.class)
                     .hasSingleBean(GWCGeoServerRESTConfigurationProvider.class)

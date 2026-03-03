@@ -62,8 +62,6 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
 
     /**
      * Override of {@link SuffixStripFilter} making sure getPathInfo() does not return null
-     * @param appContext
-     * @return
      */
     @Bean
     NpeAwareSuffixStripFilter suffixStripFilter(ApplicationContext appContext) {
