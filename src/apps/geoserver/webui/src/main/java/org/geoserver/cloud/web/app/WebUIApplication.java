@@ -5,8 +5,7 @@
 
 package org.geoserver.cloud.web.app;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
+import org.geoserver.cloud.app.GeoServerApplicationLauncher;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -17,16 +16,8 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableRetry
 public class WebUIApplication {
 
-    public static void main(String[] args) {
-        try {
-            SpringApplication.run(WebUIApplication.class, args);
-        } catch (RuntimeException e) {
-            try {
-                LoggerFactory.getLogger(WebUIApplication.class).error("Application run failed", e);
-            } finally {
-                System.exit(-1);
-            }
-        }
+    public static void main(String... args) {
+        GeoServerApplicationLauncher.run(WebUIApplication.class, args);
     }
 
     @EventListener(ApplicationReadyEvent.class)

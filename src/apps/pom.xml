@@ -30,6 +30,7 @@
               </goals>
               <configuration>
                 <attach>false</attach>
+                <mainClass>${start-class}</mainClass>
                 <classifier>bin</classifier>
                 <layers>
                   <enabled>true</enabled>

@@ -5,8 +5,8 @@
 
 package org.geoserver.cloud.config;
 
+import org.geoserver.cloud.app.GeoServerApplicationLauncher;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.config.server.EnableConfigServer;
 import org.springframework.retry.annotation.EnableRetry;
 
@@ -15,7 +15,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableRetry
 public class ConfigApplication {
 
-    public static void main(String[] args) {
-        new SpringApplicationBuilder(ConfigApplication.class).run(args);
+    public static void main(String... args) {
+        GeoServerApplicationLauncher.run(ConfigApplication.class, args);
     }
 }

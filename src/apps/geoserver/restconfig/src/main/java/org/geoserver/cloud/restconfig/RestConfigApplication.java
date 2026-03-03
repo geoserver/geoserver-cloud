@@ -5,8 +5,7 @@
 
 package org.geoserver.cloud.restconfig;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
+import org.geoserver.cloud.app.GeoServerApplicationLauncher;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.retry.annotation.EnableRetry;
 
@@ -14,15 +13,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableRetry
 public class RestConfigApplication {
 
-    public static void main(String[] args) {
-        try {
-            SpringApplication.run(RestConfigApplication.class, args);
-        } catch (RuntimeException e) {
-            try {
-                LoggerFactory.getLogger(RestConfigApplication.class).error("Application run failed", e);
-            } finally {
-                System.exit(-1);
-            }
-        }
+    public static void main(String... args) {
+        GeoServerApplicationLauncher.run(RestConfigApplication.class, args);
     }
 }
