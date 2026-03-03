@@ -71,8 +71,7 @@ public class WebMapServiceMinimalConfiguration {
             ).*$\
             """;
 
-    static final String GS_WMS_INCLUDES =
-            "jar:gs-wms-core-[0-9]+.*!/applicationContext.xml#name=" + WMS_BEANS_BLACKLIST;
+    static final String GS_WMS_INCLUDES = "jar:gs-wms.*!/applicationContext.xml#name=" + WMS_BEANS_BLACKLIST;
 
     static final String GS_WFS_INCLUDES =
             "jar:gs-wfs-core-[0-9]+.*!/applicationContext.xml#name=" + WFS_BEANS_WHITELIST;

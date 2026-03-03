@@ -6,16 +6,15 @@
 package org.geoserver.cloud.gwc.config.services;
 
 import org.geoserver.catalog.Catalog;
+import org.geoserver.cloud.gwc.config.core.CloudGwcUrlHandlerMapping;
 import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
 import org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider;
-import org.geowebcache.rest.controller.SeedController;
 import org.geowebcache.rest.converter.GWCConverter;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.core.Ordered;
 
 /**
@@ -58,21 +57,8 @@ import org.springframework.core.Ordered;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(GWCConverter.class)
-@ComponentScan(
-        basePackages = "org.geowebcache.rest",
-        // exclude org.geowebcache.controller.SeedController from component scan, provide an alternative that works with
-        // spring cloud below
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SeedController.class))
+@ComponentScan(basePackages = "org.geowebcache.rest")
 public class RESTConfigConfiguration {
-
-    /**
-     * Replacement for {@link SeedController#doPost(jakarta.servlet.http.HttpServletRequest, java.io.InputStream, String, java.util.Map)}
-     * working with spring-boot's stricter path pattern matching
-     */
-    @Bean
-    org.geoserver.cloud.gwc.config.services.SeedControllerOverride seedController() {
-        return new org.geoserver.cloud.gwc.config.services.SeedControllerOverride();
-    }
 
     /**
      * The original {@literal geowebcache-rest-context.xml}:
@@ -106,7 +92,8 @@ public class RESTConfigConfiguration {
      *
      * @param catalog
      */
-    @Bean
+    @Bean(name = "GWCGeoServerRESTConfigurationProvider")
+    @SuppressWarnings("java:S6830")
     GWCGeoServerRESTConfigurationProvider gwcGeoServerRESTConfigurationProvider(Catalog catalog) {
         return new GWCGeoServerRESTConfigurationProvider(catalog);
     }
@@ -129,7 +116,7 @@ public class RESTConfigConfiguration {
     @Bean
     @SuppressWarnings({"deprecation", "java:S1874"})
     GwcUrlHandlerMapping gwcWmtsRestUrlHandlerMapping(Catalog catalog) {
-        GwcUrlHandlerMapping handler = new GwcUrlHandlerMapping(catalog, "/gwc/rest/wmts");
+        GwcUrlHandlerMapping handler = new CloudGwcUrlHandlerMapping(catalog, "/gwc/rest/wmts");
         handler.setAlwaysUseFullPath(true);
         handler.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return handler;

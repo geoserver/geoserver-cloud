@@ -9,13 +9,6 @@ import static org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProper
 import static org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties.CONFIG_DIRECTORY;
 import static org.geowebcache.storage.DefaultStorageFinder.GWC_CACHE_DIR;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -41,12 +34,10 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
  * @since 1.0
@@ -70,14 +61,8 @@ public class GeoWebCacheCoreConfiguration {
     }
 
     @Bean
-    SetRequestPathInfoFilter setRequestPathInfoFilter() {
-        return new SetRequestPathInfoFilter();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
-    RequestMappingHandlerMapping requestMappingHandlerMapping() {
-        return new RequestMappingHandlerMapping();
+    GwcRequestPathInfoFilter setRequestPathInfoFilter() {
+        return new GwcRequestPathInfoFilter();
     }
 
     /**
@@ -238,66 +223,6 @@ public class GeoWebCacheCoreConfiguration {
         }
         if (!Files.isWritable(directory)) {
             throw new BeanInitializationException("%s is not writable: %s".formatted(configPropertyName, directory));
-        }
-    }
-
-    /**
-     * Servlet filter that proceeds with an {@link HttpServletRequestWrapper} decorator to return
-     * {@link HttpServletRequestWrapper#getPathInfo() getPathInfo()} built from {@link
-     * HttpServletRequestWrapper#getRequestURI() getRequestURI()}.
-     *
-     * <p>GWC makes heavy use of {@link HttpServletRequestWrapper#getPathInfo()}, but it returns
-     * {@code null} in a spring-boot application.
-     *
-     * @since 1.0
-     */
-    static class SetRequestPathInfoFilter implements Filter {
-
-        @Override
-        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-                throws IOException, ServletException {
-
-            request = adaptRequest((HttpServletRequest) request);
-            chain.doFilter(request, response);
-        }
-
-        /**
-         *
-         *
-         * <ul>
-         *   <li>{@code contextPath} is usually empty, but it'll match the gateways
-         *       ${geoserver.base-path} if such is set, thanks to the
-         *       server.forward-headers-strategy=framework in the application's bootstrap.yml
-         *   <li>{@code pathInfo} is computed beforehand to avoid decorating the HttpServletRequest
-         *       if the request is not for gwc (e.g. an actuator endpoint)
-         *   <li>{@code suffix} is used to strip it out of requestURI and fake the pathInfo gwc
-         *       expects as it assumes the request is being handled by a Dispatcher mapped to /**
-         *   <li>yes, this is odd, the alternative is re-writing GWC without weird assumptions
-         * </ul>
-         */
-        protected ServletRequest adaptRequest(HttpServletRequest request) {
-            // full request URI (e.g. '/geoserver/cloud/{workspace}/gwc/service/tms/1.0.0',
-            // where
-            // '/geoserver/cloud' is the context path as given by the gateway's base uri,
-            // and
-            // '/{workspace}/gwc' the suffix after which comes the pathInfo
-            // '/service/tms/1.0.0')
-            final String requestURI = request.getRequestURI();
-
-            final String gwc = "/gwc";
-            final int gwcIdx = requestURI.indexOf(gwc);
-            if (gwcIdx > -1) {
-                final String pathToGwc = requestURI.substring(0, gwcIdx + gwc.length());
-                final String pathInfo = requestURI.substring(pathToGwc.length());
-
-                return new HttpServletRequestWrapper(request) {
-                    @Override
-                    public String getPathInfo() {
-                        return pathInfo;
-                    }
-                };
-            }
-            return request;
         }
     }
 }

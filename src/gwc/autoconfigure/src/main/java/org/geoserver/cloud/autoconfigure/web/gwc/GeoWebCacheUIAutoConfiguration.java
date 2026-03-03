@@ -7,16 +7,18 @@ package org.geoserver.cloud.autoconfigure.web.gwc;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheRestConfigEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnWebUIEnabled;
+import org.geoserver.cloud.gwc.config.core.CloudGwcUrlHandlerMapping;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
-import org.geowebcache.GeoWebCacheDispatcher;
+import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
 import org.geowebcache.rest.controller.ByteStreamController;
-import org.gwc.web.rest.GeoWebCacheController;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
 
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
@@ -31,10 +33,22 @@ public class GeoWebCacheUIAutoConfiguration {
     }
 
     @Bean
-    GeoWebCacheController gwcController(GeoWebCacheDispatcher gwcDispatcher) {
-        return new GeoWebCacheController(gwcDispatcher);
+    @SuppressWarnings({"deprecation", "java:S1874"})
+    GwcUrlHandlerMapping gwcDemoUrlHandlerMapping(Catalog catalog) {
+        GwcUrlHandlerMapping handler = new CloudGwcUrlHandlerMapping(catalog, "/gwc/demo");
+        handler.setAlwaysUseFullPath(true);
+        handler.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return handler;
     }
 
+    @Bean
+    @SuppressWarnings({"deprecation", "java:S1874"})
+    GwcUrlHandlerMapping gwcRestWebUrlHandlerMapping(Catalog catalog) {
+        GwcUrlHandlerMapping handler = new CloudGwcUrlHandlerMapping(catalog, "/gwc/rest/web");
+        handler.setAlwaysUseFullPath(true);
+        handler.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return handler;
+    }
     /**
      * Provide a handler for static web resources if missing, for example, because {@link
      * ConditionalOnGeoWebCacheRestConfigEnabled} is disabled
