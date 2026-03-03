@@ -5,24 +5,18 @@
 
 package org.geoserver.cloud.gwc.app;
 
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.gwc.config.core.WebMapServiceMinimalConfiguration;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.rest.RequestInfo;
 import org.geoserver.rest.RestConfiguration;
 import org.geoserver.rest.SuffixStripFilter;
 import org.geoserver.rest.catalog.AdminRequestCallback;
-import org.geoserver.rest.resources.ResourceController;
 import org.geoserver.wms.capabilities.LegendSample;
 import org.geoserver.wms.capabilities.LegendSampleImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,7 +34,10 @@ import org.springframework.context.annotation.FilterType;
  */
 @Configuration
 @ComponentScan(
-        basePackageClasses = org.geoserver.rest.AbstractGeoServerController.class,
+        basePackageClasses = {
+            org.geoserver.gwc.dispatch.GeoServerGWCDispatcherController.class,
+            org.geoserver.rest.AbstractGeoServerController.class
+        },
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SuffixStripFilter.class))
 public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
 
@@ -63,11 +60,6 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
         return new AdminRequestCallback();
     }
 
-    @Bean
-    SetRequestPathInfoFilter requestPathInfoFilter(ApplicationContext appContext) {
-        return new SetRequestPathInfoFilter();
-    }
-
     /**
      * Override of {@link SuffixStripFilter} making sure getPathInfo() does not return null
      * @param appContext
@@ -76,23 +68,6 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
     @Bean
     NpeAwareSuffixStripFilter suffixStripFilter(ApplicationContext appContext) {
         return new NpeAwareSuffixStripFilter(appContext);
-    }
-
-    /**
-     * GeoSever REST API always expect the {@link HttpServletRequest#getServletPath()} to be
-     * {@literal /rest}, and {@link HttpServletRequest#getPathInfo()} whatever comes after in the
-     * request URI.
-     *
-     * <p>for example: {@link RequestInfo} constructor, {@link ResourceController#resource}, etc.
-     */
-    static class SetRequestPathInfoFilter implements Filter {
-        @Override
-        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-                throws IOException, ServletException {
-
-            request = adaptRequest((HttpServletRequest) request);
-            chain.doFilter(request, response);
-        }
     }
 
     static class NpeAwareSuffixStripFilter extends SuffixStripFilter {
@@ -105,32 +80,8 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
         protected void doFilterInternal(
                 HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                 throws ServletException, IOException {
-            request = adaptRequest(request);
+            request = org.geoserver.cloud.gwc.config.core.GwcRequestPathInfoFilter.adaptRequest(request);
             super.doFilterInternal(request, response, filterChain);
         }
-    }
-
-    static HttpServletRequest adaptRequest(HttpServletRequest request) {
-        final String requestURI = request.getRequestURI();
-        @SuppressWarnings("java:S1075") // base path is fixed
-        final String restBasePath = "/gwc/rest";
-        final int restIdx = requestURI.indexOf(restBasePath);
-        if (restIdx > -1) {
-            final String pathToRest = requestURI.substring(0, restIdx + restBasePath.length());
-            final String pathInfo = requestURI.substring(pathToRest.length());
-
-            return new HttpServletRequestWrapper(request) {
-                @Override
-                public String getServletPath() {
-                    return restBasePath;
-                }
-
-                @Override
-                public String getPathInfo() {
-                    return pathInfo;
-                }
-            };
-        }
-        return request;
     }
 }

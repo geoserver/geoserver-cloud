@@ -42,8 +42,9 @@
       <artifactId>gs-gwc</artifactId>
     </dependency>
     <dependency>
+      <!-- required for GWC.dispatchOwsRequest() to dispatch to the WMS 1.1 engine -->
       <groupId>org.geoserver</groupId>
-      <artifactId>gs-wms-core</artifactId>
+      <artifactId>gs-wms1_1</artifactId>
     </dependency>
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
