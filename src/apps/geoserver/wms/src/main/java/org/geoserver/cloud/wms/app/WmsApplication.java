@@ -5,8 +5,7 @@
 
 package org.geoserver.cloud.wms.app;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
+import org.geoserver.cloud.app.GeoServerApplicationLauncher;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.retry.annotation.EnableRetry;
 
@@ -14,15 +13,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableRetry
 public class WmsApplication {
 
-    public static void main(String[] args) {
-        try {
-            SpringApplication.run(WmsApplication.class, args);
-        } catch (RuntimeException e) {
-            try {
-                LoggerFactory.getLogger(WmsApplication.class).error("Application run failed", e);
-            } finally {
-                System.exit(-1);
-            }
-        }
+    public static void main(String... args) {
+        GeoServerApplicationLauncher.run(WmsApplication.class, args);
     }
 }
