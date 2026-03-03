@@ -67,6 +67,7 @@ services:
   # Then login with either testadmin/testadmin or testuser/testuser
   ldap:
     image: georchestra/ldap:latest
+    platform: linux/amd64
     environment:
         - SLAPD_ORGANISATION=georchestra
         - SLAPD_DOMAIN=georchestra.org
