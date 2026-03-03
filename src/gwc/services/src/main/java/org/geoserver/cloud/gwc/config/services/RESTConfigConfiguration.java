@@ -9,6 +9,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.gwc.config.core.CloudGwcUrlHandlerMapping;
 import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
 import org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider;
+import org.geoserver.rest.RestControllerAdvice;
 import org.geowebcache.rest.converter.GWCConverter;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -59,6 +60,19 @@ import org.springframework.core.Ordered;
 @ConditionalOnClass(GWCConverter.class)
 @ComponentScan(basePackages = "org.geowebcache.rest")
 public class RESTConfigConfiguration {
+
+    /**
+     * Since we don't scan the {@literal org.geowebcache.rest}, we need a {@link RestControllerAdvice}
+     * explicitly to handle http error code translations.
+     * <p>
+     * For example, it ensures that {@code org.geoserver.rest.ResourceNotFoundException}
+     * is correctly mapped to a 404 response instead of a default 500 error.
+     * </p>
+     */
+    @Bean
+    RestControllerAdvice restControllerAdvice() {
+        return new RestControllerAdvice();
+    }
 
     /**
      * The original {@literal geowebcache-rest-context.xml}:

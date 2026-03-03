@@ -253,7 +253,7 @@ def test_ogcapi_queryables(db_session, geoserver):
     # Test queryables endpoint
     response = geoserver.rest_service.rest_client.get(
         f"/{workspace}/ogc/features/v1/collections/{workspace}:{feature_type}/queryables"
-        f"?f=application/json"
+        f"?f=application/schema%2Bjson"
     )
     assert response.status_code == 200
 

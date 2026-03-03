@@ -6,15 +6,23 @@
 package org.geoserver.cloud.restconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_XML;
 import static org.springframework.http.MediaType.TEXT_HTML;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.SLDHandler;
+import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.Styles;
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
+import org.geotools.api.style.Style;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -36,6 +44,8 @@ abstract class RestConfigApplicationTest {
 
     @Autowired
     protected ConfigurableApplicationContext context;
+
+    protected @Autowired Catalog catalog;
 
     @Test
     void testAnnonymousForbidden() {
@@ -127,5 +137,73 @@ abstract class RestConfigApplicationTest {
         assertThat(context.containsBean("wmsConditionalBean")).isFalse();
         assertThat(context.containsBean("wpsConditionalBean")).isFalse();
         assertThat(context.containsBean("webUiConditionalBean")).isFalse();
+    }
+
+    @Test
+    void putStyleInfoAsSLDWithContentTypeHeader() throws Exception {
+        final String name = "StyleWithContentType";
+        final String uri = "/rest/styles/%s".formatted(name);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.valueOf(SLDHandler.MIMETYPE_10));
+        final String sldXml = newSLDXML(name);
+        HttpEntity<String> requestEntity = new HttpEntity<>(sldXml, headers);
+
+        testPutStyle(name, uri, requestEntity);
+    }
+
+    @Test
+    void putStyleAsSLDWithExtension() throws Exception {
+        final String name = "StyleWithExtension";
+        final String uri = "/rest/styles/%s.sld".formatted(name);
+        final String sldXml = newSLDXML(name);
+        HttpEntity<String> requestEntity = new HttpEntity<>(sldXml);
+
+        testPutStyle(name, uri, requestEntity);
+    }
+
+    private void testPutStyle(final String name, final String uri, HttpEntity<String> requestEntity)
+            throws IOException {
+        StyleInfo styleInfo = catalog.getFactory().createStyle();
+        styleInfo.setName(name);
+        styleInfo.setFormat(SLDHandler.FORMAT);
+        styleInfo.setFormatVersion(SLDHandler.VERSION_10);
+        styleInfo.setFilename(name + ".sld");
+        catalog.add(styleInfo);
+
+        restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
+
+        ResponseEntity<String> response = restTemplate.exchange(uri, PUT, requestEntity, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(OK);
+
+        styleInfo = catalog.getStyleByName(name);
+        assertThat(styleInfo).isNotNull();
+
+        Style style = styleInfo.getStyle();
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        SLDHandler handler = new SLDHandler();
+        handler.encode(Styles.sld(style), SLDHandler.VERSION_10, false, out);
+        String encoded = new String(out.toByteArray());
+        assertTrue(encoded.contains("<sld:Name>%s</sld:Name>".formatted(name)));
+    }
+
+    private String newSLDXML(String name) {
+        return """
+                <sld:StyledLayerDescriptor xmlns:sld='http://www.opengis.net/sld'>
+                <sld:NamedLayer>
+                <sld:Name>%s</sld:Name>
+                <sld:UserStyle>
+                <sld:Name>foo</sld:Name>
+                <sld:FeatureTypeStyle>
+                <sld:Name>foo</sld:Name>
+                </sld:FeatureTypeStyle>
+                </sld:UserStyle>
+                </sld:NamedLayer>
+                </sld:StyledLayerDescriptor>
+                """
+                .formatted(name);
     }
 }
