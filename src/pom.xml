@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-cloud-bom</artifactId>
+    <artifactId>gs-cloud-parent</artifactId>
     <version>${revision}</version>
   </parent>
   <artifactId>gs-cloud</artifactId>
