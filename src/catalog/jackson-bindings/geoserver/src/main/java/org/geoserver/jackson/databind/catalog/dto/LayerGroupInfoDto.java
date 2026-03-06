@@ -13,18 +13,14 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.geotools.jackson.databind.dto.ReferencedEnvelopeDto;
 
-/**
- * DTO for {@link org.geoserver.catalog.LayerGroupInfo}
- */
+/** DTO for {@link org.geoserver.catalog.LayerGroupInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonTypeName("LayerGroupInfo")
 public class LayerGroupInfoDto extends PublishedInfoDto {
 
-    /**
-     * DTO for {@link org.geoserver.catalog.LayerGroupInfo.Mode}
-     */
+    /** DTO for {@link org.geoserver.catalog.LayerGroupInfo.Mode} */
     @JsonTypeName("Mode")
     public enum ModeDto {
         SINGLE,
@@ -45,18 +41,12 @@ public class LayerGroupInfoDto extends PublishedInfoDto {
     protected ReferencedEnvelopeDto bounds;
     private List<KeywordInfoDto> keywords;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalTitle;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAbstract;
 
-    /**
-     * @since geoserver 2.21.0
-     */
+    /** @since geoserver 2.21.0 */
     private List<LayerGroupStyleDto> layerGroupStyles;
 }

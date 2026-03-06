@@ -11,9 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-/**
- * Tests for {@link GridFormatFactoryFilteringAutoConfiguration}.
- */
+/** Tests for {@link GridFormatFactoryFilteringAutoConfiguration}. */
 class GridFormatFactoryFilteringAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()

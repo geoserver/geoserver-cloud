@@ -24,9 +24,9 @@ import org.geotools.jackson.databind.dto.CoordinateReferenceSystemDto;
 import org.junit.jupiter.api.Test;
 
 /**
- * Verifies that JSON produced by Jackson 2's property naming convention (lowercase leading
- * characters) can be deserialized correctly. These tests use hardcoded JSON text blocks with the
- * Jackson 2 property names and the {@code @type} property for type discrimination.
+ * Verifies that JSON produced by Jackson 2's property naming convention (lowercase leading characters) can be
+ * deserialized correctly. These tests use hardcoded JSON text blocks with the Jackson 2 property names and the
+ * {@code @type} property for type discrimination.
  *
  * <p>Key Jackson 2 property name mappings tested:
  *

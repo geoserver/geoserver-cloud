@@ -9,9 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import org.geotools.util.NumberRange;
 
-/**
- * DTO for {@link NumberRange}
- */
+/** DTO for {@link NumberRange} */
 @Data
 @JsonTypeName("NumberRange")
 public class NumberRangeDto {

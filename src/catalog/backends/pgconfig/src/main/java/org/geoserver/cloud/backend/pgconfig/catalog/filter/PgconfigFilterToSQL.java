@@ -48,9 +48,7 @@ import org.geotools.filter.function.math.FilterFunction_abs_4;
 import org.geotools.jdbc.PreparedFilterToSQL;
 import org.geotools.util.Converters;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 class PgconfigFilterToSQL extends PreparedFilterToSQL {
 
     public static @Value class Result {
@@ -61,9 +59,7 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
         List<Class> literalTypes;
     }
 
-    /**
-     * @param dialect
-     */
+    /** @param dialect */
     public PgconfigFilterToSQL(Writer out) {
         super(out);
         setSqlNameEscape("\"");
@@ -136,16 +132,14 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
     }
 
     /**
-     * Writes the SQL for the Like Filter. Assumes the current java implemented
-     * wildcards for the Like Filter: . for multi and .? for single. And replaces
-     * them with the SQL % and _, respectively.
+     * Writes the SQL for the Like Filter. Assumes the current java implemented wildcards for the Like Filter: . for
+     * multi and .? for single. And replaces them with the SQL % and _, respectively.
      *
-     * <p>
-     * Uses ILIKE if {@link PropertyIsLike#isMatchingCase()} is {@code false}
+     * <p>Uses ILIKE if {@link PropertyIsLike#isMatchingCase()} is {@code false}
      *
      * @param filter the Like Filter to be visited.
-     * @task REVISIT: Need to think through the escape char, so it works right when
-     *       Java uses one, and escapes correctly with an '_'.
+     * @task REVISIT: Need to think through the escape char, so it works right when Java uses one, and escapes correctly
+     *     with an '_'.
      */
     @Override
     public Object visit(PropertyIsLike filter, Object extraData) {

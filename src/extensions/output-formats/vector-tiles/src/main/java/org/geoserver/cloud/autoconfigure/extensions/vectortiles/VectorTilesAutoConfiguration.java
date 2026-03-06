@@ -21,35 +21,32 @@ import org.springframework.context.annotation.Import;
 /**
  * Auto-configuration for Vector Tiles extension across multiple GeoServer services.
  *
- * <p>
- * This auto-configuration enables the Vector Tiles extension in GeoServer
- * Cloud, allowing various vector tile formats to be used across different GeoServer
- * services (WMS, WebUI, and GWC). It serves as an example of a module that's required
- * by multiple services.
+ * <p>This auto-configuration enables the Vector Tiles extension in GeoServer Cloud, allowing various vector tile
+ * formats to be used across different GeoServer services (WMS, WebUI, and GWC). It serves as an example of a module
+ * that's required by multiple services.
  *
- * <p>
- * It is activated when the following conditions are met:
+ * <p>It is activated when the following conditions are met:
+ *
  * <ul>
- * <li>One or more of the supported GeoServer services are available (WMS, WebUI, or GWC)</li>
- * <li>The required VectorTileMapOutputFormat classes are on the classpath</li>
- * <li>The geoserver.extension.vector-tiles.enabled property is true (the default)</li>
+ *   <li>One or more of the supported GeoServer services are available (WMS, WebUI, or GWC)
+ *   <li>The required VectorTileMapOutputFormat classes are on the classpath
+ *   <li>The geoserver.extension.vector-tiles.enabled property is true (the default)
  * </ul>
  *
- * <p>
- * The configuration supports three vector tile formats, each of which can be
- * individually enabled or disabled:
+ * <p>The configuration supports three vector tile formats, each of which can be individually enabled or disabled:
+ *
  * <ul>
- * <li>MapBox - Controlled by geoserver.extension.vector-tiles.mapbox</li>
- * <li>GeoJSON - Controlled by geoserver.extension.vector-tiles.geojson</li>
- * <li>TopoJSON - Controlled by geoserver.extension.vector-tiles.topojson</li>
+ *   <li>MapBox - Controlled by geoserver.extension.vector-tiles.mapbox
+ *   <li>GeoJSON - Controlled by geoserver.extension.vector-tiles.geojson
+ *   <li>TopoJSON - Controlled by geoserver.extension.vector-tiles.topojson
  * </ul>
  *
- * <p>
- * Multi-service integration:
+ * <p>Multi-service integration:
+ *
  * <ul>
- * <li>WMS - Vector tiles are offered as output formats for GetMap requests</li>
- * <li>WebUI - Formats are available in the Layer Preview page</li>
- * <li>GWC - Vector tiles can be cached and served through GeoWebCache</li>
+ *   <li>WMS - Vector tiles are offered as output formats for GetMap requests
+ *   <li>WebUI - Formats are available in the Layer Preview page
+ *   <li>GWC - Vector tiles can be cached and served through GeoWebCache
  * </ul>
  *
  * @since 2.27.0
@@ -70,13 +67,11 @@ public class VectorTilesAutoConfiguration {
     /**
      * Constructor that configures the Vector Tiles extension.
      *
-     * <p>
-     * Sets the enabled state of the Vector Tiles extension based on whether any of
-     * the vector tile formats are enabled.
+     * <p>Sets the enabled state of the Vector Tiles extension based on whether any of the vector tile formats are
+     * enabled.
      *
      * @param extensionInfo The ModuleStatusImpl bean for the Vector Tiles extension
-     * @param config        The configuration properties for the Vector Tiles
-     *                      extension
+     * @param config The configuration properties for the Vector Tiles extension
      */
     @SuppressWarnings("java:S6830")
     public VectorTilesAutoConfiguration(
@@ -85,9 +80,7 @@ public class VectorTilesAutoConfiguration {
         extensionInfo.setEnabled(config.anyEnabled());
     }
 
-    /**
-     * Logs that the Vector Tiles extension is enabled.
-     */
+    /** Logs that the Vector Tiles extension is enabled. */
     @PostConstruct
     void log() {
         log.info("Vector Tiles extension enabled");
@@ -96,8 +89,8 @@ public class VectorTilesAutoConfiguration {
     /**
      * Configuration class that activates Vector Tiles formats for the WMS service.
      *
-     * <p>This enables vector tile output formats for WMS GetMap requests,
-     * allowing clients to request map data in vectorized form instead of as raster images.
+     * <p>This enables vector tile output formats for WMS GetMap requests, allowing clients to request map data in
+     * vectorized form instead of as raster images.
      */
     @Configuration
     @ConditionalOnGeoServerWMS
@@ -107,8 +100,8 @@ public class VectorTilesAutoConfiguration {
     /**
      * Configuration class that activates Vector Tiles formats for the WebUI service.
      *
-     * <p>This enables vector tile formats in the Layer Preview interface,
-     * allowing users to test and visualize vector tiles directly in the GeoServer admin UI.
+     * <p>This enables vector tile formats in the Layer Preview interface, allowing users to test and visualize vector
+     * tiles directly in the GeoServer admin UI.
      */
     @Configuration
     @ConditionalOnGeoServerWebUI
@@ -118,9 +111,8 @@ public class VectorTilesAutoConfiguration {
     /**
      * Configuration class that activates Vector Tiles formats for the GeoWebCache service.
      *
-     * <p>This enables vector tile caching capabilities in GWC, allowing vector tiles
-     * to be pre-generated and served with improved performance. GWC can create
-     * tile caches in these vector formats and serve them directly.
+     * <p>This enables vector tile caching capabilities in GWC, allowing vector tiles to be pre-generated and served
+     * with improved performance. GWC can create tile caches in these vector formats and serve them directly.
      */
     @Configuration
     @ConditionalOnGeoServerGWC

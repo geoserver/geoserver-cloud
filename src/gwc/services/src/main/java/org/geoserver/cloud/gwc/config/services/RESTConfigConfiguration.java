@@ -48,9 +48,9 @@ import org.springframework.core.Ordered;
  *
  * }</pre>
  *
- * <p>scans too much. We're only scanning {@literal org.geowebcache.rest}. {@literal
- * org.geowebcache.diskquota.rest.controller} is up to {@link DiskQuotaAutoConfiguration}, and is
- * omitted, I can't find any {@code @Controller} in there, might need to revisit;
+ * <p>scans too much. We're only scanning {@literal org.geowebcache.rest}.
+ * {@literal org.geowebcache.diskquota.rest.controller} is up to {@link DiskQuotaAutoConfiguration}, and is omitted, I
+ * can't find any {@code @Controller} in there, might need to revisit;
  *
  * <p>Conditionals: see {@link ConditionalOnGeoWebCacheRestConfigEnabled}
  *
@@ -62,12 +62,11 @@ import org.springframework.core.Ordered;
 public class RESTConfigConfiguration {
 
     /**
-     * Since we don't scan the {@literal org.geowebcache.rest}, we need a {@link RestControllerAdvice}
-     * explicitly to handle http error code translations.
-     * <p>
-     * For example, it ensures that {@code org.geoserver.rest.ResourceNotFoundException}
-     * is correctly mapped to a 404 response instead of a default 500 error.
-     * </p>
+     * Since we don't scan the {@literal org.geowebcache.rest}, we need a {@link RestControllerAdvice} explicitly to
+     * handle http error code translations.
+     *
+     * <p>For example, it ensures that {@code org.geoserver.rest.ResourceNotFoundException} is correctly mapped to a 404
+     * response instead of a default 500 error.
      */
     @Bean
     RestControllerAdvice restControllerAdvice() {

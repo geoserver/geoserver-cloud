@@ -12,9 +12,7 @@ import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 public class CloudDefaultStorageFinder extends DefaultStorageFinder {
 
     private Environment environment;

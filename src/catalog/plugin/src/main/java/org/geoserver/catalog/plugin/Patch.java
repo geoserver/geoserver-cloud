@@ -25,18 +25,17 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.ows.util.OwsUtils;
 
 /**
- * Represents a patch of changes to be applied to a catalog object, encapsulating a list of property
- * updates. A patch is used to describe modifications (e.g., adding, updating, or removing properties)
- * to entities like layers, styles, or workspaces in the {@link Catalog}.
+ * Represents a patch of changes to be applied to a catalog object, encapsulating a list of property updates. A patch is
+ * used to describe modifications (e.g., adding, updating, or removing properties) to entities like layers, styles, or
+ * workspaces in the {@link Catalog}.
  *
- * <p>This class provides a flexible, mutable container for property changes, allowing incremental
- * construction of updates through methods like {@link #add} and {@link #with}. It is typically used
- * by the Catalog to batch updates and apply them to catalog objects, propagating changes
- * efficiently across the distributed system via events.
+ * <p>This class provides a flexible, mutable container for property changes, allowing incremental construction of
+ * updates through methods like {@link #add} and {@link #with}. It is typically used by the Catalog to batch updates and
+ * apply them to catalog objects, propagating changes efficiently across the distributed system via events.
  *
- * <p>Each patch consists of a collection of {@link Property} objects, where each property specifies
- * a name and its new value. Unlike a diff, this class focuses on the target state rather than tracking
- * old values, enabling straightforward application of changes to objects.
+ * <p>Each patch consists of a collection of {@link Property} objects, where each property specifies a name and its new
+ * value. Unlike a diff, this class focuses on the target state rather than tracking old values, enabling
+ * straightforward application of changes to objects.
  */
 @NoArgsConstructor
 public @Data class Patch implements Serializable {
@@ -46,8 +45,8 @@ public @Data class Patch implements Serializable {
     /**
      * Inner class representing a single property change within a {@link Patch}.
      *
-     * <p>A {@code Property} encapsulates the name of the property to be updated and its new value.
-     * It supports type-safe value retrieval and custom equality checking for arrays and primitives.
+     * <p>A {@code Property} encapsulates the name of the property to be updated and its new value. It supports
+     * type-safe value retrieval and custom equality checking for arrays and primitives.
      *
      * @see Patch
      */
@@ -58,14 +57,14 @@ public @Data class Patch implements Serializable {
         /**
          * Retrieves the property value cast to the specified type.
          *
-         * <p>This method provides a type-safe way to access the value, suppressing unchecked warnings
-         * since the caller is responsible for ensuring type compatibility.
+         * <p>This method provides a type-safe way to access the value, suppressing unchecked warnings since the caller
+         * is responsible for ensuring type compatibility.
          *
          * @param <V> The expected type of the value.
          * @return The property value cast to type {@code V}.
          * @throws ClassCastException if the value cannot be cast to the requested type.
          * @example Accessing a string value:
-         *          <pre>
+         *     <pre>
          *          Property prop = new Property("title", "New Title");
          *          String title = prop.value();
          *          </pre>
@@ -78,8 +77,8 @@ public @Data class Patch implements Serializable {
         /**
          * Compares this property to another object for equality.
          *
-         * <p>Equality is based on the property name and value, using custom logic to handle arrays
-         * and primitives via {@link #valueEquals}.
+         * <p>Equality is based on the property name and value, using custom logic to handle arrays and primitives via
+         * {@link #valueEquals}.
          *
          * @param o The object to compare with.
          * @return {@code true} if the objects are equal; {@code false} otherwise.
@@ -104,8 +103,9 @@ public @Data class Patch implements Serializable {
         /**
          * Compares two values for equality, with special handling for arrays.
          *
-         * <p>This utility method supports deep equality checks for primitive and object arrays,
-         * ensuring accurate comparison of complex property values.
+         * <p>This utility method supports deep equality checks for primitive and object arrays, ensuring accurate
+         * comparison of complex property values.
+         *
          * <p>Nonetheless, the values themselves must implement equals()
          *
          * @param v1 The first value to compare.
@@ -155,13 +155,13 @@ public @Data class Patch implements Serializable {
     /**
      * Constructs a new Patch with the given list of property changes.
      *
-     * <p>The provided list is iterated and added to the internal collection, allowing further
-     * modifications via {@link #add} or {@link #with}. If the input list is null or empty, the
-     * patch starts empty, representing no changes initially.
+     * <p>The provided list is iterated and added to the internal collection, allowing further modifications via
+     * {@link #add} or {@link #with}. If the input list is null or empty, the patch starts empty, representing no
+     * changes initially.
      *
      * @param patches The initial list of property changes to include. May be null or empty.
      * @example Creating a patch to update a layer's title:
-     *          <pre>
+     *     <pre>
      *          List<Property> props = new ArrayList<>();
      *          props.add(new Property("title", "New Title"));
      *          Patch patch = new Patch(props);
@@ -182,8 +182,7 @@ public @Data class Patch implements Serializable {
     /**
      * Checks if this patch contains no property changes.
      *
-     * <p>An empty patch indicates no modifications will be applied, useful for conditional logic
-     * in update workflows.
+     * <p>An empty patch indicates no modifications will be applied, useful for conditional logic in update workflows.
      *
      * @return {@code true} if the patch is empty; {@code false} otherwise.
      */
@@ -194,8 +193,8 @@ public @Data class Patch implements Serializable {
     /**
      * Adds a property change to this patch.
      *
-     * <p>The property is appended to the internal list, allowing incremental construction of the
-     * patch. This method ensures the property is non-null to maintain consistency.
+     * <p>The property is appended to the internal list, allowing incremental construction of the patch. This method
+     * ensures the property is non-null to maintain consistency.
      *
      * @param prop The property change to add.
      * @throws NullPointerException if the property is null.
@@ -207,15 +206,15 @@ public @Data class Patch implements Serializable {
     /**
      * Adds a new property change with the specified name and value, returning the created property.
      *
-     * <p>This convenience method creates a {@link Property} instance and adds it to the patch,
-     * useful for programmatic construction.
+     * <p>This convenience method creates a {@link Property} instance and adds it to the patch, useful for programmatic
+     * construction.
      *
-     * @param name  The name of the property to update (e.g., "title").
+     * @param name The name of the property to update (e.g., "title").
      * @param value The new value for the property.
      * @return The created {@link Property} instance.
      * @throws NullPointerException if the name is null.
      * @example Adding a property:
-     *          <pre>
+     *     <pre>
      *          Patch patch = new Patch();
      *          patch.add("enabled", true);
      *          </pre>
@@ -227,16 +226,13 @@ public @Data class Patch implements Serializable {
         return p;
     }
 
-    /**
-     * Adds a property change and returns this patch for method chaining.
-     */
+    /** Adds a property change and returns this patch for method chaining. */
     public Patch with(String name, Object value) {
         add(name, value);
         return this;
     }
 
-    /**
-     * Returns the list of property names in this patch. */
+    /** Returns the list of property names in this patch. */
     public List<String> getPropertyNames() {
         return patches.stream().map(Property::getName).toList();
     }
@@ -264,10 +260,10 @@ public @Data class Patch implements Serializable {
     /**
      * Applies this patch to the target object, inferring its type.
      *
-     * <p>This method attempts to determine the target’s type and applies all property changes.
-     * If the target is a proxy, it unwraps it to find the actual type unless nested proxies prevent this.
+     * <p>This method attempts to determine the target’s type and applies all property changes. If the target is a
+     * proxy, it unwraps it to find the actual type unless nested proxies prevent this.
      *
-     * @param <T>   The type of the target object.
+     * @param <T> The type of the target object.
      * @param target The object to apply the patch to.
      * @return The modified target object.
      * @throws NullPointerException if the target is null.
@@ -290,11 +286,11 @@ public @Data class Patch implements Serializable {
     /**
      * Applies this patch to the target object using the specified type.
      *
-     * <p>This method applies each property change to the target, handling collections and maps
-     * appropriately based on getter method signatures.
+     * <p>This method applies each property change to the target, handling collections and maps appropriately based on
+     * getter method signatures.
      *
-     * @param <T>        The type of the target object.
-     * @param target     The object to apply the patch to.
+     * @param <T> The type of the target object.
+     * @param target The object to apply the patch to.
      * @param objectType The explicit type of the target object.
      * @return The modified target object.
      * @throws IllegalArgumentException if a property name does not exist in the target type.
@@ -309,9 +305,9 @@ public @Data class Patch implements Serializable {
      *
      * <p>Handles simple properties, collections, and maps based on the getter’s return type.
      *
-     * @param target     The object to modify.
+     * @param target The object to modify.
      * @param objectType The type of the target object.
-     * @param change     The property change to apply.
+     * @param change The property change to apply.
      * @throws IllegalArgumentException if the property does not exist or is immutable.
      */
     private static void apply(Object target, Class<?> objectType, final Property change) {
@@ -330,10 +326,9 @@ public @Data class Patch implements Serializable {
     /**
      * Applies a collection property change by updating the target object’s collection property.
      *
-     * <p>If the new value is null, clears the existing collection if present. If the new value is
-     * empty, sets the collection to empty. If the new value is non-empty, replaces the existing
-     * collection’s contents or sets a new collection if none exists. Handles immutable collections
-     * by throwing an exception.
+     * <p>If the new value is null, clears the existing collection if present. If the new value is empty, sets the
+     * collection to empty. If the new value is non-empty, replaces the existing collection’s contents or sets a new
+     * collection if none exists. Handles immutable collections by throwing an exception.
      *
      * @param target The object whose collection property is being updated.
      * @param change The property change containing the property name and new collection value.
@@ -373,9 +368,7 @@ public @Data class Patch implements Serializable {
             }
         }
     }
-    /**
-     * Applies a map property change by clearing and updating the existing map.
-     */
+    /** Applies a map property change by clearing and updating the existing map. */
     @SuppressWarnings("unchecked")
     private static void applyMapValueChange(Object target, final Property change) {
         final String propertyName = change.getName();

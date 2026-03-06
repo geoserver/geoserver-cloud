@@ -21,9 +21,7 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class ServiceIdFilterAutoConfigurationTest {
 
     WebApplicationContextRunner webappRunner = new WebApplicationContextRunner()

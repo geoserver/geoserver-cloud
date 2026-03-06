@@ -60,9 +60,8 @@ import org.geotools.util.logging.Logging;
 import org.springframework.core.env.PropertyResolver;
 
 /**
- * Copy of GeoTools' {@link org.geotools.http.commons.MultithreadedHttpClient} due to its lack of
- * extensibility, adding the ability to set up the Apache HTTPClient's proxy configuration from
- * Spring {@link PropertyResolver}'s properties.
+ * Copy of GeoTools' {@link org.geotools.http.commons.MultithreadedHttpClient} due to its lack of extensibility, adding
+ * the ability to set up the Apache HTTPClient's proxy configuration from Spring {@link PropertyResolver}'s properties.
  */
 @Slf4j
 class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.AbstractHttpClient

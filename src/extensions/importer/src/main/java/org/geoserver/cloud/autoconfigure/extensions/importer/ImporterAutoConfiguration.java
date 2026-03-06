@@ -15,9 +15,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-/**
- * Auto-configuration for the GeoServer Importer extension.
- */
+/** Auto-configuration for the GeoServer Importer extension. */
 @AutoConfiguration
 @ConditionalOnImporter
 @EnableConfigurationProperties(ImporterConfigProperties.class)
@@ -29,9 +27,7 @@ import org.springframework.context.annotation.Import;
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.importer")
 public class ImporterAutoConfiguration {
 
-    /**
-     * Configuration for the Importer Web UI components.
-     */
+    /** Configuration for the Importer Web UI components. */
     @Configuration
     @ConditionalOnImporter
     @ConditionalOnGeoServerWebUI
@@ -47,9 +43,7 @@ public class ImporterAutoConfiguration {
         }
     }
 
-    /**
-     * Configuration for the Importer REST API.
-     */
+    /** Configuration for the Importer REST API. */
     @Configuration
     @ConditionalOnImporter
     @ConditionalOnGeoServerREST

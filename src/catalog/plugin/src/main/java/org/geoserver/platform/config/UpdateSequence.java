@@ -5,14 +5,10 @@
 
 package org.geoserver.platform.config;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 public interface UpdateSequence {
 
-    /**
-     * @return the currently observed update sequence value
-     */
+    /** @return the currently observed update sequence value */
     long currValue();
 
     long nextValue();

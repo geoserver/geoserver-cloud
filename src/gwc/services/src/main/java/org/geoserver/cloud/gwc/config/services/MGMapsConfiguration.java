@@ -12,9 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(MGMapsConverter.class)
 @ComponentScan(basePackageClasses = MGMapsController.class)

@@ -15,15 +15,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Conditional annotation that only matches when:
+ *
  * <ul>
- *   <li>GeoServer security is enabled (default behavior)</li>
- *   <li>The Environment Admin authentication extension is enabled via configuration property</li>
+ *   <li>GeoServer security is enabled (default behavior)
+ *   <li>The Environment Admin authentication extension is enabled via configuration property
  * </ul>
  *
- * <p>This can be used on any Spring components that should only be registered when the
- * Environment Admin authentication extension is enabled.
+ * <p>This can be used on any Spring components that should only be registered when the Environment Admin authentication
+ * extension is enabled.
  *
  * <p>Usage example:
+ *
  * <pre>{@code
  * @Configuration
  * @ConditionalOnEnvironmentAdmin

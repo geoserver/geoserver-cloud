@@ -88,8 +88,8 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
     }
 
     /**
-     * Custom extension adding {@code dimensions (int)} and {@code measures (boolean)} properties if
-     * the geometry has Z and/or M ordinates.
+     * Custom extension adding {@code dimensions (int)} and {@code measures (boolean)} properties if the geometry has Z
+     * and/or M ordinates.
      */
     private void writeDimensions(Geometry geometry, JsonGenerator generator) {
         CoordinateSequence sampleSequence = findSampleSequence(geometry);

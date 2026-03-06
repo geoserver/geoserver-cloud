@@ -11,8 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Configuration properties for the DXF extension.
  *
- * <p>
- * These properties control whether the DXF extension is enabled.
+ * <p>These properties control whether the DXF extension is enabled.
  *
  * @since 2.27.0
  */
@@ -20,9 +19,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "geoserver.extension.dxf")
 public class DxfConfigProperties {
 
-    /**
-     * Whether DXF output format support is enabled.
-     * Default is true.
-     */
+    /** Whether DXF output format support is enabled. Default is true. */
     private boolean enabled = true;
 }

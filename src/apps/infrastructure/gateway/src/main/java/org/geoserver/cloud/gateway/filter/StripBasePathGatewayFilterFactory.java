@@ -15,9 +15,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.StringUtils;
 
 /**
- * See gateway's issue <a
- * href="https://github.com/spring-cloud/spring-cloud-gateway/issues/1759">#1759</a> "Webflux base
- * path does not work with Path predicates"
+ * See gateway's issue <a href="https://github.com/spring-cloud/spring-cloud-gateway/issues/1759">#1759</a> "Webflux
+ * base path does not work with Path predicates"
  */
 public class StripBasePathGatewayFilterFactory
         extends AbstractGatewayFilterFactory<StripBasePathGatewayFilterFactory.PrefixConfig> {

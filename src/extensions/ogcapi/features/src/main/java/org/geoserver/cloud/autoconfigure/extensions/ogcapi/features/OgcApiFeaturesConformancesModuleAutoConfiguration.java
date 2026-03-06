@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Bean;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Contributes an {@link OgcApiFeaturesConformancesModule} to the default spring boot {@link ObjectMapper}, required
- * to serialize/deserialize conformance classes in spring cloud bus events
+ * Contributes an {@link OgcApiFeaturesConformancesModule} to the default spring boot {@link ObjectMapper}, required to
+ * serialize/deserialize conformance classes in spring cloud bus events
  */
 @AutoConfiguration
 public class OgcApiFeaturesConformancesModuleAutoConfiguration {

@@ -42,9 +42,8 @@ class WMSIntegrationAutoConfigurationTest {
     }
 
     /**
-     * Set up mocked up minimum WMS beans that will satisfy the {@code @ConditionalOnBean(name =
-     * {"wmsServiceTarget", "wms_1_1_1_GetCapabilitiesResponse"})} conditions on {@link
-     * WMSIntegrationAutoConfiguration}
+     * Set up mocked up minimum WMS beans that will satisfy the {@code @ConditionalOnBean(name = {"wmsServiceTarget",
+     * "wms_1_1_1_GetCapabilitiesResponse"})} conditions on {@link WMSIntegrationAutoConfiguration}
      */
     private WebApplicationContextRunner withMockWMS() {
         DefaultWebMapService mockWms = mock(DefaultWebMapService.class);

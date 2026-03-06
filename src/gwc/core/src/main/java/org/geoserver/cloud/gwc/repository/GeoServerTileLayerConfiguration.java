@@ -18,16 +18,14 @@ import org.springframework.context.event.EventListener;
 /**
  * GeoWebCache {@link TileLayerConfiguration} decorator to publish {@link TileLayerEvent}s.
  *
- * <p>The decorated {@link TileLayerConfiguration} shall work against GeoServer's {@link Catalog}
- * and produce {@link GeoServerTileLayer}s instead of simple {@link TileLayer}.
+ * <p>The decorated {@link TileLayerConfiguration} shall work against GeoServer's {@link Catalog} and produce
+ * {@link GeoServerTileLayer}s instead of simple {@link TileLayer}.
  *
  * @since 1.7
  */
 public class GeoServerTileLayerConfiguration extends ForwardingTileLayerConfiguration {
 
-    /**
-     * Event publisher, used to send events whenever a {@code TileLayer} is added, changed, deleted.
-     */
+    /** Event publisher, used to send events whenever a {@code TileLayer} is added, changed, deleted. */
     @NonNull
     private Consumer<TileLayerEvent> eventPublisher;
 
@@ -46,10 +44,9 @@ public class GeoServerTileLayerConfiguration extends ForwardingTileLayerConfigur
     }
 
     /**
-     * Used for client code to set an action to perform when a {@code TileLayerEvent} is received
-     * instead of published (for example, when received from another cluster node). Can be used for
-     * example to forward the event to the delegate {@code TileLayerConfiguration} is it can't
-     * listen to events itself.
+     * Used for client code to set an action to perform when a {@code TileLayerEvent} is received instead of published
+     * (for example, when received from another cluster node). Can be used for example to forward the event to the
+     * delegate {@code TileLayerConfiguration} is it can't listen to events itself.
      */
     public void setEventListener(@NonNull Consumer<TileLayerEvent> consumer) {
         this.eventConsumer = consumer;

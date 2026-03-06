@@ -26,8 +26,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 /**
- * Cleans up cached {@link ResourcePool} entries upon remote {@link CatalogInfoAdded}s, {@link
- * CatalogInfoModified}s, and {@link CatalogInfoRemoved}s.
+ * Cleans up cached {@link ResourcePool} entries upon remote {@link CatalogInfoAdded}s, {@link CatalogInfoModified}s,
+ * and {@link CatalogInfoRemoved}s.
  *
  * @since 1.0
  */
@@ -37,17 +37,13 @@ public class RemoteEventResourcePoolProcessor {
     private Catalog rawCatalog;
 
     /**
-     * @param rawCatalog used to evict cached live data sources from its {@link
-     *     Catalog#getResourcePool() ResourcePool}
+     * @param rawCatalog used to evict cached live data sources from its {@link Catalog#getResourcePool() ResourcePool}
      */
     public RemoteEventResourcePoolProcessor(Catalog rawCatalog) {
         this.rawCatalog = rawCatalog;
     }
 
-    /**
-     * no-op, really, what do we care if a CatalogInfo has been added until an incoming service
-     * request needs it
-     */
+    /** no-op, really, what do we care if a CatalogInfo has been added until an incoming service request needs it */
     @EventListener(CatalogInfoAdded.class)
     public void onCatalogRemoteAddEvent(CatalogInfoAdded event) {
         event.remote().ifPresent(e -> log.trace("ignoring {}", e));

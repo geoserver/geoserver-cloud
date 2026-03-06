@@ -13,9 +13,7 @@ import lombok.NonNull;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ResolvingProxy;
 
-/**
- * DTO for {@link ResolvingProxy}
- */
+/** DTO for {@link ResolvingProxy} */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

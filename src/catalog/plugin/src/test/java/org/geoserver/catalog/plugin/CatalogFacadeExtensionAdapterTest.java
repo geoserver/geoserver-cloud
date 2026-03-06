@@ -19,9 +19,8 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.jupiter.api.Test;
 
 /**
- * Asserts that a {@link CatalogFacadeExtensionAdapter} does not result in double publishing of
- * catalog events, and that {@link CatalogFacadeExtensionAdapter#update} correctly forwards to
- * legacy {@link CatalogFacade#save} methods
+ * Asserts that a {@link CatalogFacadeExtensionAdapter} does not result in double publishing of catalog events, and that
+ * {@link CatalogFacadeExtensionAdapter#update} correctly forwards to legacy {@link CatalogFacade#save} methods
  */
 class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
 

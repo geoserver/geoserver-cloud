@@ -16,15 +16,15 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
 /**
- * Auto-configuration for GeoParquet extension that provides a data store
- * configuration panel for the web admin interface.
+ * Auto-configuration for GeoParquet extension that provides a data store configuration panel for the web admin
+ * interface.
  *
- * <p>
- * This auto-configuration class enables the GeoParquet extension in GeoServer
- * Cloud. It will be activated when the following conditions are met:
+ * <p>This auto-configuration class enables the GeoParquet extension in GeoServer Cloud. It will be activated when the
+ * following conditions are met:
+ *
  * <ul>
- * <li>The {@code GeoParquetDataStoreFactory} class is on the classpath</li>
- * <li>The {@literal @ConditionalOnGeoServerWebUI} conditional is satisfied
+ *   <li>The {@code GeoParquetDataStoreFactory} class is on the classpath
+ *   <li>The {@literal @ConditionalOnGeoServerWebUI} conditional is satisfied
  * </ul>
  *
  * @since 2.27.0
@@ -42,6 +42,8 @@ public class GeoParquetWebComponentsAutoConfiguration {
     }
 
     /**
+     *
+     *
      * <pre>{@code
      * <bean id="geoParquetDataStorePanel" class="org.geoserver.web.data.resource.DataStorePanelInfo">
      * <property name="id" value="geoParquetDataStorePanel"/>

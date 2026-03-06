@@ -31,8 +31,8 @@ import reactor.test.StepVerifier;
 
 /**
  * Simple tests for MDC propagation in WebFlux.
- * <p>
- * Tests basic functionality of the WebFlux MDC filter.
+ *
+ * <p>Tests basic functionality of the WebFlux MDC filter.
  */
 class WebFluxMdcPropagationTest {
 

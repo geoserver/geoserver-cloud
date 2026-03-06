@@ -16,17 +16,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @RequiredArgsConstructor
 public class ServiceInstanceRegistry {
 
     private final @NonNull DiscoveryClient client;
 
-    /**
-     * @return All known service IDs
-     */
+    /** @return All known service IDs */
     public List<String> getServiceNames() {
         return client.getServices();
     }

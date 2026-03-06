@@ -23,9 +23,7 @@ class InspireAutoConfigurationTest {
         runner = createContextRunner(tempDir);
     }
 
-    /**
-     *
-     */
+    /** */
     @Test
     void testDisabledByDefault() {
         runner.run(context -> {

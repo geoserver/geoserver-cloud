@@ -11,8 +11,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration properties for the GeoServer ACL extension.
- * <p>
- * This only enables or disables the extension. The {@link ApiClientConfiguration API Client} configuration properties are used to configure access to the target ACL service.
+ *
+ * <p>This only enables or disables the extension. The {@link ApiClientConfiguration API Client} configuration
+ * properties are used to configure access to the target ACL service.
  *
  * @since 2.27.0.0
  */

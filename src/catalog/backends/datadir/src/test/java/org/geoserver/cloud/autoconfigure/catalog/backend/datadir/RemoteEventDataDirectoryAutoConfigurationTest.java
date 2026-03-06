@@ -15,9 +15,8 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 /**
- * Test {@link RemoteEventDataDirectoryAutoConfiguration} to verify that {@link
- * EventualConsistencyEnforcer} bean is created based on the configuration property {@code
- * geoserver.backend.data-directory.eventual-consistency.enabled}.
+ * Test {@link RemoteEventDataDirectoryAutoConfiguration} to verify that {@link EventualConsistencyEnforcer} bean is
+ * created based on the configuration property {@code geoserver.backend.data-directory.eventual-consistency.enabled}.
  */
 class RemoteEventDataDirectoryAutoConfigurationTest {
 

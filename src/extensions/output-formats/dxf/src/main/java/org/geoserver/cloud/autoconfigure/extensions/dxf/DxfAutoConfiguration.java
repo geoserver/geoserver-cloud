@@ -23,28 +23,24 @@ import org.springframework.context.annotation.Import;
 /**
  * Auto-configuration for DXF extension across multiple GeoServer services.
  *
- * <p>
- * This auto-configuration enables the DXF extension in GeoServer Cloud,
- * allowing DXF to be used as a WFS output format and integrated with the WebUI.
+ * <p>This auto-configuration enables the DXF extension in GeoServer Cloud, allowing DXF to be used as a WFS output
+ * format and integrated with the WebUI.
  *
- * <p>
- * The configuration consists of the following components:
+ * <p>The configuration consists of the following components:
+ *
  * <ul>
- * <li>The main configuration class that registers module status indicators</li>
- * <li>A nested {@code DxfOutputFormatConfiguration} class that imports the WFS
- *     output format functionality</li>
- * <li>A nested {@code WebUIConfiguration} class that enables DXF in the
- *     WebUI for WFS admin pages and layer preview</li>
- * <li>A nested {@code WPSConfiguration} class that enables DXF PPIO in the WPS service</li>
+ *   <li>The main configuration class that registers module status indicators
+ *   <li>A nested {@code DxfOutputFormatConfiguration} class that imports the WFS output format functionality
+ *   <li>A nested {@code WebUIConfiguration} class that enables DXF in the WebUI for WFS admin pages and layer preview
+ *   <li>A nested {@code WPSConfiguration} class that enables DXF PPIO in the WPS service
  * </ul>
  *
- * <p>
- * The nested configurations are activated when the following conditions are met:
+ * <p>The nested configurations are activated when the following conditions are met:
+ *
  * <ul>
- * <li>The required DXFOutputFormat class is on the classpath
- *     ({@code ConditionalOnDxf})</li>
- * <li>The geoserver.extension.dxf.enabled property is true (the default)</li>
- * <li>The respective service is available (WFS, WebUI, WPS)</li>
+ *   <li>The required DXFOutputFormat class is on the classpath ({@code ConditionalOnDxf})
+ *   <li>The geoserver.extension.dxf.enabled property is true (the default)
+ *   <li>The respective service is available (WFS, WebUI, WPS)
  * </ul>
  *
  * @since 2.27.0
@@ -60,9 +56,7 @@ import org.springframework.context.annotation.Import;
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.dxf")
 public class DxfAutoConfiguration {
 
-    /**
-     * Provides a ModuleStatus for the DXF extension.
-     */
+    /** Provides a ModuleStatus for the DXF extension. */
     @SuppressWarnings("java:S6830")
     @Bean("DxfExtension")
     @ConditionalOnMissingBean
@@ -78,15 +72,11 @@ public class DxfAutoConfiguration {
     /**
      * Configuration class that enables DXF as a WFS output format.
      *
-     * <p>
-     * This configuration is only activated when both the DXF extension is enabled
-     * (via {@code ConditionalOnDxf}) and the WFS service is available
-     * (via {@code ConditionalOnGeoServerWFS}).
+     * <p>This configuration is only activated when both the DXF extension is enabled (via {@code ConditionalOnDxf}) and
+     * the WFS service is available (via {@code ConditionalOnGeoServerWFS}).
      *
-     * <p>
-     * When active, it imports the DXF output format beans defined in the
-     * extension's applicationContext.xml, allowing WFS GetFeature requests to return
-     * data in DXF format.
+     * <p>When active, it imports the DXF output format beans defined in the extension's applicationContext.xml,
+     * allowing WFS GetFeature requests to return data in DXF format.
      */
     @Configuration
     @ConditionalOnDxf
@@ -102,13 +92,13 @@ public class DxfAutoConfiguration {
     /**
      * Configuration class that enables DXF in the WebUI service.
      *
-     * <p>
-     * This configuration is activated when both the DXF extension is enabled
-     * and the WebUI service is available. It enables:
+     * <p>This configuration is activated when both the DXF extension is enabled and the WebUI service is available. It
+     * enables:
+     *
      * <ul>
-     * <li>DXF format option in the Layer Preview page</li>
-     * <li>DXF format in the WFS service admin page</li>
-     * <li>UI components for configuring and managing DXF outputs</li>
+     *   <li>DXF format option in the Layer Preview page
+     *   <li>DXF format in the WFS service admin page
+     *   <li>UI components for configuring and managing DXF outputs
      * </ul>
      */
     @Configuration
@@ -125,11 +115,11 @@ public class DxfAutoConfiguration {
     /**
      * Configuration class that enables DXF in the WPS service.
      *
-     * <p>
-     * This configuration is activated when both the DXF extension is enabled
-     * and the WPS service is available. It enables:
+     * <p>This configuration is activated when both the DXF extension is enabled and the WPS service is available. It
+     * enables:
+     *
      * <ul>
-     * <li>org.geoserver.wps.ppio.DXFPPIO</li>
+     *   <li>org.geoserver.wps.ppio.DXFPPIO
      * </ul>
      */
     @Configuration

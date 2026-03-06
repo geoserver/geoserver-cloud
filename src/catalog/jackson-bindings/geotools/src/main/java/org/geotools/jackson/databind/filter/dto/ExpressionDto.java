@@ -31,9 +31,7 @@ public abstract class ExpressionDto {
         // default constructor
     }
 
-    /**
-     * DTO dfor {@link org.geotools.api.filter.expression.PropertyName}
-     */
+    /** DTO dfor {@link org.geotools.api.filter.expression.PropertyName} */
     @Data
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("PropertyName")
@@ -44,9 +42,7 @@ public abstract class ExpressionDto {
         private Map<String, String> namespaceContext;
     }
 
-    /**
-     * Base abstract DTO for BinaryExpression
-     */
+    /** Base abstract DTO for BinaryExpression */
     @JsonSubTypes({
         @JsonSubTypes.Type(value = AddDto.class, name = "Add"),
         @JsonSubTypes.Type(value = SubtractDto.class, name = "Subtract"),
@@ -60,45 +56,35 @@ public abstract class ExpressionDto {
         private ExpressionDto expression2;
     }
 
-    /**
-     * DTO for {@link org.geotools.api.filter.expression.Add}
-     */
+    /** DTO for {@link org.geotools.api.filter.expression.Add} */
     @Data
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
     @JsonTypeName("Add")
     public static class AddDto extends BinaryExpressionDto {}
 
-    /**
-     * DTO for {@link org.geotools.api.filter.expression.Divide}
-     */
+    /** DTO for {@link org.geotools.api.filter.expression.Divide} */
     @Data
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
     @JsonTypeName("Divide")
     public static class DivideDto extends BinaryExpressionDto {}
 
-    /**
-     * DTO for {@link org.geotools.api.filter.expression.Multiply}
-     */
+    /** DTO for {@link org.geotools.api.filter.expression.Multiply} */
     @Data
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
     @JsonTypeName("Multiply")
     public static class MultiplyDto extends BinaryExpressionDto {}
 
-    /**
-     * DTO for {@link org.geotools.api.filter.expression.Subtract}
-     */
+    /** DTO for {@link org.geotools.api.filter.expression.Subtract} */
     @Data
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
     @JsonTypeName("Subtract")
     public static class SubtractDto extends BinaryExpressionDto {}
 
-    /**
-     * DTO for {@link org.geotools.api.filter.expression.Function}
-     */
+    /** DTO for {@link org.geotools.api.filter.expression.Function} */
     @Data
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
@@ -108,9 +94,7 @@ public abstract class ExpressionDto {
         private List<ExpressionDto> parameters = new ArrayList<>();
     }
 
-    /**
-     * DTO for {@link org.geotools.api.filter.capability.FunctionName}
-     */
+    /** DTO for {@link org.geotools.api.filter.capability.FunctionName} */
     @Data
     @JsonTypeName("FunctionName")
     public static class FunctionNameDto {

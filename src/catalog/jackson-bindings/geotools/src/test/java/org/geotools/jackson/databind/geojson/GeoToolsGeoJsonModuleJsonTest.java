@@ -8,9 +8,7 @@ package org.geotools.jackson.databind.geojson;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class GeoToolsGeoJsonModuleJsonTest extends GeoToolsGeoJsonModuleTest {
 
     protected @Override ObjectMapper newObjectMapper() {

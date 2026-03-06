@@ -47,11 +47,10 @@ import org.geotools.util.Converters;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides or populates a catalog; use {@link CatalogTestData#empty
- * CatalogTestData.empty(Supplier<Catalog>)} to start up with an empty catalog but having the test
- * data {@link #createCatalogObjects() ready to be used}, or {@link CatalogTestData#initialized
- * CatalogTestData.initialized(Supplier<Catalog>)} to pre-populate the catalog with the {@link
- * #createCatalogObjects() test objects} before running the tests.
+ * Provides or populates a catalog; use {@link CatalogTestData#empty CatalogTestData.empty(Supplier<Catalog>)} to start
+ * up with an empty catalog but having the test data {@link #createCatalogObjects() ready to be used}, or
+ * {@link CatalogTestData#initialized CatalogTestData.initialized(Supplier<Catalog>)} to pre-populate the catalog with
+ * the {@link #createCatalogObjects() test objects} before running the tests.
  */
 @Accessors(fluent = true)
 public class CatalogTestData {

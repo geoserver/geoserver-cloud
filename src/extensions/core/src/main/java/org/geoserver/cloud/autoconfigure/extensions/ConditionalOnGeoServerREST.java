@@ -14,30 +14,27 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
- * Annotation that marks a component to be conditional on the application being
- * a GeoServer REST Configuration service application.
+ * Annotation that marks a component to be conditional on the application being a GeoServer REST Configuration service
+ * application.
  *
- * <p>
- * This annotation is used to selectively enable components that should only be active
- * in GeoServer REST Configuration applications. In GeoServer Cloud, this generally refers
- * to the REST microservice that handles configuration operations through GeoServer's REST API.
+ * <p>This annotation is used to selectively enable components that should only be active in GeoServer REST
+ * Configuration applications. In GeoServer Cloud, this generally refers to the REST microservice that handles
+ * configuration operations through GeoServer's REST API.
  *
- * <p>
- * The condition verifies that:
+ * <p>The condition verifies that:
+ *
  * <ul>
- *   <li>The application has GeoServer core classes ({@link ConditionalOnGeoServer})</li>
- *   <li>The REST Configuration service class is available in the classpath</li>
- *   <li>The {@code geoserver.service.restconfig.enabled} property is set to {@code true}</li>
+ *   <li>The application has GeoServer core classes ({@link ConditionalOnGeoServer})
+ *   <li>The REST Configuration service class is available in the classpath
+ *   <li>The {@code geoserver.service.restconfig.enabled} property is set to {@code true}
  * </ul>
  *
- * <p>
- * This conditional uses a property-based approach rather than bean detection to avoid
- * potential issues with bean initialization order during auto-configuration processing.
- * Each GeoServer service module is responsible for setting its corresponding
- * {@code geoserver.service.[service-name].enabled} property in its bootstrap configuration.
+ * <p>This conditional uses a property-based approach rather than bean detection to avoid potential issues with bean
+ * initialization order during auto-configuration processing. Each GeoServer service module is responsible for setting
+ * its corresponding {@code geoserver.service.[service-name].enabled} property in its bootstrap configuration.
  *
- * <p>
- * Usage example:
+ * <p>Usage example:
+ *
  * <pre>{@code
  * @Configuration
  * @ConditionalOnGeoServerREST

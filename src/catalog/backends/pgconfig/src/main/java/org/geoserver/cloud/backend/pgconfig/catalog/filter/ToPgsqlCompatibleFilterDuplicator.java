@@ -30,8 +30,8 @@ import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Duplicates a supported filter making it directly translatable to SQL taking
- * care of subtleties like {@link MatchAction} and case matching.
+ * Duplicates a supported filter making it directly translatable to SQL taking care of subtleties like
+ * {@link MatchAction} and case matching.
  *
  * @since 1.4
  */
@@ -42,7 +42,7 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
     private final Set<String> supportedPropertyNames;
 
     /**
-     * @param supportedFilter        Filter that's already been deemed as supported
+     * @param supportedFilter Filter that's already been deemed as supported
      * @param supportedPropertyNames
      * @return
      */
@@ -158,10 +158,7 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
         };
     }
 
-    /**
-     * Only if exactly one of the possible combinations match, the result is true
-     * (aggregated XOR)
-     */
+    /** Only if exactly one of the possible combinations match, the result is true (aggregated XOR) */
     private Filter aggregateXor(BinaryComparisonOperator origFilter, Expression leftExpr, final List<Object> values) {
 
         final BiFunction<Expression, Expression, Filter> filterBuilder = filterBuilder(origFilter);
@@ -194,10 +191,8 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
     }
 
     /**
-     * The left expression is the one that's not a {@link Literal}. If both are
-     * {@literal Literal}s, the order is respected and
-     * {@link BinaryComparisonOperator#getExpression1() filter.getExpression1()} is
-     * returned
+     * The left expression is the one that's not a {@link Literal}. If both are {@literal Literal}s, the order is
+     * respected and {@link BinaryComparisonOperator#getExpression1() filter.getExpression1()} is returned
      */
     private Expression determineLeftExpression(BinaryComparisonOperator filter) {
         Expression left = filter.getExpression1();
@@ -209,10 +204,8 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
     }
 
     /**
-     * The right expression is the one that is a {@link Literal}. If both are
-     * {@literal Literal}s, the order is respected and
-     * {@link BinaryComparisonOperator#getExpression2() filter.getExpression2()} is
-     * returned
+     * The right expression is the one that is a {@link Literal}. If both are {@literal Literal}s, the order is
+     * respected and {@link BinaryComparisonOperator#getExpression2() filter.getExpression2()} is returned
      */
     private Literal determineRightExpression(BinaryComparisonOperator filter) {
         Expression left = filter.getExpression1();

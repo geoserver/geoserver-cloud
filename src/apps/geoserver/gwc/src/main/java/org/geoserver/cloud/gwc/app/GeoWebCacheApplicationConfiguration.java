@@ -28,9 +28,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
 /**
- * This configuration is intentionally identical to {@code org.geoserver.cloud.restconfig.RestConfigApplicationConfiguration},
- * (except for the extra {@code LegendSample} bean here)
- * for the gwc rest configuration depends on the same infrastructure.
+ * This configuration is intentionally identical to
+ * {@code org.geoserver.cloud.restconfig.RestConfigApplicationConfiguration}, (except for the extra {@code LegendSample}
+ * bean here) for the gwc rest configuration depends on the same infrastructure.
  */
 @Configuration
 @ComponentScan(
@@ -42,11 +42,10 @@ import org.springframework.context.annotation.FilterType;
 public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
 
     /**
-     * Required by {@link GeoServerTileLayer#getLegendSample}, excluded by {@link
-     * WebMapServiceMinimalConfiguration}
+     * Required by {@link GeoServerTileLayer#getLegendSample}, excluded by {@link WebMapServiceMinimalConfiguration}
      *
-     * @param catalog using {@code rawCatalog} instead of {@code catalog}, to avoid the local
-     *     workspace and secured catalog decorators
+     * @param catalog using {@code rawCatalog} instead of {@code catalog}, to avoid the local workspace and secured
+     *     catalog decorators
      */
     @Bean
     @ConditionalOnMissingBean
@@ -60,9 +59,7 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
         return new AdminRequestCallback();
     }
 
-    /**
-     * Override of {@link SuffixStripFilter} making sure getPathInfo() does not return null
-     */
+    /** Override of {@link SuffixStripFilter} making sure getPathInfo() does not return null */
     @Bean
     NpeAwareSuffixStripFilter suffixStripFilter(ApplicationContext appContext) {
         return new NpeAwareSuffixStripFilter(appContext);

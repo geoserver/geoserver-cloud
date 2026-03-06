@@ -17,26 +17,23 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
- * Composite annotation that combines conditions required for Vector Tiles extension support
- * across multiple GeoServer services.
+ * Composite annotation that combines conditions required for Vector Tiles extension support across multiple GeoServer
+ * services.
  *
- * <p>
- * This conditional activates when:
+ * <p>This conditional activates when:
+ *
  * <ul>
- *   <li>The VectorTileMapOutputFormat class is available on the classpath</li>
- *   <li>The geoserver.extension.vector-tiles.enabled property is true (the default)</li>
+ *   <li>The VectorTileMapOutputFormat class is available on the classpath
+ *   <li>The geoserver.extension.vector-tiles.enabled property is true (the default)
  * </ul>
  *
- * <p>
- * This annotation is used as a base condition for enabling vector tiles support. It is
- * designed to work in conjunction with service-specific conditions to enable vector tiles
- * across multiple services (WMS, WebUI, GWC) in a consistent manner.
+ * <p>This annotation is used as a base condition for enabling vector tiles support. It is designed to work in
+ * conjunction with service-specific conditions to enable vector tiles across multiple services (WMS, WebUI, GWC) in a
+ * consistent manner.
  *
- * <p>
- * It provides a good example of how to create composable conditional annotations in
- * GeoServer Cloud that can work with different service-specific conditions to enable
- * functionality in multiple services while maintaining a single point of control for
- * the extension's overall enabled/disabled state.
+ * <p>It provides a good example of how to create composable conditional annotations in GeoServer Cloud that can work
+ * with different service-specific conditions to enable functionality in multiple services while maintaining a single
+ * point of control for the extension's overall enabled/disabled state.
  *
  * @see ConditionalOnGeoServerWMS
  * @see ConditionalOnGeoServerWebUI

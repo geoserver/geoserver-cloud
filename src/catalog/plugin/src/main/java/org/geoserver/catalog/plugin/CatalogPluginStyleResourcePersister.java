@@ -22,20 +22,19 @@ import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.Resources;
 
 /**
- * A {@link GeoServerResourcePersister} that unwraps the {@link CatalogModifyEvent#getSource()}'s
- * from a {@link ModificationProxy} before proceeding with {@link
- * GeoServerResourcePersister#handleModifyEvent super.handleModifyEvent()}.
+ * A {@link GeoServerResourcePersister} that unwraps the {@link CatalogModifyEvent#getSource()}'s from a
+ * {@link ModificationProxy} before proceeding with {@link GeoServerResourcePersister#handleModifyEvent
+ * super.handleModifyEvent()}.
  *
- * <p>Since it works only if the source is the real {@link Info}, as thrown by the legacy {@link
- * DefaultCatalogFacade#beforeSaved}, despite it having the following comment:
+ * <p>Since it works only if the source is the real {@link Info}, as thrown by the legacy
+ * {@link DefaultCatalogFacade#beforeSaved}, despite it having the following comment:
  *
  * <pre>
  * {@code // TO DO: protect this original object, perhaps with another proxy}
  * </pre>
  *
- * While {@link CatalogPlugin} fixes it by both using the modification proxy as the source, and by
- * taking full responsibility of event dispatching instead of mixing it up between catalog and
- * facade.
+ * While {@link CatalogPlugin} fixes it by both using the modification proxy as the source, and by taking full
+ * responsibility of event dispatching instead of mixing it up between catalog and facade.
  */
 @Slf4j
 public class CatalogPluginStyleResourcePersister extends GeoServerResourcePersister {

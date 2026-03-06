@@ -20,22 +20,23 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Filter that adds Spring Environment properties to the MDC (Mapped Diagnostic Context).
- * <p>
- * This filter enriches the MDC with application-specific information from the Spring Environment
- * and BuildProperties. The included properties are configured through {@link SpringEnvironmentMdcConfigProperties}
- * and can include:
+ *
+ * <p>This filter enriches the MDC with application-specific information from the Spring Environment and
+ * BuildProperties. The included properties are configured through {@link SpringEnvironmentMdcConfigProperties} and can
+ * include:
+ *
  * <ul>
- *   <li>Application name</li>
- *   <li>Application version (from BuildProperties)</li>
- *   <li>Instance ID</li>
- *   <li>Active profiles</li>
+ *   <li>Application name
+ *   <li>Application version (from BuildProperties)
+ *   <li>Instance ID
+ *   <li>Active profiles
  * </ul>
- * <p>
- * Adding these properties to the MDC makes them available to all logging statements, providing
- * valuable context for log analysis, especially in distributed microservice environments.
- * <p>
- * This filter extends {@link OncePerRequestFilter} to ensure it's only applied once per request,
- * even in a nested dispatch scenario (e.g., forward).
+ *
+ * <p>Adding these properties to the MDC makes them available to all logging statements, providing valuable context for
+ * log analysis, especially in distributed microservice environments.
+ *
+ * <p>This filter extends {@link OncePerRequestFilter} to ensure it's only applied once per request, even in a nested
+ * dispatch scenario (e.g., forward).
  *
  * @see SpringEnvironmentMdcConfigProperties
  * @see org.slf4j.MDC
@@ -49,11 +50,10 @@ public class SpringEnvironmentMdcFilter extends OncePerRequestFilter {
 
     /**
      * Main filter method that adds Spring Environment properties to the MDC.
-     * <p>
-     * This method adds application-specific information from the Spring Environment
-     * to the MDC before allowing the request to proceed through the filter chain.
-     * The properties are added in a try-finally block to ensure they're available
-     * throughout the request processing, even if an exception occurs.
+     *
+     * <p>This method adds application-specific information from the Spring Environment to the MDC before allowing the
+     * request to proceed through the filter chain. The properties are added in a try-finally block to ensure they're
+     * available throughout the request processing, even if an exception occurs.
      *
      * @param request the current HTTP request
      * @param response the current HTTP response

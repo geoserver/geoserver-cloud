@@ -8,9 +8,7 @@ package org.geoserver.jackson.databind.catalog.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 
-/**
- * DTO for {@link org.geoserver.catalog.LayerIdentifierInfo}
- */
+/** DTO for {@link org.geoserver.catalog.LayerIdentifierInfo} */
 @Data
 @JsonTypeName("LayerIdentifierInfo")
 public class LayerIdentifierInfoDto {

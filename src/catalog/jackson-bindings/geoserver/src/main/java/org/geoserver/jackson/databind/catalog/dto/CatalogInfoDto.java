@@ -11,9 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * Base DTO for {@link org.geoserver.catalog.CatalogInfo}
- */
+/** Base DTO for {@link org.geoserver.catalog.CatalogInfo} */
 @JsonSubTypes({
     @JsonSubTypes.Type(value = WorkspaceInfoDto.class),
     @JsonSubTypes.Type(value = NamespaceInfoDto.class),
@@ -29,8 +27,6 @@ import lombok.ToString;
 public abstract class CatalogInfoDto extends InfoDto {
     private Date dateCreated;
     private Date dateModified;
-    /**
-     * @since 2.28.0
-     */
+    /** @since 2.28.0 */
     private String modifiedBy;
 }

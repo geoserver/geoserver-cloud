@@ -18,11 +18,11 @@ import org.geotools.api.filter.Filter;
  * An abstract decorator for {@link CatalogInfoRepository} that forwards all method calls to an underlying repository.
  *
  * <p>This class simplifies the creation of repository decorators by delegating all operations to a subject
- * {@link CatalogInfoRepository}, enabling subclasses to override specific methods to customize behavior
- * (e.g., adding logging, validation, or caching). It’s designed for type-specific repositories managing
- * {@link CatalogInfo} subtypes.
+ * {@link CatalogInfoRepository}, enabling subclasses to override specific methods to customize behavior (e.g., adding
+ * logging, validation, or caching). It’s designed for type-specific repositories managing {@link CatalogInfo} subtypes.
  *
  * <p>Example usage:
+ *
  * <pre>
  * CatalogInfoRepository&lt;StoreInfo&gt; baseRepo = ...;
  * ForwardingCatalogRepository&lt;StoreInfo, CatalogInfoRepository&lt;StoreInfo&gt;&gt; decorator =
@@ -48,7 +48,8 @@ public abstract class ForwardingCatalogRepository<I extends CatalogInfo, S exten
     /**
      * Constructs a forwarding repository wrapping the provided subject.
      *
-     * @param subject The underlying {@link CatalogInfoRepository} to forward calls to; may be null (behavior depends on subclass).
+     * @param subject The underlying {@link CatalogInfoRepository} to forward calls to; may be null (behavior depends on
+     *     subclass).
      */
     protected ForwardingCatalogRepository(S subject) {
         this.subject = subject;

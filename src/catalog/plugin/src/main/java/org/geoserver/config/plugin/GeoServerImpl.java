@@ -51,16 +51,14 @@ import org.springframework.context.ApplicationContextAware;
  *   <li>Upon config changes, handles all event publishing to its {@link #getListeners() listeners}
  *   <li>Ensures no config {@link Info} object leaves a query method without being wrapped in a
  *       {@link ModificationProxy}
- *   <li>Relies on a provided {@link #setFacade GeoServerFacade} to access raw configuration
- *       objects, makes no assumptions over their origin and persistence mechanism (or lack of). All
- *       config objects obtained from the {@link GeoServerFacade} are treated as transient; {@link
- *       ModificationProxy} is used to resolve changes and ask the {@link GeoServerFacade} to apply
- *       a {@link Patch} to the live value of that object
- *   <li>References to {@link Info} objects (catalog's {@link WorkspaceInfo} references, for
- *       instance) are resolved before returning from this class. {@link GeoServerFacade}
- *       implementation is free to return {@link ResolvingProxy} wrappers for those objects, in
- *       order to avoid holding onto stale instances or having to deal with resolving them and hence
- *       accessing the {@link Catalog} outside their level of abstraction.
+ *   <li>Relies on a provided {@link #setFacade GeoServerFacade} to access raw configuration objects, makes no
+ *       assumptions over their origin and persistence mechanism (or lack of). All config objects obtained from the
+ *       {@link GeoServerFacade} are treated as transient; {@link ModificationProxy} is used to resolve changes and ask
+ *       the {@link GeoServerFacade} to apply a {@link Patch} to the live value of that object
+ *   <li>References to {@link Info} objects (catalog's {@link WorkspaceInfo} references, for instance) are resolved
+ *       before returning from this class. {@link GeoServerFacade} implementation is free to return
+ *       {@link ResolvingProxy} wrappers for those objects, in order to avoid holding onto stale instances or having to
+ *       deal with resolving them and hence accessing the {@link Catalog} outside their level of abstraction.
  * </ul>
  */
 public class GeoServerImpl implements GeoServer, ApplicationContextAware {

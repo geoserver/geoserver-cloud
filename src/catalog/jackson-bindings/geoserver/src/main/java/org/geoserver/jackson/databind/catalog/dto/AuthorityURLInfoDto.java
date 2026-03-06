@@ -8,9 +8,7 @@ package org.geoserver.jackson.databind.catalog.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 
-/**
- * DTO for {@link org.geoserver.catalog.AuthorityURLInfo}
- */
+/** DTO for {@link org.geoserver.catalog.AuthorityURLInfo} */
 @Data
 @JsonTypeName("AuthorityURLInfo")
 public class AuthorityURLInfoDto {

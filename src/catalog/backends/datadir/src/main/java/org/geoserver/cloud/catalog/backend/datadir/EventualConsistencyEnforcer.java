@@ -36,54 +36,49 @@ import org.geoserver.config.impl.GeoServerLifecycleHandler;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Manages deferred catalog operations to ensure eventual consistency when distributed events arrive
- * out of order.
+ * Manages deferred catalog operations to ensure eventual consistency when distributed events arrive out of order.
  *
- * <p>This component tracks catalog operations that cannot complete immediately because they
- * reference objects not yet present in the local catalog. It maintains a pending operations queue
- * indexed by the IDs of missing referenced objects, automatically resolving operations as their
- * dependencies arrive.
+ * <p>This component tracks catalog operations that cannot complete immediately because they reference objects not yet
+ * present in the local catalog. It maintains a pending operations queue indexed by the IDs of missing referenced
+ * objects, automatically resolving operations as their dependencies arrive.
  *
  * <h2>Pending Operations</h2>
  *
- * <p>A pending operation is a catalog modification (add, update, remove, or set default) that has
- * been deferred because it contains unresolved {@link ResolvingProxy} references to objects not yet
- * available in the catalog. Each pending operation is represented by a {@link ConsistencyOp}
- * subclass that encapsulates the operation's logic and tracks which object IDs it's waiting for.
+ * <p>A pending operation is a catalog modification (add, update, remove, or set default) that has been deferred because
+ * it contains unresolved {@link ResolvingProxy} references to objects not yet available in the catalog. Each pending
+ * operation is represented by a {@link ConsistencyOp} subclass that encapsulates the operation's logic and tracks which
+ * object IDs it's waiting for.
  *
- * <p>Pending operations are stored in a map keyed by the ID of the missing object they depend on.
- * Multiple operations can wait for the same missing object. When that object arrives, all operations
- * waiting for it are retried. Operations that successfully resolve are removed from the pending
- * queue, while those still missing other dependencies remain queued under their remaining unresolved
- * reference IDs.
+ * <p>Pending operations are stored in a map keyed by the ID of the missing object they depend on. Multiple operations
+ * can wait for the same missing object. When that object arrives, all operations waiting for it are retried. Operations
+ * that successfully resolve are removed from the pending queue, while those still missing other dependencies remain
+ * queued under their remaining unresolved reference IDs.
  *
- * <p>Pending operations typically occur only under load, such as when populating the catalog through
- * the REST API or during service startup in a multi-node deployment. References usually remain
- * unresolved for only milliseconds (typically not more than 100 milliseconds even under high stress),
- * but this brief inconsistency window is sufficient to cause CREATE/READ workflows to fail if query
- * operations are not retried. The {@link EventuallyConsistentCatalogFacade} addresses this by
- * implementing retry logic for query operations while the catalog converges.
+ * <p>Pending operations typically occur only under load, such as when populating the catalog through the REST API or
+ * during service startup in a multi-node deployment. References usually remain unresolved for only milliseconds
+ * (typically not more than 100 milliseconds even under high stress), but this brief inconsistency window is sufficient
+ * to cause CREATE/READ workflows to fail if query operations are not retried. The
+ * {@link EventuallyConsistentCatalogFacade} addresses this by implementing retry logic for query operations while the
+ * catalog converges.
  *
  * <h2>Operation Processing</h2>
  *
- * <p>All mutating catalog operations (add, update, remove, set defaults) are intercepted. Each
- * operation is scanned for unresolved {@link ResolvingProxy} references. Operations with missing
- * dependencies are queued until those dependencies arrive. When an object arrives that other
- * operations are waiting for, cascading resolution is triggered. Removal operations either complete
- * or discard dependent operations.
+ * <p>All mutating catalog operations (add, update, remove, set defaults) are intercepted. Each operation is scanned for
+ * unresolved {@link ResolvingProxy} references. Operations with missing dependencies are queued until those
+ * dependencies arrive. When an object arrives that other operations are waiting for, cascading resolution is triggered.
+ * Removal operations either complete or discard dependent operations.
  *
- * <p>Operation lifecycle: First, the operation checks for unresolved references. If references are
- * missing, the operation is queued by missing reference IDs. When a referenced object arrives,
- * operations waiting for it retry. Successfully resolved operations are removed from the pending
- * queue.
+ * <p>Operation lifecycle: First, the operation checks for unresolved references. If references are missing, the
+ * operation is queued by missing reference IDs. When a referenced object arrives, operations waiting for it retry.
+ * Successfully resolved operations are removed from the pending queue.
  *
- * <p>All operations are protected by a {@link ReentrantLock} to ensure safe concurrent access to
- * the pending operations map.
+ * <p>All operations are protected by a {@link ReentrantLock} to ensure safe concurrent access to the pending operations
+ * map.
  *
- * <p>Example: A LayerInfo referencing a ResourceInfo with ID "resource-123" arrives before the
- * ResourceInfo. The LayerInfo add operation is queued under "resource-123". When the ResourceInfo
- * add operation executes, the enforcer detects pending operations waiting for "resource-123", adds
- * the ResourceInfo successfully, then retries the LayerInfo add operation which now succeeds.
+ * <p>Example: A LayerInfo referencing a ResourceInfo with ID "resource-123" arrives before the ResourceInfo. The
+ * LayerInfo add operation is queued under "resource-123". When the ResourceInfo add operation executes, the enforcer
+ * detects pending operations waiting for "resource-123", adds the ResourceInfo successfully, then retries the LayerInfo
+ * add operation which now succeeds.
  *
  * @since 1.9
  * @see EventuallyConsistentCatalogFacade
@@ -96,16 +91,14 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Pending operations indexed by the IDs of missing objects they depend on.
      *
-     * <p>Access to this map is protected by {@link #lock}. All public methods that read or modify
-     * this map acquire the lock through {@link #execute(ConsistencyOp)}, {@link #forceResolve()},
-     * {@link #forceClearPending()}, or {@link #isConverged()}. A regular {@code HashMap} is used
-     * instead of {@code ConcurrentHashMap} since the lock provides all necessary synchronization.
+     * <p>Access to this map is protected by {@link #lock}. All public methods that read or modify this map acquire the
+     * lock through {@link #execute(ConsistencyOp)}, {@link #forceResolve()}, {@link #forceClearPending()}, or
+     * {@link #isConverged()}. A regular {@code HashMap} is used instead of {@code ConcurrentHashMap} since the lock
+     * provides all necessary synchronization.
      */
     private final Map<String, List<ConsistencyOp<?>>> pendingOperations = new HashMap<>();
 
-    /**
-     * Lock protecting access to {@link #pendingOperations} and ensuring atomic operation execution.
-     */
+    /** Lock protecting access to {@link #pendingOperations} and ensuring atomic operation execution. */
     private final ReentrantLock lock = new ReentrantLock();
 
     @Setter
@@ -122,9 +115,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Clears all pending operations when the catalog is disposed.
      *
-     * <p>This lifecycle method ensures clean shutdown by discarding any operations that were
-     * deferred due to missing dependencies. Called automatically by the GeoServer lifecycle
-     * management system during application shutdown.
+     * <p>This lifecycle method ensures clean shutdown by discarding any operations that were deferred due to missing
+     * dependencies. Called automatically by the GeoServer lifecycle management system during application shutdown.
      *
      * @see #forceClearPending()
      */
@@ -136,10 +128,9 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Forcibly clears all pending operations from the queue.
      *
-     * <p>This method immediately discards all deferred operations regardless of their state,
-     * without attempting to resolve them. Used during lifecycle transitions like catalog
-     * disposal and reload to prevent stale operations from interfering with the new catalog
-     * state.
+     * <p>This method immediately discards all deferred operations regardless of their state, without attempting to
+     * resolve them. Used during lifecycle transitions like catalog disposal and reload to prevent stale operations from
+     * interfering with the new catalog state.
      *
      * <p>This operation is thread-safe and acquires the internal lock to ensure consistency.
      *
@@ -158,9 +149,9 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Clears all pending operations before catalog reload.
      *
-     * <p>This lifecycle method prevents stale deferred operations from interfering with the
-     * reloaded catalog state. Called automatically by the GeoServer lifecycle management system
-     * before the catalog is reloaded, ensuring a clean slate for the reload process.
+     * <p>This lifecycle method prevents stale deferred operations from interfering with the reloaded catalog state.
+     * Called automatically by the GeoServer lifecycle management system before the catalog is reloaded, ensuring a
+     * clean slate for the reload process.
      *
      * @see #forceClearPending()
      */
@@ -170,16 +161,15 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     }
 
     /**
-     * No-op, this is called after the catalog is reloaded. We've already cleared pending operations at {@link #beforeReload()}
+     * No-op, this is called after the catalog is reloaded. We've already cleared pending operations at
+     * {@link #beforeReload()}
      */
     @Override
     public void onReload() {
         // no-op
     }
 
-    /**
-     * No-op, called by the UI to reset caches.
-     */
+    /** No-op, called by the UI to reset caches. */
     @Override
     public void onReset() {
         // no-op
@@ -188,12 +178,11 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Checks whether all deferred operations have been resolved.
      *
-     * <p>Returns {@code true} when the catalog has reached a consistent state with no pending
-     * operations waiting for missing dependencies. This indicates all distributed events received
-     * so far have been successfully applied.
+     * <p>Returns {@code true} when the catalog has reached a consistent state with no pending operations waiting for
+     * missing dependencies. This indicates all distributed events received so far have been successfully applied.
      *
-     * @return {@code true} if there are no pending operations, {@code false} if operations are
-     *     still waiting for dependencies
+     * @return {@code true} if there are no pending operations, {@code false} if operations are still waiting for
+     *     dependencies
      */
     boolean isConverged() {
         lock.lock();
@@ -205,15 +194,15 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     }
 
     /**
-     * Called during {@link EventuallyConsistentCatalogFacade} retries, attempts to resolve all pending operations by checking if their dependencies have arrived.
+     * Called during {@link EventuallyConsistentCatalogFacade} retries, attempts to resolve all pending operations by
+     * checking if their dependencies have arrived.
      *
-     * <p>This method scans the pending operations queue and retries each operation to see if
-     * previously missing dependencies are now available in the catalog. Useful for forcing
-     * convergence after a batch of events has been processed, or when testing to verify all
-     * operations eventually complete.
+     * <p>This method scans the pending operations queue and retries each operation to see if previously missing
+     * dependencies are now available in the catalog. Useful for forcing convergence after a batch of events has been
+     * processed, or when testing to verify all operations eventually complete.
      *
-     * <p>Operations that successfully resolve are removed from the pending queue. Operations that
-     * still have missing dependencies remain queued.
+     * <p>Operations that successfully resolve are removed from the pending queue. Operations that still have missing
+     * dependencies remain queued.
      */
     public void forceResolve() {
         lock.lock();
@@ -277,14 +266,13 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Adds a catalog object with eventual consistency enforcement.
      *
-     * <p>If the object contains unresolved {@link ResolvingProxy} references to other objects not
-     * yet present in the catalog, the add operation is deferred until those dependencies arrive.
-     * Once all dependencies are resolved, the object is added to the catalog and any operations
-     * waiting for this object are triggered.
+     * <p>If the object contains unresolved {@link ResolvingProxy} references to other objects not yet present in the
+     * catalog, the add operation is deferred until those dependencies arrive. Once all dependencies are resolved, the
+     * object is added to the catalog and any operations waiting for this object are triggered.
      *
-     * <p>If the object has no missing dependencies, it is added immediately to the underlying
-     * catalog facade. If an object with the same ID already exists (which can happen when a node
-     * starts while events are being broadcast), the operation is silently ignored.
+     * <p>If the object has no missing dependencies, it is added immediately to the underlying catalog facade. If an
+     * object with the same ID already exists (which can happen when a node starts while events are being broadcast),
+     * the operation is silently ignored.
      *
      * @param <T> the type of catalog object
      * @param info the catalog object to add, may contain ResolvingProxy references
@@ -298,14 +286,12 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Removes a catalog object with eventual consistency enforcement.
      *
-     * <p>If the object to remove is a {@link ResolvingProxy} (not yet resolved), the operation is
-     * deferred until the object is found in the catalog. When executed, any pending operations
-     * waiting for this object are either completed (if their other dependencies are met) or
-     * discarded (if they still have unresolved dependencies).
+     * <p>If the object to remove is a {@link ResolvingProxy} (not yet resolved), the operation is deferred until the
+     * object is found in the catalog. When executed, any pending operations waiting for this object are either
+     * completed (if their other dependencies are met) or discarded (if they still have unresolved dependencies).
      *
-     * <p>This ensures cascading removal behavior: operations that depend on the removed object are
-     * given a final chance to complete before the dependency is removed, preventing catalog
-     * inconsistencies.
+     * <p>This ensures cascading removal behavior: operations that depend on the removed object are given a final chance
+     * to complete before the dependency is removed, preventing catalog inconsistencies.
      *
      * @param info the catalog object to remove, may be a ResolvingProxy
      */
@@ -316,12 +302,12 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Updates a catalog object with eventual consistency enforcement.
      *
-     * <p>If the object to update is a {@link ResolvingProxy} or if the patch contains ResolvingProxy
-     * property values, the operation is deferred until all references are resolved. The patch is
-     * scanned for unresolved references and the operation waits for them to arrive.
+     * <p>If the object to update is a {@link ResolvingProxy} or if the patch contains ResolvingProxy property values,
+     * the operation is deferred until all references are resolved. The patch is scanned for unresolved references and
+     * the operation waits for them to arrive.
      *
-     * <p>Once the object and all patch property references are resolved, the patch is applied to
-     * the object in the catalog.
+     * <p>Once the object and all patch property references are resolved, the patch is applied to the object in the
+     * catalog.
      *
      * @param <I> the type of catalog object
      * @param info the catalog object to update, may be a ResolvingProxy
@@ -336,9 +322,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Sets the default workspace with eventual consistency enforcement.
      *
-     * <p>If the workspace is a {@link ResolvingProxy}, the operation is deferred until the
-     * workspace is found in the catalog. Passing {@code null} clears the default workspace
-     * immediately.
+     * <p>If the workspace is a {@link ResolvingProxy}, the operation is deferred until the workspace is found in the
+     * catalog. Passing {@code null} clears the default workspace immediately.
      *
      * @param workspace the workspace to set as default, may be a ResolvingProxy or {@code null}
      */
@@ -349,9 +334,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Sets the default namespace with eventual consistency enforcement.
      *
-     * <p>If the namespace is a {@link ResolvingProxy}, the operation is deferred until the
-     * namespace is found in the catalog. Passing {@code null} clears the default namespace
-     * immediately.
+     * <p>If the namespace is a {@link ResolvingProxy}, the operation is deferred until the namespace is found in the
+     * catalog. Passing {@code null} clears the default namespace immediately.
      *
      * @param namespace the namespace to set as default, may be a ResolvingProxy or {@code null}
      */
@@ -362,9 +346,9 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Sets the default data store for a workspace with eventual consistency enforcement.
      *
-     * <p>If either the workspace or store are {@link ResolvingProxy} instances, the operation is
-     * deferred until both are resolved. Passing {@code null} for the store clears the default
-     * data store for the workspace once the workspace is resolved.
+     * <p>If either the workspace or store are {@link ResolvingProxy} instances, the operation is deferred until both
+     * are resolved. Passing {@code null} for the store clears the default data store for the workspace once the
+     * workspace is resolved.
      *
      * @param workspace the workspace whose default store to set, may be a ResolvingProxy
      * @param store the data store to set as default, may be a ResolvingProxy or {@code null}
@@ -376,27 +360,27 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Base class for all deferred catalog operations that support eventual consistency.
      *
-     * <p>A {@code ConsistencyOp} represents a catalog modification operation that may need to be
-     * deferred if it contains unresolved {@link ResolvingProxy} references. Each operation tracks
-     * which object IDs it's waiting for and automatically retries when those dependencies become
-     * available.
+     * <p>A {@code ConsistencyOp} represents a catalog modification operation that may need to be deferred if it
+     * contains unresolved {@link ResolvingProxy} references. Each operation tracks which object IDs it's waiting for
+     * and automatically retries when those dependencies become available.
      *
-     * <p>The operation lifecycle is managed by the {@link #call()} method, which checks for missing
-     * references before and after attempting resolution. If all references are resolved, the
-     * operation completes and is removed from the pending queue. If references are still missing,
-     * the operation updates its pending state to wait only for the remaining unresolved references.
+     * <p>The operation lifecycle is managed by the {@link #call()} method, which checks for missing references before
+     * and after attempting resolution. If all references are resolved, the operation completes and is removed from the
+     * pending queue. If references are still missing, the operation updates its pending state to wait only for the
+     * remaining unresolved references.
      *
-     * <p>Each operation has a unique ID for tracking purposes and implements proper equality based
-     * on this ID to ensure correct behavior when stored in collections.
+     * <p>Each operation has a unique ID for tracking purposes and implements proper equality based on this ID to ensure
+     * correct behavior when stored in collections.
      *
      * <h3>Subclasses</h3>
+     *
      * <ul>
-     * <li>{@link AddOp} - Defers adding catalog objects until all referenced objects exist
-     * <li>{@link UpdateOp} - Defers updates until the object and patch references are resolved
-     * <li>{@link RemoveOp} - Defers removal and manages cascading dependent operation cleanup
-     * <li>{@link SetDefaultWorkspace} - Defers setting default workspace until it exists
-     * <li>{@link SetDefaultNamespace} - Defers setting default namespace until it exists
-     * <li>{@link SetDefaultDataStore} - Defers setting default store until workspace and store exist
+     *   <li>{@link AddOp} - Defers adding catalog objects until all referenced objects exist
+     *   <li>{@link UpdateOp} - Defers updates until the object and patch references are resolved
+     *   <li>{@link RemoveOp} - Defers removal and manages cascading dependent operation cleanup
+     *   <li>{@link SetDefaultWorkspace} - Defers setting default workspace until it exists
+     *   <li>{@link SetDefaultNamespace} - Defers setting default namespace until it exists
+     *   <li>{@link SetDefaultDataStore} - Defers setting default store until workspace and store exist
      * </ul>
      *
      * @param <T> the return type of the operation
@@ -429,8 +413,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         /**
          * Computes the IDs of catalog objects this operation is currently waiting for.
          *
-         * <p>Called before and after {@link #resolve()} to track which dependencies remain unmet.
-         * Operations register themselves in {@code pendingOperations} under these IDs.
+         * <p>Called before and after {@link #resolve()} to track which dependencies remain unmet. Operations register
+         * themselves in {@code pendingOperations} under these IDs.
          *
          * <p>May perform resolution attempts and update internal state as a side effect.
          */
@@ -440,9 +424,9 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         /**
          * Executes the operation, managing its registration in {@code pendingOperations}.
          *
-         * <p>Checks missing references before and after calling {@link #resolve()}. If successful,
-         * removes the operation from all pending queues. If still incomplete, updates registration
-         * to wait only for remaining unresolved references.
+         * <p>Checks missing references before and after calling {@link #resolve()}. If successful, removes the
+         * operation from all pending queues. If still incomplete, updates registration to wait only for remaining
+         * unresolved references.
          *
          * @return the unresolved references if operation didn't complete, empty set otherwise
          */
@@ -490,9 +474,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         /**
          * Attempts to execute the catalog operation.
          *
-         * <p>Implementations should check if all dependencies are met and execute the operation if
-         * possible, setting {@code success = true} on completion. Returns the operation result or
-         * partial state if deferred.
+         * <p>Implementations should check if all dependencies are met and execute the operation if possible, setting
+         * {@code success = true} on completion. Returns the operation result or partial state if deferred.
          */
         protected abstract T resolve();
 
@@ -504,8 +487,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         /**
          * Returns the original set of missing references from the first invocation.
          *
-         * <p>Used to determine if an operation should be discarded when a dependency is removed,
-         * even if the operation has moved on to waiting for other dependencies.
+         * <p>Used to determine if an operation should be discarded when a dependency is removed, even if the operation
+         * has moved on to waiting for other dependencies.
          */
         protected Set<String> getOriginalMissingRefs() {
             return originalMissingRefs == null ? Set.of() : originalMissingRefs;
@@ -527,8 +510,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         /**
          * Removes an operation from all pending queues, discarding it completely.
          *
-         * <p>Used when an operation should no longer be retried, typically because a dependency it
-         * references is being removed from the catalog.
+         * <p>Used when an operation should no longer be retried, typically because a dependency it references is being
+         * removed from the catalog.
          */
         protected void discard(ConsistencyOp<?> op) {
             for (String ref : Set.copyOf(pendingOperations.keySet())) {
@@ -546,8 +529,7 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         /**
          * Removes a completed operation from all pending queues.
          *
-         * <p>Called when an operation succeeded despite having no missing refs at the start (edge
-         * case cleanup).
+         * <p>Called when an operation succeeded despite having no missing refs at the start (edge case cleanup).
          */
         protected void purge(ConsistencyOp<?> op) {
             Set<String> removedFromRefs = new HashSet<>();
@@ -579,20 +561,17 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     }
 
     /**
-     * Operation that adds a catalog object to the facade, deferring execution until all referenced
-     * objects exist.
+     * Operation that adds a catalog object to the facade, deferring execution until all referenced objects exist.
      *
-     * <p>Scans the object for unresolved {@link ResolvingProxy} references using {@link
-     * ResolvingProxyResolver}. If references are missing, the operation is queued. Once all
-     * references resolve, the object is added to the catalog via {@link
-     * ExtendedCatalogFacade#add(CatalogInfo)}.
+     * <p>Scans the object for unresolved {@link ResolvingProxy} references using {@link ResolvingProxyResolver}. If
+     * references are missing, the operation is queued. Once all references resolve, the object is added to the catalog
+     * via {@link ExtendedCatalogFacade#add(CatalogInfo)}.
      *
-     * <p>If the object already exists when the operation finally executes (which can happen when a
-     * node starts while events are being broadcast), the add is silently ignored to maintain
-     * idempotency.
+     * <p>If the object already exists when the operation finally executes (which can happen when a node starts while
+     * events are being broadcast), the add is silently ignored to maintain idempotency.
      *
-     * <p>After successfully adding the object, triggers resolution of any pending operations that
-     * were waiting for this object via {@link #afterSuccess()}.
+     * <p>After successfully adding the object, triggers resolution of any pending operations that were waiting for this
+     * object via {@link #afterSuccess()}.
      *
      * @param <T> the type of catalog object being added
      */
@@ -640,8 +619,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         /**
          * Triggers resolution of any operations that were waiting for the object just added.
          *
-         * <p>After successfully adding an object, attempts to execute any pending operations that
-         * were blocked waiting for this object's ID.
+         * <p>After successfully adding an object, attempts to execute any pending operations that were blocked waiting
+         * for this object's ID.
          */
         @Override
         protected void afterSuccess() {
@@ -655,13 +634,12 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     }
 
     /**
-     * Operation that updates a catalog object with property changes, deferring execution until the
-     * object and all patch property references are resolved.
+     * Operation that updates a catalog object with property changes, deferring execution until the object and all patch
+     * property references are resolved.
      *
-     * <p>Handles two types of unresolved references: the object being updated may itself be a
-     * {@link ResolvingProxy}, and the {@link Patch} may contain property values that are
-     * ResolvingProxy instances. Both are resolved using {@link ResolvingProxyResolver} before the
-     * update can proceed.
+     * <p>Handles two types of unresolved references: the object being updated may itself be a {@link ResolvingProxy},
+     * and the {@link Patch} may contain property values that are ResolvingProxy instances. Both are resolved using
+     * {@link ResolvingProxyResolver} before the update can proceed.
      *
      * <p>Once the object is found and all patch properties are resolved, applies the patch via
      * {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)}.
@@ -726,28 +704,26 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     /**
      * Operation that removes a catalog object, managing cascading cleanup of dependent operations.
      *
-     * <p>If the object to remove is a {@link ResolvingProxy}, defers execution until the object is
-     * found in the catalog. When the removal finally executes, handles operations that were waiting
-     * for the removed object in a special way:
+     * <p>If the object to remove is a {@link ResolvingProxy}, defers execution until the object is found in the
+     * catalog. When the removal finally executes, handles operations that were waiting for the removed object in a
+     * special way:
      *
      * <ul>
-     * <li>Each dependent operation is given one final retry attempt
-     * <li>If the dependent operation completes successfully (its other dependencies are met), it's
-     *     removed from the pending queue
-     * <li>If the dependent operation still has unresolved dependencies, it's forcibly discarded
-     *     with a warning, as its dependency is about to be removed
+     *   <li>Each dependent operation is given one final retry attempt
+     *   <li>If the dependent operation completes successfully (its other dependencies are met), it's removed from the
+     *       pending queue
+     *   <li>If the dependent operation still has unresolved dependencies, it's forcibly discarded with a warning, as
+     *       its dependency is about to be removed
      * </ul>
      *
-     * <p>This cascading behavior prevents catalog inconsistencies where operations reference objects
-     * that no longer exist, while giving operations a chance to complete if their other dependencies
-     * have arrived.
+     * <p>This cascading behavior prevents catalog inconsistencies where operations reference objects that no longer
+     * exist, while giving operations a chance to complete if their other dependencies have arrived.
      */
     @RequiredArgsConstructor
     private class RemoveOp extends ConsistencyOp<Void> {
         /**
-         * Object to remove, may be a {@link ResolvingProxy} itself, in which case the operation is
-         * deferred until the object is found. When executed, any pending operation waiting for this
-         * object is discarded
+         * Object to remove, may be a {@link ResolvingProxy} itself, in which case the operation is deferred until the
+         * object is found. When executed, any pending operation waiting for this object is discarded
          */
         private @NonNull CatalogInfo info;
 
@@ -767,13 +743,11 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         /**
          * Retrieves all operations that depend on the object being removed.
          *
-         * <p>Scans all pending operations to find those whose original missing references included
-         * the removed object. This handles cases where an operation has moved from waiting for the
-         * removed object to waiting for other dependencies - such operations must still be
-         * discarded to prevent dangling references.
+         * <p>Scans all pending operations to find those whose original missing references included the removed object.
+         * This handles cases where an operation has moved from waiting for the removed object to waiting for other
+         * dependencies - such operations must still be discarded to prevent dangling references.
          *
-         * <p>These operations will be given a final chance to complete in {@link
-         * #completeOrDiscard(ConsistencyOp)}.
+         * <p>These operations will be given a final chance to complete in {@link #completeOrDiscard(ConsistencyOp)}.
          */
         private List<ConsistencyOp<?>> clearDependants() {
             Set<ConsistencyOp<?>> dependants = new HashSet<>();
@@ -823,12 +797,12 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         /**
          * Gives a dependent operation a final attempt to complete before the object is removed.
          *
-         * <p>Executes the operation once more. If it succeeds (all other dependencies met), it's
-         * removed from pending queues naturally. If it fails (still has unmet dependencies), the
-         * operation is forcibly discarded since its dependency is about to be removed.
+         * <p>Executes the operation once more. If it succeeds (all other dependencies met), it's removed from pending
+         * queues naturally. If it fails (still has unmet dependencies), the operation is forcibly discarded since its
+         * dependency is about to be removed.
          *
-         * <p>This prevents operations from lingering with references to removed objects while
-         * allowing them to complete if only this object was blocking them.
+         * <p>This prevents operations from lingering with references to removed objects while allowing them to complete
+         * if only this object was blocking them.
          */
         private void completeOrDiscard(ConsistencyOp<?> dependent) {
             final String id = info.getId();
@@ -848,12 +822,10 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     }
 
     /**
-     * Operation that sets the catalog's default workspace, deferring execution until the workspace
-     * exists.
+     * Operation that sets the catalog's default workspace, deferring execution until the workspace exists.
      *
-     * <p>If the workspace is a {@link ResolvingProxy}, waits for the workspace to arrive before
-     * setting it as default. Passing {@code null} clears the default workspace immediately without
-     * deferral.
+     * <p>If the workspace is a {@link ResolvingProxy}, waits for the workspace to arrive before setting it as default.
+     * Passing {@code null} clears the default workspace immediately without deferral.
      */
     @RequiredArgsConstructor
     private class SetDefaultWorkspace extends ConsistencyOp<Void> {
@@ -892,12 +864,10 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     }
 
     /**
-     * Operation that sets the catalog's default namespace, deferring execution until the namespace
-     * exists.
+     * Operation that sets the catalog's default namespace, deferring execution until the namespace exists.
      *
-     * <p>If the namespace is a {@link ResolvingProxy}, waits for the namespace to arrive before
-     * setting it as default. Passing {@code null} clears the default namespace immediately without
-     * deferral.
+     * <p>If the namespace is a {@link ResolvingProxy}, waits for the namespace to arrive before setting it as default.
+     * Passing {@code null} clears the default namespace immediately without deferral.
      */
     @RequiredArgsConstructor
     private class SetDefaultNamespace extends ConsistencyOp<Void> {
@@ -936,12 +906,12 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
     }
 
     /**
-     * Operation that sets the default data store for a workspace, deferring execution until both
-     * the workspace and store exist.
+     * Operation that sets the default data store for a workspace, deferring execution until both the workspace and
+     * store exist.
      *
-     * <p>Handles two potential {@link ResolvingProxy} references: the workspace and the data store.
-     * Both must be resolved before the operation can complete. Passing {@code null} for the store
-     * clears the default data store for the workspace once the workspace is resolved.
+     * <p>Handles two potential {@link ResolvingProxy} references: the workspace and the data store. Both must be
+     * resolved before the operation can complete. Passing {@code null} for the store clears the default data store for
+     * the workspace once the workspace is resolved.
      */
     @AllArgsConstructor
     private class SetDefaultDataStore extends ConsistencyOp<Void> {

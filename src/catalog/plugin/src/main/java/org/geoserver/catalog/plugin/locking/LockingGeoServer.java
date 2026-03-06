@@ -22,15 +22,16 @@ import org.geoserver.config.plugin.GeoServerImpl;
  * {@link GeoServerConfigurationLock}.
  *
  * <p>This class enhances {@link GeoServerImpl} by overriding mutating methods to run within a
- * {@link GeoServerConfigurationLock}, which in GeoServer Cloud is required to provide cluster-level
- * locking. This ensures that configuration changes (e.g., adding or saving services, settings) are
- * executed atomically across the cluster, preventing concurrent modification issues.
+ * {@link GeoServerConfigurationLock}, which in GeoServer Cloud is required to provide cluster-level locking. This
+ * ensures that configuration changes (e.g., adding or saving services, settings) are executed atomically across the
+ * cluster, preventing concurrent modification issues.
  *
- * <p>Key mutating methods overridden include {@link #setGlobal}, {@link #save}, {@link #add}, and
- * {@link #remove} for various configuration objects. Locking can be enabled or disabled via
- * {@link #enableLocking()} and {@link #disableLocking()}.
+ * <p>Key mutating methods overridden include {@link #setGlobal}, {@link #save}, {@link #add}, and {@link #remove} for
+ * various configuration objects. Locking can be enabled or disabled via {@link #enableLocking()} and
+ * {@link #disableLocking()}.
  *
  * <p>Example usage:
+ *
  * <pre>
  * GeoServerConfigurationLock lock = ...;
  * LockingGeoServer geoServer = new LockingGeoServer(lock);
@@ -71,16 +72,12 @@ public class LockingGeoServer extends GeoServerImpl {
         enableLocking();
     }
 
-    /**
-     * Enables locking for all mutating operations using the configured {@link GeoServerConfigurationLock}.
-     */
+    /** Enables locking for all mutating operations using the configured {@link GeoServerConfigurationLock}. */
     public void enableLocking() {
         this.lockingSupport = LockingSupport.locking(configurationLock);
     }
 
-    /**
-     * Disables locking, bypassing the {@link GeoServerConfigurationLock} for mutating operations.
-     */
+    /** Disables locking, bypassing the {@link GeoServerConfigurationLock} for mutating operations. */
     public void disableLocking() {
         this.lockingSupport = LockingSupport.ignoringLocking();
     }
@@ -96,6 +93,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for global configuration.
      */
     @Override
@@ -105,6 +103,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for global configuration.
      */
     @Override
@@ -114,6 +113,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for adding settings.
      */
     @Override
@@ -124,6 +124,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for saving settings.
      */
     @Override
@@ -134,6 +135,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for removing settings.
      */
     @Override
@@ -144,6 +146,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for logging configuration.
      */
     @Override
@@ -153,6 +156,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for saving logging configuration.
      */
     @Override
@@ -162,6 +166,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for adding services.
      */
     @Override
@@ -172,6 +177,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for removing services.
      */
     @Override
@@ -182,6 +188,7 @@ public class LockingGeoServer extends GeoServerImpl {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for saving services.
      */
     @Override

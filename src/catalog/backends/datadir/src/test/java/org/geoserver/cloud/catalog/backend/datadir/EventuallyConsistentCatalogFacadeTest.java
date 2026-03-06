@@ -247,8 +247,8 @@ class EventuallyConsistentCatalogFacadeTest {
     }
 
     /**
-     * Tests for query retry behavior. These tests verify that queries returning null will retry
-     * when the catalog has pending operations (not converged) and there's a web request context.
+     * Tests for query retry behavior. These tests verify that queries returning null will retry when the catalog has
+     * pending operations (not converged) and there's a web request context.
      */
     @Nested
     class QueryRetryBehavior {

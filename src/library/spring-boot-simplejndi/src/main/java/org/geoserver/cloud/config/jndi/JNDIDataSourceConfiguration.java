@@ -10,9 +10,7 @@ import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitializat
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Configuration
 @EnableConfigurationProperties(JNDIDataSourcesConfigurationProperties.class)
 public class JNDIDataSourceConfiguration {

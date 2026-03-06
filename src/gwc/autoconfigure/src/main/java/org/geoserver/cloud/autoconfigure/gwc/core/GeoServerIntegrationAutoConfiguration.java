@@ -15,8 +15,8 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /**
- * {@link EnableAutoConfiguration Auto-Configuration} to integrated GeoServer-specific GWC
- * extensions, for example, to being able of configuring tile layers out of GeoServer Layers.
+ * {@link EnableAutoConfiguration Auto-Configuration} to integrated GeoServer-specific GWC extensions, for example, to
+ * being able of configuring tile layers out of GeoServer Layers.
  *
  * @see ConditionalOnGeoWebCacheEnabled
  * @see GeoServerIntegrationConfiguration

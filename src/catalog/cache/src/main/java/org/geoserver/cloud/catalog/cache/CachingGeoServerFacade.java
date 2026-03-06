@@ -58,8 +58,8 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
     /**
      * Clears the whole config cache upon any {@link UpdateSequenceEvent}.
      *
-     * <p>{@link UpdateSequenceEvent} is the root event for the ones that change something in the
-     * catalog or the configuration.
+     * <p>{@link UpdateSequenceEvent} is the root event for the ones that change something in the catalog or the
+     * configuration.
      */
     @EventListener(classes = UpdateSequenceEvent.class)
     void onUpdateSequenceEvent(UpdateSequenceEvent event) {
@@ -272,9 +272,7 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         return services;
     }
 
-    /**
-     * Method used to build a cache key for the {@link SettingsInfo settings} of a given workspace
-     */
+    /** Method used to build a cache key for the {@link SettingsInfo settings} of a given workspace */
     public static Object settingsKey(WorkspaceInfo ws) {
         return "settings@" + ws.getId();
     }

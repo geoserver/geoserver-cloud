@@ -26,20 +26,15 @@ import org.springframework.context.annotation.Import;
 /**
  * Auto-configuration for the PMTiles plugin in GeoServer Cloud.
  *
- * <p>
- * This configuration class:
+ * <p>This configuration class:
  *
  * <ul>
- * <li>Imports {@link PMTilesPluginConfiguration} which provides the core
- * PMTiles beans
- * <li>Integrates PMTiles' internal Caffeine caches with Spring's
- * {@link CacheManager} when available
+ *   <li>Imports {@link PMTilesPluginConfiguration} which provides the core PMTiles beans
+ *   <li>Integrates PMTiles' internal Caffeine caches with Spring's {@link CacheManager} when available
  * </ul>
  *
- * <p>
- * The cache integration allows PMTiles cache metrics to be exposed through
- * Spring Actuator's {@code /actuator/metrics}, {@code /actuator/caches}, and
- * {@code /actuator/prometheus} endpoints.
+ * <p>The cache integration allows PMTiles cache metrics to be exposed through Spring Actuator's
+ * {@code /actuator/metrics}, {@code /actuator/caches}, and {@code /actuator/prometheus} endpoints.
  *
  * @see PMTilesPluginConfiguration
  * @see PMTilesWmsIntegrationConfiguration
@@ -81,10 +76,8 @@ public class PMTilesPluginAutoConfiguration {
         /**
          * Sets up the cache manager integration after bean initialization.
          *
-         * <p>
-         * If Spring's {@link CaffeineCacheManager} is available, creates a
-         * {@link SpringCaffeineCacheManagerAdapter} and sets it as the default for
-         * {@link io.tileverse.cache.CacheManager}. This allows PMTiles' internal caches
+         * <p>If Spring's {@link CaffeineCacheManager} is available, creates a {@link SpringCaffeineCacheManagerAdapter}
+         * and sets it as the default for {@link io.tileverse.cache.CacheManager}. This allows PMTiles' internal caches
          * to be managed and monitored through Spring's cache infrastructure.
          */
         @PostConstruct
@@ -103,9 +96,7 @@ public class PMTilesPluginAutoConfiguration {
         }
     }
 
-    /**
-     * Imports {@link PMTilesWmsIntegrationConfiguration} when {@link ConditionalOnGeoServerWMS} is satisfied
-     */
+    /** Imports {@link PMTilesWmsIntegrationConfiguration} when {@link ConditionalOnGeoServerWMS} is satisfied */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnPMTiles
     @ConditionalOnGeoServerWMS
@@ -120,8 +111,8 @@ public class PMTilesPluginAutoConfiguration {
 
     /**
      * Configuration for PMTiles extension that provides a data store configuration panel for the web admin interface.
-     * <p>
-     * Imports {@link PMTilesWebUIConfiguration} when {@link ConditionalOnGeoServerWebUI} is satisfied
+     *
+     * <p>Imports {@link PMTilesWebUIConfiguration} when {@link ConditionalOnGeoServerWebUI} is satisfied
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnPMTiles

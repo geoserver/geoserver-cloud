@@ -55,9 +55,7 @@ public class VirtualTableDto {
     private Map<String, Integer> dimensions;
     private Map<String, VirtualTableParameterDto> parameters;
 
-    /**
-     * Custom serializer to convert geometry class types to string representation
-     */
+    /** Custom serializer to convert geometry class types to string representation */
     public static class GeometryTypesSerializer extends ValueSerializer<Map<String, Class<? extends Geometry>>> {
         @Override
         public void serialize(
@@ -82,9 +80,7 @@ public class VirtualTableDto {
         }
     }
 
-    /**
-     * Custom deserializer to convert string back to geometry class types
-     */
+    /** Custom deserializer to convert string back to geometry class types */
     public static class GeometryTypesDeserializer extends ValueDeserializer<Map<String, Class<? extends Geometry>>> {
         @Override
         @SuppressWarnings("java:S1168") // if stringMap is null we do want to return null instead of empty

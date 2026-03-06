@@ -60,24 +60,25 @@ import org.springframework.util.Assert;
  * {@link CatalogInfoRepository} instances.
  *
  * <p>This class provides a repository-backed facade for GeoServer Cloud’s catalog, implementing both
- * {@link ExtendedCatalogFacade} and {@link CatalogInfoRepositoryHolder} interfaces. It delegates all
- * catalog operations (e.g., adding, removing, querying) to type-specific repositories (e.g.,
- * {@link WorkspaceRepository}, {@link LayerRepository}) managed by a {@link CatalogInfoRepositoryHolderImpl}.
- * It supports advanced features like stream-based querying ({@link #query(Query)}), patch-based updates
- * ({@link #update(CatalogInfo, Patch)}), and synchronization with other facades ({@link #syncTo(CatalogFacade)}).
+ * {@link ExtendedCatalogFacade} and {@link CatalogInfoRepositoryHolder} interfaces. It delegates all catalog operations
+ * (e.g., adding, removing, querying) to type-specific repositories (e.g., {@link WorkspaceRepository},
+ * {@link LayerRepository}) managed by a {@link CatalogInfoRepositoryHolderImpl}. It supports advanced features like
+ * stream-based querying ({@link #query(Query)}), patch-based updates ({@link #update(CatalogInfo, Patch)}), and
+ * synchronization with other facades ({@link #syncTo(CatalogFacade)}).
  *
  * <p>Key features:
+ *
  * <ul>
- *   <li><strong>Repository-Driven:</strong> Uses specialized repositories for persistence and retrieval
- *       of {@link CatalogInfo} objects.</li>
- *   <li><strong>Type Safety:</strong> Ensures consistent handling of catalog info types through generics.</li>
- *   <li><strong>Query Optimization:</strong> Implements efficient querying for {@link PublishedInfo} with
- *       merge-sorted streams.</li>
- *   <li><strong>Capabilities:</strong> Reports catalog capabilities via {@link #getCatalogCapabilities()}.</li>
+ *   <li><strong>Repository-Driven:</strong> Uses specialized repositories for persistence and retrieval of
+ *       {@link CatalogInfo} objects.
+ *   <li><strong>Type Safety:</strong> Ensures consistent handling of catalog info types through generics.
+ *   <li><strong>Query Optimization:</strong> Implements efficient querying for {@link PublishedInfo} with merge-sorted
+ *       streams.
+ *   <li><strong>Capabilities:</strong> Reports catalog capabilities via {@link #getCatalogCapabilities()}.
  * </ul>
  *
- * <p>This implementation is designed to work within GeoServer Cloud’s catalog system, providing a robust
- * and flexible facade that integrates repository-based data access with catalog operations.
+ * <p>This implementation is designed to work within GeoServer Cloud’s catalog system, providing a robust and flexible
+ * facade that integrates repository-based data access with catalog operations.
  *
  * @since 1.0
  * @see RepositoryCatalogFacade
@@ -96,8 +97,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Constructs a new repository-backed catalog facade with no associated catalog.
      *
-     * <p>Initializes the internal {@link CatalogInfoRepositoryHolderImpl} for managing repositories.
-     * Use {@link #setCatalog(Catalog)} to associate a catalog instance after construction.
+     * <p>Initializes the internal {@link CatalogInfoRepositoryHolderImpl} for managing repositories. Use
+     * {@link #setCatalog(Catalog)} to associate a catalog instance after construction.
      */
     public RepositoryCatalogFacadeImpl() {
         repositories = new CatalogInfoRepositoryHolderImpl();
@@ -106,8 +107,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Constructs a new repository-backed catalog facade with the specified catalog.
      *
-     * <p>Initializes the facade and sets the provided catalog, which is used as the context for all
-     * catalog operations.
+     * <p>Initializes the facade and sets the provided catalog, which is used as the context for all catalog operations.
      *
      * @param catalog The {@link Catalog} instance to associate with this facade; may be null.
      * @see #setCatalog(Catalog)
@@ -120,8 +120,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Returns the catalog capabilities supported by this facade.
      *
-     * <p>The capabilities reflect the features available through this repository-backed implementation,
-     * such as support for isolated workspaces or specific query operations.
+     * <p>The capabilities reflect the features available through this repository-backed implementation, such as support
+     * for isolated workspaces or specific query operations.
      *
      * @return The {@link CatalogCapabilities} instance; never null.
      */
@@ -133,8 +133,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets the catalog instance associated with this facade.
      *
-     * <p>The catalog provides the context for all operations (e.g., default workspaces, namespaces).
-     * Setting it to null effectively clears the association.
+     * <p>The catalog provides the context for all operations (e.g., default workspaces, namespaces). Setting it to null
+     * effectively clears the association.
      *
      * @param catalog The {@link Catalog} to set; may be null.
      */
@@ -156,8 +156,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Resolves any internal state or dependencies of the facade.
      *
-     * <p>This default implementation is a no-op. Subclasses may override it to perform initialization
-     * or consistency checks as needed.
+     * <p>This default implementation is a no-op. Subclasses may override it to perform initialization or consistency
+     * checks as needed.
      */
     @Override
     public void resolve() {
@@ -167,12 +167,12 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Adds a catalog object to the specified repository and retrieves the persisted instance.
      *
-     * <p>This helper method ensures the object is not a proxy, adds it to the repository, and returns
-     * the persisted version by looking it up by ID. It’s used internally for type-specific add operations.
+     * <p>This helper method ensures the object is not a proxy, adds it to the repository, and returns the persisted
+     * version by looking it up by ID. It’s used internally for type-specific add operations.
      *
-     * @param <I>        The type of {@link CatalogInfo} to add.
-     * @param info       The catalog object to add; must not be null and not a proxy.
-     * @param type       The class of the catalog object; must not be null.
+     * @param <I> The type of {@link CatalogInfo} to add.
+     * @param info The catalog object to add; must not be null and not a proxy.
+     * @param type The class of the catalog object; must not be null.
      * @param repository The repository to add the object to; must not be null.
      * @return The persisted {@link CatalogInfo} object, or null if not found after addition.
      * @throws NullPointerException if {@code info}, {@code type}, or {@code repository} is null.
@@ -191,15 +191,15 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Adds a store to the catalog.
      *
-     * <p>Persists the store via the {@link StoreRepository} and returns the added instance, which may
-     * include updates like a generated ID.
+     * <p>Persists the store via the {@link StoreRepository} and returns the added instance, which may include updates
+     * like a generated ID.
      *
      * @param store The {@link StoreInfo} to add; must not be null.
      * @return The persisted {@link StoreInfo}.
      * @throws NullPointerException if {@code store} is null.
      * @throws IllegalArgumentException if {@code store} is a proxy or lacks an ID.
      * @example Adding a data store:
-     *          <pre>
+     *     <pre>
      *          DataStoreInfo store = new DataStoreInfoImpl(catalog);
      *          store.setId("ds1");
      *          facade.add(store);
@@ -228,8 +228,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      *
      * <p>Queries the {@link StoreRepository} for a store matching the given ID and type.
      *
-     * @param <T>   The specific type of {@link StoreInfo} to retrieve (e.g., {@link DataStoreInfo}).
-     * @param id    The unique identifier of the store; must not be null.
+     * @param <T> The specific type of {@link StoreInfo} to retrieve (e.g., {@link DataStoreInfo}).
+     * @param id The unique identifier of the store; must not be null.
      * @param clazz The class of the store to retrieve; must not be null.
      * @return The matching {@link StoreInfo} if found, or null if not.
      * @throws NullPointerException if {@code id} or {@code clazz} is null.
@@ -242,14 +242,14 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves a store by name and workspace.
      *
-     * <p>If the workspace is {@link CatalogFacade#ANY_WORKSPACE} or null, searches for the first store
-     * matching the name across all workspaces. Otherwise, queries the {@link StoreRepository} for a store
-     * with the specified name within the given workspace.
+     * <p>If the workspace is {@link CatalogFacade#ANY_WORKSPACE} or null, searches for the first store matching the
+     * name across all workspaces. Otherwise, queries the {@link StoreRepository} for a store with the specified name
+     * within the given workspace.
      *
-     * @param <T>       The specific type of {@link StoreInfo} to retrieve.
+     * @param <T> The specific type of {@link StoreInfo} to retrieve.
      * @param workspace The workspace containing the store, or {@link CatalogFacade#ANY_WORKSPACE}; may be null.
-     * @param name      The name of the store; must not be null.
-     * @param clazz     The class of the store to retrieve; must not be null.
+     * @param name The name of the store; must not be null.
+     * @param clazz The class of the store to retrieve; must not be null.
      * @return The matching {@link StoreInfo} if found, or null if not.
      * @throws NullPointerException if {@code name} or {@code clazz} is null.
      */
@@ -267,12 +267,12 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves all stores within a workspace.
      *
-     * <p>If the workspace is null, defaults to the current default workspace. Delegates to the
-     * {@link StoreRepository} to fetch stores of the specified type within the workspace.
+     * <p>If the workspace is null, defaults to the current default workspace. Delegates to the {@link StoreRepository}
+     * to fetch stores of the specified type within the workspace.
      *
-     * @param <T>       The specific type of {@link StoreInfo} to retrieve.
+     * @param <T> The specific type of {@link StoreInfo} to retrieve.
      * @param workspace The workspace containing the stores; may be null to use the default.
-     * @param clazz     The class of the stores to retrieve; must not be null.
+     * @param clazz The class of the stores to retrieve; must not be null.
      * @return A list of matching {@link StoreInfo} objects.
      * @throws NullPointerException if {@code clazz} is null.
      */
@@ -287,7 +287,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      *
      * <p>Queries the {@link StoreRepository} for all stores matching the given class.
      *
-     * @param <T>   The specific type of {@link StoreInfo} to retrieve.
+     * @param <T> The specific type of {@link StoreInfo} to retrieve.
      * @param clazz The class of the stores to retrieve; must not be null.
      * @return A list of matching {@link StoreInfo} objects.
      * @throws NullPointerException if {@code clazz} is null.
@@ -300,8 +300,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves the default data store for a workspace.
      *
-     * <p>Queries the {@link StoreRepository} for the default {@link DataStoreInfo} associated with the
-     * specified workspace.
+     * <p>Queries the {@link StoreRepository} for the default {@link DataStoreInfo} associated with the specified
+     * workspace.
      *
      * @param workspace The workspace to query; may be null.
      * @return The default {@link DataStoreInfo} if set, or null if not found.
@@ -314,11 +314,11 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets or unsets the default data store for a workspace.
      *
-     * <p>If {@code store} is null, unsets the default data store for the workspace. Otherwise, sets the
-     * specified store as the default, ensuring it belongs to the given workspace.
+     * <p>If {@code store} is null, unsets the default data store for the workspace. Otherwise, sets the specified store
+     * as the default, ensuring it belongs to the given workspace.
      *
      * @param workspace The workspace to configure; must not be null.
-     * @param store     The {@link DataStoreInfo} to set as default, or null to unset.
+     * @param store The {@link DataStoreInfo} to set as default, or null to unset.
      * @throws NullPointerException if {@code workspace} is null.
      * @throws IllegalArgumentException if {@code store} is non-null and its workspace does not match {@code workspace}.
      */
@@ -371,8 +371,9 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      *
      * <p>Queries the {@link ResourceRepository} for a resource matching the given ID and type.
      *
-     * @param <T>   The specific type of {@link ResourceInfo} to retrieve (e.g., {@link org.geoserver.catalog.FeatureTypeInfo}).
-     * @param id    The unique identifier of the resource; must not be null.
+     * @param <T> The specific type of {@link ResourceInfo} to retrieve (e.g.,
+     *     {@link org.geoserver.catalog.FeatureTypeInfo}).
+     * @param id The unique identifier of the resource; must not be null.
      * @param clazz The class of the resource to retrieve; must not be null.
      * @return The matching {@link ResourceInfo} if found, or null if not.
      * @throws NullPointerException if {@code id} or {@code clazz} is null.
@@ -385,14 +386,15 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves a resource by name and namespace.
      *
-     * <p>If the namespace is {@link CatalogFacade#ANY_NAMESPACE}, searches for the first resource matching
-     * the name across all namespaces. Otherwise, queries the {@link ResourceRepository} for a resource
-     * with the specified name within the given namespace.
+     * <p>If the namespace is {@link CatalogFacade#ANY_NAMESPACE}, searches for the first resource matching the name
+     * across all namespaces. Otherwise, queries the {@link ResourceRepository} for a resource with the specified name
+     * within the given namespace.
      *
-     * @param <T>       The specific type of {@link ResourceInfo} to retrieve.
-     * @param namespace The namespace containing the resource, or {@link CatalogFacade#ANY_NAMESPACE}; may be null (returns null).
-     * @param name      The name of the resource; must not be null.
-     * @param clazz     The class of the resource to retrieve; must not be null.
+     * @param <T> The specific type of {@link ResourceInfo} to retrieve.
+     * @param namespace The namespace containing the resource, or {@link CatalogFacade#ANY_NAMESPACE}; may be null
+     *     (returns null).
+     * @param name The name of the resource; must not be null.
+     * @param clazz The class of the resource to retrieve; must not be null.
      * @return The matching {@link ResourceInfo} if found, or null if not.
      * @throws NullPointerException if {@code name} or {@code clazz} is null.
      */
@@ -415,7 +417,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      *
      * <p>Queries the {@link ResourceRepository} for all resources matching the given class.
      *
-     * @param <T>   The specific type of {@link ResourceInfo} to retrieve.
+     * @param <T> The specific type of {@link ResourceInfo} to retrieve.
      * @param clazz The class of the resources to retrieve; must not be null.
      * @return A list of matching {@link ResourceInfo} objects.
      * @throws NullPointerException if {@code clazz} is null.
@@ -428,12 +430,12 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves all resources within a namespace.
      *
-     * <p>If the namespace is null, defaults to the current default namespace. Queries the
-     * {@link ResourceRepository} for resources of the specified type within the namespace.
+     * <p>If the namespace is null, defaults to the current default namespace. Queries the {@link ResourceRepository}
+     * for resources of the specified type within the namespace.
      *
-     * @param <T>       The specific type of {@link ResourceInfo} to retrieve.
+     * @param <T> The specific type of {@link ResourceInfo} to retrieve.
      * @param namespace The namespace containing the resources; may be null to use the default.
-     * @param clazz     The class of the resources to retrieve; must not be null.
+     * @param clazz The class of the resources to retrieve; must not be null.
      * @return A list of matching {@link ResourceInfo} objects.
      * @throws NullPointerException if {@code clazz} is null.
      */
@@ -446,13 +448,13 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves a resource by store and name, ensuring namespace consistency.
      *
-     * <p>Queries the {@link ResourceRepository} for a resource with the specified name in the store’s
-     * namespace, falling back to a store-specific search if namespace lookup fails (e.g., in test scenarios).
-     * Verifies the store matches the resource’s store to ensure consistency.
+     * <p>Queries the {@link ResourceRepository} for a resource with the specified name in the store’s namespace,
+     * falling back to a store-specific search if namespace lookup fails (e.g., in test scenarios). Verifies the store
+     * matches the resource’s store to ensure consistency.
      *
-     * @param <T>   The specific type of {@link ResourceInfo} to retrieve.
+     * @param <T> The specific type of {@link ResourceInfo} to retrieve.
      * @param store The store containing the resource; must not be null.
-     * @param name  The name of the resource; must not be null.
+     * @param name The name of the resource; must not be null.
      * @param clazz The class of the resource to retrieve; must not be null.
      * @return The matching {@link ResourceInfo} if found and consistent with the store, or null if not.
      * @throws NullPointerException if {@code store}, {@code name}, or {@code clazz} is null.
@@ -486,7 +488,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      *
      * <p>Queries the {@link ResourceRepository} for resources of the specified type linked to the store.
      *
-     * @param <T>   The specific type of {@link ResourceInfo} to retrieve.
+     * @param <T> The specific type of {@link ResourceInfo} to retrieve.
      * @param store The store containing the resources; must not be null.
      * @param clazz The class of the resources to retrieve; must not be null.
      * @return A list of matching {@link ResourceInfo} objects.
@@ -545,8 +547,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves a layer by its name.
      *
-     * <p>Queries the {@link LayerRepository} for a layer matching the possibly prefixed name (e.g.,
-     * "namespace:layer").
+     * <p>Queries the {@link LayerRepository} for a layer matching the possibly prefixed name (e.g., "namespace:layer").
      *
      * @param name The name of the layer (possibly prefixed); must not be null.
      * @return The matching {@link LayerInfo} if found, or null if not.
@@ -574,8 +575,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves all layers using a specific style.
      *
-     * <p>Queries the {@link LayerRepository} for layers where the style is either the default or included
-     * in their styles list.
+     * <p>Queries the {@link LayerRepository} for layers where the style is either the default or included in their
+     * styles list.
      *
      * @param style The {@link StyleInfo} linked to the layers; must not be null.
      * @return A list of matching {@link LayerInfo} objects.
@@ -748,8 +749,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves a layer group by its name, assuming no workspace context.
      *
-     * <p>Delegates to {@link #getLayerGroupByName(WorkspaceInfo, String)} with
-     * {@link CatalogFacade#NO_WORKSPACE}.
+     * <p>Delegates to {@link #getLayerGroupByName(WorkspaceInfo, String)} with {@link CatalogFacade#NO_WORKSPACE}.
      *
      * @param name The name of the layer group; must not be null.
      * @return The matching {@link LayerGroupInfo} if found, or null if not.
@@ -764,11 +764,11 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      * Retrieves a layer group by name and workspace.
      *
      * <p>Handles special cases: {@link CatalogFacade#NO_WORKSPACE} queries global layer groups,
-     * {@link CatalogFacade#ANY_WORKSPACE} searches across all workspaces, and specific workspaces restrict
-     * the search to that context.
+     * {@link CatalogFacade#ANY_WORKSPACE} searches across all workspaces, and specific workspaces restrict the search
+     * to that context.
      *
      * @param workspace The workspace containing the layer group, or special values; must not be null.
-     * @param name      The name of the layer group; must not be null.
+     * @param name The name of the layer group; must not be null.
      * @return The matching {@link LayerGroupInfo} if found, or null if not.
      * @throws NullPointerException if {@code workspace} or {@code name} is null.
      */
@@ -807,8 +807,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Removes a namespace from the catalog.
      *
-     * <p>If the namespace is the default, unsets it before removal. Delegates to the
-     * {@link NamespaceRepository} to delete the namespace.
+     * <p>If the namespace is the default, unsets it before removal. Delegates to the {@link NamespaceRepository} to
+     * delete the namespace.
      *
      * @param namespace The {@link NamespaceInfo} to remove; must not be null.
      * @throws NullPointerException if {@code namespace} is null.
@@ -837,8 +837,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets or unsets the default namespace.
      *
-     * <p>If {@code defaultNamespace} is null, unsets the default namespace. Otherwise, sets the specified
-     * namespace as the default via the {@link NamespaceRepository}.
+     * <p>If {@code defaultNamespace} is null, unsets the default namespace. Otherwise, sets the specified namespace as
+     * the default via the {@link NamespaceRepository}.
      *
      * @param defaultNamespace The {@link NamespaceInfo} to set as default, or null to unset.
      */
@@ -942,8 +942,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Removes a workspace from the catalog.
      *
-     * <p>If the workspace is the default, unsets it before removal. Delegates to the
-     * {@link WorkspaceRepository} to delete the workspace.
+     * <p>If the workspace is the default, unsets it before removal. Delegates to the {@link WorkspaceRepository} to
+     * delete the workspace.
      *
      * @param workspace The {@link WorkspaceInfo} to remove; must not be null.
      * @throws NullPointerException if {@code workspace} is null.
@@ -972,8 +972,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets or unsets the default workspace.
      *
-     * <p>If {@code workspace} is null, unsets the default workspace. Otherwise, sets the specified
-     * workspace as the default via the {@link WorkspaceRepository}.
+     * <p>If {@code workspace} is null, unsets the default workspace. Otherwise, sets the specified workspace as the
+     * default via the {@link WorkspaceRepository}.
      *
      * @param workspace The {@link WorkspaceInfo} to set as default, or null to unset.
      */
@@ -1076,8 +1076,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Retrieves a style by its name, preferring global styles.
      *
-     * <p>Queries the {@link StyleRepository} first for a global style (no workspace) matching the name,
-     * falling back to the first workspace-specific match if no global style is found.
+     * <p>Queries the {@link StyleRepository} first for a global style (no workspace) matching the name, falling back to
+     * the first workspace-specific match if no global style is found.
      *
      * @param name The name of the style; must not be null.
      * @return The matching {@link StyleInfo} if found, or null if not.
@@ -1096,11 +1096,11 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      * Retrieves a style by name and workspace.
      *
      * <p>Handles special cases: {@link CatalogFacade#NO_WORKSPACE} queries global styles,
-     * {@link CatalogFacade#ANY_WORKSPACE} searches across all workspaces, and specific workspaces restrict
-     * the search to that context.
+     * {@link CatalogFacade#ANY_WORKSPACE} searches across all workspaces, and specific workspaces restrict the search
+     * to that context.
      *
      * @param workspace The workspace containing the style, or special values; must not be null.
-     * @param name      The name of the style; must not be null.
+     * @param name The name of the style; must not be null.
      * @return The matching {@link StyleInfo} if found, or null if not.
      * @throws NullPointerException if {@code workspace} or {@code name} is null.
      */
@@ -1154,10 +1154,10 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Converts a stream supplier to a list, ensuring proper stream closure.
      *
-     * <p>This utility method safely collects a stream into a list, closing the stream after use to
-     * prevent resource leaks.
+     * <p>This utility method safely collects a stream into a list, closing the stream after use to prevent resource
+     * leaks.
      *
-     * @param <T>      The type of objects in the stream.
+     * @param <T> The type of objects in the stream.
      * @param supplier A supplier providing the stream; must not be null.
      * @return A list of objects from the stream.
      * @throws NullPointerException if {@code supplier} is null.
@@ -1171,8 +1171,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Disposes of all resources held by this facade.
      *
-     * <p>Delegates to the internal repository holder to release all repository resources (e.g., database
-     * connections).
+     * <p>Delegates to the internal repository holder to release all repository resources (e.g., database connections).
      */
     @Override
     public void dispose() {
@@ -1182,14 +1181,14 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Synchronizes this facade’s catalog data to another facade.
      *
-     * <p>If the target facade is a {@link CatalogInfoRepositoryHolder}, performs an optimized sync by
-     * delegating to each repository’s {@code syncTo} method. Otherwise, manually imports all objects using
-     * the target’s {@code add} methods. Also syncs default settings (workspace, namespace, data stores).
+     * <p>If the target facade is a {@link CatalogInfoRepositoryHolder}, performs an optimized sync by delegating to
+     * each repository’s {@code syncTo} method. Otherwise, manually imports all objects using the target’s {@code add}
+     * methods. Also syncs default settings (workspace, namespace, data stores).
      *
      * @param to The target {@link CatalogFacade} to sync to; must not be null.
      * @throws NullPointerException if {@code to} is null.
      * @example Syncing to another facade:
-     *          <pre>
+     *     <pre>
      *          RepositoryCatalogFacadeImpl source = ...;
      *          CatalogFacade target = new DefaultCatalogFacade();
      *          source.syncTo(target);
@@ -1228,12 +1227,12 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Synchronizes a stream of catalog objects to a consumer, ensuring proper closure.
      *
-     * <p>This helper method streams objects from a supplier and applies a consumer (e.g., {@code add}),
-     * closing the stream afterward.
+     * <p>This helper method streams objects from a supplier and applies a consumer (e.g., {@code add}), closing the
+     * stream afterward.
      *
-     * @param <T>      The type of {@link CatalogInfo}.
-     * @param from     A supplier providing the stream of objects; must not be null.
-     * @param to       The consumer to apply to each object; must not be null.
+     * @param <T> The type of {@link CatalogInfo}.
+     * @param from A supplier providing the stream of objects; must not be null.
+     * @param to The consumer to apply to each object; must not be null.
      * @throws NullPointerException if {@code from} or {@code to} is null.
      */
     private <T extends CatalogInfo> void sync(Supplier<Stream<T>> from, Consumer<T> to) {
@@ -1245,12 +1244,11 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Counts catalog objects of a specific type matching a filter.
      *
-     * <p>For {@link PublishedInfo}, splits the filter to count layers and layer groups separately, summing
-     * the results. Otherwise, delegates to the appropriate repository’s {@code count} method, capping at
-     * {@link Integer#MAX_VALUE}.
+     * <p>For {@link PublishedInfo}, splits the filter to count layers and layer groups separately, summing the results.
+     * Otherwise, delegates to the appropriate repository’s {@code count} method, capping at {@link Integer#MAX_VALUE}.
      *
-     * @param <T>    The type of {@link CatalogInfo} to count.
-     * @param of     The class of objects to count; must not be null.
+     * @param <T> The type of {@link CatalogInfo} to count.
+     * @param of The class of objects to count; must not be null.
      * @param filter The filter to apply; must not be null.
      * @return The number of matching objects, capped at {@link Integer#MAX_VALUE}.
      * @throws NullPointerException if {@code of} or {@code filter} is null.
@@ -1275,14 +1273,11 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     }
 
     /**
-     * Queries {@link LayerRepository} and {@link LayerGroupRepository} for
-     * individual counts returns the aggregate.
+     * Queries {@link LayerRepository} and {@link LayerGroupRepository} for individual counts returns the aggregate.
      *
-     * <p>
-     * Splits the query filter to handle layers and layer groups separately.
-     * <p>
-     * Subclasses are free to override this method if they can deal better with
-     * PublishedInfo queries.
+     * <p>Splits the query filter to handle layers and layer groups separately.
+     *
+     * <p>Subclasses are free to override this method if they can deal better with PublishedInfo queries.
      *
      * @throws NullPointerException if {@code filter} is null.
      * @see #queryPublishedInfo(Query)
@@ -1327,8 +1322,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Finds an {@code IsInstanceOf} filter within a compound filter.
      *
-     * <p>Recursively searches AND filters or checks binary comparisons for an {@code IsInstanceOf}
-     * expression.
+     * <p>Recursively searches AND filters or checks binary comparisons for an {@code IsInstanceOf} expression.
      *
      * @param subFilter The filter to search; must not be null.
      * @return The found {@link IsInstanceOf} filter, or null if none exists.
@@ -1370,11 +1364,10 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Checks if sorting by a property is supported for a given type.
      *
-     * <p>Supports sorting on properties (including nested ones) that are primitive or implement
-     * {@link Comparable}. For {@link PublishedInfo}, checks both {@link LayerInfo} and
-     * {@link LayerGroupInfo} capabilities.
+     * <p>Supports sorting on properties (including nested ones) that are primitive or implement {@link Comparable}. For
+     * {@link PublishedInfo}, checks both {@link LayerInfo} and {@link LayerGroupInfo} capabilities.
      *
-     * @param type         The type of {@link CatalogInfo} to sort; must not be null.
+     * @param type The type of {@link CatalogInfo} to sort; must not be null.
      * @param propertyName The property name to sort by; must not be null.
      * @return {@code true} if sorting is supported, {@code false} otherwise.
      * @throws NullPointerException if {@code type} or {@code propertyName} is null.
@@ -1391,7 +1384,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Validates that a query’s sort order is supported for its type.
      *
-     * @param <T>  The type of {@link CatalogInfo}.
+     * @param <T> The type of {@link CatalogInfo}.
      * @param query The query to validate; must not be null.
      * @throws IllegalArgumentException if any sort property is unsupported for the query’s type.
      */
@@ -1402,7 +1395,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Validates that a specific sort order is supported for a type.
      *
-     * @param <T>  The type of {@link CatalogInfo}.
+     * @param <T> The type of {@link CatalogInfo}.
      * @param type The class of objects to sort; must not be null.
      * @param order The {@link SortBy} order to check; must not be null.
      * @throws IllegalArgumentException if the sort property is unsupported.
@@ -1417,21 +1410,21 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Queries the catalog for objects matching the specified criteria.
      *
-     * <p>For {@link PublishedInfo}, calls {@link #queryPublishedInfo(Query)},
-     * which queries {@link LayerRepository} and {@link LayerGroupRepository} for {@link PublishedInfo}, returning
-     * a merge-sorted stream. Subclasses are free to override it if they can deal better with PublishedInfo queries.
-     * <p>
-     * Otherwise, delegates to the appropriate repository’s {@code findAll} method after validating sort
-     * order. Returns an empty stream if the filter is {@link Filter#EXCLUDE}.
+     * <p>For {@link PublishedInfo}, calls {@link #queryPublishedInfo(Query)}, which queries {@link LayerRepository} and
+     * {@link LayerGroupRepository} for {@link PublishedInfo}, returning a merge-sorted stream. Subclasses are free to
+     * override it if they can deal better with PublishedInfo queries.
      *
-     * @param <T>   The type of {@link CatalogInfo} to query.
+     * <p>Otherwise, delegates to the appropriate repository’s {@code findAll} method after validating sort order.
+     * Returns an empty stream if the filter is {@link Filter#EXCLUDE}.
+     *
+     * @param <T> The type of {@link CatalogInfo} to query.
      * @param query The query defining type, filter, sorting, and pagination; must not be null.
      * @return A {@link Stream} of matching objects; never null.
      * @throws NullPointerException if {@code query} is null.
      * @throws CatalogException if querying fails due to repository errors.
      * @throws IllegalArgumentException if sort order is unsupported.
      * @example Querying layers:
-     *          <pre>
+     *     <pre>
      *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, someFilter);
      *          try (Stream<LayerInfo> layers = facade.query(query)) {
      *              layers.forEach(l -> System.out.println(l.getName()));
@@ -1460,13 +1453,15 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     }
 
     /**
-     * Queries {@link LayerRepository} and {@link LayerGroupRepository} for {@link PublishedInfo}, returning
-     * a merge-sorted stream.
+     * Queries {@link LayerRepository} and {@link LayerGroupRepository} for {@link PublishedInfo}, returning a
+     * merge-sorted stream.
      *
-     * <p>Splits the query filter to handle layers and layer groups separately, applying offset and limit
-     * in-memory if needed. Ensures predictable order with a default "id" sort if none is specified.
-     * Closes underlying streams when the result stream is closed.
-     *<p>Subclasses are free to override this method if they can deal better with PublishedInfo queries.
+     * <p>Splits the query filter to handle layers and layer groups separately, applying offset and limit in-memory if
+     * needed. Ensures predictable order with a default "id" sort if none is specified. Closes underlying streams when
+     * the result stream is closed.
+     *
+     * <p>Subclasses are free to override this method if they can deal better with PublishedInfo queries.
+     *
      * @param query The query defining criteria for {@link PublishedInfo}; must not be null.
      * @return A {@link Stream} of {@link PublishedInfo} objects (layers and layer groups); never null.
      * @throws NullPointerException if {@code query} is null.
@@ -1522,13 +1517,13 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Determines if offset and limit should be applied in-memory for a {@link PublishedInfo} query.
      *
-     * <p>Checks if either layer or layer group results are non-zero, resetting query offsets/limits to
-     * fetch all results for in-memory sorting if needed.
+     * <p>Checks if either layer or layer group results are non-zero, resetting query offsets/limits to fetch all
+     * results for in-memory sorting if needed.
      *
-     * @param offset     The offset from the original query; may be null.
-     * @param limit      The limit from the original query; may be null.
+     * @param offset The offset from the original query; may be null.
+     * @param limit The limit from the original query; may be null.
      * @param layerQuery The query for layers; must not be null.
-     * @param lgQuery    The query for layer groups; must not be null.
+     * @param lgQuery The query for layer groups; must not be null.
      * @return {@code true} if in-memory offset/limit is required, {@code false} otherwise.
      */
     protected boolean shallApplyOffsetLimit(
@@ -1558,8 +1553,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      *
      * <p>Ensures that auxiliary streams (e.g., layers and groups) are closed when the main stream is closed.
      *
-     * @param <T>        The type of objects in the stream.
-     * @param stream     The main stream to extend; must not be null.
+     * @param <T> The type of objects in the stream.
+     * @param stream The main stream to extend; must not be null.
      * @param closeables Additional streams to close; must not be null.
      * @return The extended {@link Stream} with closure logic.
      */
@@ -1574,11 +1569,11 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Updates a catalog object with a patch.
      *
-     * <p>Ensures the object is not a proxy, then delegates to the appropriate repository’s
-     * {@code update} method to apply the patch and return the updated instance.
+     * <p>Ensures the object is not a proxy, then delegates to the appropriate repository’s {@code update} method to
+     * apply the patch and return the updated instance.
      *
-     * @param <I>   The type of {@link CatalogInfo} to update.
-     * @param info  The catalog object to update; must not be null and not a proxy.
+     * @param <I> The type of {@link CatalogInfo} to update.
+     * @param info The catalog object to update; must not be null and not a proxy.
      * @param patch The {@link Patch} containing changes; must not be null.
      * @return The updated {@link CatalogInfo} object.
      * @throws NullPointerException if {@code info} or {@code patch} is null.
@@ -1610,7 +1605,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      *
      * @param <T> The type of {@link CatalogInfo}.
      * @param <R> The corresponding repository type.
-     * @param of  The class of catalog info objects; must not be null.
+     * @param of The class of catalog info objects; must not be null.
      * @return The repository for type {@code T}; never null.
      * @throws NullPointerException if {@code of} is null.
      * @throws IllegalArgumentException if no repository is configured for the type.
@@ -1625,8 +1620,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      *
      * <p>Delegates to the internal repository holder’s {@link CatalogInfoRepositoryHolder#repositoryFor(CatalogInfo)}.
      *
-     * @param <T>  The type of {@link CatalogInfo}.
-     * @param <R>  The corresponding repository type.
+     * @param <T> The type of {@link CatalogInfo}.
+     * @param <R> The corresponding repository type.
      * @param info The catalog info object; must not be null.
      * @return The repository for the object’s type; never null.
      * @throws NullPointerException if {@code info} is null.
@@ -1640,7 +1635,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets the repository for managing {@link NamespaceInfo} objects.
      *
-     * <p>Delegates to the internal repository holder’s {@link CatalogInfoRepositoryHolder#setNamespaceRepository(NamespaceRepository)}.
+     * <p>Delegates to the internal repository holder’s
+     * {@link CatalogInfoRepositoryHolder#setNamespaceRepository(NamespaceRepository)}.
      *
      * @param namespaces The {@link NamespaceRepository} to set; must not be null.
      * @throws NullPointerException if {@code namespaces} is null.
@@ -1664,7 +1660,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets the repository for managing {@link WorkspaceInfo} objects.
      *
-     * <p>Delegates to the internal repository holder’s {@link CatalogInfoRepositoryHolder#setWorkspaceRepository(WorkspaceRepository)}.
+     * <p>Delegates to the internal repository holder’s
+     * {@link CatalogInfoRepositoryHolder#setWorkspaceRepository(WorkspaceRepository)}.
      *
      * @param workspaces The {@link WorkspaceRepository} to set; must not be null.
      * @throws NullPointerException if {@code workspaces} is null.
@@ -1688,7 +1685,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets the repository for managing {@link StoreInfo} objects.
      *
-     * <p>Delegates to the internal repository holder’s {@link CatalogInfoRepositoryHolder#setStoreRepository(StoreRepository)}.
+     * <p>Delegates to the internal repository holder’s
+     * {@link CatalogInfoRepositoryHolder#setStoreRepository(StoreRepository)}.
      *
      * @param stores The {@link StoreRepository} to set; must not be null.
      * @throws NullPointerException if {@code stores} is null.
@@ -1712,7 +1710,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets the repository for managing {@link ResourceInfo} objects.
      *
-     * <p>Delegates to the internal repository holder’s {@link CatalogInfoRepositoryHolder#setResourceRepository(ResourceRepository)}.
+     * <p>Delegates to the internal repository holder’s
+     * {@link CatalogInfoRepositoryHolder#setResourceRepository(ResourceRepository)}.
      *
      * @param resources The {@link ResourceRepository} to set; must not be null.
      * @throws NullPointerException if {@code resources} is null.
@@ -1736,7 +1735,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets the repository for managing {@link LayerInfo} objects.
      *
-     * <p>Delegates to the internal repository holder’s {@link CatalogInfoRepositoryHolder#setLayerRepository(LayerRepository)}.
+     * <p>Delegates to the internal repository holder’s
+     * {@link CatalogInfoRepositoryHolder#setLayerRepository(LayerRepository)}.
      *
      * @param layers The {@link LayerRepository} to set; must not be null.
      * @throws NullPointerException if {@code layers} is null.
@@ -1760,7 +1760,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets the repository for managing {@link LayerGroupInfo} objects.
      *
-     * <p>Delegates to the internal repository holder’s {@link CatalogInfoRepositoryHolder#setLayerGroupRepository(LayerGroupRepository)}.
+     * <p>Delegates to the internal repository holder’s
+     * {@link CatalogInfoRepositoryHolder#setLayerGroupRepository(LayerGroupRepository)}.
      *
      * @param layerGroups The {@link LayerGroupRepository} to set; must not be null.
      * @throws NullPointerException if {@code layerGroups} is null.
@@ -1784,7 +1785,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets the repository for managing {@link StyleInfo} objects.
      *
-     * <p>Delegates to the internal repository holder’s {@link CatalogInfoRepositoryHolder#setStyleRepository(StyleRepository)}.
+     * <p>Delegates to the internal repository holder’s
+     * {@link CatalogInfoRepositoryHolder#setStyleRepository(StyleRepository)}.
      *
      * @param styles The {@link StyleRepository} to set; must not be null.
      * @throws NullPointerException if {@code styles} is null.
@@ -1808,7 +1810,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     /**
      * Sets the repository for managing {@link MapInfo} objects.
      *
-     * <p>Delegates to the internal repository holder’s {@link CatalogInfoRepositoryHolder#setMapRepository(MapRepository)}.
+     * <p>Delegates to the internal repository holder’s
+     * {@link CatalogInfoRepositoryHolder#setMapRepository(MapRepository)}.
      *
      * @param maps The {@link MapRepository} to set; must not be null.
      * @throws NullPointerException if {@code maps} is null.

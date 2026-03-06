@@ -16,9 +16,7 @@ import org.geoserver.web.wicket.GeoServerDataProvider.Property;
 import org.geoserver.web.wicket.GeoServerTablePanel;
 import org.geoserver.web.wicket.SimpleExternalLink;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 public class ServiceRegistryPage extends GeoServerSecuredPage {
 
     @Serial

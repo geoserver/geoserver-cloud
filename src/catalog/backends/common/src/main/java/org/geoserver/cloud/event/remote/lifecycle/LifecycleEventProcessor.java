@@ -14,8 +14,7 @@ import org.geoserver.config.plugin.GeoServerImpl;
 import org.springframework.context.event.EventListener;
 
 /**
- * Listens for and processes {@link GeoServerEvent#isRemote() remote} {@link ResetEvent} and {@link
- * ReloadEvent} events.
+ * Listens for and processes {@link GeoServerEvent#isRemote() remote} {@link ResetEvent} and {@link ReloadEvent} events.
  *
  * @since 1.0
  */
@@ -24,9 +23,7 @@ public class LifecycleEventProcessor {
 
     private final GeoServerImpl rawGeoServer;
 
-    /**
-     * @param rawGeoServer used to reset or reload
-     */
+    /** @param rawGeoServer used to reset or reload */
     public LifecycleEventProcessor(GeoServerImpl rawGeoServer) {
         this.rawGeoServer = rawGeoServer;
     }

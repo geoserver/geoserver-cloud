@@ -27,8 +27,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * Implementation of {@link TileLayerInfoRepository} for {@link CatalogConfiguration} to manage
- * {@link GeoServerTileLayerInfo}s directly from the database instead of going through {@link
- * ResourceStore}.
+ * {@link GeoServerTileLayerInfo}s directly from the database instead of going through {@link ResourceStore}.
  *
  * @since 1.7
  */

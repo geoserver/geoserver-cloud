@@ -29,8 +29,8 @@ import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceStore;
 
 /**
- * A {@link GeoServerConfigPersister} alike {@link CatalogListener} to synchronize {@link
- * ResourceStore} resources related to catalog changes.
+ * A {@link GeoServerConfigPersister} alike {@link CatalogListener} to synchronize {@link ResourceStore} resources
+ * related to catalog changes.
  *
  * @since 1.8.1
  */
@@ -55,27 +55,19 @@ public class PgconfigCatalogResourcesSynchronizer implements CatalogListener, Ex
         // no-op
     }
 
-    /**
-     * No-op, {@link GeoServerConfigPersister} would persist the xml files here, pgconfig doesn't do
-     * that
-     */
+    /** No-op, {@link GeoServerConfigPersister} would persist the xml files here, pgconfig doesn't do that */
     @Override
     public void handleAddEvent(CatalogAddEvent event) {
         // no-op
     }
 
-    /**
-     * No-op, {@link GeoServerConfigPersister} would persist the xml files here, pgconfig doesn't do
-     * that.
-     */
+    /** No-op, {@link GeoServerConfigPersister} would persist the xml files here, pgconfig doesn't do that. */
     @Override
     public void handlePostModifyEvent(CatalogPostModifyEvent event) {
         // no-op
     }
 
-    /**
-     * @throws CatalogException
-     */
+    /** @throws CatalogException */
     @Override
     public void handleRemoveEvent(CatalogRemoveEvent event) {
         final Object source = event.getSource();
@@ -103,9 +95,7 @@ public class PgconfigCatalogResourcesSynchronizer implements CatalogListener, Ex
         }
     }
 
-    /**
-     * @throws CatalogException
-     */
+    /** @throws CatalogException */
     @Override
     public void handleModifyEvent(CatalogModifyEvent event) {
         event = CatalogPluginStyleResourcePersister.withRealSource(event);

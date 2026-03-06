@@ -11,8 +11,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Configuration properties to control which GeoTools GridFormatFactorySpi
- * implementations are enabled or disabled.
+ * Configuration properties to control which GeoTools GridFormatFactorySpi implementations are enabled or disabled.
  *
  * <p>Example:
  *
@@ -27,9 +26,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *     "[WorldImage]": true
  * </pre>
  *
- * <p>This configuration allows for fine-grained control over which raster format
- * factories are available within the application, using user-friendly display
- * names with placeholder resolution. Note that format names containing special
+ * <p>This configuration allows for fine-grained control over which raster format factories are available within the
+ * application, using user-friendly display names with placeholder resolution. Note that format names containing special
  * characters should be properly escaped with the format "[Format Name]".
  */
 @ConfigurationProperties(value = GridFormatFactoryFilterConfigProperties.PREFIX)
@@ -39,16 +37,13 @@ public class GridFormatFactoryFilterConfigProperties {
     static final String PREFIX = "geotools.data.filtering";
     static final String ENABLED_PROP = PREFIX + ".enabled";
 
-    /**
-     * Whether the GridFormatFactorySpi filtering system is enabled.
-     */
+    /** Whether the GridFormatFactorySpi filtering system is enabled. */
     private boolean enabled = true;
 
     /**
-     * Map of format display names to their enabled status. Keys are the
-     * user-friendly display names of GridFormatFactorySpi implementations. Values are
-     * boolean flags indicating whether the factory is enabled (true) or disabled
-     * (false).
+     * Map of format display names to their enabled status. Keys are the user-friendly display names of
+     * GridFormatFactorySpi implementations. Values are boolean flags indicating whether the factory is enabled (true)
+     * or disabled (false).
      */
     private Map<String, Boolean> rasterFormats = new HashMap<>();
 
@@ -56,8 +51,7 @@ public class GridFormatFactoryFilterConfigProperties {
      * Returns whether a format is enabled based on its display name.
      *
      * @param displayName the user-friendly display name of the format
-     * @return true if the format is explicitly enabled or not present in the
-     *         configuration
+     * @return true if the format is explicitly enabled or not present in the configuration
      */
     public boolean isFormatEnabled(String displayName) {
         // Simple lookup by format name - Spring Boot property binding

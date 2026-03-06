@@ -30,83 +30,51 @@ public class ContactInfoDto {
     private String contactVoice;
     private String onlineResource;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAddress;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalContactFacsimile;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalContactOrganization;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalContactPerson;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalContactPosition;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalContactVoice;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalOnlineResource;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAddressCity;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAddressCountry;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAddressDeliveryPoint;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAddressPostalCode;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAddressState;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAddressType;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalContactEmail;
 
-    /**
-     * @since geoserver 2.22.0
-     */
+    /** @since geoserver 2.22.0 */
     private String welcome;
 
-    /**
-     * @since geoserver 2.22.0
-     */
+    /** @since geoserver 2.22.0 */
     private Map<String, String> internationalWelcome;
 }

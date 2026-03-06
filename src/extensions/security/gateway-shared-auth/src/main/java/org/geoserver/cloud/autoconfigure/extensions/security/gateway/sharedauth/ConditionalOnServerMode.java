@@ -15,19 +15,20 @@ import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
 /**
  * Meta-annotation to conditionally register beans for Gateway Shared Auth server mode.
  *
- * <p>This conditional annotation activates the server-side configuration for the Gateway
- * Shared Authentication feature. It's designed for use in the WebUI service, which acts
- * as the authentication server by adding authentication headers to responses.</p>
+ * <p>This conditional annotation activates the server-side configuration for the Gateway Shared Authentication feature.
+ * It's designed for use in the WebUI service, which acts as the authentication server by adding authentication headers
+ * to responses.
  *
  * <p>Server mode is now automatically activated when:
+ *
  * <ul>
- *   <li>Gateway Shared Authentication is enabled</li>
- *   <li>The current application is the GeoServer WebUI</li>
+ *   <li>Gateway Shared Authentication is enabled
+ *   <li>The current application is the GeoServer WebUI
  * </ul>
  *
  * <p>Note: Previously, this was controlled by the configuration property
- * {@code geoserver.extension.security.gateway-shared-auth.server=true}, but now the mode
- * is automatically determined based on the application type.
+ * {@code geoserver.extension.security.gateway-shared-auth.server=true}, but now the mode is automatically determined
+ * based on the application type.
  *
  * @see ServerModeConfiguration
  * @see ConditionalOnClientMode

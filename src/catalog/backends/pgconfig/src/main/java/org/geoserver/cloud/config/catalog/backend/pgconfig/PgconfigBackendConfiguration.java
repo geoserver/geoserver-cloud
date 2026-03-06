@@ -41,46 +41,58 @@ import org.springframework.util.StringUtils;
  * Spring configuration for GeoServer Cloud's PostgreSQL-based catalog and configuration backend.
  *
  * <h2>Overview</h2>
- * <p>This configuration provides a fully database-backed GeoServer implementation that stores all
- * catalog, configuration, and resource data in PostgreSQL. Unlike the traditional data directory
- * backend, this implementation enables true cloud-native deployments with:
+ *
+ * <p>This configuration provides a fully database-backed GeoServer implementation that stores all catalog,
+ * configuration, and resource data in PostgreSQL. Unlike the traditional data directory backend, this implementation
+ * enables true cloud-native deployments with:
+ *
  * <ul>
- *  <li>Stateless application servers (no local filesystem dependencies)
- *  <li>Horizontal scalability without shared filesystem requirements
- *  <li>ACID guarantees for catalog and configuration changes
- *  <li>Centralized resource storage with file system cache for performance
+ *   <li>Stateless application servers (no local filesystem dependencies)
+ *   <li>Horizontal scalability without shared filesystem requirements
+ *   <li>ACID guarantees for catalog and configuration changes
+ *   <li>Centralized resource storage with file system cache for performance
  * </ul>
  *
  * <h2>Storage Architecture</h2>
+ *
  * <ul>
- *  <li><b>Catalog</b> - PostgreSQL-backed catalog facade ({@link PgconfigBackendBuilder})
- *  <li><b>Configuration</b> - PostgreSQL repository ({@link PgconfigConfigRepository}, {@link PgconfigGeoServerFacade})
- *  <li><b>Resources</b> - Hybrid storage with PostgreSQL backend and local filesystem cache ({@link PgconfigResourceStore})
- *  <li><b>Locking</b> - Database-backed distributed locks via Spring Integration JDBC locks ({@link JdbcLockRegistry})
- *  <li><b>Update Sequence</b> - Database-tracked version for WMS/WFS capabilities caching ({@link PgconfigUpdateSequence})
+ *   <li><b>Catalog</b> - PostgreSQL-backed catalog facade ({@link PgconfigBackendBuilder})
+ *   <li><b>Configuration</b> - PostgreSQL repository ({@link PgconfigConfigRepository},
+ *       {@link PgconfigGeoServerFacade})
+ *   <li><b>Resources</b> - Hybrid storage with PostgreSQL backend and local filesystem cache
+ *       ({@link PgconfigResourceStore})
+ *   <li><b>Locking</b> - Database-backed distributed locks via Spring Integration JDBC locks ({@link JdbcLockRegistry})
+ *   <li><b>Update Sequence</b> - Database-tracked version for WMS/WFS capabilities caching
+ *       ({@link PgconfigUpdateSequence})
  * </ul>
  *
  * <h2>Distributed Locking</h2>
+ *
  * <p>Provides cluster-wide coordination through {@link DefaultLockRepository} with:
+ *
  * <ul>
- *  <li>Instance-specific lock identification via {@code info.instance-id} property
- *  <li>Custom table prefix {@code RESOURCE_} (instead of default {@code INT_})
- *  <li>300-second lock timeout for dead lock recovery
- *  <li>Explicit initialization to ensure transaction template creation in all Spring contexts
+ *   <li>Instance-specific lock identification via {@code info.instance-id} property
+ *   <li>Custom table prefix {@code RESOURCE_} (instead of default {@code INT_})
+ *   <li>300-second lock timeout for dead lock recovery
+ *   <li>Explicit initialization to ensure transaction template creation in all Spring contexts
  * </ul>
  *
  * <h2>Database Schema</h2>
- * <p>Requires database schema initialization via {@link DatabaseMigrationConfiguration}, which this
- * configuration depends on through constructor injection. Migrations create tables for:
+ *
+ * <p>Requires database schema initialization via {@link DatabaseMigrationConfiguration}, which this configuration
+ * depends on through constructor injection. Migrations create tables for:
+ *
  * <ul>
- *  <li>Catalog entities (workspaces, namespaces, stores, layers, styles, etc.)
- *  <li>Configuration objects (services, settings, logging)
- *  <li>Resource storage (binary content with metadata)
- *  <li>Distributed locks ({@code RESOURCE_LOCK} table)
+ *   <li>Catalog entities (workspaces, namespaces, stores, layers, styles, etc.)
+ *   <li>Configuration objects (services, settings, logging)
+ *   <li>Resource storage (binary content with metadata)
+ *   <li>Distributed locks ({@code RESOURCE_LOCK} table)
  * </ul>
  *
  * <h2>Configuration</h2>
+ *
  * <p>Backend behavior is controlled through configuration properties:
+ *
  * <pre>
  * geoserver.backend.pgconfig.enabled=true
  * geoserver.backend.pgconfig.datasource.url=jdbc:postgresql://host:5432/geoserver
@@ -90,10 +102,10 @@ import org.springframework.util.StringUtils;
  * </pre>
  *
  * <h2>Bean Dependencies</h2>
- * <p>This configuration uses {@code @Configuration(proxyBeanMethods = false)} for optimal performance
- * and flexibility, allowing bean methods to declare their dependencies as method parameters rather than
- * calling other {@code @Bean} methods directly. This enables proper dependency injection and avoids
- * issues with CGLIB proxies.
+ *
+ * <p>This configuration uses {@code @Configuration(proxyBeanMethods = false)} for optimal performance and flexibility,
+ * allowing bean methods to declare their dependencies as method parameters rather than calling other {@code @Bean}
+ * methods directly. This enables proper dependency injection and avoids issues with CGLIB proxies.
  *
  * @since 1.4
  * @see GeoServerBackendConfigurer
@@ -109,8 +121,8 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     /**
      * Constructs the PostgreSQL backend configuration.
      *
-     * <p>The {@link Migrations} parameter ensures that database schema initialization has completed
-     * before this configuration creates any beans that depend on database tables.
+     * <p>The {@link Migrations} parameter ensures that database schema initialization has completed before this
+     * configuration creates any beans that depend on database tables.
      *
      * @param migrations database migration tracker that confirms schema is ready
      */
@@ -164,15 +176,14 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     /**
      * Creates the {@link PgconfigResourceStore} bean.
      *
-     * <p>The return type is the concrete class rather than the {@link
-     * org.geoserver.platform.resource.ResourceStore ResourceStore} interface because {@link
-     * PgconfigGeoServerResourceLoader} needs access to {@link
-     * PgconfigResourceStore#getLockProvider()}, which is not part of the {@code ResourceStore}
-     * contract. This works because {@link
-     * org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigTransactionManagerAutoConfiguration
+     * <p>The return type is the concrete class rather than the {@link org.geoserver.platform.resource.ResourceStore
+     * ResourceStore} interface because {@link PgconfigGeoServerResourceLoader} needs access to
+     * {@link PgconfigResourceStore#getLockProvider()}, which is not part of the {@code ResourceStore} contract. This
+     * works because
+     * {@link org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigTransactionManagerAutoConfiguration
      * PgconfigTransactionManagerAutoConfiguration} enables CGLIB proxying (via
-     * {@code @EnableTransactionManagement(proxyTargetClass = true)}), ensuring the transaction proxy
-     * preserves the concrete type.
+     * {@code @EnableTransactionManagement(proxyTargetClass = true)}), ensuring the transaction proxy preserves the
+     * concrete type.
      *
      * @see PgconfigGeoServerResourceLoader#getLockProvider()
      */
@@ -195,10 +206,10 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     /**
      * Creates the {@link PgconfigGeoServerResourceLoader} bean.
      *
-     * <p>Injects the concrete {@link PgconfigResourceStore} (not the {@link
-     * org.geoserver.platform.resource.ResourceStore ResourceStore} interface) because {@link
-     * PgconfigGeoServerResourceLoader} needs {@link PgconfigResourceStore#getLockProvider()} to
-     * provide the lock provider to {@link PgconfigGeoServerLoader}.
+     * <p>Injects the concrete {@link PgconfigResourceStore} (not the
+     * {@link org.geoserver.platform.resource.ResourceStore ResourceStore} interface) because
+     * {@link PgconfigGeoServerResourceLoader} needs {@link PgconfigResourceStore#getLockProvider()} to provide the lock
+     * provider to {@link PgconfigGeoServerLoader}.
      *
      * @see #resourceStoreImpl
      */

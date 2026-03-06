@@ -10,9 +10,7 @@ import java.util.TreeMap;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Data
 @ConfigurationProperties(value = "jndi")
 public class JNDIDataSourcesConfigurationProperties {

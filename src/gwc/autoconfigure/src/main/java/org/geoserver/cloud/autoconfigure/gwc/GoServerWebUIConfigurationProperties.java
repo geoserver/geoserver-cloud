@@ -34,8 +34,8 @@ public @Data class GoServerWebUIConfigurationProperties {
     public static final String CAPABILITIES_WMSC = PREFIX + ".capabilities.wmsc";
 
     /**
-     * Enables the core GeoWebCache functionality and integration with GeoServer tile layers. All
-     * other config properties depend on this one to be enabled.
+     * Enables the core GeoWebCache functionality and integration with GeoServer tile layers. All other config
+     * properties depend on this one to be enabled.
      */
     private boolean enabled = true;
 

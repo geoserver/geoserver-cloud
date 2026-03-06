@@ -21,9 +21,7 @@ import org.geoserver.platform.resource.Resources;
 import org.geoserver.util.IOUtils;
 import org.geowebcache.config.ConfigurationResourceProvider;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Slf4j(topic = "org.geoserver.cloud.gwc.repository")
 public class CloudXMLResourceProvider implements ConfigurationResourceProvider {
 
@@ -32,9 +30,7 @@ public class CloudXMLResourceProvider implements ConfigurationResourceProvider {
     private Supplier<Resource> configDirectory;
     private @NonNull String configFileName = "geowebcache.xml";
 
-    /**
-     * @param configDirectory supplier for the core gwc config file (e.g. {@literal geowebcache.xml})
-     */
+    /** @param configDirectory supplier for the core gwc config file (e.g. {@literal geowebcache.xml}) */
     public CloudXMLResourceProvider(@NonNull Supplier<Resource> configDirectory) {
         this.configDirectory = configDirectory;
     }

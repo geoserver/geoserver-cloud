@@ -23,16 +23,15 @@ class RestConfigApplicationPgconfigIT extends RestConfigApplicationTest {
     static PgConfigTestContainer container = new PgConfigTestContainer();
 
     /**
-     * Contribute the following properties defined in the {@literal pgconfigjndi}
-     * spring profile
+     * Contribute the following properties defined in the {@literal pgconfigjndi} spring profile
      *
      * <ul>
-     * <li>pgconfig.host
-     * <li>pgconfig.port
-     * <li>pgconfig.database
-     * <li>pgconfig.schema
-     * <li>pgconfig.username
-     * <li>pgconfig.password
+     *   <li>pgconfig.host
+     *   <li>pgconfig.port
+     *   <li>pgconfig.database
+     *   <li>pgconfig.schema
+     *   <li>pgconfig.username
+     *   <li>pgconfig.password
      * </ul>
      */
     @DynamicPropertySource

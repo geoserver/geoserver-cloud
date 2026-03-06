@@ -19,17 +19,16 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 /**
  * Composite annotation that checks if CSS styling is enabled by configuration property.
  *
- * <p>
- * This conditional activates when:
+ * <p>This conditional activates when:
+ *
  * <ul>
- *   <li>GeoServer is available</li>
- *   <li>The CssHandler class is on the classpath</li>
- *   <li>The geoserver.extension.css-styling.enabled property is true (the default)</li>
+ *   <li>GeoServer is available
+ *   <li>The CssHandler class is on the classpath
+ *   <li>The geoserver.extension.css-styling.enabled property is true (the default)
  * </ul>
  *
- * <p>
- * This annotation can be used on configuration classes or bean methods to make them
- * conditional on CSS styling being enabled.
+ * <p>This annotation can be used on configuration classes or bean methods to make them conditional on CSS styling being
+ * enabled.
  *
  * @see ConditionalOnProperty
  * @see ConditionalOnClass

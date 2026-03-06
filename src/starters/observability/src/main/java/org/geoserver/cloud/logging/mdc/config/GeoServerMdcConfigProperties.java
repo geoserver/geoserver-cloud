@@ -10,15 +10,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration properties for controlling which GeoServer-specific information is included in the MDC.
- * <p>
- * These properties determine what GeoServer-related information is added to the MDC (Mapped Diagnostic Context)
- * during OGC Web Service (OWS) request processing. Including this information in the MDC makes it available
- * to all logging statements, providing valuable context for debugging and monitoring OGC service requests.
- * <p>
- * The properties are configured using the prefix {@code logging.mdc.include.geoserver} in the application
- * properties or YAML files.
- * <p>
- * Example configuration in YAML:
+ *
+ * <p>These properties determine what GeoServer-related information is added to the MDC (Mapped Diagnostic Context)
+ * during OGC Web Service (OWS) request processing. Including this information in the MDC makes it available to all
+ * logging statements, providing valuable context for debugging and monitoring OGC service requests.
+ *
+ * <p>The properties are configured using the prefix {@code logging.mdc.include.geoserver} in the application properties
+ * or YAML files.
+ *
+ * <p>Example configuration in YAML:
+ *
  * <pre>
  * logging:
  *   mdc:
@@ -41,32 +42,22 @@ public class GeoServerMdcConfigProperties {
 
     /**
      * Configuration properties for OGC Web Service (OWS) request information in the MDC.
-     * <p>
-     * These properties control which OWS-specific information is added to the MDC during
-     * GeoServer request processing. This information allows for identifying and tracking
-     * specific OGC service operations in logs.
+     *
+     * <p>These properties control which OWS-specific information is added to the MDC during GeoServer request
+     * processing. This information allows for identifying and tracking specific OGC service operations in logs.
      */
     @Data
     public static class OWSMdcConfigProperties {
-        /**
-         * Whether to append the gs.ows.service.name MDC property from the OWS dispatched request
-         */
+        /** Whether to append the gs.ows.service.name MDC property from the OWS dispatched request */
         private boolean serviceName = true;
 
-        /**
-         * Whether to append the gs.ows.service.version MDC property from the OWS dispatched request
-         */
+        /** Whether to append the gs.ows.service.version MDC property from the OWS dispatched request */
         private boolean serviceVersion = true;
 
-        /**
-         * Whether to append the gs.ows.service.format MDC property from the OWS dispatched request
-         */
+        /** Whether to append the gs.ows.service.format MDC property from the OWS dispatched request */
         private boolean serviceFormat = true;
 
-        /**
-         * Whether to append the gs.ows.service.operation MDC property from the OWS dispatched
-         * request
-         */
+        /** Whether to append the gs.ows.service.operation MDC property from the OWS dispatched request */
         private boolean operationName = true;
     }
 }

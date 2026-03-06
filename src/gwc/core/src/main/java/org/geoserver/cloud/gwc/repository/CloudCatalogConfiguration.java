@@ -32,9 +32,7 @@ import org.geowebcache.layer.ExpirationRule;
 import org.geowebcache.layer.TileLayer;
 import org.springframework.context.event.EventListener;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Slf4j(topic = "org.geoserver.cloud.gwc.repository")
 public class CloudCatalogConfiguration extends CatalogConfiguration {
 
@@ -55,8 +53,8 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
     /**
      * Listen to {@link TileLayerEvent}s and clear the cached {@link TileLayer}
      *
-     * <p>Important: this will only work of this object is a spring bean, if it's not (e.g. used as
-     * delegate for a decorator), make sure it calls this method as appropriate.
+     * <p>Important: this will only work of this object is a spring bean, if it's not (e.g. used as delegate for a
+     * decorator), make sure it calls this method as appropriate.
      */
     @EventListener(TileLayerEvent.class)
     public void onTileLayerEventEvict(TileLayerEvent event) {

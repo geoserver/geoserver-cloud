@@ -12,9 +12,7 @@ import org.geoserver.cloud.web.service.ServiceInstanceRegistry;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.wicket.GeoServerDataProvider;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class ServiceProvider extends GeoServerDataProvider<ServiceInstance> {
     @Serial
     private static final long serialVersionUID = 1L;

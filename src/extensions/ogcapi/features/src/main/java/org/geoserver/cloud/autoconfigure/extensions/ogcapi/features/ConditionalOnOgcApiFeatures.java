@@ -15,8 +15,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
- * {@link ConditionalOnProperty @ConditionalOnProperty} that checks if the OGC API Features
- * extension is enabled through the {@code geoserver.extension.ogcapi.features.enabled} property.
+ * {@link ConditionalOnProperty @ConditionalOnProperty} that checks if the OGC API Features extension is enabled through
+ * the {@code geoserver.extension.ogcapi.features.enabled} property.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})

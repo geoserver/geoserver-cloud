@@ -14,8 +14,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * {@link ApplicationContextInitializer} setting {@link SimpleNamingContextBuilder} as the JNDI
- * implementation.
+ * {@link ApplicationContextInitializer} setting {@link SimpleNamingContextBuilder} as the JNDI implementation.
  *
  * @since 1.0
  */
@@ -38,14 +37,12 @@ public class SimpleJNDIStaticContextInitializer
     }
 
     /**
-     * Register the context builder by registering it with the JNDI NamingManager. Note that once
-     * this has been done, {@code new InitialContext()} will always return a context from this
-     * factory.
+     * Register the context builder by registering it with the JNDI NamingManager. Note that once this has been done,
+     * {@code new InitialContext()} will always return a context from this factory.
      *
-     * @throws ApplicationContextException builder cannot be installed for a non-security-related
-     *     reason.
-     * @throws IllegalStateException If a builder was previous installed (as of {@link
-     *     NamingManager#setInitialContextFactoryBuilder}.
+     * @throws ApplicationContextException builder cannot be installed for a non-security-related reason.
+     * @throws IllegalStateException If a builder was previous installed (as of
+     *     {@link NamingManager#setInitialContextFactoryBuilder}.
      */
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {

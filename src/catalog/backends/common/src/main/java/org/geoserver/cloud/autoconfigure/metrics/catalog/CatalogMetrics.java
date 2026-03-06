@@ -18,24 +18,22 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.platform.config.UpdateSequence;
 
 /**
- * Registers GeoServer {@link Catalog catalog} and {@link GeoServer config} metrics to be exported
- * by micrometer's {@link MeterRegistry}.
+ * Registers GeoServer {@link Catalog catalog} and {@link GeoServer config} metrics to be exported by micrometer's
+ * {@link MeterRegistry}.
  *
  * <p>The following metrics are exported:
  *
  * <ul>
- *   <li>{@literal geoserver.config.update_sequence}: the configuration {@link
- *       GeoServerInfo#getUpdateSequence() update sequence}
- *   <li>{@literal geoserver.catalog.added}: Number of CatalogInfo objects added to this instance's
+ *   <li>{@literal geoserver.config.update_sequence}: the configuration {@link GeoServerInfo#getUpdateSequence() update
+ *       sequence}
+ *   <li>{@literal geoserver.catalog.added}: Number of CatalogInfo objects added to this instance's Catalog
+ *   <li>{@literal geoserver.catalog.removed}: Number of CatalogInfo objects removed on this instance's Catalog
+ *   <li>{@literal geoserver.catalog.modified}: Number of modifications to CatalogInfo objects on this instance's
  *       Catalog
- *   <li>{@literal geoserver.catalog.removed}: Number of CatalogInfo objects removed on this
- *       instance's Catalog
- *   <li>{@literal geoserver.catalog.modified}: Number of modifications to CatalogInfo objects on
- *       this instance's Catalog
  * </ul>
  *
- * <p>All metrics are tagged with the {@literal instance-id} key, whose value is resolved through
- * <code>${geoserver.metrics.instance-id}</code>, which usually should be the same as <code>
+ * <p>All metrics are tagged with the {@literal instance-id} key, whose value is resolved through <code>
+ * ${geoserver.metrics.instance-id}</code>, which usually should be the same as <code>
  * ${info.instance-id}</code>.
  *
  * @since 1.0

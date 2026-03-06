@@ -11,8 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Configuration properties for the Gateway Shared Authentication extension.
  *
- * <p>This extension enables sharing authentication between the GeoServer Web UI and other
- * microservices through the gateway.
+ * <p>This extension enables sharing authentication between the GeoServer Web UI and other microservices through the
+ * gateway.
  *
  * <p>Available properties:
  *
@@ -26,6 +26,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * }</pre>
  *
  * <p>This configuration provides backward compatibility with the older properties:
+ *
  * <pre>{@code
  * geoserver.extension.security.gateway-shared-auth.enabled=true|false
  * geoserver.extension.security.gateway-shared-auth.auto=true|false
@@ -45,8 +46,8 @@ public @Data class GatewaySharedAuthConfigProperties {
     /**
      * Whether the Gateway Shared Authentication extension is enabled.
      *
-     * <p>When enabled, authentication can be shared between microservices through the gateway.
-     * The same configuration must be applied to the gateway service.
+     * <p>When enabled, authentication can be shared between microservices through the gateway. The same configuration
+     * must be applied to the gateway service.
      *
      * <p>Default is {@code true}.
      */

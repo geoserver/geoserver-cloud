@@ -34,32 +34,31 @@ import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * A facade for the catalog in the {@code pgconfig} backend of GeoServer Cloud.
- * This class leverages a PostgreSQL database via a
- * {@link JdbcTemplate} to persist and retrieve catalog data.
- * <p>
- * Repositories are initialized in the constructor using the provided {@link JdbcTemplate}.
- * A notable feature is the inclusion of a dedicated, read-only {@link PublishedInfo} repository
- * ({@link PgconfigPublishedInfoReadOnlyRepository}), which optimizes queries for published
- * information (combining {@link LayerInfo} and {@link LayerGroupInfo}) without requiring separate
- * queries to layer and layer group repositories.
- * <p>
- * <strong>Key Features:</strong>
+ * A facade for the catalog in the {@code pgconfig} backend of GeoServer Cloud. This class leverages a PostgreSQL
+ * database via a {@link JdbcTemplate} to persist and retrieve catalog data.
+ *
+ * <p>Repositories are initialized in the constructor using the provided {@link JdbcTemplate}. A notable feature is the
+ * inclusion of a dedicated, read-only {@link PublishedInfo} repository
+ * ({@link PgconfigPublishedInfoReadOnlyRepository}), which optimizes queries for published information (combining
+ * {@link LayerInfo} and {@link LayerGroupInfo}) without requiring separate queries to layer and layer group
+ * repositories.
+ *
+ * <p><strong>Key Features:</strong>
+ *
  * <ul>
- *   <li>Efficient querying of {@link PublishedInfo} using a dedicated read-only repository.</li>
- *   <li>Automatic resolution of outbound catalog properties via a {@link UnaryOperator}, applied to all
- *       repositories during catalog setup.</li>
+ *   <li>Efficient querying of {@link PublishedInfo} using a dedicated read-only repository.
+ *   <li>Automatic resolution of outbound catalog properties via a {@link UnaryOperator}, applied to all repositories
+ *       during catalog setup.
  * </ul>
- * <p>
- * This class overrides specific methods from {@link RepositoryCatalogFacadeImpl} to utilize the
- * {@link PgconfigPublishedInfoReadOnlyRepository} directly for counting and querying
- * {@link PublishedInfo} objects. This approach enhances performance by avoiding multiple queries
- * and merge-sorting of results, as done in the default implementation.
- * <p>
- * <strong>Usage Note:</strong> The {@link PublishedInfo} repository is read-only and intended for
- * querying purposes only. Modifications to catalog data should be performed through the
- * appropriate writable repositories (e.g., {@link PgconfigLayerRepository} or
- * {@link PgconfigLayerGroupRepository}).
+ *
+ * <p>This class overrides specific methods from {@link RepositoryCatalogFacadeImpl} to utilize the
+ * {@link PgconfigPublishedInfoReadOnlyRepository} directly for counting and querying {@link PublishedInfo} objects.
+ * This approach enhances performance by avoiding multiple queries and merge-sorting of results, as done in the default
+ * implementation.
+ *
+ * <p><strong>Usage Note:</strong> The {@link PublishedInfo} repository is read-only and intended for querying purposes
+ * only. Modifications to catalog data should be performed through the appropriate writable repositories (e.g.,
+ * {@link PgconfigLayerRepository} or {@link PgconfigLayerGroupRepository}).
  *
  * @see PgconfigPublishedInfoReadOnlyRepository
  * @see RepositoryCatalogFacadeImpl
@@ -68,8 +67,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
     /**
-     * Read-only {@link PublishedInfo} repository, used to query published without having to perform
-     * two queries (one for layers and one for layer groups) and them merge-sort the results.
+     * Read-only {@link PublishedInfo} repository, used to query published without having to perform two queries (one
+     * for layers and one for layer groups) and them merge-sort the results.
+     *
      * @see #queryPublishedInfo(Query)
      */
     private PgconfigPublishedInfoReadOnlyRepository publishedInfoReadOnlyRepo;
@@ -107,8 +107,8 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
     }
 
     /**
-     * Queries {@link PgconfigPublishedInfoReadOnlyRepository} directly. The default implementation will
-     * query {@link LayerRepository} and {@link LayerGroupRepository} separately.
+     * Queries {@link PgconfigPublishedInfoReadOnlyRepository} directly. The default implementation will query
+     * {@link LayerRepository} and {@link LayerGroupRepository} separately.
      */
     @Override
     protected int countPublishedInfo(Filter filter) {
@@ -147,9 +147,8 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
     }
 
     /**
-     * Queries {@link PgconfigPublishedInfoReadOnlyRepository} directly. The default implementation will
-     * query {@link LayerRepository} and {@link LayerGroupRepository}, returning
-     * a merge-sorted stream.
+     * Queries {@link PgconfigPublishedInfoReadOnlyRepository} directly. The default implementation will query
+     * {@link LayerRepository} and {@link LayerGroupRepository}, returning a merge-sorted stream.
      */
     @Override
     protected Stream<PublishedInfo> queryPublishedInfo(Query<PublishedInfo> query) {

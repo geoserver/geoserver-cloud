@@ -13,9 +13,7 @@ import org.geoserver.config.CoverageAccessInfo;
 @Data
 @JsonTypeName("CoverageAccessInfo")
 public class CoverageAccessInfoDto {
-    /**
-     * DTO for {@link org.geoserver.config.CoverageAccessInfo.QueueType}
-     */
+    /** DTO for {@link org.geoserver.config.CoverageAccessInfo.QueueType} */
     public enum QueueTypeDto {
         UNBOUNDED,
         DIRECT

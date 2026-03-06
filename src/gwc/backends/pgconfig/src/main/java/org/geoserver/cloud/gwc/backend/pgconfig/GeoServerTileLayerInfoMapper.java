@@ -24,9 +24,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-/**
- * @since 1.7
- */
+/** @since 1.7 */
 @Mapper(uses = ParameterFilterMapper.class, unmappedTargetPolicy = ReportingPolicy.ERROR)
 @AnnotateWith(value = Generated.class)
 interface GeoServerTileLayerInfoMapper {

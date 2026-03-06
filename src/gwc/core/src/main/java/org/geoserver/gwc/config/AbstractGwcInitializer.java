@@ -25,11 +25,11 @@ import org.springframework.beans.factory.InitializingBean;
 /**
  * Base class for replacements of {@link GWCInitializer}.
  *
- * <p>This is required because GeoServer Cloud may not set up a {@link TileLayerCatalog}, which
- * {@link GWCInitializer} requires.
+ * <p>This is required because GeoServer Cloud may not set up a {@link TileLayerCatalog}, which {@link GWCInitializer}
+ * requires.
  *
- * <p>This {@link GeoServerReinitializer} is hence in charge of notifying {@link
- * ConfigurableBlobStore#setChanged(org.geoserver.gwc.config.GWCConfig, boolean)}
+ * <p>This {@link GeoServerReinitializer} is hence in charge of notifying
+ * {@link ConfigurableBlobStore#setChanged(org.geoserver.gwc.config.GWCConfig, boolean)}
  *
  * @since 1.8
  */
@@ -37,10 +37,10 @@ import org.springframework.beans.factory.InitializingBean;
 public abstract class AbstractGwcInitializer implements GeoServerReinitializer, InitializingBean {
 
     /**
-     * {@link GWC#saveConfig(GWCConfig)} will lookup for the {@link LockProvider} named after {@link
-     * GWCConfig#getLockProviderName()}. We need it to be a cluster-aware lock provider. This is the
-     * bean name to be registered by the configuration, and we'll set it to {@link
-     * GWCConfig#setLockProviderName(String)} during initialization.
+     * {@link GWC#saveConfig(GWCConfig)} will lookup for the {@link LockProvider} named after
+     * {@link GWCConfig#getLockProviderName()}. We need it to be a cluster-aware lock provider. This is the bean name to
+     * be registered by the configuration, and we'll set it to {@link GWCConfig#setLockProviderName(String)} during
+     * initialization.
      */
     public static final String GWC_LOCK_PROVIDER_BEAN_NAME = "gwcClusteringLockProvider";
 
@@ -54,9 +54,7 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer, 
         initializeGeoServerIntegrationConfigFile();
     }
 
-    /**
-     * @see org.geoserver.config.GeoServerInitializer#initialize(org.geoserver.config.GeoServer)
-     */
+    /** @see org.geoserver.config.GeoServerInitializer#initialize(org.geoserver.config.GeoServer) */
     @Override
     public void initialize(final GeoServer geoServer) throws Exception {
         logger().info("Initializing GeoServer specific GWC configuration from gwc-gs.xml");
@@ -66,8 +64,8 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer, 
     }
 
     /**
-     * Initialize the datadir/gs-gwc.xml file before {@link
-     * #initialize(org.geoserver.config.GeoServer) super.initialize(GeoServer)}
+     * Initialize the datadir/gs-gwc.xml file before {@link #initialize(org.geoserver.config.GeoServer)
+     * super.initialize(GeoServer)}
      */
     private void initializeGeoServerIntegrationConfigFile() throws IOException {
         globalConfigLock.lock(LockType.WRITE);
@@ -87,8 +85,8 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer, 
     }
 
     /**
-     * In case the {@link GWCConfig} exists and its lock provider name is not {@link
-     * #GWC_LOCK_PROVIDER_BEAN_NAME}, updates and saves the configuration.
+     * In case the {@link GWCConfig} exists and its lock provider name is not {@link #GWC_LOCK_PROVIDER_BEAN_NAME},
+     * updates and saves the configuration.
      *
      * <p>At this point, {@link #configFileExists()} is known to be true.
      */

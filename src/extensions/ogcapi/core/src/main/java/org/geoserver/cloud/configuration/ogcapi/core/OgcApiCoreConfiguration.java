@@ -19,18 +19,15 @@ import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import tools.jackson.databind.JacksonModule;
 
 /**
- * Provides all components of {@code gs-ogcapi-core} jar's
- * {@code applicationContext.xml} but avoiding the too wide component scan on
- * package {@code org.geoserver.ogcapi}.
- * <p>
- * We should make the {@code gs-ogcapi-core} module upstream avoid doing a
- * catch-all component scan, since concrete extensions (e.g. gs-ogcapi-features)
- * will make a component scan on their specific packages (e.g.
+ * Provides all components of {@code gs-ogcapi-core} jar's {@code applicationContext.xml} but avoiding the too wide
+ * component scan on package {@code org.geoserver.ogcapi}.
+ *
+ * <p>We should make the {@code gs-ogcapi-core} module upstream avoid doing a catch-all component scan, since concrete
+ * extensions (e.g. gs-ogcapi-features) will make a component scan on their specific packages (e.g.
  * {@code org.geoserver.ogcapi.v1.features}).
- * <p>
- * This is not an auto-configuration, but meant to be included by concrete APIs
- * auto-configurations, in order to avoid these core OGC API components
- * contributed to unrelated services.
+ *
+ * <p>This is not an auto-configuration, but meant to be included by concrete APIs auto-configurations, in order to
+ * avoid these core OGC API components contributed to unrelated services.
  */
 @Configuration
 @ImportFilteredResource(
@@ -70,13 +67,12 @@ public class OgcApiCoreConfiguration {
         return mapping;
     }
     /**
-     * Override the bean definition from {@code applicationContext.xml} to set
-     * {@code order} to {@code Ordered.HIGHEST_PRECEDENCE}, the provided value of
-     * {@code 0} does not have enough precedence over the default spring boot webmvc
-     * {@code HandlerMapping}
-     * <p>
-     * Also configures the {@code classpathPublisher} to handle  requests to {@code /webresources/ogcapi/**}.
-     * This should be centralized in a future iteration, hopefully making the gateway handle static resources directly
+     * Override the bean definition from {@code applicationContext.xml} to set {@code order} to
+     * {@code Ordered.HIGHEST_PRECEDENCE}, the provided value of {@code 0} does not have enough precedence over the
+     * default spring boot webmvc {@code HandlerMapping}
+     *
+     * <p>Also configures the {@code classpathPublisher} to handle requests to {@code /webresources/ogcapi/**}. This
+     * should be centralized in a future iteration, hopefully making the gateway handle static resources directly
      * without proxying to a backend service.
      *
      * <pre>{@code
@@ -112,14 +108,14 @@ public class OgcApiCoreConfiguration {
     /**
      * Registers the {@link CloseableIteratorModule} as a bean.
      *
-     * <p>This ensures the module is automatically picked up by Spring Boot's auto-configured {@link
-     * tools.jackson.databind.json.JsonMapper}, which is particularly important in GeoServer Cloud where Spring Boot's
-     * {@link org.springframework.http.converter.json.JacksonJsonHttpMessageConverter} is used instead of the custom
-     * GeoServer one.
+     * <p>This ensures the module is automatically picked up by Spring Boot's auto-configured
+     * {@link tools.jackson.databind.json.JsonMapper}, which is particularly important in GeoServer Cloud where Spring
+     * Boot's {@link org.springframework.http.converter.json.JacksonJsonHttpMessageConverter} is used instead of the
+     * custom GeoServer one.
      *
-     * <p>The module is also discoverable via Java ServiceLoader (see {@code
-     * META-INF/services/tools.jackson.databind.Module}) for environments where explicit Spring configuration is not
-     * used.
+     * <p>The module is also discoverable via Java ServiceLoader (see
+     * {@code META-INF/services/tools.jackson.databind.Module}) for environments where explicit Spring configuration is
+     * not used.
      */
     @Bean
     JacksonModule closeableIteratorModule() {

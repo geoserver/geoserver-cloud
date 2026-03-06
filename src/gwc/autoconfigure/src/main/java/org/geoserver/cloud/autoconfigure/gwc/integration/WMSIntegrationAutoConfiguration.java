@@ -51,8 +51,8 @@ import org.springframework.context.annotation.Import;
 /**
  * Autoconfiguration to integrate GWC with GeoServer's WMS
  *
- * <p>GeoWebCache can be transparently integrated with the GeoServer WMS, effectively converting the
- * regular WMS in a <a href="https://wiki.osgeo.org/wiki/WMS_Tile_Caching">WMS-C</a>.
+ * <p>GeoWebCache can be transparently integrated with the GeoServer WMS, effectively converting the regular WMS in a <a
+ * href="https://wiki.osgeo.org/wiki/WMS_Tile_Caching">WMS-C</a>.
  *
  * @since 1.0
  */
@@ -67,9 +67,8 @@ public class WMSIntegrationAutoConfiguration {
 
         /**
          * Originally declared in {@literal geowebcache-geoserver-context.xml} and excluded by
-         * {@link GeoServerIntegrationAutoConfiguration}. Contributed to the application context
-         * here only if direct-WMS integration is {@link ConditionalOnDirectWMSIntegrationEnabled
-         * enabled}.
+         * {@link GeoServerIntegrationAutoConfiguration}. Contributed to the application context here only if direct-WMS
+         * integration is {@link ConditionalOnDirectWMSIntegrationEnabled enabled}.
          *
          * @param gwc
          */
@@ -81,14 +80,13 @@ public class WMSIntegrationAutoConfiguration {
         }
 
         /**
-         * AspectJ around advise on {@link DefaultWebMapService#getMap} to serve the WMS GetMap
-         * request through GWC if the parameters match a tile.
+         * AspectJ around advise on {@link DefaultWebMapService#getMap} to serve the WMS GetMap request through GWC if
+         * the parameters match a tile.
          *
-         * <p>Replaces {@link org.geoserver.gwc.wms.CachingWebMapService} declared in {@literal
-         * geowebcache-geoserver-wms-integration.xml} for simplicity and because its {@literal
-         * wmsServiceInterceptor_SeedingWMS} pointcut advisor forces eager loading of the wms
-         * context before the catalog is initialized, making {@link GetMapKvpRequestReader}
-         * constructor throw a NPE.
+         * <p>Replaces {@link org.geoserver.gwc.wms.CachingWebMapService} declared in
+         * {@literal geowebcache-geoserver-wms-integration.xml} for simplicity and because its
+         * {@literal wmsServiceInterceptor_SeedingWMS} pointcut advisor forces eager loading of the wms context before
+         * the catalog is initialized, making {@link GetMapKvpRequestReader} constructor throw a NPE.
          *
          * @param gwc
          */
@@ -107,9 +105,9 @@ public class WMSIntegrationAutoConfiguration {
     static @Configuration class Disabled {
 
         /**
-         * If direct-WMS integration is disabled, contribute {@literal wms-integration-disabled.css}
-         * to the Wicket {@link GWCSettingsPage} to hide the {@literal Enable direct integration
-         * with GeoServer WMS} and {@literal Explicitly require TILED Parameter} form elements.
+         * If direct-WMS integration is disabled, contribute {@literal wms-integration-disabled.css} to the Wicket
+         * {@link GWCSettingsPage} to hide the {@literal Enable direct integration with GeoServer WMS} and
+         * {@literal Explicitly require TILED Parameter} form elements.
          */
         @ConditionalOnGeoServerWebUIEnabled
         static @Configuration class GeoServerWebUI {
@@ -136,8 +134,7 @@ public class WMSIntegrationAutoConfiguration {
          * Wraps {@link WebMapService#getMap(GetMapRequest)}, called by the {@link Dispatcher}
          *
          * @see WebMapService#getMap(GetMapRequest)
-         * @see
-         *     org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
+         * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
          */
         @Around("execution (* org.geoserver.wms.DefaultWebMapService.getMap(..))")
         public WebMap getMap(ProceedingJoinPoint joinPoint) throws Throwable {

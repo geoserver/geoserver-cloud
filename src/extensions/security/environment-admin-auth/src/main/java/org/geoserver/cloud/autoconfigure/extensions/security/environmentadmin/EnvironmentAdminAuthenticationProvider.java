@@ -26,23 +26,20 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.StringUtils;
 
 /**
- * {@link AuthenticationProvider} that allows to set an administrator account (username and
- * password) through {@link Environment} properties {@code ${geoserver.admin.username:admin}} and
- * {@code ${geoserver.admin.password:}}.
+ * {@link AuthenticationProvider} that allows to set an administrator account (username and password) through
+ * {@link Environment} properties {@code ${geoserver.admin.username:admin}} and {@code ${geoserver.admin.password:}}.
  *
- * <p>Useful for devOps to set the admin password through a Kubernetes secret, instead of having to
- * tweak the security configuration XML files with an init container or similar.
+ * <p>Useful for devOps to set the admin password through a Kubernetes secret, instead of having to tweak the security
+ * configuration XML files with an init container or similar.
  *
- * <p>This authentication provider will be the first one tested for an HTTP Basic authorization,
- * only if both the username and password are provided, and regardless of the authentication chain
- * configured in GeoServer.
+ * <p>This authentication provider will be the first one tested for an HTTP Basic authorization, only if both the
+ * username and password are provided, and regardless of the authentication chain configured in GeoServer.
  *
- * <p>If enabled (i.e. both username and password provided), a failed attempt to log in will cancel
- * the authentication chain, and no other authentication providers will be tested.
+ * <p>If enabled (i.e. both username and password provided), a failed attempt to log in will cancel the authentication
+ * chain, and no other authentication providers will be tested.
  *
- * <p>If the default {@literal admin} username is used, it effectively overrides the admin password
- * set in the xml configuration. If a separate administrator username is given, the regular
- * {@literal admin} user is disabled.
+ * <p>If the default {@literal admin} username is used, it effectively overrides the admin password set in the xml
+ * configuration. If a separate administrator username is given, the regular {@literal admin} user is disabled.
  *
  * @since 1.0
  */
@@ -101,12 +98,11 @@ class EnvironmentAdminAuthenticationProvider implements AuthenticationProvider {
     /**
      * {@inheritDoc}
      *
-     * @return a fully authenticated {@link UsernamePasswordAuthenticationToken} if {@code token} is
-     *     a {@code UsernamePasswordAuthenticationToken}, and both the username and password match
-     *     the ones provided by the configuration properties {@literal geoserver.admin.username} and
-     *     {@literal geoserver.admin.password}
-     * @throws InternalAuthenticationServiceException to break the authentication chain if the
-     *     credentials don't match, or the
+     * @return a fully authenticated {@link UsernamePasswordAuthenticationToken} if {@code token} is a
+     *     {@code UsernamePasswordAuthenticationToken}, and both the username and password match the ones provided by
+     *     the configuration properties {@literal geoserver.admin.username} and {@literal geoserver.admin.password}
+     * @throws InternalAuthenticationServiceException to break the authentication chain if the credentials don't match,
+     *     or the
      */
     @Override
     public Authentication authenticate(Authentication token) throws AuthenticationException {

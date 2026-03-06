@@ -22,21 +22,19 @@ import org.springframework.http.MediaType;
 
 /**
  * Core Spring configuration for the GeoServer Cloud REST microservice.
- * <p>
- * This class extends the standard GeoServer {@link RestConfiguration} to adapt the Spring MVC
- * environment for cloud-native microservices. It is responsible for:
+ *
+ * <p>This class extends the standard GeoServer {@link RestConfiguration} to adapt the Spring MVC environment for
+ * cloud-native microservices. It is responsible for:
+ *
  * <ul>
- *   <li>Setting up component scanning for GeoServer REST controllers.</li>
- *   <li>Registering specialized filters like {@link RestRequestPathInfoFilter} and
- *       {@link NpeAwareSuffixStripFilter} to ensure the REST API receives requests in the
- *       expected format (servlet path and path info).</li>
- *   <li>Providing {@link RestControllerAdvice} for consistent REST error handling and
- *       translation of internal exceptions to appropriate HTTP status codes.</li>
- *   <li>Configuring content negotiation strategies, specifically addressing cases where
- *       URI extensions (e.g., {@code .sld}) should not interfere with the desired response
- *       format during PUT/POST operations.</li>
+ *   <li>Setting up component scanning for GeoServer REST controllers.
+ *   <li>Registering specialized filters like {@link RestRequestPathInfoFilter} and {@link NpeAwareSuffixStripFilter} to
+ *       ensure the REST API receives requests in the expected format (servlet path and path info).
+ *   <li>Providing {@link RestControllerAdvice} for consistent REST error handling and translation of internal
+ *       exceptions to appropriate HTTP status codes.
+ *   <li>Configuring content negotiation strategies, specifically addressing cases where URI extensions (e.g.,
+ *       {@code .sld}) should not interfere with the desired response format during PUT/POST operations.
  * </ul>
- * </p>
  */
 @Configuration
 @ComponentScan(
@@ -51,8 +49,8 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
     }
 
     /**
-     * Since we use a restricted component scan, we need a {@link RestControllerAdvice} explicitly
-     * to handle http error code translations.
+     * Since we use a restricted component scan, we need a {@link RestControllerAdvice} explicitly to handle http error
+     * code translations.
      */
     @Bean
     RestControllerAdvice restControllerAdvice() {
@@ -60,9 +58,8 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
     }
 
     /**
-     * Provides the {@link RestRequestPathInfoFilter} bean, which is responsible for adapting
-     * incoming request paths to meet the GeoServer REST API's expectations for servlet path
-     * and path info.
+     * Provides the {@link RestRequestPathInfoFilter} bean, which is responsible for adapting incoming request paths to
+     * meet the GeoServer REST API's expectations for servlet path and path info.
      */
     @Bean
     RestRequestPathInfoFilter restRequestPathInfoFilter() {
@@ -71,8 +68,9 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
 
     /**
      * Override of {@link SuffixStripFilter} making sure getPathInfo() does not return null
-     * @return SuffixStripFilter as required by {@link RestConfiguration#configureContentNegotiation}'s
-     * call to {@code GeoServerExtensions.bean(SuffixStripFilter.class)}
+     *
+     * @return SuffixStripFilter as required by {@link RestConfiguration#configureContentNegotiation}'s call to
+     *     {@code GeoServerExtensions.bean(SuffixStripFilter.class)}
      */
     @Bean
     SuffixStripFilter suffixStripFilter(ApplicationContext appContext) {
@@ -81,15 +79,14 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
 
     /**
      * Workaround to support regular response content type when extension is in path.
-     * <p>
-     * Without this, a PUT request to {@code /styles/{styleName}.sld} would be interpreted by
-     * Spring's content negotiation as asking for an {@code application/vnd.ogc.sld+xml} response,
-     * which the controller does not produce, resulting in a 406 Not Acceptable error.
-     * </p>
-     * <p>
-     * This bean is typically provided by an inner class in {@code StyleController}'s {@code StyleControllerConfiguration}
-     * inner configuration class, but since we use a restricted component scan, we must declare it explicitly.
-     * </p>
+     *
+     * <p>Without this, a PUT request to {@code /styles/{styleName}.sld} would be interpreted by Spring's content
+     * negotiation as asking for an {@code application/vnd.ogc.sld+xml} response, which the controller does not produce,
+     * resulting in a 406 Not Acceptable error.
+     *
+     * <p>This bean is typically provided by an inner class in {@code StyleController}'s
+     * {@code StyleControllerConfiguration} inner configuration class, but since we use a restricted component scan, we
+     * must declare it explicitly.
      */
     @Bean
     PutIgnoringExtensionContentNegotiationStrategy stylePutContentNegotiationStrategy() {

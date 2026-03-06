@@ -15,9 +15,7 @@ import tools.jackson.dataformat.yaml.YAMLFactory;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @UtilityClass
 public class ObjectMapperUtil {
 

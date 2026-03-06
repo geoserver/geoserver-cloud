@@ -10,9 +10,7 @@ import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.BeforeEach;
 
-/**
- * @since 1.2
- */
+/** @since 1.2 */
 class DefaultUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     GeoServer gs;

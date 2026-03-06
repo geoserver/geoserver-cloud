@@ -11,9 +11,7 @@ import java.util.stream.IntStream;
 import org.geoserver.config.GeoServer;
 import org.junit.jupiter.api.Test;
 
-/**
- * @since 1.2
- */
+/** @since 1.2 */
 public interface UpdateSequenceConformanceTest {
 
     UpdateSequence getUpdataSequence();

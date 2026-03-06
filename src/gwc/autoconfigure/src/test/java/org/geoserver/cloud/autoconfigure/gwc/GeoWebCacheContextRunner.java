@@ -32,9 +32,7 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 public class GeoWebCacheContextRunner {
 
     public static WebApplicationContextRunner newMinimalGeoWebCacheContextRunner(File tmpDir) {

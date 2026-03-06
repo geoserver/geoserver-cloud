@@ -149,8 +149,8 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
     }
 
     /**
-     * @return {@code true} if {@code lg} contains {@code toDelete}, checking recursively on layer
-     *     groups of {@link LayerGroupInfo#getLayers() lg.getLayers()}
+     * @return {@code true} if {@code lg} contains {@code toDelete}, checking recursively on layer groups of
+     *     {@link LayerGroupInfo#getLayers() lg.getLayers()}
      */
     private boolean layerGroupContains(LayerGroupInfo lg, PublishedInfo toDelete) {
         final String publishedId = toDelete.getId();

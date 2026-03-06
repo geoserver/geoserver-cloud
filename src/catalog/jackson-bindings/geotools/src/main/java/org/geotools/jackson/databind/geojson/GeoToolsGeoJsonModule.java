@@ -22,12 +22,11 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.module.SimpleModule;
 
 /**
- * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoJSON bindings for JTS {@link
- * Geometry geometries}.
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoJSON bindings for JTS {@link Geometry geometries}.
  *
- * <p>When running a spring-boot application, being on the classpath should be enough to get this
- * module auto-registered to all {@link ObjectMapper}s, by means of being registered under {@code
- * META-INF/services/tools.jackson.databind.Module}.
+ * <p>When running a spring-boot application, being on the classpath should be enough to get this module auto-registered
+ * to all {@link ObjectMapper}s, by means of being registered under
+ * {@code META-INF/services/tools.jackson.databind.Module}.
  *
  * <p>To register the module for a specific {@link ObjectMapper}, either:
  *

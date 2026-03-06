@@ -24,8 +24,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 
 /**
- * {@link EnableAutoConfiguration @EnableAutoConfiguration} tests for {@link
- * GeoServerSecurityAutoConfiguration}'s {@link EnvironmentAdminAuthenticationProvider}
+ * {@link EnableAutoConfiguration @EnableAutoConfiguration} tests for {@link GeoServerSecurityAutoConfiguration}'s
+ * {@link EnvironmentAdminAuthenticationProvider}
  *
  * @since 1.0
  */

@@ -122,12 +122,11 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 /**
- * Initially a verbatim copy of {@code gs-main}'s {@code
- * org.geoserver.catalog.impl.CatalogImplTest}, adapted to not subclass {@code
- * GeoServerSystemTestSupport} as all that machinery is not really necessary, plus, {@code
- * GeoServerSystemTestSupport} instantiates {@code org.geoserver.catalog.impl.CatalogImpl}
- * indirectly, which defeats our purpose of testing different catalog/facade implementations with
- * this test class as a contract conformance check.
+ * Initially a verbatim copy of {@code gs-main}'s {@code org.geoserver.catalog.impl.CatalogImplTest}, adapted to not
+ * subclass {@code GeoServerSystemTestSupport} as all that machinery is not really necessary, plus,
+ * {@code GeoServerSystemTestSupport} instantiates {@code org.geoserver.catalog.impl.CatalogImpl} indirectly, which
+ * defeats our purpose of testing different catalog/facade implementations with this test class as a contract
+ * conformance check.
  */
 public abstract class CatalogConformanceTest {
 
@@ -2224,11 +2223,10 @@ public abstract class CatalogConformanceTest {
     private static final int GET_LAYER_BY_ID_WITH_CONCURRENT_ADD_THREAD_COUNT = 10;
 
     /**
-     * This test cannot work, the catalog subsystem is not thread safe, that's why we have the
-     * configuration locks. Re-enable when the catalog subsystem is made thread safe.
+     * This test cannot work, the catalog subsystem is not thread safe, that's why we have the configuration locks.
+     * Re-enable when the catalog subsystem is made thread safe.
      *
-     * <p><b>NOTE</b> this actually runs now, it just takes an awful amount of time to execute.
-     * Revisit.
+     * <p><b>NOTE</b> this actually runs now, it just takes an awful amount of time to execute. Revisit.
      *
      * @throws Exception
      */
@@ -2984,9 +2982,7 @@ public abstract class CatalogConformanceTest {
                 Lists.newArrayList(catalog.list(LayerInfo.class, filter, offset, limit, null)));
     }
 
-    /**
-     * This tests more advanced filters: multi-valued filters, opposite equations, field equations
-     */
+    /** This tests more advanced filters: multi-valued filters, opposite equations, field equations */
     @Test
     void testListPredicateExtended() {
         addDataStore();

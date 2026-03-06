@@ -12,9 +12,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @EqualsAndHashCode(callSuper = true)
 public class RemoteGridsetEvent extends RemoteGeoWebCacheEvent {
 

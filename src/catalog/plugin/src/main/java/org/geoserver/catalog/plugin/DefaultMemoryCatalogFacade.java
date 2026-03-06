@@ -42,29 +42,29 @@ import org.geoserver.ows.util.OwsUtils;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A default in-memory implementation of {@link CatalogFacade} that uses {@link CatalogInfoLookup}
- * instances to store {@link CatalogInfo} objects.
+ * A default in-memory implementation of {@link CatalogFacade} that uses {@link CatalogInfoLookup} instances to store
+ * {@link CatalogInfo} objects.
  *
- * <p>This class extends {@link RepositoryCatalogFacadeImpl} to provide a memory-based catalog facade
- * for GeoServer Cloud, leveraging in-memory {@link CatalogInfoLookup} repositories for all core catalog
- * info types (e.g., workspaces, layers, styles). It manages catalog data in memory, resolving references
- * between objects (e.g., layers to resources, stores to workspaces) during initialization or updates.
- * This implementation is lightweight and suitable for testing or small-scale deployments where persistence
- * to an external store is not required.
+ * <p>This class extends {@link RepositoryCatalogFacadeImpl} to provide a memory-based catalog facade for GeoServer
+ * Cloud, leveraging in-memory {@link CatalogInfoLookup} repositories for all core catalog info types (e.g., workspaces,
+ * layers, styles). It manages catalog data in memory, resolving references between objects (e.g., layers to resources,
+ * stores to workspaces) during initialization or updates. This implementation is lightweight and suitable for testing
+ * or small-scale deployments where persistence to an external store is not required.
  *
  * <p>Key features:
+ *
  * <ul>
- *   <li><strong>In-Memory Storage:</strong> Uses lookup-based repositories (e.g., {@link LayerInfoLookup})
- *       for fast, transient storage of catalog data.</li>
+ *   <li><strong>In-Memory Storage:</strong> Uses lookup-based repositories (e.g., {@link LayerInfoLookup}) for fast,
+ *       transient storage of catalog data.
  *   <li><strong>Reference Resolution:</strong> Resolves proxies and ensures object relationships (e.g.,
- *       layer-to-resource links) via {@link #resolve()} and type-specific resolve methods.</li>
+ *       layer-to-resource links) via {@link #resolve()} and type-specific resolve methods.
  *   <li><strong>Automatic ID Generation:</strong> Assigns unique IDs to objects lacking them using
- *       {@link #setId(Object)}.</li>
+ *       {@link #setId(Object)}.
  * </ul>
  *
- * <p>The facade initializes with default in-memory repositories and supports all standard catalog
- * operations (e.g., add, remove, query) inherited from {@link RepositoryCatalogFacadeImpl}, with added
- * logic for in-memory reference management.
+ * <p>The facade initializes with default in-memory repositories and supports all standard catalog operations (e.g.,
+ * add, remove, query) inherited from {@link RepositoryCatalogFacadeImpl}, with added logic for in-memory reference
+ * management.
  *
  * @since 1.0
  * @see RepositoryCatalogFacadeImpl
@@ -87,10 +87,9 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Constructs a new in-memory catalog facade with the specified catalog.
      *
-     * <p>Initializes the facade with default in-memory repositories (e.g., {@link WorkspaceInfoLookup})
-     * and associates it with the provided catalog. The repositories are configured to handle all core
-     * {@link CatalogInfo} types, with the {@link ResourceInfoLookup} linked to the layer repository for
-     * consistency.
+     * <p>Initializes the facade with default in-memory repositories (e.g., {@link WorkspaceInfoLookup}) and associates
+     * it with the provided catalog. The repositories are configured to handle all core {@link CatalogInfo} types, with
+     * the {@link ResourceInfoLookup} linked to the layer repository for consistency.
      *
      * @param catalog The {@link Catalog} instance to associate with this facade; may be null.
      */
@@ -109,13 +108,13 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves references for all catalog objects in memory.
      *
-     * <p>Iterates through all repositories (workspaces, namespaces, stores, etc.) and resolves internal
-     * references (e.g., layer-to-resource, store-to-workspace) by calling type-specific resolve methods.
-     * Ensures that all {@link CatalogInfo} objects are fully resolved and consistent, replacing proxies
-     * with actual instances where possible.
+     * <p>Iterates through all repositories (workspaces, namespaces, stores, etc.) and resolves internal references
+     * (e.g., layer-to-resource, store-to-workspace) by calling type-specific resolve methods. Ensures that all
+     * {@link CatalogInfo} objects are fully resolved and consistent, replacing proxies with actual instances where
+     * possible.
      *
      * @example Resolving catalog state:
-     *          <pre>
+     *     <pre>
      *          DefaultMemoryCatalogFacade facade = new DefaultMemoryCatalogFacade(catalog);
      *          facade.resolve();
      *          </pre>
@@ -135,9 +134,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves references within a {@link LayerInfo} object.
      *
-     * <p>Ensures the layer has an ID (assigning one if missing), resolves its resource and default style
-     * to actual instances from the catalog, and updates its additional styles set by replacing proxies
-     * with resolved objects.
+     * <p>Ensures the layer has an ID (assigning one if missing), resolves its resource and default style to actual
+     * instances from the catalog, and updates its additional styles set by replacing proxies with resolved objects.
      *
      * @param layer The {@link LayerInfo} to resolve; must not be null.
      * @throws NullPointerException if {@code layer} is null.
@@ -169,8 +167,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves references within a {@link LayerGroupInfo} object.
      *
-     * <p>Ensures the layer group has an ID (assigning one if missing), resolves its layers and styles lists,
-     * and recursively resolves nested layers and styles within any {@link LayerGroupStyle} objects.
+     * <p>Ensures the layer group has an ID (assigning one if missing), resolves its layers and styles lists, and
+     * recursively resolves nested layers and styles within any {@link LayerGroupStyle} objects.
      *
      * @param layerGroup The {@link LayerGroupInfo} to resolve; must not be null.
      * @throws NullPointerException if {@code layerGroup} is null.
@@ -192,13 +190,13 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves styles within a layer group, handling special cases for layer group style references.
      *
-     * <p>Iterates through the styles list, resolving each style to its catalog instance. If a style
-     * represents a {@link LayerGroupStyle} reference (not stored in the catalog), creates a new
-     * {@link StyleInfo} instance based on its name. Ensures the styles align with their assigned layers.
+     * <p>Iterates through the styles list, resolving each style to its catalog instance. If a style represents a
+     * {@link LayerGroupStyle} reference (not stored in the catalog), creates a new {@link StyleInfo} instance based on
+     * its name. Ensures the styles align with their assigned layers.
      *
-     * @param assignedLayers The list of {@link PublishedInfo} objects (layers or groups) corresponding to
-     *                       the styles; must not be null.
-     * @param styles         The list of {@link StyleInfo} objects to resolve; must not be null.
+     * @param assignedLayers The list of {@link PublishedInfo} objects (layers or groups) corresponding to the styles;
+     *     must not be null.
+     * @param styles The list of {@link StyleInfo} objects to resolve; must not be null.
      * @throws NullPointerException if {@code assignedLayers} or {@code styles} is null.
      */
     private void resolveLayerGroupStyles(List<PublishedInfo> assignedLayers, List<StyleInfo> styles) {
@@ -231,8 +229,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves layers within a layer group’s layers list.
      *
-     * <p>Iterates through the layers list, resolving each {@link PublishedInfo} (layer or nested group)
-     * to its catalog instance and updating the list with resolved objects.
+     * <p>Iterates through the layers list, resolving each {@link PublishedInfo} (layer or nested group) to its catalog
+     * instance and updating the list with resolved objects.
      *
      * @param layers The list of {@link PublishedInfo} objects to resolve; must not be null.
      * @throws NullPointerException if {@code layers} is null.
@@ -251,11 +249,11 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves a single {@link PublishedInfo} object (layer or layer group) within a layer group.
      *
-     * <p>Resolves the object to its catalog instance, falling back to the original object if resolution
-     * fails (e.g., during catalog loading when nested objects aren’t yet available).
+     * <p>Resolves the object to its catalog instance, falling back to the original object if resolution fails (e.g.,
+     * during catalog loading when nested objects aren’t yet available).
      *
-     * @param published The {@link PublishedInfo} to resolve (either a {@link LayerInfo} or
-     *                  {@link LayerGroupInfo}); must not be null.
+     * @param published The {@link PublishedInfo} to resolve (either a {@link LayerInfo} or {@link LayerGroupInfo});
+     *     must not be null.
      * @return The resolved {@link PublishedInfo}, or the original if unresolved.
      * @throws NullPointerException if {@code published} is null.
      */
@@ -271,8 +269,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves references within a {@link StyleInfo} object.
      *
-     * <p>Ensures the style has an ID (assigning one if missing) and resolves its workspace to the actual
-     * catalog instance, logging a message if resolution fails (e.g., workspace not yet added).
+     * <p>Ensures the style has an ID (assigning one if missing) and resolves its workspace to the actual catalog
+     * instance, logging a message if resolution fails (e.g., workspace not yet added).
      *
      * @param style The {@link StyleInfo} to resolve; must not be null.
      * @throws NullPointerException if {@code style} is null.
@@ -301,8 +299,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves references within a {@link MapInfo} object.
      *
-     * <p>Ensures the map has an ID (assigning one if missing). No additional references are resolved as
-     * maps typically lack complex dependencies in this implementation.
+     * <p>Ensures the map has an ID (assigning one if missing). No additional references are resolved as maps typically
+     * lack complex dependencies in this implementation.
      *
      * @param map The {@link MapInfo} to resolve; must not be null.
      * @throws NullPointerException if {@code map} is null.
@@ -314,8 +312,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves references within a {@link WorkspaceInfo} object.
      *
-     * <p>Ensures the workspace has an ID (assigning one if missing). No additional references are resolved
-     * as workspaces are top-level objects in this implementation.
+     * <p>Ensures the workspace has an ID (assigning one if missing). No additional references are resolved as
+     * workspaces are top-level objects in this implementation.
      *
      * @param workspace The {@link WorkspaceInfo} to resolve; must not be null.
      * @throws NullPointerException if {@code workspace} is null.
@@ -327,8 +325,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves references within a {@link NamespaceInfo} object.
      *
-     * <p>Ensures the namespace has an ID (assigning one if missing). No additional references are resolved
-     * as namespaces are top-level objects in this implementation.
+     * <p>Ensures the namespace has an ID (assigning one if missing). No additional references are resolved as
+     * namespaces are top-level objects in this implementation.
      *
      * @param namespace The {@link NamespaceInfo} to resolve; must not be null.
      * @throws NullPointerException if {@code namespace} is null.
@@ -340,8 +338,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves references within a {@link StoreInfo} object.
      *
-     * <p>Ensures the store has an ID (assigning one if missing) and resolves its workspace to the actual
-     * catalog instance, logging a message if resolution fails (e.g., workspace not yet added).
+     * <p>Ensures the store has an ID (assigning one if missing) and resolves its workspace to the actual catalog
+     * instance, logging a message if resolution fails (e.g., workspace not yet added).
      *
      * @param store The {@link StoreInfo} to resolve; must not be null.
      * @throws NullPointerException if {@code store} is null.
@@ -368,8 +366,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Resolves references within a {@link ResourceInfo} object.
      *
-     * <p>Ensures the resource has an ID (assigning one if missing), resolves its store and namespace to
-     * actual catalog instances, and updates the resource accordingly.
+     * <p>Ensures the resource has an ID (assigning one if missing), resolves its store and namespace to actual catalog
+     * instances, and updates the resource accordingly.
      *
      * @param resource The {@link ResourceInfo} to resolve; must not be null.
      * @throws NullPointerException if {@code resource} is null.
@@ -396,8 +394,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Assigns a unique ID to a catalog object if it lacks one.
      *
-     * <p>Generates a unique ID using {@link UID} prefixed with the object’s class name (e.g.,
-     * "WorkspaceInfo-uid") and sets it via {@link OwsUtils#set(Object, String, Object)}.
+     * <p>Generates a unique ID using {@link UID} prefixed with the object’s class name (e.g., "WorkspaceInfo-uid") and
+     * sets it via {@link OwsUtils#set(Object, String, Object)}.
      *
      * @param o The object to assign an ID to; must not be null.
      * @throws NullPointerException if {@code o} is null.
@@ -413,8 +411,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
     /**
      * Unwraps a {@link CatalogInfo} object from its proxy, if applicable.
      *
-     * <p>Delegates to {@link ModificationProxy#unwrap(Object)} to remove any proxy wrapper, returning the
-     * underlying instance or null if the input is null.
+     * <p>Delegates to {@link ModificationProxy#unwrap(Object)} to remove any proxy wrapper, returning the underlying
+     * instance or null if the input is null.
      *
      * @param <T> The type of {@link CatalogInfo}.
      * @param obj The object to unwrap; may be null.

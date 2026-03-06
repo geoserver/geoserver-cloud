@@ -37,9 +37,7 @@ import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class GeoWebCacheAutoConfigurationTest {
 
     @TempDir
@@ -47,9 +45,7 @@ class GeoWebCacheAutoConfigurationTest {
 
     WebApplicationContextRunner runner;
 
-    /**
-     * @throws java.lang.Exception
-     */
+    /** @throws java.lang.Exception */
     @BeforeEach
     void setUp(@TempDir File tmpDir) {
         System.clearProperty("GEOWEBCACHE_CACHE_DIR");
@@ -136,8 +132,8 @@ class GeoWebCacheAutoConfigurationTest {
     }
 
     /**
-     * Note this test will fail without {@code --add-opens=java.base/java.util=ALL-UNNAMED} JVM
-     * parameter (watch out if running it from the IDE, maven is configured to set it)
+     * Note this test will fail without {@code --add-opens=java.base/java.util=ALL-UNNAMED} JVM parameter (watch out if
+     * running it from the IDE, maven is configured to set it)
      */
     @Test
     void defaultCacheDirectoryFromEnvVariable() throws Exception {

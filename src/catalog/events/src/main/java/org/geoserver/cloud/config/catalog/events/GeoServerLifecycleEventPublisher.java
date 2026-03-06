@@ -19,10 +19,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * Implements the {@link GeoServerLifecycleHandler} interface to notify lifecycle events
- * (reload/reset) as regular spring {@link ApplicationEvent application events}, and publishes them
- * to the local {@link ApplicationContext}, so other components interested in these kind of events
- * don't need to register themselves to the {@link Catalog} and {@link GeoServer} as listeners.
+ * Implements the {@link GeoServerLifecycleHandler} interface to notify lifecycle events (reload/reset) as regular
+ * spring {@link ApplicationEvent application events}, and publishes them to the local {@link ApplicationContext}, so
+ * other components interested in these kind of events don't need to register themselves to the {@link Catalog} and
+ * {@link GeoServer} as listeners.
  *
  * @see ResetEvent
  * @see ReloadEvent

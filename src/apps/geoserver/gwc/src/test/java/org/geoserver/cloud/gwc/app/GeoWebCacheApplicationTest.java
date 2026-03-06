@@ -66,8 +66,9 @@ class GeoWebCacheApplicationTest {
     }
 
     /**
-     * REVISIT: for some reason, running the REST API tests right after starting off an empty data directory produce a 403 forbidden
-     * response. We're hence forcing the order of the tests and the reload of the context for the time being
+     * REVISIT: for some reason, running the REST API tests right after starting off an empty data directory produce a
+     * 403 forbidden response. We're hence forcing the order of the tests and the reload of the context for the time
+     * being
      */
     @Test
     @Order(1)

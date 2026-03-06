@@ -27,9 +27,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @RequiredArgsConstructor
 public class PgconfigConfigRepository implements ConfigRepository {
 

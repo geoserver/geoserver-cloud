@@ -14,8 +14,8 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
 
 /**
- * Generic {@link ValueDeserializer} that applies a function from an for-the-wire POJO type to the
- * the original object type after {@link JsonParser#readValueAs(Class)} reading it.
+ * Generic {@link ValueDeserializer} that applies a function from an for-the-wire POJO type to the the original object
+ * type after {@link JsonParser#readValueAs(Class)} reading it.
  *
  * @param <D> DTO type
  * @param <T> object model type

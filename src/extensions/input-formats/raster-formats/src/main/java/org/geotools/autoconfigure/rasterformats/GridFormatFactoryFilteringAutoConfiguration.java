@@ -13,16 +13,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
- * Auto-configuration to enable filtering of GeoTools GridFormatFactorySpi
- * implementations.
+ * Auto-configuration to enable filtering of GeoTools GridFormatFactorySpi implementations.
  *
- * <p>
- * This configuration provides fine-grained control over which raster formats are
- * available in the application, allowing selective enabling/disabling of
- * specific factory implementations using their user-friendly display names.
+ * <p>This configuration provides fine-grained control over which raster formats are available in the application,
+ * allowing selective enabling/disabling of specific factory implementations using their user-friendly display names.
  *
- * <p>
- * Configuration example:
+ * <p>Configuration example:
  *
  * <pre>
  * geotools.data.filtering:
@@ -33,10 +29,10 @@ import org.springframework.context.annotation.Bean;
  *     "[ImageMosaic]": false
  *     "[WorldImage]": true
  * </pre>
- * <p>
- * It works by using reflection to access GridFormatFinder's internal FactoryRegistry
- * and remove disabled factories. This is done through a BeanPostProcessor that
- * processes the configuration as early as possible in the application startup process.
+ *
+ * <p>It works by using reflection to access GridFormatFinder's internal FactoryRegistry and remove disabled factories.
+ * This is done through a BeanPostProcessor that processes the configuration as early as possible in the application
+ * startup process.
  */
 @AutoConfiguration(before = GeoServerBackendAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public

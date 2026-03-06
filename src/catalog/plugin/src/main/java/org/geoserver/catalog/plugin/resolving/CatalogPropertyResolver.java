@@ -29,20 +29,23 @@ import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 /**
  * A {@link UnaryOperator} that sets the {@link Catalog} property on {@link CatalogInfo} objects requiring it.
  *
- * <p>This utility class implements a resolver for use with {@link ResolvingCatalogFacadeDecorator#setOutboundResolver(UnaryOperator)},
- * ensuring that {@link CatalogInfo} objects (e.g., {@link StoreInfo}, {@link ResourceInfo}, {@link StyleInfo})
- * have their catalog reference set before being returned by a facade. It recursively processes nested references
- * (e.g., styles in a {@link LayerInfo}, layers in a {@link LayerGroupInfo}) to maintain catalog consistency.
- * The resolver uses a catalog supplier to provide the current catalog instance, supporting dynamic catalog access.
+ * <p>This utility class implements a resolver for use with
+ * {@link ResolvingCatalogFacadeDecorator#setOutboundResolver(UnaryOperator)}, ensuring that {@link CatalogInfo} objects
+ * (e.g., {@link StoreInfo}, {@link ResourceInfo}, {@link StyleInfo}) have their catalog reference set before being
+ * returned by a facade. It recursively processes nested references (e.g., styles in a {@link LayerInfo}, layers in a
+ * {@link LayerGroupInfo}) to maintain catalog consistency. The resolver uses a catalog supplier to provide the current
+ * catalog instance, supporting dynamic catalog access.
  *
  * <p>Key features:
+ *
  * <ul>
- *   <li><strong>Catalog Assignment:</strong> Sets the catalog on supported {@link CatalogInfo} types.</li>
- *   <li><strong>Recursive Resolution:</strong> Handles nested structures like styles, layers, and group styles.</li>
- *   <li><strong>Null Safety:</strong> Gracefully handles null inputs, returning null without modification.</li>
+ *   <li><strong>Catalog Assignment:</strong> Sets the catalog on supported {@link CatalogInfo} types.
+ *   <li><strong>Recursive Resolution:</strong> Handles nested structures like styles, layers, and group styles.
+ *   <li><strong>Null Safety:</strong> Gracefully handles null inputs, returning null without modification.
  * </ul>
  *
  * <p>Example usage:
+ *
  * <pre>
  * Catalog catalog = ...;
  * ResolvingCatalogFacadeDecorator facade = ...;
@@ -93,7 +96,7 @@ public class CatalogPropertyResolver {
     /**
      * Creates a resolver for a fixed {@link Catalog} instance.
      *
-     * @param <I>     The type of {@link Info} to resolve.
+     * @param <I> The type of {@link Info} to resolve.
      * @param catalog The {@link Catalog} to use; must not be null.
      * @return A new {@link CatalogPropertyResolver} instance.
      * @throws NullPointerException if {@code catalog} is null.
@@ -105,7 +108,7 @@ public class CatalogPropertyResolver {
     /**
      * Creates a resolver for a dynamic {@link Catalog} supplier.
      *
-     * @param <I>     The type of {@link Info} to resolve.
+     * @param <I> The type of {@link Info} to resolve.
      * @param catalog A supplier providing the {@link Catalog}; must not be null.
      * @return A new {@link CatalogPropertyResolver} instance.
      * @throws NullPointerException if {@code catalog} is null.
@@ -131,11 +134,10 @@ public class CatalogPropertyResolver {
      * Resolves an {@link Info} object by setting its catalog property and processing nested references.
      *
      * <p>Unwraps any {@link ModificationProxy} and dispatches to type-specific resolution methods for
-     * {@link StoreInfo}, {@link ResourceInfo}, {@link StyleInfo}, {@link PublishedInfo}, and
-     * {@link LayerGroupStyle}.
+     * {@link StoreInfo}, {@link ResourceInfo}, {@link StyleInfo}, {@link PublishedInfo}, and {@link LayerGroupStyle}.
      *
      * @param <I> The type of {@link Info}.
-     * @param info   The object to resolve; may be null.
+     * @param info The object to resolve; may be null.
      * @return The resolved object, or null if {@code i} is null.
      */
     private <I> I resolve(@NonNull I orig) {

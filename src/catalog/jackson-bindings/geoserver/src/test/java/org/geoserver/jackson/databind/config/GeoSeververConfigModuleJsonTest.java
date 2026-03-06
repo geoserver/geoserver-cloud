@@ -16,9 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class GeoSeververConfigModuleJsonTest extends GeoServerConfigModuleTest {
 
     protected @Override ObjectMapper newObjectMapper() {
@@ -26,8 +24,8 @@ class GeoSeververConfigModuleJsonTest extends GeoServerConfigModuleTest {
     }
 
     /**
-     * Test backward compatibility: verify that old JSON documents with "jai" field
-     * can be deserialized to the new "imageProcessing" field
+     * Test backward compatibility: verify that old JSON documents with "jai" field can be deserialized to the new
+     * "imageProcessing" field
      */
     @Test
     void geoServerInfo_backwardCompatibility_jaiField() throws Exception {
@@ -68,8 +66,8 @@ class GeoSeververConfigModuleJsonTest extends GeoServerConfigModuleTest {
     }
 
     /**
-     * Test backward compatibility: verify that old JSON documents with "xmlExternalEntitiesEnabled" field
-     * can be deserialized though the propery has been deprecated in 2.28.0
+     * Test backward compatibility: verify that old JSON documents with "xmlExternalEntitiesEnabled" field can be
+     * deserialized though the propery has been deprecated in 2.28.0
      */
     @Test
     void geoServerInfo_backwardCompatibility_xmlExternalEntitiesEnabled() throws Exception {
@@ -94,8 +92,8 @@ class GeoSeververConfigModuleJsonTest extends GeoServerConfigModuleTest {
     }
 
     /**
-     * Test backward compatibility: verify that old JSON documents without "userDetailsDisplaySettings" field (pre 2.28.1)
-     * can be deserialized with default value to prevent NPEs
+     * Test backward compatibility: verify that old JSON documents without "userDetailsDisplaySettings" field (pre
+     * 2.28.1) can be deserialized with default value to prevent NPEs
      */
     @Test
     void userDetailsDisplaySettingsBackwardsCompatibilityTest() throws Exception {

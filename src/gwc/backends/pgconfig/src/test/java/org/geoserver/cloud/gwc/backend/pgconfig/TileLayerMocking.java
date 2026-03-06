@@ -34,9 +34,7 @@ import org.geowebcache.grid.BoundingBox;
 import org.geowebcache.grid.GridSetBroker;
 import org.mapstruct.factory.Mappers;
 
-/**
- * @since 1.7
- */
+/** @since 1.7 */
 class TileLayerMocking {
 
     private @Getter GridSetBroker gridsets;

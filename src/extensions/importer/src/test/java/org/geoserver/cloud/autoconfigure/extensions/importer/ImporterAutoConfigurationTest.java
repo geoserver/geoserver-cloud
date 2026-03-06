@@ -30,14 +30,10 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
-/**
- * Tests for {@link ImporterAutoConfiguration}.
- */
+/** Tests for {@link ImporterAutoConfiguration}. */
 class ImporterAutoConfigurationTest {
 
-    /**
-     * Base context runner with minimal configuration.
-     */
+    /** Base context runner with minimal configuration. */
     private ApplicationContextRunner baseRunner;
 
     @BeforeEach
@@ -74,10 +70,10 @@ class ImporterAutoConfigurationTest {
     }
 
     /**
-     * Bean used to publish a GeoServer {@link ContextLoadedEvent} as if
-     * {@link GeoServer#reload()} was called, and avoid the following errors since
-     * {@link Importer#onApplicationEvent()} expects it to create the store:
-     * {@code Invocation of destroy method failed on bean with name 'importer': java.lang.NullPointerException: Cannot invoke "org.geoserver.importer.ImportStore.destroy()" because "this.contextStore" is null}
+     * Bean used to publish a GeoServer {@link ContextLoadedEvent} as if {@link GeoServer#reload()} was called, and
+     * avoid the following errors since {@link Importer#onApplicationEvent()} expects it to create the store:
+     * {@code Invocation of destroy method failed on bean with name 'importer': java.lang.NullPointerException: Cannot
+     * invoke "org.geoserver.importer.ImportStore.destroy()" because "this.contextStore" is null}
      */
     static class ContextLoadedEventSubmitter {
 
@@ -92,9 +88,7 @@ class ImporterAutoConfigurationTest {
         GeoServerExtensionsHelper.init(null);
     }
 
-    /**
-     * Tests that the auto-configuration is disabled by default.
-     */
+    /** Tests that the auto-configuration is disabled by default. */
     @Test
     void testDisabledByDefault() {
         baseRunner.run(context -> {
@@ -107,9 +101,7 @@ class ImporterAutoConfigurationTest {
         });
     }
 
-    /**
-     * Tests that enabling the property activates the auto-configuration.
-     */
+    /** Tests that enabling the property activates the auto-configuration. */
     @Test
     void testConditionalActivation() {
         baseRunner
@@ -132,8 +124,7 @@ class ImporterAutoConfigurationTest {
     }
 
     /**
-     * Tests that the core configuration is activated when required classes are
-     * present and the extension is enabled.
+     * Tests that the core configuration is activated when required classes are present and the extension is enabled.
      */
     @Test
     void testCoreConfiguration() {
@@ -150,10 +141,7 @@ class ImporterAutoConfigurationTest {
                 });
     }
 
-    /**
-     * Tests that the core configuration is not activated when the extension is
-     * disabled.
-     */
+    /** Tests that the core configuration is not activated when the extension is disabled. */
     @Test
     void testCoreConfigurationDisabled() {
         baseRunner
@@ -170,8 +158,8 @@ class ImporterAutoConfigurationTest {
     }
 
     /**
-     * Tests that the web UI configuration is activated when required classes are
-     * present and the extension is enabled in a WebUI environment.
+     * Tests that the web UI configuration is activated when required classes are present and the extension is enabled
+     * in a WebUI environment.
      */
     @Test
     void testWebUIConfiguration() {
@@ -196,8 +184,8 @@ class ImporterAutoConfigurationTest {
     }
 
     /**
-     * Tests that the REST configuration is activated when required classes are
-     * present and the extension is enabled in a REST environment.
+     * Tests that the REST configuration is activated when required classes are present and the extension is enabled in
+     * a REST environment.
      */
     @Test
     void testRESTConfiguration() {
@@ -221,8 +209,8 @@ class ImporterAutoConfigurationTest {
     }
 
     /**
-     * Tests that the REST configuration is not activated when required classes are
-     * missing, even if the extension is enabled.
+     * Tests that the REST configuration is not activated when required classes are missing, even if the extension is
+     * enabled.
      */
     @Test
     void testRESTConfigurationMissingClasses() {

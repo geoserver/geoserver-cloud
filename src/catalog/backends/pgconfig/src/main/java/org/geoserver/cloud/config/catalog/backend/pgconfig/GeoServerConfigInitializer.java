@@ -20,9 +20,7 @@ import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerExtensions;
 import org.springframework.core.Ordered;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @RequiredArgsConstructor
 @Slf4j
 public class GeoServerConfigInitializer implements GeoServerInitializer, Ordered, ExtensionPriority {

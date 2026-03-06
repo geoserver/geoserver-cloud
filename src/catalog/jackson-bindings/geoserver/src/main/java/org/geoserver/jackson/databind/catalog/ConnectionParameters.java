@@ -13,11 +13,9 @@ import java.util.Map;
 /**
  * Specialized map class for store connection parameters.
  *
- * <p>
- * This class extends LinkedHashMap to provide a concrete type for store connection parameters.
- * The specialized type allows us to register custom serializers and deserializers specifically
- * for connection parameters without affecting other Map&lt;String, Object&gt; instances.
- * </p>
+ * <p>This class extends LinkedHashMap to provide a concrete type for store connection parameters. The specialized type
+ * allows us to register custom serializers and deserializers specifically for connection parameters without affecting
+ * other Map&lt;String, Object&gt; instances.
  */
 public class ConnectionParameters extends LinkedHashMap<String, Object> {
 

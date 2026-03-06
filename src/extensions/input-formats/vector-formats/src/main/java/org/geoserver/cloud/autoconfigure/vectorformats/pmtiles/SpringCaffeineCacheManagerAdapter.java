@@ -17,7 +17,8 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 
 /**
- * Adapter that implements {@link io.tileverse.cache.CacheManager} by delegating to Spring's {@link CaffeineCacheManager}.
+ * Adapter that implements {@link io.tileverse.cache.CacheManager} by delegating to Spring's
+ * {@link CaffeineCacheManager}.
  *
  * <p>This adapter is {@link CacheManager#setDefault(CacheManager) set as the default} cache manager for PMTiles and
  * RangeReaders, allowing Tileverse-managed caches to be exposed through Spring Actuator endpoints:
@@ -88,9 +89,9 @@ public class SpringCaffeineCacheManagerAdapter implements io.tileverse.cache.Cac
     /**
      * Gets or creates a cache with the given identifier.
      *
-     * <p>If a cache with the given name already exists in Spring's cache manager, it is wrapped and returned. Otherwise,
-     * the provided builder is used to create a new Caffeine cache, which is then registered with Spring's cache manager
-     * before being returned.
+     * <p>If a cache with the given name already exists in Spring's cache manager, it is wrapped and returned.
+     * Otherwise, the provided builder is used to create a new Caffeine cache, which is then registered with Spring's
+     * cache manager before being returned.
      *
      * @param cacheIdentifier unique name for the cache
      * @param builder supplier that creates the cache if it doesn't exist

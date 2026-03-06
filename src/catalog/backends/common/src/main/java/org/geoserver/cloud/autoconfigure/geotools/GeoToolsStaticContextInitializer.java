@@ -12,11 +12,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
 /**
- * {@link ApplicationContextInitializer} replacing upstream's {@link GeoserverInitStartupListener},
- * which is a servlet context listener instead, and hence runs too late in spring-boot.
+ * {@link ApplicationContextInitializer} replacing upstream's {@link GeoserverInitStartupListener}, which is a servlet
+ * context listener instead, and hence runs too late in spring-boot.
  *
- * <p>With an {@code ApplicationContextInitializer} we make sure required initializations run before
- * even loading the spring beans.
+ * <p>With an {@code ApplicationContextInitializer} we make sure required initializations run before even loading the
+ * spring beans.
  *
  * @since 1.0
  */

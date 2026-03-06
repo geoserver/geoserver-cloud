@@ -18,11 +18,10 @@ public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo
     private static final String SELECT_NEW_DEFAULT_FOR_WORKSPACE = "select_new_default_datastore";
 
     /**
-     * Determines whether there's no current default datastore and stores a flag in {@code context}
-     * for {@link #afterAdd} to proceed if so. This allows to improve consistency for {@code
-     * Catalog.add(StoreInfo)} in situations where there are multiple catalogs: if there was no
-     * default data store when the method was entered, then the created one is set as the default
-     * when the method returns.
+     * Determines whether there's no current default datastore and stores a flag in {@code context} for
+     * {@link #afterAdd} to proceed if so. This allows to improve consistency for {@code Catalog.add(StoreInfo)} in
+     * situations where there are multiple catalogs: if there was no default data store when the method was entered,
+     * then the created one is set as the default when the method returns.
      */
     @Override
     public void beforeAdd(CatalogOpContext<StoreInfo> context) {
@@ -34,8 +33,8 @@ public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo
     }
 
     /**
-     * If the context object is a {@link DataStoreInfo} and its workspace has no default datastore,
-     * sets it as the workspace's default data store.
+     * If the context object is a {@link DataStoreInfo} and its workspace has no default datastore, sets it as the
+     * workspace's default data store.
      */
     @Override
     public void afterAdd(CatalogOpContext<StoreInfo> context) {
@@ -58,9 +57,9 @@ public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo
     }
 
     /**
-     * If the operation was successful and as result the store's workspace ends up with no default
-     * datastore, establishes a new default datastore for that workspace, if there's some datastore
-     * remaining, otherwise sets the workspace's default datastore to {@code null}
+     * If the operation was successful and as result the store's workspace ends up with no default datastore,
+     * establishes a new default datastore for that workspace, if there's some datastore remaining, otherwise sets the
+     * workspace's default datastore to {@code null}
      */
     @Override
     public void afterRemove(CatalogOpContext<StoreInfo> context) {

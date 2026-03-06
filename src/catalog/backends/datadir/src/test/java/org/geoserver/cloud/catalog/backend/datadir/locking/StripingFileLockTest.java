@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Tests for {@link StripingFileLock} behavior including bucket determinism, distribution, and
- * reentrancy. Tests go through {@link StripingFileLockProvider#acquire(String)} which manages the
- * ThreadLocal cache and {@code bucketsHeldForKey} map correctly.
+ * Tests for {@link StripingFileLock} behavior including bucket determinism, distribution, and reentrancy. Tests go
+ * through {@link StripingFileLockProvider#acquire(String)} which manages the ThreadLocal cache and
+ * {@code bucketsHeldForKey} map correctly.
  */
 class StripingFileLockTest {
 

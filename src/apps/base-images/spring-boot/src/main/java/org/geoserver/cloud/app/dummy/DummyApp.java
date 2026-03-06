@@ -7,9 +7,7 @@ package org.geoserver.cloud.app.dummy;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @SpringBootApplication
 public class DummyApp {
 

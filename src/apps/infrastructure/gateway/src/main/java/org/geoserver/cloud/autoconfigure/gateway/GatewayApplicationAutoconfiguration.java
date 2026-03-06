@@ -16,8 +16,8 @@ import org.springframework.core.env.Environment;
 public class GatewayApplicationAutoconfiguration {
 
     /**
-     * Custom gateway predicate factory to support matching by regular expressions on both name and
-     * value of query parameters
+     * Custom gateway predicate factory to support matching by regular expressions on both name and value of query
+     * parameters
      *
      * <p>E.g.:
      *
@@ -37,9 +37,9 @@ public class GatewayApplicationAutoconfiguration {
     /**
      * Allows to enable routes only if a given spring profile is enabled
      *
-     * <p>Since the `spring.cloud.gateway.routes` is a list and not a map/dictionary, routes can't
-     * be added in profiles, because the list is overritten fully. This filter allows to enable
-     * routes based on profiles from a single list of routes.
+     * <p>Since the `spring.cloud.gateway.routes` is a list and not a map/dictionary, routes can't be added in profiles,
+     * because the list is overritten fully. This filter allows to enable routes based on profiles from a single list of
+     * routes.
      *
      * <p>E.g.:
      *

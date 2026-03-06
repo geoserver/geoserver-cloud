@@ -15,9 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Configuration(proxyBeanMethods = false)
 @ImportFilteredResource("jar:gs-gwc-[0-9]+.*!/geowebcache-diskquota-context.xml#name=^(?!DiskQuotaConfigLoader).*$")
 public class DiskQuotaConfiguration {
@@ -30,10 +28,7 @@ public class DiskQuotaConfiguration {
         System.setProperty(DiskQuotaMonitor.GWC_DISKQUOTA_DISABLED, "true");
     }
 
-    /**
-     * Override {@literal DiskQuotaConfigLoader} not to depend on the excluded {@literal
-     * metaStoreRemover}
-     */
+    /** Override {@literal DiskQuotaConfigLoader} not to depend on the excluded {@literal metaStoreRemover} */
     @Bean(name = "DiskQuotaConfigLoader")
     org.geowebcache.diskquota.ConfigLoader diskQuotaConfigLoader( //
             @Qualifier("DiskQuotaConfigResourceProvider")

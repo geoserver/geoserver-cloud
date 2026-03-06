@@ -9,12 +9,10 @@ import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Provides all components of {@code gs-web-ogcapi} jar's
- * {@code applicationContext.xml}
- * <p>
- * This is not an auto-configuration, but meant to be included by concrete APIs
- * auto-configurations, in order to avoid these core OGC API components
- * contributed to unrelated services.
+ * Provides all components of {@code gs-web-ogcapi} jar's {@code applicationContext.xml}
+ *
+ * <p>This is not an auto-configuration, but meant to be included by concrete APIs auto-configurations, in order to
+ * avoid these core OGC API components contributed to unrelated services.
  */
 @ConditionalOnGeoServerWebUI
 @Configuration(proxyBeanMethods = false)

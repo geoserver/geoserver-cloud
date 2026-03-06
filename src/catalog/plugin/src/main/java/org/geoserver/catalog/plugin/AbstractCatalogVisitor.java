@@ -19,8 +19,7 @@ import org.geoserver.catalog.WMTSStoreInfo;
 
 /**
  * {@link CatalogVisitorAdapter} that proxies all concrete {@link ResourceInfo} visit methods to
- * {@link #visit(ResourceInfo)} and all concrete {@link StoreInfo} visit methods to {@link
- * #visit(StoreInfo)}
+ * {@link #visit(ResourceInfo)} and all concrete {@link StoreInfo} visit methods to {@link #visit(StoreInfo)}
  */
 public abstract class AbstractCatalogVisitor extends CatalogVisitorAdapter {
 

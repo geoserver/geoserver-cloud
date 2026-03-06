@@ -28,9 +28,9 @@ import org.springframework.context.annotation.Import;
  * "org.geowebcache.rest, org.geowebcache.diskquota.rest.controller, org.geowebcache.service.wmts" />
  * }</pre>
  *
- * <p>scans too much. We're only scanning {@literal org.geowebcache.rest}. {@literal
- * org.geowebcache.diskquota.rest.controller} is up to {@link DiskQuotaAutoConfiguration}, and is
- * omitted, I can't find any {@code @Controller} in there, might need to revisit;
+ * <p>scans too much. We're only scanning {@literal org.geowebcache.rest}.
+ * {@literal org.geowebcache.diskquota.rest.controller} is up to {@link DiskQuotaAutoConfiguration}, and is omitted, I
+ * can't find any {@code @Controller} in there, might need to revisit;
  *
  * <p>Conditionals: see {@link ConditionalOnGeoWebCacheRestConfigEnabled}
  *

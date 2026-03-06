@@ -15,9 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @Testcontainers(disabledWithoutDocker = true)
 @SuppressWarnings("java:S2187")
 class PgconfigUpdateSequenceTest implements UpdateSequenceConformanceTest {

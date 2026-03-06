@@ -23,23 +23,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * Auto-configuration for CSS Styling extension that provides a style handler for CSS
- * stylesheets.
+ * Auto-configuration for CSS Styling extension that provides a style handler for CSS stylesheets.
  *
- * <p>
- * This auto-configuration class enables the CSS styling extension in GeoServer Cloud,
- * allowing users to define map styles using CSS syntax instead of SLD. It will be activated
- * when the following conditions are met:
+ * <p>This auto-configuration class enables the CSS styling extension in GeoServer Cloud, allowing users to define map
+ * styles using CSS syntax instead of SLD. It will be activated when the following conditions are met:
+ *
  * <ul>
- *   <li>The CSS handler classes are on the classpath</li>
- *   <li>The geoserver.extension.css-styling.enabled property is true (the default)</li>
+ *   <li>The CSS handler classes are on the classpath
+ *   <li>The geoserver.extension.css-styling.enabled property is true (the default)
  * </ul>
  *
- * <p>
- * The configuration consists of two inner classes:
+ * <p>The configuration consists of two inner classes:
+ *
  * <ul>
- *   <li>Enabled - Imports the CSS extension when it's enabled</li>
- *   <li>Disabled - Provides a disabled module status when extension is explicitly disabled</li>
+ *   <li>Enabled - Imports the CSS extension when it's enabled
+ *   <li>Disabled - Provides a disabled module status when extension is explicitly disabled
  * </ul>
  *
  * @since 2.27.0
@@ -51,9 +49,7 @@ import org.springframework.context.annotation.Import;
 @Import(value = {CssStylingAutoConfiguration.Enabled.class, CssStylingAutoConfiguration.Disabled.class})
 public class CssStylingAutoConfiguration {
 
-    /**
-     * Configuration class that activates CSS styling extension when enabled.
-     */
+    /** Configuration class that activates CSS styling extension when enabled. */
     @Configuration
     @ConditionalOnCssStyling
     @ImportFilteredResource("jar:gs-css-.*!/applicationContext.xml")
@@ -67,10 +63,8 @@ public class CssStylingAutoConfiguration {
     /**
      * Configuration class that activates when the CSS styling extension is explicitly disabled.
      *
-     * <p>
-     * {@link CssHandler} is both a {@link StyleHandler} and a {@link ModuleStatus}. This config
-     * engages when CSS styling is disabled and provides a {@link ModuleStatus} with
-     * {@link ModuleStatus#isEnabled() == false}.
+     * <p>{@link CssHandler} is both a {@link StyleHandler} and a {@link ModuleStatus}. This config engages when CSS
+     * styling is disabled and provides a {@link ModuleStatus} with {@link ModuleStatus#isEnabled() == false}.
      */
     @Configuration
     @ConditionalOnProperty(

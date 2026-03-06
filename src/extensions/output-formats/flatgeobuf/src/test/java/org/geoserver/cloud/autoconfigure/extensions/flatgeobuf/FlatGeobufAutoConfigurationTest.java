@@ -16,9 +16,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-/**
- * Tests for {@link FlatGeobufAutoConfiguration}.
- */
+/** Tests for {@link FlatGeobufAutoConfiguration}. */
 class FlatGeobufAutoConfigurationTest {
 
     private ApplicationContextRunner contextRunner;

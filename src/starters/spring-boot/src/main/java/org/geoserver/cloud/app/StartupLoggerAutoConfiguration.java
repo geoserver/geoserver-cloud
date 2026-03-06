@@ -13,8 +13,8 @@ import org.springframework.core.env.Environment;
 /**
  * Auto configuration to log basic application info at {@link ApplicationReadyEvent app startup}
  *
- * <p>Expects the following properties be present in the {@link Environment}: {@literal
- * spring.application.name}, {@literal info.instance-id}.
+ * <p>Expects the following properties be present in the {@link Environment}: {@literal spring.application.name},
+ * {@literal info.instance-id}.
  *
  * @since 1.0
  */

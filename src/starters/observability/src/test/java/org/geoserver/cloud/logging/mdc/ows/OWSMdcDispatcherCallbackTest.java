@@ -22,9 +22,9 @@ import org.slf4j.MDC;
 
 /**
  * Tests for the OWSMdcDispatcherCallback.
- * <p>
- * This test class ensures that the {@link OWSMdcDispatcherCallback} correctly adds
- * GeoServer OWS-specific information to the MDC.
+ *
+ * <p>This test class ensures that the {@link OWSMdcDispatcherCallback} correctly adds GeoServer OWS-specific
+ * information to the MDC.
  */
 class OWSMdcDispatcherCallbackTest {
 

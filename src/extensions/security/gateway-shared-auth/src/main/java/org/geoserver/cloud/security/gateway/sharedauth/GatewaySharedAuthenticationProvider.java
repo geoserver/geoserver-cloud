@@ -16,12 +16,12 @@ import org.geoserver.security.filter.GeoServerSecurityFilter;
 /**
  * Authentication provider for the Gateway Shared Authentication filter in GeoServer Cloud.
  *
- * <p>This provider creates instances of {@link GatewaySharedAuthenticationFilter} based on the
- * configured {@link Mode}. It's responsible for properly registering the filter with GeoServer's
- * security subsystem and configuring XStream serialization for the filter's configuration classes.
+ * <p>This provider creates instances of {@link GatewaySharedAuthenticationFilter} based on the configured {@link Mode}.
+ * It's responsible for properly registering the filter with GeoServer's security subsystem and configuring XStream
+ * serialization for the filter's configuration classes.
  *
- * <p><strong>IMPORTANT:</strong> The package name must not be changed as it's used in XStream
- * serialization of security configuration.
+ * <p><strong>IMPORTANT:</strong> The package name must not be changed as it's used in XStream serialization of security
+ * configuration.
  *
  * @see GatewaySharedAuthenticationFilter
  * @since 1.9

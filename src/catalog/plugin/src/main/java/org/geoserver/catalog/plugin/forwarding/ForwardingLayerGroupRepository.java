@@ -15,10 +15,9 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 /**
  * A decorator for {@link LayerGroupRepository} that forwards all method calls to an underlying repository.
  *
- * <p>This class extends {@link ForwardingCatalogRepository} to wrap a {@link LayerGroupRepository} subject,
- * delegating all operations related to {@link LayerGroupInfo} management. It enables subclasses to override
- * specific methods to customize behavior (e.g., adding validation or logging) without modifying the core
- * repository implementation.
+ * <p>This class extends {@link ForwardingCatalogRepository} to wrap a {@link LayerGroupRepository} subject, delegating
+ * all operations related to {@link LayerGroupInfo} management. It enables subclasses to override specific methods to
+ * customize behavior (e.g., adding validation or logging) without modifying the core repository implementation.
  *
  * @since 1.0
  * @see LayerGroupRepository
@@ -30,7 +29,8 @@ public class ForwardingLayerGroupRepository extends ForwardingCatalogRepository<
     /**
      * Constructs a forwarding layer group repository wrapping the provided subject.
      *
-     * @param subject The underlying {@link LayerGroupRepository} to forward calls to; may be null (behavior depends on subclass).
+     * @param subject The underlying {@link LayerGroupRepository} to forward calls to; may be null (behavior depends on
+     *     subclass).
      */
     public ForwardingLayerGroupRepository(LayerGroupRepository subject) {
         super(subject);

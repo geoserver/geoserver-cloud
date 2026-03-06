@@ -12,9 +12,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 public class PgconfigWorkspaceRepository extends PgconfigCatalogInfoRepository<WorkspaceInfo>
         implements WorkspaceRepository {
 
@@ -23,9 +21,7 @@ public class PgconfigWorkspaceRepository extends PgconfigCatalogInfoRepository<W
             UPDATE workspaceinfo SET default_workspace = FALSE WHERE default_workspace = TRUE
             """;
 
-    /**
-     * @param template
-     */
+    /** @param template */
     public PgconfigWorkspaceRepository(@NonNull JdbcTemplate template) {
         super(WorkspaceInfo.class, template);
     }

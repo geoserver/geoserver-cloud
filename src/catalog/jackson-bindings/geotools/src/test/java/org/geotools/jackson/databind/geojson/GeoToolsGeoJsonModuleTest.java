@@ -29,10 +29,7 @@ import org.locationtech.jts.io.WKTWriter;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * Test suite for {@link GeoToolsGeoJsonModule}, assuming it's registered to an
- * {@link ObjectMapper}
- */
+/** Test suite for {@link GeoToolsGeoJsonModule}, assuming it's registered to an {@link ObjectMapper} */
 @Slf4j
 public abstract class GeoToolsGeoJsonModuleTest {
 
@@ -155,8 +152,8 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     /**
-     * There's no way I could find in JTS to check for actual full geometry equality
-     * including all dimensions, despite {@link Geometry#equalsExact(Geometry)}
+     * There's no way I could find in JTS to check for actual full geometry equality including all dimensions, despite
+     * {@link Geometry#equalsExact(Geometry)}
      */
     private void assertActuallyEqualsExact(Geometry g1, Geometry g2) {
         assertTrue(g1.equalsExact(g2));

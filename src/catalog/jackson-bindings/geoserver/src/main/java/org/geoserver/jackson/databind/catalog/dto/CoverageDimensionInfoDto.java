@@ -10,9 +10,7 @@ import java.util.List;
 import lombok.Data;
 import org.geotools.jackson.databind.dto.NumberRangeDto;
 
-/**
- * DTO for CoverageDimensionInfo
- */
+/** DTO for CoverageDimensionInfo */
 @Data
 @JsonTypeName("CoverageDimensionInfo")
 public class CoverageDimensionInfoDto {

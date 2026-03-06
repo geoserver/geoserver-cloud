@@ -45,9 +45,7 @@ import org.geotools.filter.function.math.FilterFunction_abs_4;
 import org.geotools.filter.function.math.FilterFunction_ceil;
 import org.geotools.filter.function.math.FilterFunction_floor;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @UtilityClass
 class PgconfigFilterCapabilities {
 

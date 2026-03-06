@@ -191,9 +191,7 @@ class GatewayMdcPropagationTest {
         log.info("================================================");
     }
 
-    /**
-     * MockServerWebExchangeBuilder for simple test exchange creation
-     */
+    /** MockServerWebExchangeBuilder for simple test exchange creation */
     private static class MockServerWebExchangeBuilder {
         private String method = "GET";
         private String path = "/";

@@ -19,8 +19,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 
 /**
- * Listens to local {@link GeoWebCacheEvent}s produced by this service instance and broadcasts them
- * to the cluster as {@link RemoteGeoWebCacheEvent} on the event bus, and vice-versa.
+ * Listens to local {@link GeoWebCacheEvent}s produced by this service instance and broadcasts them to the cluster as
+ * {@link RemoteGeoWebCacheEvent} on the event bus, and vice-versa.
  */
 @RequiredArgsConstructor
 @Slf4j(topic = "org.geoserver.cloud.gwc.bus")
@@ -33,8 +33,8 @@ public class GeoWebCacheRemoteEventsBroker {
     private final @NonNull Supplier<String> originServiceId;
 
     /**
-     * Function that returns whether a given remote application event is originated in the local
-     * service instance ({@code true} or comes from a remote service ({@code false}).
+     * Function that returns whether a given remote application event is originated in the local service instance
+     * ({@code true} or comes from a remote service ({@code false}).
      */
     private final @NonNull Function<RemoteApplicationEvent, Boolean> busServiceMatcher;
 

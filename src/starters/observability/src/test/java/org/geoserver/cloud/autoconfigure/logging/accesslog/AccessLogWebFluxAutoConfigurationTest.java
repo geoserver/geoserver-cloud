@@ -21,8 +21,8 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Test-specific configuration that provides the beans that would normally be created by
- * AccessLogWebFluxAutoConfiguration. We need this because our actual configuration now has
- * conditionals that prevent it from running in tests.
+ * AccessLogWebFluxAutoConfiguration. We need this because our actual configuration now has conditionals that prevent it
+ * from running in tests.
  */
 @Configuration
 @EnableConfigurationProperties(AccessLogFilterConfig.class)
@@ -128,8 +128,7 @@ class AccessLogWebFluxAutoConfigurationTest {
     }
 
     /**
-     * Note: we don't test our actual AccessLogWebFluxAutoConfiguration here because it's now
-     * conditional on not having Gateway classes in the classpath.
-     * In these tests, we're using TestAccessLogConfiguration as a substitute.
+     * Note: we don't test our actual AccessLogWebFluxAutoConfiguration here because it's now conditional on not having
+     * Gateway classes in the classpath. In these tests, we're using TestAccessLogConfiguration as a substitute.
      */
 }

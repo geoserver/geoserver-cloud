@@ -10,9 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.geoserver.cloud.gwc.event.ConfigChangeEvent;
 
-/**
- * @since 1.9
- */
+/** @since 1.9 */
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("serial")
 public class RemoteConfigChangeEvent extends RemoteGeoWebCacheEvent {

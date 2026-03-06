@@ -21,19 +21,17 @@ import org.geotools.util.logging.Logging;
 /**
  * Represents a single held lock backed by a byte-range {@link FileLock} on the shared lock file.
  *
- * <p>Each lock key is mapped to a bucket via SHA-1 hashing ({@link #getBucket(String)}), producing
- * one of 1,048,576 (1M) possible buckets. The file lock is acquired on a 1-byte region at offset
- * {@code bucket * 1} within the shared lock file.
+ * <p>Each lock key is mapped to a bucket via SHA-1 hashing ({@link #getBucket(String)}), producing one of 1,048,576
+ * (1M) possible buckets. The file lock is acquired on a 1-byte region at offset {@code bucket * 1} within the shared
+ * lock file.
  *
- * <p><b>Reentrancy:</b> A {@code lockCount} field tracks how many times the current thread has
- * acquired this lock. Calling {@link #lock()} on an already-held lock increments the counter;
- * calling {@link #release()} decrements it. The underlying {@link FileLock} is only released when
- * the count reaches zero.
+ * <p><b>Reentrancy:</b> A {@code lockCount} field tracks how many times the current thread has acquired this lock.
+ * Calling {@link #lock()} on an already-held lock increments the counter; calling {@link #release()} decrements it. The
+ * underlying {@link FileLock} is only released when the count reaches zero.
  *
- * <p><b>Collision detection:</b> If two different lock keys hash to the same bucket and one is
- * already held (by another thread via the same JVM's channel), an {@link OverlappingFileLockException}
- * is caught and an {@link IllegalStateException} is thrown to signal the collision, rather than
- * silently waiting.
+ * <p><b>Collision detection:</b> If two different lock keys hash to the same bucket and one is already held (by another
+ * thread via the same JVM's channel), an {@link OverlappingFileLockException} is caught and an
+ * {@link IllegalStateException} is thrown to signal the collision, rather than silently waiting.
  *
  * @see StripingFileLockProvider
  */

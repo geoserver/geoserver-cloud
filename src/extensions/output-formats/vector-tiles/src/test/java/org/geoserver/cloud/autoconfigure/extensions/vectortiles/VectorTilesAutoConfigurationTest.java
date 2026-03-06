@@ -20,9 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-/**
- * Test suite for {@link VectorTilesAutoConfiguration}
- */
+/** Test suite for {@link VectorTilesAutoConfiguration} */
 class VectorTilesAutoConfigurationTest {
 
     private ApplicationContextRunner contextRunner;

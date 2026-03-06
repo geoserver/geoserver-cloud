@@ -19,12 +19,13 @@ import org.springframework.context.annotation.Configuration;
  * Spring Boot {@link AutoConfiguration @AutoConfiguration} conditional to enable/disable the plugin when:
  *
  * <ul>
- *   <li>A GeoServer instance is available in the application context</li>
- *   <li>The GeoServer ACL extension is enabled via configuration property {@code geoserver.extension.security.acl.enabled=true}</li>
+ *   <li>A GeoServer instance is available in the application context
+ *   <li>The GeoServer ACL extension is enabled via configuration property
+ *       {@code geoserver.extension.security.acl.enabled=true}
  * </ul>
  *
- * <p>This can be used on any Spring components that should only be registered when the
- * GeoServer ACL extension is enabled.
+ * <p>This can be used on any Spring components that should only be registered when the GeoServer ACL extension is
+ * enabled.
  *
  * <p>For plain Spring (without spring boot auto configuration support),
  * {@link AclEnabledCondition @Conditional(AclEnabledCondition.class)} is to be used on plain

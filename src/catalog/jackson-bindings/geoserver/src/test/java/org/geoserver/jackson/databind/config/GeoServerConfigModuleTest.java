@@ -35,9 +35,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 
 /**
- * Verifies that all GeoServer config ({@link GeoServerInfo}, etc) object types can be sent over the
- * wire and parsed back using jackson, thanks to {@link GeoServerConfigModule} jackcon-databind
- * module
+ * Verifies that all GeoServer config ({@link GeoServerInfo}, etc) object types can be sent over the wire and parsed
+ * back using jackson, thanks to {@link GeoServerConfigModule} jackcon-databind module
  */
 @Slf4j
 public abstract class GeoServerConfigModuleTest {

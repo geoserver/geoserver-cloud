@@ -21,9 +21,7 @@ import org.springframework.cloud.bus.BusAutoConfiguration;
 import org.springframework.cloud.bus.BusBridge;
 import org.springframework.cloud.bus.ServiceMatcher;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class RemoteGeoServerEventsConfigurationTest {
 
     private final ServiceMatcher mockServiceMatcher = mock(ServiceMatcher.class);

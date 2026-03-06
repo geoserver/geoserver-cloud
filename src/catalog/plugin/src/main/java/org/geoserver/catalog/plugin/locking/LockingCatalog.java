@@ -25,17 +25,17 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
  * {@link GeoServerConfigurationLock}.
  *
  * <p>This class enhances {@link CatalogPlugin} by overriding mutating methods to run within a
- * {@link GeoServerConfigurationLock}, which in GeoServer Cloud is required to provide cluster-level
- * locking. This offers higher granularity than {@link LockingCatalogFacade}, ensuring that batch
- * operations (e.g., {@code save()} affecting multiple config changes like setting defaults) execute
- * atomically under the same lock. The consistency guarantees depend on the lock’s scope, typically
- * cluster-wide in GeoServer Cloud.
+ * {@link GeoServerConfigurationLock}, which in GeoServer Cloud is required to provide cluster-level locking. This
+ * offers higher granularity than {@link LockingCatalogFacade}, ensuring that batch operations (e.g., {@code save()}
+ * affecting multiple config changes like setting defaults) execute atomically under the same lock. The consistency
+ * guarantees depend on the lock’s scope, typically cluster-wide in GeoServer Cloud.
  *
- * <p>Key mutating methods overridden include {@link #doAdd}, {@link #doSave}, {@link #doRemove}, and
- * default-setting methods like {@link #setDefaultWorkspace}. Locking can be enabled or disabled via
- * {@link #enableLocking()} and {@link #disableLocking()}.
+ * <p>Key mutating methods overridden include {@link #doAdd}, {@link #doSave}, {@link #doRemove}, and default-setting
+ * methods like {@link #setDefaultWorkspace}. Locking can be enabled or disabled via {@link #enableLocking()} and
+ * {@link #disableLocking()}.
  *
  * <p>Example usage:
+ *
  * <pre>
  * GeoServerConfigurationLock lock = ...;
  * LockingCatalog catalog = new LockingCatalog(lock);
@@ -106,22 +106,19 @@ public class LockingCatalog extends CatalogPlugin {
         enableLocking();
     }
 
-    /**
-     * Enables locking for all mutating operations using the configured {@link GeoServerConfigurationLock}.
-     */
+    /** Enables locking for all mutating operations using the configured {@link GeoServerConfigurationLock}. */
     public void enableLocking() {
         this.locking = LockingSupport.locking(configurationLock);
     }
 
-    /**
-     * Disables locking, bypassing the {@link GeoServerConfigurationLock} for mutating operations.
-     */
+    /** Disables locking, bypassing the {@link GeoServerConfigurationLock} for mutating operations. */
     public void disableLocking() {
         this.locking = LockingSupport.ignoringLocking();
     }
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety across related config changes.
      */
     @Override
@@ -133,6 +130,7 @@ public class LockingCatalog extends CatalogPlugin {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety across related config changes.
      */
     @Override
@@ -144,6 +142,7 @@ public class LockingCatalog extends CatalogPlugin {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety across related config changes.
      */
     @Override
@@ -155,6 +154,7 @@ public class LockingCatalog extends CatalogPlugin {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for addition.
      */
     protected @Override <T extends CatalogInfo> void doAdd(T info, UnaryOperator<T> inserter) {
@@ -163,6 +163,7 @@ public class LockingCatalog extends CatalogPlugin {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for saving.
      */
     protected @Override <I extends CatalogInfo> void doSave(final I info) {
@@ -171,6 +172,7 @@ public class LockingCatalog extends CatalogPlugin {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for removal.
      */
     protected @Override <T extends CatalogInfo> void doRemove(T info, Class<T> type) {
@@ -179,8 +181,9 @@ public class LockingCatalog extends CatalogPlugin {
     }
 
     /**
-     * Overrides to call {@code super.save(StoreInfo)} instead of {@code super.doSave()} because
-     * {@code CatalogPlugin} performs additional logic.
+     * Overrides to call {@code super.save(StoreInfo)} instead of {@code super.doSave()} because {@code CatalogPlugin}
+     * performs additional logic.
+     *
      * <p>Runs within a cluster-wide write lock to ensure update safety for saving store information.
      *
      * @param store The {@link StoreInfo} to save; must not be null.

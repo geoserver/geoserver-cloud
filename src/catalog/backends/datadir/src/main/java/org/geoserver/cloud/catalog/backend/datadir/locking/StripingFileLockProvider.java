@@ -25,19 +25,17 @@ import org.geotools.util.logging.Logging;
  * A lock provider based exclusively on {@link FileLock file system locks}, hence useful for inter-process locking but
  * unsuitable for locking across threads on the same JVM instance.
  *
- * <p><b>Striping strategy:</b> Each lock key is SHA-1 hashed (in {@link StripingFileLock}) to one of
- * 1,048,576 (1M) buckets. A lock is a {@link FileLock} on a 1-byte region at the bucket's offset
- * within the shared lock file. This avoids creating a file per lock key and ensures all processes
- * contend on the same file descriptor.
+ * <p><b>Striping strategy:</b> Each lock key is SHA-1 hashed (in {@link StripingFileLock}) to one of 1,048,576 (1M)
+ * buckets. A lock is a {@link FileLock} on a 1-byte region at the bucket's offset within the shared lock file. This
+ * avoids creating a file per lock key and ensures all processes contend on the same file descriptor.
  *
- * <p><b>ThreadLocal lock caching:</b> {@link StripingFileLock} instances are cached per-thread in a
- * {@link ThreadLocal} map, allowing reentrancy — if the same thread acquires the same key again, the
- * existing lock's counter is incremented rather than attempting a new file lock.
+ * <p><b>ThreadLocal lock caching:</b> {@link StripingFileLock} instances are cached per-thread in a {@link ThreadLocal}
+ * map, allowing reentrancy — if the same thread acquires the same key again, the existing lock's counter is incremented
+ * rather than attempting a new file lock.
  *
- * <p><b>Collision detection:</b> The {@link #bucketsHeldForKey} map tracks which lock key currently
- * holds each bucket, and {@link #threadIdHoldingKey} tracks the reentrancy count per key. If two
- * different keys hash to the same bucket and one is already held, an {@link IllegalStateException}
- * is thrown to signal the collision.
+ * <p><b>Collision detection:</b> The {@link #bucketsHeldForKey} map tracks which lock key currently holds each bucket,
+ * and {@link #threadIdHoldingKey} tracks the reentrancy count per key. If two different keys hash to the same bucket
+ * and one is already held, an {@link IllegalStateException} is thrown to signal the collision.
  *
  * @see DistributedFileLockProvider
  * @see ChainedLockProvider

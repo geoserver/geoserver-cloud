@@ -12,11 +12,11 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
 
 /**
- * {@link EnableAutoConfiguration @EnableAutoConfiguration} auto configuration for geoserver's
- * catalog back-end caching using spring {@link CacheManager}.
+ * {@link EnableAutoConfiguration @EnableAutoConfiguration} auto configuration for geoserver's catalog back-end caching
+ * using spring {@link CacheManager}.
  *
- * <p>Caching for the geoserver backend is enabled conditionally on property {@code
- * geoserver.catalog.caching.enabled=true}, defaults to {@code false}.
+ * <p>Caching for the geoserver backend is enabled conditionally on property
+ * {@code geoserver.catalog.caching.enabled=true}, defaults to {@code false}.
  *
  * @see GeoServerBackendCacheConfiguration
  */

@@ -19,10 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 /**
  * Tests for the updateState method in PgconfigResourceStore.
  *
- * <p>
- * This method is responsible for refreshing the state of a PgconfigResource
- * from the database, which is critical for long-lived resource references.
- * </p>
+ * <p>This method is responsible for refreshing the state of a PgconfigResource from the database, which is critical for
+ * long-lived resource references.
  */
 @ExtendWith(MockitoExtension.class)
 class PgconfigResourceStoreUpdateStateTest {
@@ -34,10 +32,7 @@ class PgconfigResourceStoreUpdateStateTest {
         store = mock(PgconfigResourceStore.class);
     }
 
-    /**
-     * Test that updateState correctly updates a resource's state when it exists in
-     * the database.
-     */
+    /** Test that updateState correctly updates a resource's state when it exists in the database. */
     @Test
     void testUpdateStateExistingResource() {
         // Create a resource with initial state
@@ -59,10 +54,7 @@ class PgconfigResourceStoreUpdateStateTest {
         assertEquals(789012L, resource.lastmodified());
     }
 
-    /**
-     * Test that a resource can be marked as undefined when it no longer exists in
-     * the database.
-     */
+    /** Test that a resource can be marked as undefined when it no longer exists in the database. */
     @Test
     void testMarkResourceAsUndefined() {
         // Create a resource with initial state
@@ -82,9 +74,7 @@ class PgconfigResourceStoreUpdateStateTest {
         assertTrue(resource.isUndefined());
     }
 
-    /**
-     * Test that a resource can transition through different states.
-     */
+    /** Test that a resource can transition through different states. */
     @Test
     void testResourceStateTransitions() {
         // Create a PgconfigResource (undefined)

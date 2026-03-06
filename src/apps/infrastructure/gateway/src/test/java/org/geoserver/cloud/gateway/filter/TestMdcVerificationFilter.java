@@ -20,9 +20,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * Test filter for verifying MDC propagation in Gateway.
- * This filter is activated only in the "test" profile and verifies that MDC
- * context is correctly propagated through the reactive chain.
+ * Test filter for verifying MDC propagation in Gateway. This filter is activated only in the "test" profile and
+ * verifies that MDC context is correctly propagated through the reactive chain.
  */
 @Component
 @Profile("test")
@@ -41,30 +40,22 @@ public class TestMdcVerificationFilter implements GlobalFilter, Ordered {
         return Ordered.HIGHEST_PRECEDENCE + 1000;
     }
 
-    /**
-     * Check if MDC verification has been performed
-     */
+    /** Check if MDC verification has been performed */
     public boolean isMdcVerified() {
         return mdcVerified.get();
     }
 
-    /**
-     * Get MDC context recorded for a request
-     */
+    /** Get MDC context recorded for a request */
     public Map<String, String> getMdcForRequest(String requestId) {
         return mdcByRequestId.get(requestId);
     }
 
-    /**
-     * Get all recorded request IDs and their MDC maps
-     */
+    /** Get all recorded request IDs and their MDC maps */
     public ConcurrentHashMap<String, Map<String, String>> getMdcByRequestId() {
         return mdcByRequestId;
     }
 
-    /**
-     * Clear test state
-     */
+    /** Clear test state */
     public void reset() {
         mdcByRequestId.clear();
         mdcVerified.set(false);

@@ -40,9 +40,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
 
-/**
- * @see CachingCatalogFacadeContainmentSupport
- */
+/** @see CachingCatalogFacadeContainmentSupport */
 public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
 
     /** Name of the cache used as key to acquire it through {@link CacheManager#getCache(String)} */
@@ -84,8 +82,8 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     }
 
     /**
-     * Evict the entry on add if the event is remote, to clear a possibly null-value cached. If the
-     * event is local, the add(xxx) method shall have overridden it with a cache put
+     * Evict the entry on add if the event is remote, to clear a possibly null-value cached. If the event is local, the
+     * add(xxx) method shall have overridden it with a cache put
      */
     @EventListener(CatalogInfoAdded.class)
     public void onCatalogInfoAdded(CatalogInfoAdded event) {
@@ -95,9 +93,8 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     }
 
     /**
-     * Evicts the cached entries the object id and for both the {@link
-     * CatalogInfoModified#getObjectName() new} and {@link CatalogInfoModified#getOldName() old}
-     * names.
+     * Evicts the cached entries the object id and for both the {@link CatalogInfoModified#getObjectName() new} and
+     * {@link CatalogInfoModified#getOldName() old} names.
      */
     @EventListener(CatalogInfoModified.class)
     public void onCatalogInfoModified(CatalogInfoModified event) {

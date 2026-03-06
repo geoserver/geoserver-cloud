@@ -29,9 +29,8 @@ public class DefaultStyleInfoRules implements CatalogInfoBusinessRules<StyleInfo
     private static final Logger LOGGER = Logging.getLogger(DefaultStyleInfoRules.class);
 
     /**
-     * Checks the {@link CatalogOpContext#getDiff() diff} to see of the style's name is going to be
-     * changed, and renames it's {@link StyleInfo#getFilename() file name} to match the new style
-     * name.
+     * Checks the {@link CatalogOpContext#getDiff() diff} to see of the style's name is going to be changed, and renames
+     * it's {@link StyleInfo#getFilename() file name} to match the new style name.
      */
     @Override
     public void beforeSave(CatalogOpContext<StyleInfo> context) {

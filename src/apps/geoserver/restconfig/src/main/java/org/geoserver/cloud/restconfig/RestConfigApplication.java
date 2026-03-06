@@ -11,10 +11,9 @@ import org.springframework.retry.annotation.EnableRetry;
 
 /**
  * Main entry point for the GeoServer Cloud REST configuration microservice.
- * <p>
- * This application provides the GeoServer REST API, allowing for programmatic management of the
- * GeoServer catalog and configuration in a cloud-native environment.
- * </p>
+ *
+ * <p>This application provides the GeoServer REST API, allowing for programmatic management of the GeoServer catalog
+ * and configuration in a cloud-native environment.
  */
 @SpringBootApplication
 @EnableRetry

@@ -21,22 +21,21 @@ import org.geoserver.config.impl.GeoServerLifecycleHandler;
 import org.geoserver.config.plugin.GeoServerImpl;
 
 /**
- * {@link CachingCatalogFacade} and {@link CachingGeoServerFacade} initialization and life cycle
- * handler, to enable caching during normal operation and disable it during maintenance operations
- * such as configuration initialization and reloading.
+ * {@link CachingCatalogFacade} and {@link CachingGeoServerFacade} initialization and life cycle handler, to enable
+ * caching during normal operation and disable it during maintenance operations such as configuration initialization and
+ * reloading.
  *
  * <p>Some methods in the caching decorators may cache {@code null} return values (for instance,
- * {@link CachingGeoServerFacade#getService(Class)} and others), which is very valuable during
- * normal GeoServer operation as such methods may be called several times per request. Yet, it can
- * be inconvenient during catalog and config maintenance operations, when, for example, the {@link
- * GeoServerLoader} checks for the existence of default or required objects. If a cached {@code
- * null} value is returned, multiple GeoServer instances may attempt to create the same default
- * objects (like {@link ServiceInfo}s).
+ * {@link CachingGeoServerFacade#getService(Class)} and others), which is very valuable during normal GeoServer
+ * operation as such methods may be called several times per request. Yet, it can be inconvenient during catalog and
+ * config maintenance operations, when, for example, the {@link GeoServerLoader} checks for the existence of default or
+ * required objects. If a cached {@code null} value is returned, multiple GeoServer instances may attempt to create the
+ * same default objects (like {@link ServiceInfo}s).
  *
- * <p>For that reason, this {@link GeoServerReinitializer reinitializer} and {@link
- * GeoServerLifecycleHandler life cycle} listener disables caching during configuration {@link
- * #beforeReinitialize initialization} and {@link #beforeReload reload}, and enables caching after
- * {@link #initialize(GeoServer) initialization} and {@link #onReload() reload}.
+ * <p>For that reason, this {@link GeoServerReinitializer reinitializer} and {@link GeoServerLifecycleHandler life
+ * cycle} listener disables caching during configuration {@link #beforeReinitialize initialization} and
+ * {@link #beforeReload reload}, and enables caching after {@link #initialize(GeoServer) initialization} and
+ * {@link #onReload() reload}.
  */
 @RequiredArgsConstructor
 @Slf4j(topic = "org.geoserver.cloud.catalog.caching")
@@ -46,20 +45,19 @@ class CachingFacadesLifeCycleHandler implements GeoServerReinitializer, GeoServe
     private final @NonNull CachingGeoServerFacade cachingGeoServerFacade;
 
     /**
-     * held to replace its {@link CatalogImpl#setFacade(CatalogFacade) facade} with the caching or
-     * original one when enabling or disabling caching
+     * held to replace its {@link CatalogImpl#setFacade(CatalogFacade) facade} with the caching or original one when
+     * enabling or disabling caching
      */
     private final @NonNull CatalogPlugin rawCatalog;
 
     /**
-     * held to replace its {@link GeoServerImpl#setFacade(GeoServerFacade) facade} with the caching
-     * or original one when enabling or disabling caching
+     * held to replace its {@link GeoServerImpl#setFacade(GeoServerFacade) facade} with the caching or original one when
+     * enabling or disabling caching
      */
     private final @NonNull GeoServerImpl rawGeoServer;
 
     /**
-     * {@link GeoServerReinitializer} method called before reloading the configuration, overridden to
-     * disable caching
+     * {@link GeoServerReinitializer} method called before reloading the configuration, overridden to disable caching
      */
     @Override
     public void beforeReinitialize(GeoServer geoServer) {
@@ -67,10 +65,9 @@ class CachingFacadesLifeCycleHandler implements GeoServerReinitializer, GeoServe
     }
 
     /**
-     * {@link GeoServerReinitializer} method called once the configuration has been loaded,
-     * overridden to enable caching by replacing the {@link Catalog} facade with the {@link
-     * CachingCatalogFacade} and the {@link GeoServer} facade with the {@link
-     * CachingGeoServerFacade} decorators.
+     * {@link GeoServerReinitializer} method called once the configuration has been loaded, overridden to enable caching
+     * by replacing the {@link Catalog} facade with the {@link CachingCatalogFacade} and the {@link GeoServer} facade
+     * with the {@link CachingGeoServerFacade} decorators.
      */
     @Override
     public void initialize(GeoServer geoServer) {
@@ -78,9 +75,8 @@ class CachingFacadesLifeCycleHandler implements GeoServerReinitializer, GeoServe
     }
 
     /**
-     * {@link GeoServerLifecycleHandler} method called by {@link GeoServer#reset()} to clear up all
-     * of the caches inside GeoServer, evicts the {@link CachingCatalogFacade} and {@link
-     * CachingGeoServerFacade} caches completely
+     * {@link GeoServerLifecycleHandler} method called by {@link GeoServer#reset()} to clear up all of the caches inside
+     * GeoServer, evicts the {@link CachingCatalogFacade} and {@link CachingGeoServerFacade} caches completely
      */
     @Override
     public void onReset() {
@@ -88,9 +84,9 @@ class CachingFacadesLifeCycleHandler implements GeoServerReinitializer, GeoServe
     }
 
     /**
-     * {@link GeoServerLifecycleHandler} method called by {@link GeoServer#reload()}, disables
-     * caching by removing the {@link CachingCatalogFacade} and {@link CachingGeoServerFacade} from
-     * the {@link Catalog} and {@link GeoServer} respectively.
+     * {@link GeoServerLifecycleHandler} method called by {@link GeoServer#reload()}, disables caching by removing the
+     * {@link CachingCatalogFacade} and {@link CachingGeoServerFacade} from the {@link Catalog} and {@link GeoServer}
+     * respectively.
      */
     @Override
     public void beforeReload() {
@@ -98,10 +94,9 @@ class CachingFacadesLifeCycleHandler implements GeoServerReinitializer, GeoServe
     }
 
     /**
-     * {@link GeoServerLifecycleHandler} called by {@link GeoServer#reload()} once the config has
-     * been reloaded, overridden to re-enable caching by replacing the {@link Catalog} facade with
-     * the {@link CachingCatalogFacade} and the {@link GeoServer} facade with the {@link
-     * CachingGeoServerFacade} decorators.
+     * {@link GeoServerLifecycleHandler} called by {@link GeoServer#reload()} once the config has been reloaded,
+     * overridden to re-enable caching by replacing the {@link Catalog} facade with the {@link CachingCatalogFacade} and
+     * the {@link GeoServer} facade with the {@link CachingGeoServerFacade} decorators.
      */
     @Override
     public void onReload() {

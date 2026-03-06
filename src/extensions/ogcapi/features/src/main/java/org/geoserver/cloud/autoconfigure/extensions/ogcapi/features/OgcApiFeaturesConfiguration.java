@@ -12,9 +12,7 @@ import org.geoserver.cloud.configuration.ogcapi.core.OgcApiCoreConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-/**
- * Configuration class for OGC API Features, conditional on WFS service.
- */
+/** Configuration class for OGC API Features, conditional on WFS service. */
 @Configuration
 @ConditionalOnOgcApiFeatures
 @ConditionalOnGeoServerWFS

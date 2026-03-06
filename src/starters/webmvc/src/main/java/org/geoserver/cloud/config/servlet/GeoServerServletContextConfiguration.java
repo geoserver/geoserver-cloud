@@ -43,8 +43,8 @@ public class GeoServerServletContextConfiguration {
     // Filters
 
     /**
-     * A servlet filter making sure we cannot end up calling flush() on the response output stream
-     * after close() has been called (https://osgeo-org.atlassian.net/browse/GEOS-5985)
+     * A servlet filter making sure we cannot end up calling flush() on the response output stream after close() has
+     * been called (https://osgeo-org.atlassian.net/browse/GEOS-5985)
      */
     @ConditionalOnProperty(
             prefix = "geoserver.servlet.filter.flush-safe",
@@ -87,14 +87,12 @@ public class GeoServerServletContextConfiguration {
     }
 
     /**
-     * Allows for a single mapping ({@code /*}) for all requests to the spring dispatcher. It
-     * creates a wrapper around the servlet request object that "fakes" the serveltPath property to
-     * make it look like the mapping was created in web.xml when in actuality it was created in
-     * spring.
+     * Allows for a single mapping ({@code /*}) for all requests to the spring dispatcher. It creates a wrapper around
+     * the servlet request object that "fakes" the serveltPath property to make it look like the mapping was created in
+     * web.xml when in actuality it was created in spring.
      *
-     * <p>This is useful, for instance, for the rest api's {@code RequestInfo} object to build URLs
-     * properly, instead of getting {@code null} from {@code
-     * HttpServletRequest.request.getPathInfo()}
+     * <p>This is useful, for instance, for the rest api's {@code RequestInfo} object to build URLs properly, instead of
+     * getting {@code null} from {@code HttpServletRequest.request.getPathInfo()}
      */
     @Bean
     AdvancedDispatchFilter advancedDispatchFilter() {
@@ -107,9 +105,8 @@ public class GeoServerServletContextConfiguration {
     }
 
     /**
-     * Allows for filters to be loaded via spring rather than registered here in web.xml. One thing
-     * to note is that for such filters init() is not called. INstead any initialization is
-     * performed via spring ioc.
+     * Allows for filters to be loaded via spring rather than registered here in web.xml. One thing to note is that for
+     * such filters init() is not called. INstead any initialization is performed via spring ioc.
      */
     @Bean
     SpringDelegatingFilter springDelegatingFilter() {

@@ -17,9 +17,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-/**
- * Abstract DTO for {@link org.geotools.api.filter.Filter}
- */
+/** Abstract DTO for {@link org.geotools.api.filter.Filter} */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = FilterDto.IdDto.class),
@@ -42,25 +40,19 @@ public abstract class FilterDto {
         // default constructor
     }
 
-    /**
-     * DTO for {@link org.geotools.api.filter.IncludeFilter}
-     */
+    /** DTO for {@link org.geotools.api.filter.IncludeFilter} */
     @Data
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("Include")
     public static class IncludeFilterDto extends FilterDto {}
 
-    /**
-     * DTO for {@link org.geotools.api.filter.ExcludeFilter}
-     */
+    /** DTO for {@link org.geotools.api.filter.ExcludeFilter} */
     @Data
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("Exclude")
     public static class ExcludeFilterDto extends FilterDto {}
 
-    /**
-     * DTO for {@link org.geotools.api.filter.Id}
-     */
+    /** DTO for {@link org.geotools.api.filter.Id} */
     @Data
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
@@ -91,9 +83,7 @@ public abstract class FilterDto {
         }
     }
 
-    /**
-     * DTO for {@link org.geotools.api.filter.NativeFilter}
-     */
+    /** DTO for {@link org.geotools.api.filter.NativeFilter} */
     @Data
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
@@ -104,9 +94,7 @@ public abstract class FilterDto {
         private String Native;
     }
 
-    /**
-     * DTO for {@link org.geotools.api.filter.Not}
-     */
+    /** DTO for {@link org.geotools.api.filter.Not} */
     @Data
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
@@ -115,9 +103,7 @@ public abstract class FilterDto {
         private FilterDto filter;
     }
 
-    /**
-     * Base DTO for {@link org.geotools.api.filter.BinaryLogicOperator}
-     */
+    /** Base DTO for {@link org.geotools.api.filter.BinaryLogicOperator} */
     @JsonSubTypes({
         @JsonSubTypes.Type(value = BinaryLogicOperatorDto.And.class),
         @JsonSubTypes.Type(value = BinaryLogicOperatorDto.Or.class)
@@ -128,26 +114,20 @@ public abstract class FilterDto {
     public abstract static class BinaryLogicOperatorDto extends FilterDto {
         private List<FilterDto> children;
 
-        /**
-         * DTO for {@link org.geotools.api.filter.And}
-         */
+        /** DTO for {@link org.geotools.api.filter.And} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("And")
         public static class And extends BinaryLogicOperatorDto {}
 
-        /**
-         * DTO for {@link org.geotools.api.filter.Or}
-         */
+        /** DTO for {@link org.geotools.api.filter.Or} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("Or")
         public static class Or extends BinaryLogicOperatorDto {}
     }
 
-    /**
-     * DTO for {@link org.geotools.api.filter.PropertyIsNil}
-     */
+    /** DTO for {@link org.geotools.api.filter.PropertyIsNil} */
     @Data
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
@@ -157,9 +137,7 @@ public abstract class FilterDto {
         private Object nilReason;
     }
 
-    /**
-     * DTO for {@link org.geotools.api.filter.PropertyIsNull}
-     */
+    /** DTO for {@link org.geotools.api.filter.PropertyIsNull} */
     @Data
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
@@ -168,9 +146,7 @@ public abstract class FilterDto {
         private ExpressionDto expression;
     }
 
-    /**
-     * Base DTO for {@link org.geotools.api.filter.MultiValuedFilter}
-     */
+    /** Base DTO for {@link org.geotools.api.filter.MultiValuedFilter} */
     @JsonSubTypes({
         @JsonSubTypes.Type(value = PropertyIsBetweenDto.class),
         @JsonSubTypes.Type(value = PropertyIsLikeDto.class),
@@ -191,8 +167,9 @@ public abstract class FilterDto {
     }
 
     /**
-     * Base DTO for BinaryOperator {@link org.geotools.api.filter.BinaryComparisonOperator}, {@link org.geotools.api.filter.spatial.BinarySpatialOperator},
-     * and {@link org.geotools.api.filter.temporal.BinaryTemporalOperator}
+     * Base DTO for BinaryOperator {@link org.geotools.api.filter.BinaryComparisonOperator},
+     * {@link org.geotools.api.filter.spatial.BinarySpatialOperator}, and
+     * {@link org.geotools.api.filter.temporal.BinaryTemporalOperator}
      */
     @JsonSubTypes({
         @JsonSubTypes.Type(value = BinaryComparisonOperatorDto.class),
@@ -207,9 +184,7 @@ public abstract class FilterDto {
         private ExpressionDto expression2;
     }
 
-    /**
-     * DTO for {@link org.geotools.api.filter.PropertyIsBetween}
-     */
+    /** DTO for {@link org.geotools.api.filter.PropertyIsBetween} */
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -220,9 +195,7 @@ public abstract class FilterDto {
         private ExpressionDto upperBoundary;
     }
 
-    /**
-     * DTO for {@link org.geotools.api.filter.PropertyIsLike}
-     */
+    /** DTO for {@link org.geotools.api.filter.PropertyIsLike} */
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -236,9 +209,7 @@ public abstract class FilterDto {
         private boolean matchingCase;
     }
 
-    /**
-     * Base DTO for {@link org.geotools.api.filter.BinaryComparisonOperator}
-     */
+    /** Base DTO for {@link org.geotools.api.filter.BinaryComparisonOperator} */
     @JsonSubTypes({
         @JsonSubTypes.Type(value = BinaryComparisonOperatorDto.PropertyIsEqualToDto.class),
         @JsonSubTypes.Type(value = BinaryComparisonOperatorDto.PropertyIsNotEqualToDto.class),
@@ -253,58 +224,44 @@ public abstract class FilterDto {
     public abstract static class BinaryComparisonOperatorDto extends BinaryOperatorDto {
         private boolean matchingCase;
 
-        /**
-         * DTO for {@link org.geotools.api.filter.PropertyIsEqualTo}
-         */
+        /** DTO for {@link org.geotools.api.filter.PropertyIsEqualTo} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("PropertyIsEqualTo")
         public static class PropertyIsEqualToDto extends BinaryComparisonOperatorDto {}
 
-        /**
-         * DTO for {@link org.geotools.api.filter.PropertyIsGreaterThan}
-         */
+        /** DTO for {@link org.geotools.api.filter.PropertyIsGreaterThan} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("PropertyIsGreaterThan")
         public static class PropertyIsGreaterThanDto extends BinaryComparisonOperatorDto {}
 
-        /**
-         * DTO for {@link org.geotools.api.filter.PropertyIsGreaterThanOrEqualTo}
-         */
+        /** DTO for {@link org.geotools.api.filter.PropertyIsGreaterThanOrEqualTo} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("PropertyIsGreaterThanOrEqualTo")
         public static class PropertyIsGreaterThanOrEqualToDto extends BinaryComparisonOperatorDto {}
 
-        /**
-         * DTO for {@link org.geotools.api.filter.PropertyIsLessThan}
-         */
+        /** DTO for {@link org.geotools.api.filter.PropertyIsLessThan} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("PropertyIsLessThan")
         public static class PropertyIsLessThanDto extends BinaryComparisonOperatorDto {}
 
-        /**
-         * DTO for {@link org.geotools.api.filter.PropertyIsLessThanOrEqualTo}
-         */
+        /** DTO for {@link org.geotools.api.filter.PropertyIsLessThanOrEqualTo} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("PropertyIsLessThanOrEqualTo")
         public static class PropertyIsLessThanOrEqualToDto extends BinaryComparisonOperatorDto {}
 
-        /**
-         * DTO for {@link org.geotools.api.filter.PropertyIsNotEqualTo}
-         */
+        /** DTO for {@link org.geotools.api.filter.PropertyIsNotEqualTo} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("PropertyIsNotEqualTo")
         public static class PropertyIsNotEqualToDto extends BinaryComparisonOperatorDto {}
     }
 
-    /**
-     * Base DTO for {@link org.geotools.api.filter.spatial.BinarySpatialOperator}
-     */
+    /** Base DTO for {@link org.geotools.api.filter.spatial.BinarySpatialOperator} */
     @JsonSubTypes({
         @JsonSubTypes.Type(value = BinarySpatialOperatorDto.BBOXDto.class),
         @JsonSubTypes.Type(value = BinarySpatialOperatorDto.ContainsDto.class),
@@ -340,7 +297,7 @@ public abstract class FilterDto {
         @JsonTypeName("Crosses")
         public static class CrossesDto extends BinarySpatialOperatorDto {}
 
-        /** DTO for {@link org.geotools.api.filter.spatial.Disjoint}*/
+        /** DTO for {@link org.geotools.api.filter.spatial.Disjoint} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("Disjoint")
@@ -352,31 +309,31 @@ public abstract class FilterDto {
         @JsonTypeName("Equals")
         public static class EqualsDto extends BinarySpatialOperatorDto {}
 
-        /** DTO for {@link org.geotools.api.filter.spatial.Intersects}*/
+        /** DTO for {@link org.geotools.api.filter.spatial.Intersects} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("Intersects")
         public static class IntersectsDto extends BinarySpatialOperatorDto {}
 
-        /** DTO for {@link org.geotools.api.filter.spatial.Overlaps}*/
+        /** DTO for {@link org.geotools.api.filter.spatial.Overlaps} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("Overlaps")
         public static class OverlapsDto extends BinarySpatialOperatorDto {}
 
-        /** DTO for {@link org.geotools.api.filter.spatial.Touches}*/
+        /** DTO for {@link org.geotools.api.filter.spatial.Touches} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("Touches")
         public static class TouchesDto extends BinarySpatialOperatorDto {}
 
-        /** DTO for {@link org.geotools.api.filter.spatial.Within}*/
+        /** DTO for {@link org.geotools.api.filter.spatial.Within} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("Within")
         public static class WithinDto extends BinarySpatialOperatorDto {}
 
-        /** Base DTO for {@link org.geotools.api.filter.spatial.DistanceBufferOperator}*/
+        /** Base DTO for {@link org.geotools.api.filter.spatial.DistanceBufferOperator} */
         @JsonSubTypes({
             @JsonSubTypes.Type(value = FilterDto.BinarySpatialOperatorDto.DWithinDto.class),
             @JsonSubTypes.Type(value = FilterDto.BinarySpatialOperatorDto.BeyondDto.class)
@@ -388,14 +345,14 @@ public abstract class FilterDto {
             private String distanceUnits;
         }
 
-        /** DTO for {@link org.geotools.api.filter.spatial.Beyond}*/
+        /** DTO for {@link org.geotools.api.filter.spatial.Beyond} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("Beyond")
         @SuppressWarnings("java:S110")
         public static class BeyondDto extends DistanceBufferOperatorDto {}
 
-        /** DTO for {@link org.geotools.api.filter.spatial.DWithin}*/
+        /** DTO for {@link org.geotools.api.filter.spatial.DWithin} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("DWithin")
@@ -403,7 +360,7 @@ public abstract class FilterDto {
         public static class DWithinDto extends DistanceBufferOperatorDto {}
     }
 
-    /** DTO for  */
+    /** DTO for */
     @JsonSubTypes({
         @JsonSubTypes.Type(value = BinaryTemporalOperatorDto.AfterDto.class),
         @JsonSubTypes.Type(value = BinaryTemporalOperatorDto.AnyInteractsDto.class),
@@ -432,7 +389,7 @@ public abstract class FilterDto {
         @JsonTypeName("After")
         public static class AfterDto extends BinaryTemporalOperatorDto {}
 
-        /** DTO for {@link org.geotools.api.filter.temporal.AnyInteracts}*/
+        /** DTO for {@link org.geotools.api.filter.temporal.AnyInteracts} */
         @Data
         @EqualsAndHashCode(callSuper = true)
         @JsonTypeName("AnyInteracts")

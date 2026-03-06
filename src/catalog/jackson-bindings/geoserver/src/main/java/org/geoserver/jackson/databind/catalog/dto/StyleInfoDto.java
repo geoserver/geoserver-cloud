@@ -11,9 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.geotools.jackson.databind.dto.VersionDto;
 
-/**
- * DTO for {@link org.geoserver.catalog.StyleInfo}
- */
+/** DTO for {@link org.geoserver.catalog.StyleInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

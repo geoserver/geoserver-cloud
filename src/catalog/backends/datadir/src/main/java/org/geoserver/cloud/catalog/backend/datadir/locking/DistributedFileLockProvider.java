@@ -18,23 +18,22 @@ import org.springframework.beans.factory.DisposableBean;
 /**
  * Distributed lock provider for multi-pod shared data directory access.
  *
- * <p>This is the public entry point and Spring bean. It implements a two-level locking strategy by
- * chaining an in-JVM {@link org.geoserver.platform.resource.MemoryLockProvider} with a
- * {@link StripingFileLockProvider} via {@link ChainedLockProvider}:
+ * <p>This is the public entry point and Spring bean. It implements a two-level locking strategy by chaining an in-JVM
+ * {@link org.geoserver.platform.resource.MemoryLockProvider} with a {@link StripingFileLockProvider} via
+ * {@link ChainedLockProvider}:
  *
  * <ol>
  *   <li><b>Memory lock</b> (acquired first) — synchronizes threads within the same JVM, since NIO
- *       {@link java.nio.channels.FileLock} does not prevent same-JVM threads from acquiring
- *       overlapping regions via different channels.
- *   <li><b>File lock</b> (acquired second) — synchronizes across processes/pods using byte-range
- *       locking on a single shared file.
+ *       {@link java.nio.channels.FileLock} does not prevent same-JVM threads from acquiring overlapping regions via
+ *       different channels.
+ *   <li><b>File lock</b> (acquired second) — synchronizes across processes/pods using byte-range locking on a single
+ *       shared file.
  * </ol>
  *
- * <p>The lock file is located at {@code <datadir>/.filelocks/resourcestore.locks} and is created
- * automatically on construction if it does not exist.
+ * <p>The lock file is located at {@code <datadir>/.filelocks/resourcestore.locks} and is created automatically on
+ * construction if it does not exist.
  *
- * <p>Implements {@link DisposableBean} to close the underlying file channel on Spring context
- * shutdown.
+ * <p>Implements {@link DisposableBean} to close the underlying file channel on Spring context shutdown.
  *
  * @see ChainedLockProvider
  * @see StripingFileLockProvider

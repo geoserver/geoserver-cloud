@@ -10,13 +10,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 /**
  * Application context initializer that sets the {@code cpu.cores} system property.
  *
- * <p>This initializer runs early in the Spring Boot startup lifecycle, before configuration
- * properties are bound. It sets the {@code cpu.cores} system property to the value returned by
- * {@link Runtime#availableProcessors()}, which reflects the number of CPU cores available to the
- * JVM (respecting container CPU limits).
+ * <p>This initializer runs early in the Spring Boot startup lifecycle, before configuration properties are bound. It
+ * sets the {@code cpu.cores} system property to the value returned by {@link Runtime#availableProcessors()}, which
+ * reflects the number of CPU cores available to the JVM (respecting container CPU limits).
  *
- * <p>This property enables dynamic configuration of Control-Flow limits based on available CPU
- * resources using SpEL expressions:
+ * <p>This property enables dynamic configuration of Control-Flow limits based on available CPU resources using SpEL
+ * expressions:
  *
  * <pre>{@code
  * geoserver:
@@ -27,8 +26,8 @@ import org.springframework.context.ConfigurableApplicationContext;
  *         '[ows.wms.getmap]': "${cpu.cores}"
  * }</pre>
  *
- * <p>The initializer is registered via {@code META-INF/spring.factories} and runs automatically
- * during application startup.
+ * <p>The initializer is registered via {@code META-INF/spring.factories} and runs automatically during application
+ * startup.
  *
  * @see ControlFlowConfigurationProperties
  * @see ExpressionEvaluator

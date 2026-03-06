@@ -33,10 +33,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AuthenticationProvider;
 
 /**
- * Extends {@link GeoServerSecurityManager} to {@link #fireRemoteChangedEvent(String) notify} other
- * services of changes to the security configuration happened on the currently running service, and
- * to {@link #onRemoteSecurityConfigChangeEvent listen to} those events to {@link
- * GeoServerSecurityManager#reload() reload} the security config when other service made a change.
+ * Extends {@link GeoServerSecurityManager} to {@link #fireRemoteChangedEvent(String) notify} other services of changes
+ * to the security configuration happened on the currently running service, and to
+ * {@link #onRemoteSecurityConfigChangeEvent listen to} those events to {@link GeoServerSecurityManager#reload() reload}
+ * the security config when other service made a change.
  */
 @Slf4j(topic = "org.geoserver.cloud.security")
 public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
@@ -66,9 +66,8 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     }
 
     /**
-     * Override to capture applicationContext for our use.
-     * GeoServerSecurityManager implements ApplicationContextAware but doesn't provide access
-     * to the applicationContext it stores.
+     * Override to capture applicationContext for our use. GeoServerSecurityManager implements ApplicationContextAware
+     * but doesn't provide access to the applicationContext it stores.
      */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -117,8 +116,7 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     }
 
     /**
-     * Listens to {@link SecurityConfigChanged} sent by other services and {@link #reload() reloads}
-     * the configuration
+     * Listens to {@link SecurityConfigChanged} sent by other services and {@link #reload() reloads} the configuration
      */
     @EventListener(SecurityConfigChanged.class)
     public void onRemoteSecurityConfigChangeEvent(SecurityConfigChanged event) {
@@ -134,7 +132,10 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         log.debug("Security configuration reloaded due to change event:", event);
     }
 
-    /** Fires a {@link SecurityConfigChanged} for other services to react accordingly, unless it is {@link #reload() reloading} . */
+    /**
+     * Fires a {@link SecurityConfigChanged} for other services to react accordingly, unless it is {@link #reload()
+     * reloading} .
+     */
     public void fireRemoteChangedEvent(@NonNull String reason) {
         if (reloading.get()) {
             log.info("{}: won't send security change event, config is reloading", reason);

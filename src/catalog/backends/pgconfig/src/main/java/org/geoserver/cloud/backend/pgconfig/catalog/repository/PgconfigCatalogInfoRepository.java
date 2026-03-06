@@ -36,9 +36,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.catalog.repository")
 public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> extends ResolvingCatalogInfoRepository<T>
         implements CatalogInfoRepository<T>, ResolvingFacade<T> {
@@ -54,9 +52,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
     private final String deleteByIdSql;
 
     private Class<T> contentType;
-    /**
-     * @param template
-     */
+    /** @param template */
     protected PgconfigCatalogInfoRepository(@NonNull Class<T> contentType, @NonNull JdbcTemplate template) {
         this(contentType, new LoggingTemplate(template));
     }
@@ -88,28 +84,25 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
     }
 
     /**
-     * The table name to use for inserts, updates, and deletes. May differ from the
-     * table used for {@link #getQueryTable() querying}
+     * The table name to use for inserts, updates, and deletes. May differ from the table used for
+     * {@link #getQueryTable() querying}
      */
     protected final String getUpdateTable() {
         return getContentType().getSimpleName().toLowerCase();
     }
 
-    /**
-     * The table or view name used for queries. It may contain denormalized fields
-     * for common query attributes
-     */
+    /** The table or view name used for queries. It may contain denormalized fields for common query attributes */
     protected abstract String getQueryTable();
 
     /**
-     * @return comma separated list of column names required to build the catalog
-     *         info with the {@link RowMapper}
+     * @return comma separated list of column names required to build the catalog info with the {@link RowMapper}
      * @see #newRowMapper
      */
     protected abstract String getReturnColumns();
 
     /**
-     * Creates a new {@link RowMapper}, potentially stateful, so a new one has to be created for each operation (e.g. {@code find*} methods).
+     * Creates a new {@link RowMapper}, potentially stateful, so a new one has to be created for each operation (e.g.
+     * {@code find*} methods).
      */
     protected RowMapper<T> newRowMapper() {
         return CatalogInfoRowMapper.newInstance();
@@ -123,15 +116,13 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
     }
 
     /**
-     * Resolves which column names can be used for queries. Column names match
-     * {@link CatalogInfo} property names that are commonly used in filters. For
-     * example, {@code name, title, workspace.id, resource.store.name, etc.}
-     * <p>
-     * This method assumes any column from the {@link #getQueryTable() query table}
-     * that's not of type {@code jsonb} can be used for filters.
+     * Resolves which column names can be used for queries. Column names match {@link CatalogInfo} property names that
+     * are commonly used in filters. For example, {@code name, title, workspace.id, resource.store.name, etc.}
      *
-     * @return an immutable {@link Set} with the {@link #getQueryTable()} column
-     *         names to use for filters.
+     * <p>This method assumes any column from the {@link #getQueryTable() query table} that's not of type {@code jsonb}
+     * can be used for filters.
+     *
+     * @return an immutable {@link Set} with the {@link #getQueryTable()} column names to use for filters.
      */
     protected Set<String> resolveSortableProperties() {
         Set<String> queryableColumns = new TreeSet<>();
@@ -274,9 +265,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
         }
     }
 
-    /**
-     * @return {@code -1} if the {@code filter} is not fully supported
-     */
+    /** @return {@code -1} if the {@code filter} is not fully supported */
     @Override
     public <U extends T> long count(Class<U> of, Filter filter) {
         filter = applyTypeFilter(filter, of);

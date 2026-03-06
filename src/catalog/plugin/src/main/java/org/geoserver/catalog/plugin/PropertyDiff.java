@@ -48,18 +48,17 @@ import org.geotools.api.util.InternationalString;
 import org.geotools.referencing.CRS;
 
 /**
- * Represents a set of property changes (differences) between the old and new states of a catalog object
- * in GeoServer. This class encapsulates a list of {@link Change} objects, each detailing a property
- * name, its old value, and its new value, enabling precise tracking and application of modifications to
- * entities like layers, styles, or workspaces.
+ * Represents a set of property changes (differences) between the old and new states of a catalog object in GeoServer.
+ * This class encapsulates a list of {@link Change} objects, each detailing a property name, its old value, and its new
+ * value, enabling precise tracking and application of modifications to entities like layers, styles, or workspaces.
  *
- * <p>{@code PropertyDiff} is used within the catalog system to compare states, generate patches (via
- * {@link #toPatch}), and facilitate updates across the distributed microservices architecture. It provides methods to inspect and refine the changes
- * (e.g., {@link #clean} to remove no-op changes).
+ * <p>{@code PropertyDiff} is used within the catalog system to compare states, generate patches (via {@link #toPatch}),
+ * and facilitate updates across the distributed microservices architecture. It provides methods to inspect and refine
+ * the changes (e.g., {@link #clean} to remove no-op changes).
  *
- * <p>The class is typically constructed using the {@link PropertyDiffBuilder} for incremental building or
- * directly from a {@link ModificationProxy} to capture changes programmatically. It is mutable but provides
- * immutable views of its data where appropriate.
+ * <p>The class is typically constructed using the {@link PropertyDiffBuilder} for incremental building or directly from
+ * a {@link ModificationProxy} to capture changes programmatically. It is mutable but provides immutable views of its
+ * data where appropriate.
  */
 @Slf4j
 public @Data class PropertyDiff implements Serializable {
@@ -74,7 +73,7 @@ public @Data class PropertyDiff implements Serializable {
      * @param <T> The type of catalog object ({@link Info}) being diffed.
      * @return A new {@link PropertyDiffBuilder} instance.
      * @example Basic builder usage:
-     *          <pre>
+     *     <pre>
      *          PropertyDiff diff = PropertyDiff.builder()
      *              .with("title", "Old Title", "New Title")
      *              .build();
@@ -87,12 +86,12 @@ public @Data class PropertyDiff implements Serializable {
     /**
      * Creates a builder initialized with an existing catalog object to compare against new values.
      *
-     * @param <T>           The type of catalog object ({@link Info}).
+     * @param <T> The type of catalog object ({@link Info}).
      * @param oldValueHolder The original catalog object to use as a baseline for diffs.
      * @return A new {@link PropertyDiffBuilder} instance initialized with the old state.
      * @throws NullPointerException if {@code oldValueHolder} is null.
      * @example Builder with existing object:
-     *          <pre>
+     *     <pre>
      *          LayerInfo layer = ...; // existing layer
      *          PropertyDiff diff = PropertyDiff.builder(layer)
      *              .with("title", "New Title")
@@ -142,12 +141,11 @@ public @Data class PropertyDiff implements Serializable {
     /**
      * Converts this diff into a {@link Patch} containing only new values.
      *
-     * <p>The resulting patch can be applied to update a catalog object, discarding old value
-     * information from the diff.
+     * <p>The resulting patch can be applied to update a catalog object, discarding old value information from the diff.
      *
      * @return A new {@link Patch} instance with properties derived from this diff’s new values.
      * @example Converting to a patch:
-     *          <pre>
+     *     <pre>
      *          PropertyDiff diff = ...;
      *          Patch patch = diff.toPatch();
      *          </pre>
@@ -223,13 +221,12 @@ public @Data class PropertyDiff implements Serializable {
     /**
      * Creates a new {@code PropertyDiff} with no-op changes filtered out.
      *
-     * <p>No-op changes (where old and new values are effectively equal) are removed using
-     * {@link Change#isNotEmpty}. This is useful for optimizing updates by excluding redundant
-     * modifications.
+     * <p>No-op changes (where old and new values are effectively equal) are removed using {@link Change#isNotEmpty}.
+     * This is useful for optimizing updates by excluding redundant modifications.
      *
      * @return A new {@code PropertyDiff} containing only meaningful changes.
      * @example Cleaning a diff:
-     *          <pre>
+     *     <pre>
      *          PropertyDiff diff = ...; // contains some no-op changes
      *          PropertyDiff cleanDiff = diff.clean();
      *          </pre>
@@ -248,12 +245,12 @@ public @Data class PropertyDiff implements Serializable {
     }
 
     /**
-     * Represents a single property change within a {@link PropertyDiff}, capturing the property name,
-     * old value, and new value.
+     * Represents a single property change within a {@link PropertyDiff}, capturing the property name, old value, and
+     * new value.
      *
-     * <p>This class includes logic to determine if the change is a no-op (e.g., old and new values are
-     * equal or effectively equivalent), supporting special cases like collections, international strings,
-     * and coordinate reference systems.
+     * <p>This class includes logic to determine if the change is a no-op (e.g., old and new values are equal or
+     * effectively equivalent), supporting special cases like collections, international strings, and coordinate
+     * reference systems.
      */
     @NoArgsConstructor
     @AllArgsConstructor
@@ -268,8 +265,7 @@ public @Data class PropertyDiff implements Serializable {
         /**
          * Checks if this change has a meaningful effect.
          *
-         * <p>A change is considered meaningful (not empty) if it’s not a no-op as determined by
-         * {@link #isNoChange}.
+         * <p>A change is considered meaningful (not empty) if it’s not a no-op as determined by {@link #isNoChange}.
          *
          * @return {@code true} if the change is meaningful; {@code false} if it’s a no-op.
          */
@@ -281,12 +277,14 @@ public @Data class PropertyDiff implements Serializable {
          * Determines if this change is a no-op (i.e., no effective change).
          *
          * <p>Special cases are handled:
+         *
          * <ul>
-         * <li>Equal objects (via {@link Objects#equals}).
-         * <li>Empty or null collections/maps.
-         * <li>Null or empty {@link InternationalString} values.
-         * <li>Equivalent {@link CoordinateReferenceSystem} instances.
+         *   <li>Equal objects (via {@link Objects#equals}).
+         *   <li>Empty or null collections/maps.
+         *   <li>Null or empty {@link InternationalString} values.
+         *   <li>Equivalent {@link CoordinateReferenceSystem} instances.
          * </ul>
+         *
          * @return {@code true} if the change is a no-op; {@code false} otherwise.
          */
         public boolean isNoChange() {
@@ -312,8 +310,7 @@ public @Data class PropertyDiff implements Serializable {
         /**
          * Compares two {@link CoordinateReferenceSystem} values for equivalence.
          *
-         * <p>Equality is based on CRS identifiers and metadata-ignoring comparison, with fallback
-         * logging for errors.
+         * <p>Equality is based on CRS identifiers and metadata-ignoring comparison, with fallback logging for errors.
          *
          * @return {@code true} if the CRS values are equivalent; {@code false} otherwise.
          */
@@ -343,16 +340,12 @@ public @Data class PropertyDiff implements Serializable {
             return isNullOrEmpty(toStringOrNull(oldValue)) && isNullOrEmpty(toStringOrNull(newValue));
         }
 
-        /**
-         * Converts an object to its string representation or null if it’s null.
-         */
+        /** Converts an object to its string representation or null if it’s null. */
         private String toStringOrNull(Object o) {
             return o == null ? null : o.toString();
         }
 
-        /**
-         * Checks if an object is null, empty, or represents an empty collection/map/string.
-         */
+        /** Checks if an object is null, empty, or represents an empty collection/map/string. */
         private boolean isNullOrEmpty(Object o) {
             if (o == null) {
                 return true;
@@ -369,44 +362,32 @@ public @Data class PropertyDiff implements Serializable {
             return false;
         }
 
-        /**
-         * Checks if neither old nor new value is null.
-         */
+        /** Checks if neither old nor new value is null. */
         private boolean neitherIsNull() {
             return oldValue != null && newValue != null;
         }
 
-        /**
-         * Checks if both old and new values are null or empty (for collections/maps).
-         */
+        /** Checks if both old and new values are null or empty (for collections/maps). */
         private boolean bothAreNullOrEmpty() {
             return isNullOrEmpty(oldValue) && isNullOrEmpty(newValue);
         }
 
-        /**
-         * Determines if this change involves a collection or map property.
-         */
+        /** Determines if this change involves a collection or map property. */
         private boolean isCollectionProperty() {
             return isA(Collection.class, oldValue, newValue) || isA(Map.class, oldValue, newValue);
         }
 
-        /**
-         * Checks if either value is an instance of the specified type.
-         */
+        /** Checks if either value is an instance of the specified type. */
         private boolean isA(@NonNull Class<?> type) {
             return isA(type, oldValue, newValue);
         }
 
-        /**
-         * Checks if either of two values is an instance of the specified type.
-         */
+        /** Checks if either of two values is an instance of the specified type. */
         private boolean isA(@NonNull Class<?> type, Object value1, Object value2) {
             return isA(type, value1) || isA(type, value2);
         }
 
-        /**
-         * Checks if a value is an instance of the specified type.
-         */
+        /** Checks if a value is an instance of the specified type. */
         private boolean isA(@NonNull Class<?> type, Object value) {
             return type.isInstance(value);
         }
@@ -415,8 +396,8 @@ public @Data class PropertyDiff implements Serializable {
          * Creates a new {@code Change} instance with the specified values.
          *
          * @param propertyName The name of the property.
-         * @param oldValue     The original value.
-         * @param newValue     The new value.
+         * @param oldValue The original value.
+         * @param newValue The new value.
          * @return A new {@code Change} instance.
          * @throws NullPointerException if {@code propertyName} is null.
          */
@@ -459,8 +440,8 @@ public @Data class PropertyDiff implements Serializable {
      * {@link PropertyDiffBuilder}.
      *
      * @param propertyNames The list of property names.
-     * @param oldValues     The list of old values.
-     * @param newValues     The list of new values.
+     * @param oldValues The list of old values.
+     * @param newValues The list of new values.
      * @return A new {@code PropertyDiff} instance.
      * @throws NullPointerException if any argument is null.
      * @throws IllegalArgumentException if the lists have different sizes.
@@ -485,8 +466,8 @@ public @Data class PropertyDiff implements Serializable {
     }
 
     /**
-     * Handles proxy objects by unwrapping and rewrapping them appropriately in order to hold a safe reference that's not affected by
-     * external changes to the proxy after this method is called.
+     * Handles proxy objects by unwrapping and rewrapping them appropriately in order to hold a safe reference that's
+     * not affected by external changes to the proxy after this method is called.
      *
      * @param value The value to process.
      * @return The unwrapped or rewrapped value, or the original if not a proxy.
@@ -523,9 +504,7 @@ public @Data class PropertyDiff implements Serializable {
                         "Unable to find most concrete Info sub-interface of %s".formatted(of.getCanonicalName())));
     }
 
-    /**
-     * Returns an empty {@code PropertyDiff} instance.
-     */
+    /** Returns an empty {@code PropertyDiff} instance. */
     public static PropertyDiff empty() {
         return new PropertyDiff();
     }
@@ -533,9 +512,8 @@ public @Data class PropertyDiff implements Serializable {
     /**
      * Builder class for incrementally constructing a {@code PropertyDiff}.
      *
-     * <p>Allows adding property changes with old and new values, optionally using an existing
-     * {@link Info} object as a baseline. Ensures safe copying of collection/map values and proper
-     * case handling for property names.
+     * <p>Allows adding property changes with old and new values, optionally using an existing {@link Info} object as a
+     * baseline. Ensures safe copying of collection/map values and proper case handling for property names.
      *
      * @param <T> The type of catalog object ({@link Info}) being diffed.
      */
@@ -630,6 +608,7 @@ public @Data class PropertyDiff implements Serializable {
 
         /**
          * Safely copies a value, handling collections and maps.
+         *
          * @return A safely copied version of the value, or the original if not a collection/map.
          */
         @SuppressWarnings({"unchecked"})
@@ -645,6 +624,7 @@ public @Data class PropertyDiff implements Serializable {
 
         /**
          * Copies a collection with identity mapping.
+         *
          * @return A new collection with the same elements.
          */
         public static <V> Collection<V> copyOf(Collection<? extends V> val) {
@@ -653,6 +633,7 @@ public @Data class PropertyDiff implements Serializable {
 
         /**
          * Copies a collection with a custom mapping function.
+         *
          * @return A new collection with mapped elements.
          */
         public static <V, R> Collection<R> copyOf(Collection<? extends V> val, Function<V, R> mapper) {
@@ -672,6 +653,7 @@ public @Data class PropertyDiff implements Serializable {
 
         /**
          * Copies a map with identity mapping.
+         *
          * @return A new map with the same key-value pairs.
          */
         public static <K, V> Map<K, V> copyOf(final Map<K, V> val) {
@@ -681,7 +663,7 @@ public @Data class PropertyDiff implements Serializable {
         /**
          * Copies a map with a custom value mapping function.
          *
-         * @param val         The map to copy.
+         * @param val The map to copy.
          * @param valueMapper The function to map values.
          * @return A new map with mapped values.
          */

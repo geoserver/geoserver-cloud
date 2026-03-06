@@ -7,8 +7,9 @@ package org.geoserver.security;
 
 /**
  * Overriddes {@link GeoServerSecurityFilterChainProxy#destroy()} to be resilient.
- * <p>
- * This class is in package {@code org.geoserver.security} to get access to the package private fields from the superclass
+ *
+ * <p>This class is in package {@code org.geoserver.security} to get access to the package private fields from the
+ * superclass
  */
 public class CloudGeoServerSecurityFilterChainProxy extends GeoServerSecurityFilterChainProxy {
 

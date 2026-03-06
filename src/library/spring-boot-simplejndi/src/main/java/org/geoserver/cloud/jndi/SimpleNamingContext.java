@@ -23,8 +23,8 @@ import javax.naming.OperationNotSupportedException;
 import lombok.NonNull;
 
 /**
- * Simple implementation of a JNDI naming context. Only supports binding plain Objects to String
- * names. Mainly for test environments.
+ * Simple implementation of a JNDI naming context. Only supports binding plain Objects to String names. Mainly for test
+ * environments.
  *
  * @see SimpleNamingContextBuilder
  * @see org.springframework.jndi.JndiTemplate#createInitialContext
@@ -159,113 +159,85 @@ public class SimpleNamingContext implements Context {
         // remote source
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public NamingEnumeration<NameClassPair> list(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public NamingEnumeration<Binding> listBindings(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public Object lookup(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public Object lookupLink(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public void bind(Name name, Object obj) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public void unbind(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public void rebind(Name name, Object obj) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public void rename(Name oldName, Name newName) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public Context createSubcontext(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public void destroySubcontext(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public String getNameInNamespace() throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public NameParser getNameParser(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public NameParser getNameParser(String name) throws NamingException {
         throw nameUnsupported();
     }
 
-    /**
-     * @throws OperationNotSupportedException javax.naming.Name is not supported
-     */
+    /** @throws OperationNotSupportedException javax.naming.Name is not supported */
     @Override
     public Name composeName(Name name, Name prefix) throws NamingException {
         throw nameUnsupported();

@@ -30,12 +30,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 
 /**
- * {@link AutoConfiguration @AutoConfiguration} to enable logging MDC (Mapped Diagnostic Context)
- * @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
- * contributions during the servlet request life cycle.
- * <p>
- * Configures servlet filters to populate the MDC with request, authentication, and environment
- * information.
+ * {@link AutoConfiguration @AutoConfiguration} to enable logging MDC (Mapped Diagnostic
+ * Context) @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public contributions
+ * during the servlet request life cycle.
+ *
+ * <p>Configures servlet filters to populate the MDC with request, authentication, and environment information.
  */
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
@@ -52,10 +51,7 @@ public class LoggingMDCServletAutoConfiguration {
         return new MDCCleaningFilter();
     }
 
-    /**
-     * @return servlet filter to {@link MDC#clear() clear} the MDC after the servlet request is
-     *     executed
-     */
+    /** @return servlet filter to {@link MDC#clear() clear} the MDC after the servlet request is executed */
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE + 2)
     HttpRequestMdcFilter httpMdcFilter(HttpRequestMdcConfigProperties config) {
@@ -70,10 +66,9 @@ public class LoggingMDCServletAutoConfiguration {
     }
 
     /**
-     * A servlet registration for {@link MDCAuthenticationFilter}, with {@link
-     * FilterRegistrationBean#setMatchAfter setMatchAfter(true)} to ensure it runs after {@link
-     * GeoServerSecurityFilterChainProxy} and hence the {@link SecurityContext} already has the
-     * {@link Authentication} object.
+     * A servlet registration for {@link MDCAuthenticationFilter}, with {@link FilterRegistrationBean#setMatchAfter
+     * setMatchAfter(true)} to ensure it runs after {@link GeoServerSecurityFilterChainProxy} and hence the
+     * {@link SecurityContext} already has the {@link Authentication} object.
      */
     @Bean
     @ConditionalOnClass(name = "org.springframework.security.core.Authentication")

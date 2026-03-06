@@ -15,8 +15,7 @@ import org.springframework.context.annotation.Import;
 /**
  * Auto-configuration for the GeoServer LDAP security extension.
  *
- * <p>This extension enables user authentication, user groups and roles to be stored
- * and managed in an LDAP directory.
+ * <p>This extension enables user authentication, user groups and roles to be stored and managed in an LDAP directory.
  *
  * <p>The extension is enabled by default and can be disabled with:
  *
@@ -28,8 +27,8 @@ import org.springframework.context.annotation.Import;
  *         enabled: false
  * }</pre>
  *
- * <p>The externalized configuration in config/geoserver.yml provides backward compatibility
- * with the older property through property placeholders:
+ * <p>The externalized configuration in config/geoserver.yml provides backward compatibility with the older property
+ * through property placeholders:
  *
  * <pre>{@code
  * geoserver:
@@ -46,16 +45,12 @@ import org.springframework.context.annotation.Import;
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.security.ldap")
 public class LDAPSecurityAutoConfiguration {
 
-    /**
-     * Log that the LDAP security configuration is detected.
-     */
+    /** Log that the LDAP security configuration is detected. */
     public @PostConstruct void log() {
         log.info("LDAP security configuration detected");
     }
 
-    /**
-     * Configuration for the LDAP security components.
-     */
+    /** Configuration for the LDAP security components. */
     @ConditionalOnLDAP
     @ImportFilteredResource("jar:gs-sec-ldap-.*!/applicationContext.xml")
     static class Configuration {}

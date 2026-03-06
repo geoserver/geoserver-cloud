@@ -15,8 +15,8 @@ import org.geoserver.gwc.layer.TileLayerCatalogListener;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Local {@link ApplicationContext} event issued to replace the tightly coupled {@link
- * TileLayerCatalogListener} by loosely coupled application events
+ * Local {@link ApplicationContext} event issued to replace the tightly coupled {@link TileLayerCatalogListener} by
+ * loosely coupled application events
  *
  * @since 1.0
  */

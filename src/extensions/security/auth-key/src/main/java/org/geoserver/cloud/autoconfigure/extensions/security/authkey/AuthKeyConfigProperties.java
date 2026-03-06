@@ -36,8 +36,8 @@ public @Data class AuthKeyConfigProperties {
     /**
      * Whether the AuthKey extension is enabled.
      *
-     * <p>When set to true, the AuthKey extension components will be registered in the application
-     * context. When false, the extension will not be available for use.
+     * <p>When set to true, the AuthKey extension components will be registered in the application context. When false,
+     * the extension will not be available for use.
      *
      * <p>Default is {@code true}.
      */

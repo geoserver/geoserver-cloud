@@ -19,8 +19,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 /**
- * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration}
- * when {@code geoserver.backend.data-directory.enabled=true}
+ * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration} when
+ * {@code geoserver.backend.data-directory.enabled=true}
  */
 @SpringBootTest(
         classes = DataDirectoryTestConfiguration.class, //

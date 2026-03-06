@@ -16,8 +16,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
 /**
- * Configuration to create a minimal {@link WebMapService} bean, may it not exist, to be used by
- * GeoWebCache for creating tile images.
+ * Configuration to create a minimal {@link WebMapService} bean, may it not exist, to be used by GeoWebCache for
+ * creating tile images.
  *
  * @since 1.0
  */
@@ -29,8 +29,8 @@ import org.springframework.context.annotation.DependsOn;
 public class WebMapServiceMinimalConfiguration {
 
     /**
-     * wms beans black-list, note wmsPNGLegendOutputFormat is required by {@link
-     * GeoServerTileLayer#getLayerLegendsInfo()}
+     * wms beans black-list, note wmsPNGLegendOutputFormat is required by
+     * {@link GeoServerTileLayer#getLayerLegendsInfo()}
      */
     private static final String WMS_BEANS_BLACKLIST =
             """

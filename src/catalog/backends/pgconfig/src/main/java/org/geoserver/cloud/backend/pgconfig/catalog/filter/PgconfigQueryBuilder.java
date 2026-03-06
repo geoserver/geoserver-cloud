@@ -16,9 +16,7 @@ import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgconfigFilterToSQL.R
 import org.geotools.api.filter.Filter;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @RequiredArgsConstructor
 public class PgconfigQueryBuilder {
 

@@ -22,24 +22,25 @@ import org.geoserver.catalog.plugin.RepositoryCatalogFacade;
  * A decorator implementation of {@link RepositoryCatalogFacade} that forwards all method calls to an underlying
  * {@link RepositoryCatalogFacade} instance.
  *
- * <p>This class extends {@link ForwardingExtendedCatalogFacade} to provide a base for creating decorators
- * that modify or extend the behavior of an existing {@link RepositoryCatalogFacade}. It implements the full
- * {@link RepositoryCatalogFacade} interface, including repository management methods, by delegating to the
- * wrapped facade. Subclasses can override specific methods to customize functionality (e.g., adding logging,
- * caching, or isolation) while retaining the default forwarding behavior for others.
+ * <p>This class extends {@link ForwardingExtendedCatalogFacade} to provide a base for creating decorators that modify
+ * or extend the behavior of an existing {@link RepositoryCatalogFacade}. It implements the full
+ * {@link RepositoryCatalogFacade} interface, including repository management methods, by delegating to the wrapped
+ * facade. Subclasses can override specific methods to customize functionality (e.g., adding logging, caching, or
+ * isolation) while retaining the default forwarding behavior for others.
  *
  * <p>Key characteristics:
+ *
  * <ul>
- *   <li><strong>Forwarding:</strong> All operations (e.g., {@link #get(String)}, {@link #query(Query)},
- *       repository setters/getters) are passed to the underlying facade.</li>
- *   <li><strong>Decorator Pattern:</strong> Facilitates extending facade behavior without altering the
- *       original implementation.</li>
- *   <li><strong>Repository Support:</strong> Implements {@link CatalogInfoRepositoryHolder} methods for
- *       managing type-specific repositories.</li>
+ *   <li><strong>Forwarding:</strong> All operations (e.g., {@link #get(String)}, {@link #query(Query)}, repository
+ *       setters/getters) are passed to the underlying facade.
+ *   <li><strong>Decorator Pattern:</strong> Facilitates extending facade behavior without altering the original
+ *       implementation.
+ *   <li><strong>Repository Support:</strong> Implements {@link CatalogInfoRepositoryHolder} methods for managing
+ *       type-specific repositories.
  * </ul>
  *
- * <p>Use this class as a starting point when you need to enhance a {@link RepositoryCatalogFacade} with
- * additional logic while preserving its core functionality.
+ * <p>Use this class as a starting point when you need to enhance a {@link RepositoryCatalogFacade} with additional
+ * logic while preserving its core functionality.
  *
  * @since 1.0
  * @see RepositoryCatalogFacade
@@ -163,7 +164,7 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
      * @return The configured {@link NamespaceRepository}; never null.
      * @throws IllegalStateException if no namespace repository has been set in the underlying facade.
      * @example Accessing the namespace repository:
-     *          <pre>
+     *     <pre>
      *          NamespaceRepository nsRepo = facade.getNamespaceRepository();
      *          </pre>
      */
@@ -282,12 +283,12 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
      *
      * @param <T> The type of {@link CatalogInfo} (e.g., {@link LayerInfo}).
      * @param <R> The corresponding repository type (e.g., {@link LayerRepository}).
-     * @param of  The class of catalog info objects to retrieve the repository for; must not be null.
+     * @param of The class of catalog info objects to retrieve the repository for; must not be null.
      * @return The repository managing objects of type {@code T}; never null.
      * @throws NullPointerException if {@code of} is null.
      * @throws IllegalArgumentException if no repository is configured for the specified type in the underlying facade.
      * @example Retrieving a layer repository:
-     *          <pre>
+     *     <pre>
      *          LayerRepository layerRepo = facade.repository(LayerInfo.class);
      *          </pre>
      */
@@ -301,14 +302,14 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
      *
      * <p>Forwards the call to the underlying facade’s {@link RepositoryCatalogFacade#repositoryFor(CatalogInfo)}.
      *
-     * @param <T>  The type of {@link CatalogInfo} (e.g., {@link StyleInfo}).
-     * @param <R>  The corresponding repository type (e.g., {@link StyleRepository}).
+     * @param <T> The type of {@link CatalogInfo} (e.g., {@link StyleInfo}).
+     * @param <R> The corresponding repository type (e.g., {@link StyleRepository}).
      * @param info The catalog info object whose type determines the repository; must not be null.
      * @return The repository managing objects of the same type as {@code info}; never null.
      * @throws NullPointerException if {@code info} is null.
      * @throws IllegalArgumentException if no repository is configured for the object’s type in the underlying facade.
      * @example Retrieving a repository for a specific style:
-     *          <pre>
+     *     <pre>
      *          StyleInfo style = ...; // existing style
      *          StyleRepository styleRepo = facade.repositoryFor(style);
      *          </pre>

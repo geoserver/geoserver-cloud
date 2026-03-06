@@ -14,14 +14,10 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<StoreInfo> implements StoreRepository {
 
-    /**
-     * @param template
-     */
+    /** @param template */
     public PgconfigStoreRepository(@NonNull JdbcTemplate template) {
         super(StoreInfo.class, template);
     }

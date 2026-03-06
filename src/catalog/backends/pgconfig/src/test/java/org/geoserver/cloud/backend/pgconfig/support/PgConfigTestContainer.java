@@ -21,10 +21,9 @@ import org.testcontainers.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
- * A {@link Testcontainers test container} based on {@link PostgreSQLContainer} using PostgreSQL 15
- * to aid in setting up the {@code DataSource}, {@code JdbcTemplate}, and {@link
- * PgconfigDatabaseMigrations Flyway} database migrations for the {@literal pgconfig} catalog
- * backend.
+ * A {@link Testcontainers test container} based on {@link PostgreSQLContainer} using PostgreSQL 15 to aid in setting up
+ * the {@code DataSource}, {@code JdbcTemplate}, and {@link PgconfigDatabaseMigrations Flyway} database migrations for
+ * the {@literal pgconfig} catalog backend.
  *
  * @since 1.6
  */
@@ -106,16 +105,15 @@ public class PgConfigTestContainer extends PostgreSQLContainer {
     }
 
     /**
-     * Contribute the following properties defined in the {@literal pgconfigjndi}
-     * spring profile
+     * Contribute the following properties defined in the {@literal pgconfigjndi} spring profile
      *
      * <ul>
-     * <li>pgconfig.host
-     * <li>pgconfig.port
-     * <li>pgconfig.database
-     * <li>pgconfig.schema
-     * <li>pgconfig.username
-     * <li>pgconfig.password
+     *   <li>pgconfig.host
+     *   <li>pgconfig.port
+     *   <li>pgconfig.database
+     *   <li>pgconfig.schema
+     *   <li>pgconfig.username
+     *   <li>pgconfig.password
      * </ul>
      */
     public void setupDynamicPropertySource(DynamicPropertyRegistry registry) {

@@ -9,9 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
-/**
- * DTO for {@link CoordinateReferenceSystem}
- */
+/** DTO for {@link CoordinateReferenceSystem} */
 @Data
 public class CoordinateReferenceSystemDto {
     private String srs;

@@ -34,9 +34,7 @@ import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.Resources;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Slf4j
 @RequiredArgsConstructor
 public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerInitializer {

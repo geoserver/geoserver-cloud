@@ -20,8 +20,8 @@ import org.springframework.boot.micrometer.metrics.autoconfigure.MetricsAutoConf
 import org.springframework.context.annotation.Bean;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for {@link Catalog} and {@link GeoServer}
- * metrics; depends on the {@literal geoserver.metrics.enabled=true} configuration property.
+ * {@link EnableAutoConfiguration Auto-configuration} for {@link Catalog} and {@link GeoServer} metrics; depends on the
+ * {@literal geoserver.metrics.enabled=true} configuration property.
  *
  * @see CatalogMetrics
  * @since 1.0

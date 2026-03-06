@@ -22,14 +22,13 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
 
 /**
- * Caching decorator for {@link ResourceStoreTileLayerCatalog} using a provided Spring {@link
- * CacheManager}.
+ * Caching decorator for {@link ResourceStoreTileLayerCatalog} using a provided Spring {@link CacheManager}.
  *
  * <p>Two named {@link Cache caches} are taken from the cache manager, {@code TILE_LAYERS_BY_ID} and
  * {@code TILE_LAYERS_BY_NAME}, in order to to point queries by layer id and name respectively.
  *
- * <p>{@code CachingTileLayerCatalog} listens to {@link TileLayerEvent}s to evict cache entries for
- * modified and removed tile layers.
+ * <p>{@code CachingTileLayerCatalog} listens to {@link TileLayerEvent}s to evict cache entries for modified and removed
+ * tile layers.
  *
  * @since 1.0
  */

@@ -20,29 +20,29 @@ import org.springframework.context.annotation.Configuration;
  *
  * <ul>
  *   <li>{@code logsPage} - excluded to avoid conflicts
- *   <li>{@code wicket} - replaced by {@link #geoServerWicketServletRegistration} to work around
- *       Spring Security 6 path matching issues
+ *   <li>{@code wicket} - replaced by {@link #geoServerWicketServletRegistration} to work around Spring Security 6 path
+ *       matching issues
  * </ul>
  *
  * <h2>Why ServletRegistrationBean instead of ServletWrappingController</h2>
  *
- * <p>Upstream GeoServer uses a {@code ServletWrappingController} for the Wicket servlet, routed
- * through {@code webDispatcherMapping} (a {@code SimpleUrlHandlerMapping}). This approach fails in
- * Spring Boot 3 / Spring Security 6 due to a path matching strategy mismatch:
+ * <p>Upstream GeoServer uses a {@code ServletWrappingController} for the Wicket servlet, routed through
+ * {@code webDispatcherMapping} (a {@code SimpleUrlHandlerMapping}). This approach fails in Spring Boot 3 / Spring
+ * Security 6 due to a path matching strategy mismatch:
  *
  * <ul>
- *   <li>Upstream's {@code SimpleUrlHandlerMapping} uses {@code patternParser=null} for Spring 5.x
- *       backwards compatibility (AntPathMatcher)
- *   <li>Spring Security 6's {@code PathPatternRequestMatcher} (used in {@code
- *       GeoServerSecurityMetadataSource}) expects {@code PathPatternParser}
- *   <li>When Security tries to match paths like {@code /web/wicket/resource/...}, it incorrectly
- *       computes the contextPath, causing: {@code IllegalArgumentException: Invalid contextPath
- *       '/wicket': must match the start of requestPath}
+ *   <li>Upstream's {@code SimpleUrlHandlerMapping} uses {@code patternParser=null} for Spring 5.x backwards
+ *       compatibility (AntPathMatcher)
+ *   <li>Spring Security 6's {@code PathPatternRequestMatcher} (used in {@code GeoServerSecurityMetadataSource}) expects
+ *       {@code PathPatternParser}
+ *   <li>When Security tries to match paths like {@code /web/wicket/resource/...}, it incorrectly computes the
+ *       contextPath, causing: {@code IllegalArgumentException: Invalid contextPath '/wicket': must match the start of
+ *       requestPath}
  * </ul>
  *
- * <p>Using {@code ServletRegistrationBean} with {@code /*} mapping bypasses Spring MVC's handler
- * mapping entirely, letting the servlet container route requests directly to the Wicket servlet.
- * The Wicket servlet's internal {@code filterPath=/web} handles the actual path matching.
+ * <p>Using {@code ServletRegistrationBean} with {@code /*} mapping bypasses Spring MVC's handler mapping entirely,
+ * letting the servlet container route requests directly to the Wicket servlet. The Wicket servlet's internal
+ * {@code filterPath=/web} handles the actual path matching.
  *
  * @see GeoServerWicketServlet
  * @see org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
@@ -63,11 +63,10 @@ public class WebCoreConfiguration {
     }
 
     /**
-     * Registers the Wicket servlet directly with the container, bypassing Spring MVC handler
-     * mappings.
+     * Registers the Wicket servlet directly with the container, bypassing Spring MVC handler mappings.
      *
-     * <p>Named "wicket" to match upstream's bean name referenced by {@code webDispatcherMapping},
-     * though that mapping is effectively bypassed by this direct servlet registration.
+     * <p>Named "wicket" to match upstream's bean name referenced by {@code webDispatcherMapping}, though that mapping
+     * is effectively bypassed by this direct servlet registration.
      *
      * @param servlet the GeoServer Wicket servlet instance
      * @return servlet registration mapped to {@code /*}

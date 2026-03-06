@@ -11,8 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Configuration properties for the LDAP security extension.
  *
- * <p>The LDAP security extension enables user authentication, user groups and roles to be stored
- * and managed in an LDAP directory.
+ * <p>The LDAP security extension enables user authentication, user groups and roles to be stored and managed in an LDAP
+ * directory.
  *
  * <p>Available properties:
  *
@@ -38,8 +38,8 @@ public @Data class LDAPConfigProperties {
     /**
      * Whether the LDAP security extension is enabled.
      *
-     * <p>When set to true, the LDAP security extension components will be registered in the application context.
-     * When false, the extension will not be available for use.
+     * <p>When set to true, the LDAP security extension components will be registered in the application context. When
+     * false, the extension will not be available for use.
      *
      * <p>Default is {@code true}.
      */

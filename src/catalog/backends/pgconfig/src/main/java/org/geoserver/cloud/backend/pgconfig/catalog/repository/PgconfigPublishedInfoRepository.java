@@ -14,9 +14,7 @@ import org.geoserver.catalog.PublishedInfo;
 import org.geotools.api.filter.Filter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/**
- * @since 2.27.0.0
- */
+/** @since 2.27.0.0 */
 public abstract class PgconfigPublishedInfoRepository<P extends PublishedInfo>
         extends PgconfigCatalogInfoRepository<P> {
 
@@ -29,7 +27,8 @@ public abstract class PgconfigPublishedInfoRepository<P extends PublishedInfo>
     }
 
     /**
-     * @return {@code publishedinfos_mat}, the materialized table maintained by triggers for fast querying of {@link PublishedInfo}s
+     * @return {@code publishedinfos_mat}, the materialized table maintained by triggers for fast querying of
+     *     {@link PublishedInfo}s
      */
     @Override
     protected final String getQueryTable() {

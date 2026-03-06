@@ -32,9 +32,7 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.springframework.jdbc.core.RowMapper;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.catalog.repository.rowmapper")
 public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMapper<T> {
 
@@ -210,8 +208,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
     /**
      * {@link RowMapper} function for {@link WorkspaceInfo}
      *
-     * <p>
-     * Expects the following columns:
+     * <p>Expects the following columns:
      *
      * <pre>{@code
      *    Column        |   Type   |

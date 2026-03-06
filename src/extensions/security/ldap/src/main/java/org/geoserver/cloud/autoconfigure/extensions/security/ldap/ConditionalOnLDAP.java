@@ -16,15 +16,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Conditional annotation that only matches when:
+ *
  * <ul>
  *   <li>A GeoServer instance is available in the application context
  *   <li>The LDAP security extension is enabled via configuration property
  * </ul>
  *
- * <p>This can be used on any Spring components that should only be registered when the
- * LDAP security extension is enabled.
+ * <p>This can be used on any Spring components that should only be registered when the LDAP security extension is
+ * enabled.
  *
  * <p>Usage example:
+ *
  * <pre>{@code
  * @Configuration
  * @ConditionalOnLDAP

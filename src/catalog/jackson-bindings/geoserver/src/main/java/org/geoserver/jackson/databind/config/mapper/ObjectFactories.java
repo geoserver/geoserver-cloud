@@ -30,8 +30,8 @@ import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Auto-wired object factory for config info interfaces, so the mapstruct code-generated mappers
- * know how to instantiate them
+ * Auto-wired object factory for config info interfaces, so the mapstruct code-generated mappers know how to instantiate
+ * them
  */
 @Component
 public class ObjectFactories {

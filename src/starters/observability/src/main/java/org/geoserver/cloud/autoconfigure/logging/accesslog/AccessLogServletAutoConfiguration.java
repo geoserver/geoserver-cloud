@@ -17,24 +17,24 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * Auto-configuration for access logging in Servlet applications.
- * <p>
- * This configuration automatically sets up the {@link AccessLogServletFilter} for servlet web applications,
- * enabling HTTP request access logging. The filter captures key information about each request
- * and logs it at the appropriate level based on the configuration.
- * <p>
- * The configuration activates only when the following conditions are met:
+ *
+ * <p>This configuration automatically sets up the {@link AccessLogServletFilter} for servlet web applications, enabling
+ * HTTP request access logging. The filter captures key information about each request and logs it at the appropriate
+ * level based on the configuration.
+ *
+ * <p>The configuration activates only when the following conditions are met:
+ *
  * <ul>
- *   <li>The application is a Servlet web application ({@code spring.main.web-application-type=servlet})</li>
- *   <li>The property {@code logging.accesslog.enabled} is set to {@code true}</li>
+ *   <li>The application is a Servlet web application ({@code spring.main.web-application-type=servlet})
+ *   <li>The property {@code logging.accesslog.enabled} is set to {@code true}
  * </ul>
- * <p>
- * Access log properties are controlled through the {@link AccessLogFilterConfig} class,
- * which allows defining patterns for requests to be logged at different levels (info, debug, trace).
- * <p>
- * This auto-configuration is compatible with and complements the WebFlux-based
- * {@link AccessLogWebFluxAutoConfiguration}. Both can be present in an application that
- * supports either servlet or reactive web models, but only one will be active based on the
- * web application type.
+ *
+ * <p>Access log properties are controlled through the {@link AccessLogFilterConfig} class, which allows defining
+ * patterns for requests to be logged at different levels (info, debug, trace).
+ *
+ * <p>This auto-configuration is compatible with and complements the WebFlux-based
+ * {@link AccessLogWebFluxAutoConfiguration}. Both can be present in an application that supports either servlet or
+ * reactive web models, but only one will be active based on the web application type.
  *
  * @see AccessLogServletFilter
  * @see AccessLogFilterConfig
@@ -48,15 +48,16 @@ public class AccessLogServletAutoConfiguration {
 
     /**
      * Creates the AccessLogServletFilter bean for Servlet applications.
-     * <p>
-     * This bean is responsible for logging HTTP requests based on the provided configuration.
-     * The filter captures key information about each request and logs it at the appropriate level
-     * based on the URL patterns defined in the configuration.
-     * <p>
-     * The filter is configured with the {@link AccessLogFilterConfig} which determines:
+     *
+     * <p>This bean is responsible for logging HTTP requests based on the provided configuration. The filter captures
+     * key information about each request and logs it at the appropriate level based on the URL patterns defined in the
+     * configuration.
+     *
+     * <p>The filter is configured with the {@link AccessLogFilterConfig} which determines:
+     *
      * <ul>
-     *   <li>Which URL patterns are logged</li>
-     *   <li>What log level (info, debug, trace) is used for each pattern</li>
+     *   <li>Which URL patterns are logged
+     *   <li>What log level (info, debug, trace) is used for each pattern
      * </ul>
      *
      * @param conf the access log filter configuration properties

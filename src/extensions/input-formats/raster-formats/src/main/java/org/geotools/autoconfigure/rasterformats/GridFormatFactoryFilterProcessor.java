@@ -25,17 +25,15 @@ import org.springframework.core.annotation.Order;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * A BeanPostProcessor that handles GridFormatFactorySpi filtering by creating
- * a proxy around the GridFormatFinder class to filter formats on-the-fly.
+ * A BeanPostProcessor that handles GridFormatFactorySpi filtering by creating a proxy around the GridFormatFinder class
+ * to filter formats on-the-fly.
  *
- * <p>This approach is necessary because GridFormatFinder.getAvailableFormats()
- * calls scanForPlugins() each time, which refreshes the registry and reloads
- * factories from the classpath, making it impossible to permanently deregister
+ * <p>This approach is necessary because GridFormatFinder.getAvailableFormats() calls scanForPlugins() each time, which
+ * refreshes the registry and reloads factories from the classpath, making it impossible to permanently deregister
  * formats.
  *
- * <p>Also implements ApplicationListener to ensure the filter is reinstalled
- * after the context is fully initialized, as there may be components that
- * call GridFormatFinder during initialization.
+ * <p>Also implements ApplicationListener to ensure the filter is reinstalled after the context is fully initialized, as
+ * there may be components that call GridFormatFinder during initialization.
  */
 @Slf4j(topic = "org.geotools.autoconfigure.rasterformats")
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -131,9 +129,8 @@ public class GridFormatFactoryFilterProcessor implements InitializingBean, Appli
     /**
      * Installs a wrapper for GridFormatFinder that filters formats at runtime.
      *
-     * <p>Since GridFormatFinder.getAvailableFormats() calls scanForPlugins() which reloads
-     * all factories from the classpath, we need to create a wrapper that filters the
-     * formats at runtime instead of trying to deregister them.
+     * <p>Since GridFormatFinder.getAvailableFormats() calls scanForPlugins() which reloads all factories from the
+     * classpath, we need to create a wrapper that filters the formats at runtime instead of trying to deregister them.
      */
     @SuppressWarnings("java:S3011")
     private void installGridFormatFilter() {
@@ -186,8 +183,7 @@ public class GridFormatFactoryFilterProcessor implements InitializingBean, Appli
     }
 
     /**
-     * A custom FactoryCreator that wraps another FactoryCreator and filters its factories
-     * based on the configuration.
+     * A custom FactoryCreator that wraps another FactoryCreator and filters its factories based on the configuration.
      */
     private class FilteringFactoryCreator extends FactoryCreator {
         private final FactoryCreator delegate;

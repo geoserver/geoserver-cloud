@@ -11,9 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.geoserver.cog.CogSettingsStore;
 
-/**
- * DTO for {@link CogSettingsStore}
- */
+/** DTO for {@link CogSettingsStore} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("CogSettingsStore")

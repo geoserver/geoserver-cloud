@@ -23,8 +23,7 @@ import org.testcontainers.utility.DockerImageName;
  *
  * <ul>
  *   <li>Account name: {@code devstoreaccount1}
- *   <li>Account key: {@code
- *       Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==}
+ *   <li>Account key: {@code Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==}
  * </ul>
  */
 public class AzuriteContainer extends GenericContainer<AzuriteContainer> {

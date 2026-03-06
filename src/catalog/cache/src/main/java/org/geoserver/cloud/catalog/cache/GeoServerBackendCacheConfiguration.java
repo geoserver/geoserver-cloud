@@ -23,11 +23,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Enables caching at the {@link CatalogFacade} and {@link GeoServerFacade} level instead of at the
- * {@link Catalog} and {@link GeoServer} level, which would be the natural choice, in order not to
- * interfere with decorators such as {@code SecureCatalogImpl}, which need to hide objects at
- * runtime, and if a caching decorator sits on top of it, those resources might not be hidden for a
- * given user when they should.
+ * Enables caching at the {@link CatalogFacade} and {@link GeoServerFacade} level instead of at the {@link Catalog} and
+ * {@link GeoServer} level, which would be the natural choice, in order not to interfere with decorators such as
+ * {@code SecureCatalogImpl}, which need to hide objects at runtime, and if a caching decorator sits on top of it, those
+ * resources might not be hidden for a given user when they should.
  *
  * @see CachingCatalogFacade
  * @see CachingGeoServerFacade

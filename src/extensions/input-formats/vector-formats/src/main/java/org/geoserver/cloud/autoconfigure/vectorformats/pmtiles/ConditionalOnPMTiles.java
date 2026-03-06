@@ -18,16 +18,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 /**
  * Composite annotation that combines conditions required for PMTiles support.
  *
- * <p>
- * This conditional activates when:
+ * <p>This conditional activates when:
+ *
  * <ul>
- * <li>The {@code geoserver.extension.pmtiles.enabled} property is true (the default)
- * <li> The {@code org.geotools.pmtiles.store.PMTilesDataStoreFactory} class is in the classpath
+ *   <li>The {@code geoserver.extension.pmtiles.enabled} property is true (the default)
+ *   <li>The {@code org.geotools.pmtiles.store.PMTilesDataStoreFactory} class is in the classpath
  * </ul>
  *
- * <p>
- * This annotation can be used on configuration classes or bean methods to make
- * them conditional on PMTiles being enabled.
+ * <p>This annotation can be used on configuration classes or bean methods to make them conditional on PMTiles being
+ * enabled.
  *
  * @see ConditionalOnProperty
  * @since 2.28.0

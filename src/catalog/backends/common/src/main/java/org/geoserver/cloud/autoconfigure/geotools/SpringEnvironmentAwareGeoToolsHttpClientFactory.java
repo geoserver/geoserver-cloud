@@ -15,22 +15,15 @@ import org.geotools.http.HTTPClient;
 /**
  * A GeoTools HTTP client factory that creates clients aware of Spring Environment configurations.
  *
- * <p>
- * This factory creates {@link SpringEnvironmentAwareGeoToolsHttpClient} instances that use
- * proxy configuration from Spring Boot's externalized configuration system. This allows
- * GeoTools HTTP clients to use proxy settings defined in application properties or YAML
- * files, environment variables, or other Spring configuration sources.
- * </p>
+ * <p>This factory creates {@link SpringEnvironmentAwareGeoToolsHttpClient} instances that use proxy configuration from
+ * Spring Boot's externalized configuration system. This allows GeoTools HTTP clients to use proxy settings defined in
+ * application properties or YAML files, environment variables, or other Spring configuration sources.
  *
- * <p>
- * The factory uses {@link GeoToolsHttpClientProxyConfigurationProperties} to access the
- * proxy configurations. It is registered with GeoTools through the standard Java
- * Service Provider Interface (SPI) mechanism.
- * </p>
+ * <p>The factory uses {@link GeoToolsHttpClientProxyConfigurationProperties} to access the proxy configurations. It is
+ * registered with GeoTools through the standard Java Service Provider Interface (SPI) mechanism.
  *
- * <p>
- * Example usage:
- * </p>
+ * <p>Example usage:
+ *
  * <pre>
  * // GeoTools will discover and use this factory automatically
  * HTTPClient client = HTTPClientFinder.createClient();
@@ -45,10 +38,8 @@ public class SpringEnvironmentAwareGeoToolsHttpClientFactory extends AbstractHTT
     /**
      * Proxy configuration properties used by the HTTP clients created by this factory.
      *
-     * <p>
-     * This static field is initialized with default settings and can be updated
-     * by Spring or other configuration mechanisms through the setter method.
-     * </p>
+     * <p>This static field is initialized with default settings and can be updated by Spring or other configuration
+     * mechanisms through the setter method.
      */
     @Setter(value = AccessLevel.PACKAGE)
     private static GeoToolsHttpClientProxyConfigurationProperties proxyConfig =
@@ -57,10 +48,7 @@ public class SpringEnvironmentAwareGeoToolsHttpClientFactory extends AbstractHTT
     /**
      * Returns the list of client classes this factory can create.
      *
-     * <p>
-     * This implementation returns a list containing only
-     * {@link SpringEnvironmentAwareGeoToolsHttpClient}.
-     * </p>
+     * <p>This implementation returns a list containing only {@link SpringEnvironmentAwareGeoToolsHttpClient}.
      *
      * @return a list of supported HTTP client classes
      */
@@ -72,11 +60,8 @@ public class SpringEnvironmentAwareGeoToolsHttpClientFactory extends AbstractHTT
     /**
      * Creates a new HTTP client instance with the current proxy configuration.
      *
-     * <p>
-     * This method creates a new {@link SpringEnvironmentAwareGeoToolsHttpClient}
-     * using the current proxy configuration. The behaviors parameter is not used in
-     * this implementation.
-     * </p>
+     * <p>This method creates a new {@link SpringEnvironmentAwareGeoToolsHttpClient} using the current proxy
+     * configuration. The behaviors parameter is not used in this implementation.
      *
      * @param behaviors a list of HTTP behaviors (ignored in this implementation)
      * @return a new HTTP client instance

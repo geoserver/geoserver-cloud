@@ -7,9 +7,6 @@ package org.geoserver.cloud.autoconfigure.web.extension;
 
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Auto-configuration for WebUI extensions.
- * Extensions are now provided via gs-cloud-starter-extensions.
- */
+/** Auto-configuration for WebUI extensions. Extensions are now provided via gs-cloud-starter-extensions. */
 @Configuration
 public class ExtensionsAutoConfiguration {}

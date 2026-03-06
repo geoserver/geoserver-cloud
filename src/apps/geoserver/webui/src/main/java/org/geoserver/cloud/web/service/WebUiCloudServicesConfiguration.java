@@ -17,9 +17,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Configuration(proxyBeanMethods = true)
 public class WebUiCloudServicesConfiguration {
 

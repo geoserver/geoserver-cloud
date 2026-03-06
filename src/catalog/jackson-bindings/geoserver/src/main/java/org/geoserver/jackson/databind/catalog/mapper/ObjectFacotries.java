@@ -78,8 +78,8 @@ import org.mapstruct.ObjectFactory;
 import org.mapstruct.TargetType;
 
 /**
- * Auto-wired object factory for Catalog info interfaces, so the mapstruct code-generated mappers
- * know how to instantiate them
+ * Auto-wired object factory for Catalog info interfaces, so the mapstruct code-generated mappers know how to
+ * instantiate them
  */
 public class ObjectFacotries {
 

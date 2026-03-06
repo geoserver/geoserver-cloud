@@ -52,9 +52,8 @@ import org.locationtech.jts.io.WKTReader;
 import si.uom.SI;
 
 /**
- * Abstract test suite for {@link ExpressionDto} Data Transfer Objects or POJOS; to be used both for
- * testing serialization/deserialization and mapping to and from {@link
- * org.geotools.api.filter.expression.Expression}
+ * Abstract test suite for {@link ExpressionDto} Data Transfer Objects or POJOS; to be used both for testing
+ * serialization/deserialization and mapping to and from {@link org.geotools.api.filter.expression.Expression}
  */
 @Slf4j
 public abstract class ExpressionRoundtripTest {

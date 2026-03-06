@@ -20,25 +20,20 @@ import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.security.GeoServerSecurityManager;
 
 /**
- * Extends GeoServer's standard
- * {@link org.geoserver.config.datadir.DataDirectoryGeoServerLoader} with
- * minimal customizations for cloud environment compatibility.
+ * Extends GeoServer's standard {@link org.geoserver.config.datadir.DataDirectoryGeoServerLoader} with minimal
+ * customizations for cloud environment compatibility.
  *
- * <p>
- * This class used to implement a custom parallel loading mechanism, but since
- * commit de932a54e8, most customizations are no longer needed as the optimized
- * parallel data directory loader has become the default in upstream GeoServer.
+ * <p>This class used to implement a custom parallel loading mechanism, but since commit de932a54e8, most customizations
+ * are no longer needed as the optimized parallel data directory loader has become the default in upstream GeoServer.
  *
- * <p>
- * Current customizations include:
+ * <p>Current customizations include:
  *
  * <ul>
- * <li>Uses {@link CatalogPlugin} as the temporary catalog implementation
- * <li>Disables locking during initial configuration loading
- * <li>Uses custom {@link CatalogPluginGeoServerConfigPersister} and
- * {@link CatalogPluginStyleResourcePersister} instead of the standard ones
- * <li>Ensures catalog and GeoServer listeners are properly configured for the
- * plugin catalog
+ *   <li>Uses {@link CatalogPlugin} as the temporary catalog implementation
+ *   <li>Disables locking during initial configuration loading
+ *   <li>Uses custom {@link CatalogPluginGeoServerConfigPersister} and {@link CatalogPluginStyleResourcePersister}
+ *       instead of the standard ones
+ *   <li>Ensures catalog and GeoServer listeners are properly configured for the plugin catalog
  * </ul>
  *
  * @since 1.0

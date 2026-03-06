@@ -17,11 +17,9 @@ import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.cache.interceptor.SimpleKey;
 
 /**
- * A key to for a cached {@link Info} using its prefixed name, according to {@link
- * InfoEvent#prefixedName(Info)}.
+ * A key to for a cached {@link Info} using its prefixed name, according to {@link InfoEvent#prefixedName(Info)}.
  *
- * <p>easier than implementing multiple key generators; it's also a smaller memory footprint than
- * {@link SimpleKey}
+ * <p>easier than implementing multiple key generators; it's also a smaller memory footprint than {@link SimpleKey}
  */
 record InfoNameKey(@NonNull String prefixedName, @NonNull ConfigInfoType type) implements Serializable {
 

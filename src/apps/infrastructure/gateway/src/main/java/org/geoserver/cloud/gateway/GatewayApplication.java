@@ -8,9 +8,7 @@ package org.geoserver.cloud.gateway;
 import org.geoserver.cloud.app.GeoServerApplicationLauncher;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * Spring Cloud Gateway application for GeoServer Cloud
- */
+/** Spring Cloud Gateway application for GeoServer Cloud */
 @SpringBootApplication
 public class GatewayApplication {
 

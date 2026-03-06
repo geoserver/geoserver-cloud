@@ -10,9 +10,7 @@ import org.geoserver.cloud.config.jndi.JNDIDataSourceConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @AutoConfiguration(after = JNDIDataSourceConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnPgconfigBackendEnabled

@@ -41,26 +41,26 @@ import org.geotools.util.logging.Logging;
 /**
  * Adapts a legacy {@link CatalogFacade} implementation to the {@link ExtendedCatalogFacade} interface.
  *
- * <p>This class bridges the gap between traditional {@link CatalogFacade} implementations and the
- * enhanced {@link ExtendedCatalogFacade} API introduced in GeoServer Cloud. It extends
- * {@link ForwardingCatalogFacade} to wrap an existing facade, adding support for modern methods like
- * {@link #update(CatalogInfo, Patch)} and {@link #query(Query)} while suppressing unwanted event
- * publishing from legacy facades. The adapter ensures compatibility with older facade implementations
- * that may intertwine catalog operations with event handling, a responsibility now delegated to the
- * {@link Catalog} itself.
+ * <p>This class bridges the gap between traditional {@link CatalogFacade} implementations and the enhanced
+ * {@link ExtendedCatalogFacade} API introduced in GeoServer Cloud. It extends {@link ForwardingCatalogFacade} to wrap
+ * an existing facade, adding support for modern methods like {@link #update(CatalogInfo, Patch)} and
+ * {@link #query(Query)} while suppressing unwanted event publishing from legacy facades. The adapter ensures
+ * compatibility with older facade implementations that may intertwine catalog operations with event handling, a
+ * responsibility now delegated to the {@link Catalog} itself.
  *
  * <p>Key adaptations:
+ *
  * <ul>
- *   <li><strong>Event Suppression:</strong> Wraps the catalog in a {@link SilentCatalog} to mute event
- *       firing from legacy facade operations.</li>
- *   <li><strong>Update Bridging:</strong> Maps {@link #update(CatalogInfo, Patch)} to legacy {@code save}
- *       methods using a type registry.</li>
- *   <li><strong>Query Support:</strong> Adapts {@link #query(Query)} to the legacy {@link #list} method
- *       with stream-based results.</li>
+ *   <li><strong>Event Suppression:</strong> Wraps the catalog in a {@link SilentCatalog} to mute event firing from
+ *       legacy facade operations.
+ *   <li><strong>Update Bridging:</strong> Maps {@link #update(CatalogInfo, Patch)} to legacy {@code save} methods using
+ *       a type registry.
+ *   <li><strong>Query Support:</strong> Adapts {@link #query(Query)} to the legacy {@link #list} method with
+ *       stream-based results.
  * </ul>
  *
- * <p>This adapter is intended as a transitional tool until {@link ExtendedCatalogFacade} features are
- * fully integrated into GeoServer’s core {@link CatalogFacade}.
+ * <p>This adapter is intended as a transitional tool until {@link ExtendedCatalogFacade} features are fully integrated
+ * into GeoServer’s core {@link CatalogFacade}.
  *
  * @since 1.0
  * @see ExtendedCatalogFacade
@@ -75,9 +75,8 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
      * Constructs a new adapter wrapping a legacy {@link CatalogFacade}.
      *
      * <p>Initializes the adapter by decorating the provided facade and setting up a bridge from
-     * {@link #update(CatalogInfo, Patch)} to the legacy {@code save} methods for each catalog info type.
-     * If the facade already implements {@link ExtendedCatalogFacade}, an exception is thrown to avoid
-     * unnecessary wrapping.
+     * {@link #update(CatalogInfo, Patch)} to the legacy {@code save} methods for each catalog info type. If the facade
+     * already implements {@link ExtendedCatalogFacade}, an exception is thrown to avoid unnecessary wrapping.
      *
      * @param facade The legacy {@link CatalogFacade} to adapt; must not be null.
      * @throws NullPointerException if {@code facade} is null.
@@ -107,15 +106,14 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
     /**
      * Sets the catalog for this facade, wrapping it to suppress event publishing.
      *
-     * <p>Overrides the parent method to ensure the catalog is a {@link CatalogPlugin} instance and
-     * decorates it with {@link SilentCatalog} if it isn’t already silent. This prevents legacy facade
-     * implementations from firing catalog events, aligning with GeoServer Cloud’s design where event
-     * handling is the catalog’s responsibility.
+     * <p>Overrides the parent method to ensure the catalog is a {@link CatalogPlugin} instance and decorates it with
+     * {@link SilentCatalog} if it isn’t already silent. This prevents legacy facade implementations from firing catalog
+     * events, aligning with GeoServer Cloud’s design where event handling is the catalog’s responsibility.
      *
      * @param catalog The catalog to set; may be null to unset.
      * @throws IllegalArgumentException if {@code catalog} is non-null and not a {@link CatalogPlugin}.
      * @example Setting a catalog:
-     *          <pre>
+     *     <pre>
      *          CatalogPlugin catalog = new CatalogPlugin(facade);
      *          adapter.setCatalog(catalog);
      *          </pre>
@@ -139,20 +137,19 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
     /**
      * Updates a catalog object with a patch, bridging to legacy {@code save} methods.
      *
-     * <p>This method adapts the modern {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)} API to
-     * the legacy {@link CatalogFacade#save} methods of the wrapped facade. It creates a proxy of the
-     * original object, applies the patch, and delegates to the appropriate {@code save} method via the
-     * {@code updateToSaveBridge} registry. This bridge is temporary and would be unnecessary if
-     * {@code update} is integrated into {@link CatalogFacade}.
+     * <p>This method adapts the modern {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)} API to the legacy
+     * {@link CatalogFacade#save} methods of the wrapped facade. It creates a proxy of the original object, applies the
+     * patch, and delegates to the appropriate {@code save} method via the {@code updateToSaveBridge} registry. This
+     * bridge is temporary and would be unnecessary if {@code update} is integrated into {@link CatalogFacade}.
      *
-     * @param <I>   The type of {@link CatalogInfo} to update.
-     * @param info  The catalog object to update; must not be null.
+     * @param <I> The type of {@link CatalogInfo} to update.
+     * @param info The catalog object to update; must not be null.
      * @param patch The patch containing changes to apply; must not be null.
      * @return The updated {@link CatalogInfo} object after applying the patch.
      * @throws NullPointerException if {@code info} or {@code patch} is null.
      * @throws IllegalArgumentException if the object type is not supported by the bridge.
      * @example Updating a layer’s title:
-     *          <pre>
+     *     <pre>
      *          LayerInfo layer = ...; // fetched from catalog
      *          Patch patch = new Patch().with("title", "New Title");
      *          LayerInfo updated = adapter.update(layer, patch);
@@ -172,8 +169,8 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
     /**
      * Retrieves a type-specific {@code save} consumer from the update bridge registry.
      *
-     * @param <T>  The type of {@link CatalogInfo}.
-     * @param cm   The {@link ClassMappings} key identifying the type.
+     * @param <T> The type of {@link CatalogInfo}.
+     * @param cm The {@link ClassMappings} key identifying the type.
      * @return A {@link Consumer} that invokes the legacy {@code save} method for the type.
      */
     @SuppressWarnings("unchecked")
@@ -184,17 +181,17 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
     /**
      * Queries the catalog by adapting to the legacy {@link CatalogFacade#list} method.
      *
-     * <p>This method converts a {@link Query} into parameters for the underlying facade’s {@code list}
-     * method, returning a {@link Stream} of results. The stream is configured with characteristics
-     * ({@code ORDERED}, {@code DISTINCT}, {@code IMMUTABLE}, {@code NONNULL}) and ensures proper resource
-     * closure via {@link CloseableIterator}.
+     * <p>This method converts a {@link Query} into parameters for the underlying facade’s {@code list} method,
+     * returning a {@link Stream} of results. The stream is configured with characteristics ({@code ORDERED},
+     * {@code DISTINCT}, {@code IMMUTABLE}, {@code NONNULL}) and ensures proper resource closure via
+     * {@link CloseableIterator}.
      *
-     * @param <T>   The type of {@link CatalogInfo} to query.
+     * @param <T> The type of {@link CatalogInfo} to query.
      * @param query The query defining type, filter, sorting, and pagination; must not be null.
      * @return A {@link Stream} of matching catalog objects; never null.
      * @throws NullPointerException if {@code query} is null.
      * @example Querying layers:
-     *          <pre>
+     *     <pre>
      *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, Filter.INCLUDE);
      *          try (Stream<LayerInfo> layers = adapter.query(query)) {
      *              layers.forEach(l -> System.out.println(l.getName()));
@@ -226,10 +223,10 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
     /**
      * A catalog decorator that suppresses event publishing from legacy {@link CatalogFacade} implementations.
      *
-     * <p>This nested class extends {@link CatalogPlugin} to wrap an existing catalog, muting all event firing
-     * methods (e.g., {@link #fireAdded}) to prevent legacy facades from publishing events. Event handling is
-     * now the sole responsibility of the catalog, addressing the tight coupling in legacy {@link CatalogImpl}
-     * designs. It logs suppression actions for debugging purposes.
+     * <p>This nested class extends {@link CatalogPlugin} to wrap an existing catalog, muting all event firing methods
+     * (e.g., {@link #fireAdded}) to prevent legacy facades from publishing events. Event handling is now the sole
+     * responsibility of the catalog, addressing the tight coupling in legacy {@link CatalogImpl} designs. It logs
+     * suppression actions for debugging purposes.
      *
      * @since 1.0
      * @see CatalogPlugin
@@ -243,10 +240,10 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
         /**
          * Constructs a silent catalog wrapper around an existing {@link CatalogPlugin}.
          *
-         * <p>Initializes the wrapper with the provided facade and original catalog, copying resource-related
-         * fields and removing listeners to mute event propagation.
+         * <p>Initializes the wrapper with the provided facade and original catalog, copying resource-related fields and
+         * removing listeners to mute event propagation.
          *
-         * @param orig   The original {@link CatalogPlugin} to wrap; must not be null.
+         * @param orig The original {@link CatalogPlugin} to wrap; must not be null.
          * @param facade The facade associated with this catalog; must not be null.
          * @throws NullPointerException if {@code orig} or {@code facade} is null.
          */
@@ -302,10 +299,10 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
         /**
          * Suppresses firing a pre-modify event, logging the suppression.
          *
-         * @param object        The modified object (ignored).
+         * @param object The modified object (ignored).
          * @param propertyNames The property names (ignored).
-         * @param oldValues     The old values (ignored).
-         * @param newValues     The new values (ignored).
+         * @param oldValues The old values (ignored).
+         * @param newValues The new values (ignored).
          */
         @Override
         public void fireModified(CatalogInfo object, List propertyNames, List oldValues, List newValues) {
@@ -315,10 +312,10 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
         /**
          * Suppresses firing a post-modify event, logging the suppression.
          *
-         * @param object        The modified object (ignored).
+         * @param object The modified object (ignored).
          * @param propertyNames The property names (ignored).
-         * @param oldValues     The old values (ignored).
-         * @param newValues     The new values (ignored).
+         * @param oldValues The old values (ignored).
+         * @param newValues The new values (ignored).
          */
         @Override
         public void firePostModified(CatalogInfo object, List propertyNames, List oldValues, List newValues) {

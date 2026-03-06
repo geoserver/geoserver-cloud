@@ -24,12 +24,10 @@ import org.springframework.http.MediaType;
 
 /**
  * Filter that adapts the incoming request to meet the expectations of the GeoServer REST API.
- * <p>
- * Standard GeoServer REST expects specific servlet path and path info structures. This filter,
- * along with its associated {@link SuffixStripFilterAwareHttpServletRequest}, ensures that
- * even when running behind a gateway or in a microservice context, the REST controllers
- * receive requests in the expected format.
- * </p>
+ *
+ * <p>Standard GeoServer REST expects specific servlet path and path info structures. This filter, along with its
+ * associated {@link SuffixStripFilterAwareHttpServletRequest}, ensures that even when running behind a gateway or in a
+ * microservice context, the REST controllers receive requests in the expected format.
  */
 class RestRequestPathInfoFilter implements Filter {
     @Override
@@ -52,12 +50,11 @@ class RestRequestPathInfoFilter implements Filter {
     }
 
     /**
-     * An {@link HttpServletRequestWrapper} that adjusts the request URI, servlet path, and path
-     * info to match what the GeoServer REST API expects.
-     * <p>
-     * It also overrides content-type resolution to support path extensions (e.g., .sld) when
-     * the original request's Content-Type is generic or missing.
-     * </p>
+     * An {@link HttpServletRequestWrapper} that adjusts the request URI, servlet path, and path info to match what the
+     * GeoServer REST API expects.
+     *
+     * <p>It also overrides content-type resolution to support path extensions (e.g., .sld) when the original request's
+     * Content-Type is generic or missing.
      */
     private static class SuffixStripFilterAwareHttpServletRequest extends HttpServletRequestWrapper {
 

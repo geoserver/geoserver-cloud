@@ -48,18 +48,19 @@ import org.springframework.context.annotation.Primary;
 
 /**
  * Base configuration to set up the core catalog and configuration geoserver components
- * <p>
- * A specialized catalog back-end, such as datadir and pgconfig, would provide a <code>@Configuration</code>
- * class that implements the marker interface {@link GeoServerBackendConfigurer}, that must provide at least
- * the following beans:
+ *
+ * <p>A specialized catalog back-end, such as datadir and pgconfig, would provide a <code>@Configuration</code> class
+ * that implements the marker interface {@link GeoServerBackendConfigurer}, that must provide at least the following
+ * beans:
+ *
  * <ul>
- *  <li>GeoServerConfigurationLock configurationLock
- *  <li>UpdateSequence updateSequence
- *  <li>ExtendedCatalogFacade catalogFacade
- *  <li>GeoServerLoader geoServerLoaderImpl
- *  <li>GeoServerFacade geoserverFacade
- *  <li>ResourceStore resourceStoreImpl
- *  <li>GeoServerResourceLoader resourceLoader
+ *   <li>GeoServerConfigurationLock configurationLock
+ *   <li>UpdateSequence updateSequence
+ *   <li>ExtendedCatalogFacade catalogFacade
+ *   <li>GeoServerLoader geoServerLoaderImpl
+ *   <li>GeoServerFacade geoserverFacade
+ *   <li>ResourceStore resourceStoreImpl
+ *   <li>GeoServerResourceLoader resourceLoader
  * </ul>
  */
 // proxyBeanMethods = true required to avoid circular reference exceptions, especially related to
@@ -71,8 +72,8 @@ public class CoreBackendConfiguration {
 
     /**
      * {@code GlobalLockProvider lockProvider} is excluded in {@code GeoServerMainModuleConfiguration} because it
-     * depends on {@code nullLockProvider}. In GeoServer Cloud, a {@link GeoServerBackendConfigurer} is required to supply
-     * a {@link LockProvider} known to perform distributed locking properly.
+     * depends on {@code nullLockProvider}. In GeoServer Cloud, a {@link GeoServerBackendConfigurer} is required to
+     * supply a {@link LockProvider} known to perform distributed locking properly.
      */
     @Bean
     GlobalLockProvider lockProvider(LockProvider suppliedLockProvider) {
@@ -81,9 +82,7 @@ public class CoreBackendConfiguration {
         return globalLockProvider;
     }
 
-    /**
-     * A {@link GeoServerLoaderProxy} that doesn't act as a BeanPostProcessor
-     */
+    /** A {@link GeoServerLoaderProxy} that doesn't act as a BeanPostProcessor */
     @Lazy
     @Bean
     CloudGeoServerLoaderProxy geoServerLoader(
@@ -91,9 +90,7 @@ public class CoreBackendConfiguration {
         return new CloudGeoServerLoaderProxy(catalog, geoserver);
     }
 
-    /**
-     * Base catalog
-     */
+    /** Base catalog */
     @ConditionalOnMissingBean(CatalogPlugin.class)
     @DependsOn({"resourceLoader", "catalogFacade"})
     @Bean
@@ -108,9 +105,7 @@ public class CoreBackendConfiguration {
         return rawCatalog;
     }
 
-    /**
-     * Default implementation of GeoServer global and service configuration manager.
-     */
+    /** Default implementation of GeoServer global and service configuration manager. */
     @ConditionalOnMissingBean(GeoServerImpl.class)
     @Bean(name = "geoServer")
     GeoServerImpl geoServer(
@@ -120,27 +115,22 @@ public class CoreBackendConfiguration {
         return gs;
     }
 
-    /**
-     * Factory for {@link XStreamPersister} instances.
-     */
+    /** Factory for {@link XStreamPersister} instances. */
     @Bean
     XStreamPersisterFactory xstreamPersisterFactory() {
         return new XStreamPersisterFactory();
     }
 
-    /**
-     * Utility class uses to process GeoServer extension points.
-     */
+    /** Utility class uses to process GeoServer extension points. */
     @Bean
     GeoServerExtensions extensions() {
         return new GeoServerExtensions();
     }
 
     /**
-     * Utility class uses to process GeoServer configuration workflow through
-     * external environment variables.
-     * <p>
-     * Usually provided by gs-main
+     * Utility class uses to process GeoServer configuration workflow through external environment variables.
+     *
+     * <p>Usually provided by gs-main
      */
     @ConditionalOnMissingBean
     @DependsOn("extensions")
@@ -150,8 +140,8 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * @return {@link SecureCatalogImpl} decorator if {@code properties.isSecure() == true}, {@code
-     *     rawCatalog} otherwise.
+     * @return {@link SecureCatalogImpl} decorator if {@code properties.isSecure() == true}, {@code rawCatalog}
+     *     otherwise.
      */
     @DependsOn({"extensions", "dataDirectory", "accessRulesDao"})
     @ConditionalOnGeoServerSecurityEnabled
@@ -192,11 +182,11 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * A cache for layer group containment, it speeds up looking up layer groups
-     * containing a particular layer (recursively).
-     * <p>
-     * Actual {@link LayerGroupContainmentCache}, matches if the config property {@code
-     * geoserver.security.layergroup-containmentcache=true}
+     * A cache for layer group containment, it speeds up looking up layer groups containing a particular layer
+     * (recursively).
+     *
+     * <p>Actual {@link LayerGroupContainmentCache}, matches if the config property
+     * {@code geoserver.security.layergroup-containmentcache=true}
      *
      * @see #noOpLayerGroupContainmentCache(Catalog)
      */
@@ -213,9 +203,8 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * The default {@link LayerGroupContainmentCache} is a no-op, matches if the config
-     * property {@code
-     * geoserver.security.layergroup-containmentcache=false} or is not specified
+     * The default {@link LayerGroupContainmentCache} is a no-op, matches if the config property
+     * {@code geoserver.security.layergroup-containmentcache=false} or is not specified
      *
      * @see #enabledLayerGroupContainmentCache(Catalog)
      */
@@ -239,10 +228,11 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * Catalog decorator handling cases when a {@link LocalWorkspace} is set, becomes the primary {@code catalog} bean (i.e. outer-most decorator)
+     * Catalog decorator handling cases when a {@link LocalWorkspace} is set, becomes the primary {@code catalog} bean
+     * (i.e. outer-most decorator)
      *
-     * @return {@link LocalWorkspaceCatalog} decorator if {@code properties.isLocalWorkspace() ==
-     *     true}, {@code advertisedCatalog} otherwise
+     * @return {@link LocalWorkspaceCatalog} decorator if {@code properties.isLocalWorkspace() == true},
+     *     {@code advertisedCatalog} otherwise
      */
     @Bean(name = {"catalog", "localWorkspaceCatalog"})
     @Primary
@@ -253,8 +243,9 @@ public class CoreBackendConfiguration {
 
     /**
      * Filters out the non advertised layers and resources.
-     * @return {@link AdvertisedCatalog} decorator if {@code properties.isAdvertised() == true},
-     *     {@code secureCatalog} otherwise.
+     *
+     * @return {@link AdvertisedCatalog} decorator if {@code properties.isAdvertised() == true}, {@code secureCatalog}
+     *     otherwise.
      */
     @Bean
     Catalog advertisedCatalog(@Qualifier("secureCatalog") Catalog secureCatalog, CatalogProperties properties) {

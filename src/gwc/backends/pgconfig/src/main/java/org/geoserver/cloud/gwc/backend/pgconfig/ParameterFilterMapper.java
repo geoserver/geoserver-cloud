@@ -23,9 +23,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-/**
- * @since 1.7
- */
+/** @since 1.7 */
 @Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
 @AnnotateWith(value = Generated.class)
 interface ParameterFilterMapper {

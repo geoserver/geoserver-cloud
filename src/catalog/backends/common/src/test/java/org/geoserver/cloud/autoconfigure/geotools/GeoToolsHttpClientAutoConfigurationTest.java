@@ -16,9 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class GeoToolsHttpClientAutoConfigurationTest {
 
     private WebApplicationContextRunner runner = new WebApplicationContextRunner() //

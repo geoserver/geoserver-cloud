@@ -18,16 +18,16 @@ import org.springframework.util.StringUtils;
 
 /**
  * Configuration properties for controlling which Spring Environment information is included in the MDC.
- * <p>
- * These properties determine what application-specific information is added to the MDC (Mapped Diagnostic Context)
- * during request processing. Including this information in the MDC makes it available to all logging
- * statements, providing valuable context for distinguishing logs from different application instances
- * in a distributed environment.
- * <p>
- * The properties are configured using the prefix {@code logging.mdc.include.application} in the application
+ *
+ * <p>These properties determine what application-specific information is added to the MDC (Mapped Diagnostic Context)
+ * during request processing. Including this information in the MDC makes it available to all logging statements,
+ * providing valuable context for distinguishing logs from different application instances in a distributed environment.
+ *
+ * <p>The properties are configured using the prefix {@code logging.mdc.include.application} in the application
  * properties or YAML files.
- * <p>
- * Example configuration in YAML:
+ *
+ * <p>Example configuration in YAML:
+ *
  * <pre>
  * logging:
  *   mdc:
@@ -42,8 +42,8 @@ import org.springframework.util.StringUtils;
  *           - spring.application.instance_id
  *           - pod.name
  * </pre>
- * <p>
- * This class provides methods to extract and add Spring Environment properties to the MDC based on the
+ *
+ * <p>This class provides methods to extract and add Spring Environment properties to the MDC based on the
  * configuration.
  *
  * @see org.geoserver.cloud.logging.mdc.servlet.SpringEnvironmentMdcFilter
@@ -58,8 +58,8 @@ public class SpringEnvironmentMdcConfigProperties {
     private boolean instanceId = false;
 
     /**
-     * Application environment property names where to extract the instance-id from. Defaults to
-     * [info.instance-id, spring.application.instance_id]
+     * Application environment property names where to extract the instance-id from. Defaults to [info.instance-id,
+     * spring.application.instance_id]
      */
     private List<String> instanceIdProperties = List.of("info.instance-id", "spring.application.instance_id");
 
@@ -67,14 +67,15 @@ public class SpringEnvironmentMdcConfigProperties {
 
     /**
      * Adds Spring Environment properties to the MDC based on the configuration.
-     * <p>
-     * This method adds application-specific information from the Spring Environment to the MDC
-     * based on the configuration in this class. The information can include:
+     *
+     * <p>This method adds application-specific information from the Spring Environment to the MDC based on the
+     * configuration in this class. The information can include:
+     *
      * <ul>
-     *   <li>Application name</li>
-     *   <li>Application version (from BuildProperties)</li>
-     *   <li>Instance ID</li>
-     *   <li>Active profiles</li>
+     *   <li>Application name
+     *   <li>Application version (from BuildProperties)
+     *   <li>Instance ID
+     *   <li>Active profiles
      * </ul>
      *
      * @param env the Spring Environment from which to extract properties
@@ -95,10 +96,9 @@ public class SpringEnvironmentMdcConfigProperties {
 
     /**
      * Adds the application version to the MDC if enabled by configuration.
-     * <p>
-     * This method extracts the version from the BuildProperties and adds it to the MDC
-     * with the key {@code application.version} if {@link #isVersion()} is true and
-     * BuildProperties are available.
+     *
+     * <p>This method extracts the version from the BuildProperties and adds it to the MDC with the key
+     * {@code application.version} if {@link #isVersion()} is true and BuildProperties are available.
      *
      * @param buildProperties optional BuildProperties containing version information
      */
@@ -110,11 +110,10 @@ public class SpringEnvironmentMdcConfigProperties {
 
     /**
      * Adds the instance ID to the MDC if enabled by configuration.
-     * <p>
-     * This method tries to extract an instance ID from the Spring Environment using the
-     * property names defined in {@link #getInstanceIdProperties()}. It adds the first
-     * non-empty value found to the MDC with the key {@code application.instance.id}
-     * if {@link #isInstanceId()} is true.
+     *
+     * <p>This method tries to extract an instance ID from the Spring Environment using the property names defined in
+     * {@link #getInstanceIdProperties()}. It adds the first non-empty value found to the MDC with the key
+     * {@code application.instance.id} if {@link #isInstanceId()} is true.
      *
      * @param env the Spring Environment from which to extract the instance ID
      */

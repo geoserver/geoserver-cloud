@@ -13,6 +13,7 @@ import org.geotools.jackson.databind.filter.dto.LiteralDto;
 
 /**
  * DTO for {@link org.geoserver.catalog.MetadataMap}
+ *
  * @since 1.0
  */
 @JsonTypeName("MetadataMap")

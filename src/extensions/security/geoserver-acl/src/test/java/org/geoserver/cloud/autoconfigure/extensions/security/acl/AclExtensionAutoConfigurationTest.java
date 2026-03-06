@@ -140,9 +140,7 @@ class AclExtensionAutoConfigurationTest {
         });
     }
 
-    /**
-     * Test {@link AclWebApiAccessManagerAutoConfiguration}
-     */
+    /** Test {@link AclWebApiAccessManagerAutoConfiguration} */
     @Nested
     class AclWebApiAccessManagerAutoConfigurationTest {
 
@@ -176,9 +174,7 @@ class AclExtensionAutoConfigurationTest {
         }
     }
 
-    /**
-     * Test {@link AclWebUIAutoConfiguration}
-     */
+    /** Test {@link AclWebUIAutoConfiguration} */
     @Nested
     class AclWebUIAutoConfigurationTest {
 
@@ -189,9 +185,7 @@ class AclExtensionAutoConfigurationTest {
             runner = runner.withBean("securityCategory", Category.class);
         }
 
-        /**
-         * @see ConditionalOnGeoServerWebUI
-         */
+        /** @see ConditionalOnGeoServerWebUI */
         private void enableConditionalOnGeoServerWebUI() {
             runner = runner.withPropertyValues("geoserver.service.webui.enabled: true");
         }
@@ -263,9 +257,7 @@ class AclExtensionAutoConfigurationTest {
         }
     }
 
-    /**
-     * Test {@link AclCachingAutoConfiguration}
-     */
+    /** Test {@link AclCachingAutoConfiguration} */
     @Nested
     class AclCachingAutoConfigurationTest {
 
@@ -318,9 +310,7 @@ class AclExtensionAutoConfigurationTest {
         }
     }
 
-    /**
-     * Test {@link AclWpsAutoConfiguration}
-     */
+    /** Test {@link AclWpsAutoConfiguration} */
     @Nested
     class AclWpsAutoConfigurationTest {
 
@@ -337,9 +327,7 @@ class AclExtensionAutoConfigurationTest {
             WPSResourceManagerClassCondition.classLoader(null);
         }
 
-        /**
-         * @see ConditionalOnGeoServerWPS
-         */
+        /** @see ConditionalOnGeoServerWPS */
         private void enableConditionalOnGeoServerWPS() {
             runner = runner.withPropertyValues("geoserver.service.wps.enabled: true");
         }
@@ -367,7 +355,8 @@ class AclExtensionAutoConfigurationTest {
     }
 
     /**
-     * {@link AclSpringCloudBusAutoConfiguration} is already an auto configuration from {@code gs-acl-spring-cloud-bus-adapter} let's test its enablement
+     * {@link AclSpringCloudBusAutoConfiguration} is already an auto configuration from
+     * {@code gs-acl-spring-cloud-bus-adapter} let's test its enablement
      */
     @Nested
     class AclSpringCloudBusAutoConfigurationTest {
@@ -383,10 +372,7 @@ class AclExtensionAutoConfigurationTest {
                     .withConfiguration(AutoConfigurations.of(BusAutoConfiguration.class));
         }
 
-        /**
-         * {@code geoserver.bus.enabled} is true, depends on whether Spring Cloud Bus is
-         * available
-         */
+        /** {@code geoserver.bus.enabled} is true, depends on whether Spring Cloud Bus is available */
         @Test
         void conditionalOnSpringCloudBusEnabled() {
             runner = runner.withPropertyValues("geoserver.bus.enabled: true")
@@ -397,9 +383,7 @@ class AclExtensionAutoConfigurationTest {
             assertAclSpringCloudBusAvailable();
         }
 
-        /**
-         * Spring Cloud Bus is available, depends on {@code geoserver.bus.enabled}
-         */
+        /** Spring Cloud Bus is available, depends on {@code geoserver.bus.enabled} */
         @Test
         void conditionalOnPropertyGeoserverBusEnabled() {
             runner = runner.withPropertyValues("spring.cloud.bus.enabled: true");

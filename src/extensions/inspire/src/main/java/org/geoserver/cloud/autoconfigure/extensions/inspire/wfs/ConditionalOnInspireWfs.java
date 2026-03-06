@@ -15,6 +15,7 @@ import org.geoserver.cloud.autoconfigure.extensions.inspire.ConditionalOnInspire
 
 /**
  * Conditional annotation that only matches when:
+ *
  * <ul>
  *   <li>A GeoServer instance is available in the application context
  *   <li>The INSPIRE extension is enabled via configuration property

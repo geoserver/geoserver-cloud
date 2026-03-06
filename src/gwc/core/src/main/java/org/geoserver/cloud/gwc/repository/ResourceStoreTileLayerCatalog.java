@@ -54,11 +54,10 @@ import org.geowebcache.storage.blobstore.file.FilePathUtils;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
- * {@link TileLayerCatalog} compatible with {@link DefaultTileLayerCatalog} in that it'll read from
- * and save to the same XML resources, but instead of caching {@code GeoServerTileLayerInfo}s
- * itself, fully delegates to the {@link ResourceStore}, leaving the responsibility of caching
- * {@link GeoServerTileLayerInfo}s to the caller to implement through composition with a decorator
- * or any other means.
+ * {@link TileLayerCatalog} compatible with {@link DefaultTileLayerCatalog} in that it'll read from and save to the same
+ * XML resources, but instead of caching {@code GeoServerTileLayerInfo}s itself, fully delegates to the
+ * {@link ResourceStore}, leaving the responsibility of caching {@link GeoServerTileLayerInfo}s to the caller to
+ * implement through composition with a decorator or any other means.
  *
  * @since 1.0
  */
@@ -69,8 +68,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     private final @NonNull ResourceStore resourceStore;
 
     /**
-     * Used by {@link XMLConfiguration#getConfiguredXStreamWithContext}, at {@link #initialize()},
-     * to lookup implementations of {@link org.geowebcache.config.XMLConfigurationProvider}, such as
+     * Used by {@link XMLConfiguration#getConfiguredXStreamWithContext}, at {@link #initialize()}, to lookup
+     * implementations of {@link org.geowebcache.config.XMLConfigurationProvider}, such as
      * {@code S3BlobStoreConfigProvider}, etc. This could be improved.
      */
     private final Optional<WebApplicationContext> applicationContext;
@@ -205,8 +204,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     }
 
     /**
-     * Precondition check all public methods should make before proceeding to ensure they've been
-     * called on an initialized state
+     * Precondition check all public methods should make before proceeding to ensure they've been called on an
+     * initialized state
      *
      * @throws IllegalStateException if this layer catalog has not been initialized yet
      */

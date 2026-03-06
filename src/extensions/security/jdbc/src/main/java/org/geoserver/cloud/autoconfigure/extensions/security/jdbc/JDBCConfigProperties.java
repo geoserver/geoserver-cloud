@@ -11,8 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Configuration properties for the JDBC security extension.
  *
- * <p>The JDBC security extension enables user authentication, user groups and roles to be stored
- * and managed in a database through JDBC.
+ * <p>The JDBC security extension enables user authentication, user groups and roles to be stored and managed in a
+ * database through JDBC.
  *
  * <p>Available properties:
  *
@@ -38,8 +38,8 @@ public @Data class JDBCConfigProperties {
     /**
      * Whether the JDBC security extension is enabled.
      *
-     * <p>When set to true, the JDBC security extension components will be registered in the application context.
-     * When false, the extension will not be available for use.
+     * <p>When set to true, the JDBC security extension components will be registered in the application context. When
+     * false, the extension will not be available for use.
      *
      * <p>Default is {@code true}.
      */

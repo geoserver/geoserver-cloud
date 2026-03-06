@@ -18,9 +18,7 @@ import org.springframework.jdbc.core.RowMapper;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * @since 1.7
- */
+/** @since 1.7 */
 class PgconfigTileLayerInfoRowMapper implements RowMapper<TileLayerInfo> {
 
     protected static final ObjectMapper objectMapper = PgconfigObjectMapper.newObjectMapper();

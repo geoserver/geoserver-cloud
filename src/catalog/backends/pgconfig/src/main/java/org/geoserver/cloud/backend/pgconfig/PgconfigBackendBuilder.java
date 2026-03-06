@@ -17,9 +17,7 @@ import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @RequiredArgsConstructor
 public class PgconfigBackendBuilder {
 

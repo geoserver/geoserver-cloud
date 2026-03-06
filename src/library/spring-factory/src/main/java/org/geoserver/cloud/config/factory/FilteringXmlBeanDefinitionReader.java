@@ -37,33 +37,33 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 /**
- * A custom Spring XML bean definition reader that applies filtering based on a regular expression
- * to selectively include or exclude beans by their name.
- * <p>
- * This reader extends {@link XmlBeanDefinitionReader} to overload the {@code locations} attribute
- * of {@link ImportResource}, allowing you to append an <strong>inclusion</strong> filter in the form
+ * A custom Spring XML bean definition reader that applies filtering based on a regular expression to selectively
+ * include or exclude beans by their name.
+ *
+ * <p>This reader extends {@link XmlBeanDefinitionReader} to overload the {@code locations} attribute of
+ * {@link ImportResource}, allowing you to append an <strong>inclusion</strong> filter in the form
  * {@code #name=<regex>}. For example, if you specify:
+ *
  * <pre class="code">
  *   "servlet-context.xml#name=^(?!foo|bar).*$"
  * </pre>
+ *
  * then only beans whose names do <em>not</em> match "foo" or "bar" will be registered from that XML.
- * <p>
- * <strong>How it works:</strong>
+ *
+ * <p><strong>How it works:</strong>
+ *
  * <ul>
- *   <li>
- *     The filter is evaluated against the bean <em>name</em> as defined in the XML, not against its alias.
- *     Beans whose names match the regular expression are registered; all others are discarded.
- *   </li>
- *   <li>
- *     Alias registration is deferred until after bean registration. If a bean is not registered
- *     (because its name did not match the filter), any aliases for that bean are also discarded.
- *   </li>
+ *   <li>The filter is evaluated against the bean <em>name</em> as defined in the XML, not against its alias. Beans
+ *       whose names match the regular expression are registered; all others are discarded.
+ *   <li>Alias registration is deferred until after bean registration. If a bean is not registered (because its name did
+ *       not match the filter), any aliases for that bean are also discarded.
  * </ul>
- * <p>
- * <strong>Examples:</strong>
- * <p>
- * <em>Example 1:</em> Load all beans from a specific XML file on a specific JAR file, except those
- * named {@code foo} or {@code bar}:
+ *
+ * <p><strong>Examples:</strong>
+ *
+ * <p><em>Example 1:</em> Load all beans from a specific XML file on a specific JAR file, except those named {@code foo}
+ * or {@code bar}:
+ *
  * <pre class="code">
  * &#64;ImportResource(
  *     reader = FilteringXmlBeanDefinitionReader.class,
@@ -71,9 +71,9 @@ import org.xml.sax.InputSource;
  *     locations = "jar:gs-main-.*!/applicationContext.xml#name=^(?!foo|bar).*$"
  * )
  * </pre>
- * <p>
- * <em>Example 2:</em> Load only beans named {@code foo}, {@code bar}, or those matching
- * {@code gml.*OutputFormat}:
+ *
+ * <p><em>Example 2:</em> Load only beans named {@code foo}, {@code bar}, or those matching {@code gml.*OutputFormat}:
+ *
  * <pre class="code">
  * &#64;ImportResource(
  *     reader = FilteringXmlBeanDefinitionReader.class,
@@ -81,22 +81,18 @@ import org.xml.sax.InputSource;
  *     locations = "jar:gs-main-.*!/applicationContext.xml#name=^(foo|bar|gml.*OutputFormat).*$"
  * )
  * </pre>
- * <p>
- * In addition to filtering functionality, this reader maintains internal caches to optimize resource
- * loading:
+ *
+ * <p>In addition to filtering functionality, this reader maintains internal caches to optimize resource loading:
+ *
  * <ul>
- *   <li>
- *     <strong>XML Document Cache:</strong> Parsed XML documents are cached by their resource URI so that
- *     multiple configurations loading beans from the same XML file do not trigger redundant parsing.
- *   </li>
- *   <li>
- *     <strong>Classpath Resource Cache:</strong> A cache of classpath resources is maintained to avoid the
- *     overhead of reloading all resources for each location.
- *   </li>
+ *   <li><strong>XML Document Cache:</strong> Parsed XML documents are cached by their resource URI so that multiple
+ *       configurations loading beans from the same XML file do not trigger redundant parsing.
+ *   <li><strong>Classpath Resource Cache:</strong> A cache of classpath resources is maintained to avoid the overhead
+ *       of reloading all resources for each location.
  * </ul>
- * <p>
- * The caches can be cleared by invoking {@link #clearCaches()}, which is typically called after the
- * application context is refreshed.
+ *
+ * <p>The caches can be cleared by invoking {@link #clearCaches()}, which is typically called after the application
+ * context is refreshed.
  *
  * @see ImportResource
  * @see XmlBeanDefinitionReader
@@ -113,8 +109,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     private static final String XML_SPLIT_TOKEN = ".xml#";
 
     /**
-     * Cache parsed XML documents by Resource URI, since many configurations can try to load
-     * different sets of beans from the same xml document
+     * Cache parsed XML documents by Resource URI, since many configurations can try to load different sets of beans
+     * from the same xml document
      *
      * @see FilteringXmlBeanDefinitionReaderAutoConfiguration
      * @see #clearCaches()
@@ -122,8 +118,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     private static Map<String, Document> classpathDocuments = new HashMap<>();
 
     /**
-     * To be used by {@link #getAllClasspathResources}, caches all classpath resources to avoid
-     * loading them all for each location
+     * To be used by {@link #getAllClasspathResources}, caches all classpath resources to avoid loading them all for
+     * each location
      *
      * @see FilteringXmlBeanDefinitionReaderAutoConfiguration
      * @see #clearCaches()
@@ -134,9 +130,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
         super(registry);
     }
 
-    /**
-     * Clears any cached resource, expected to be called after the application context is refreshed
-     */
+    /** Clears any cached resource, expected to be called after the application context is refreshed */
     public static synchronized void clearCaches() {
         if (!classpathDocuments.isEmpty() || null != classpathBaseResources) {
             log.debug(
