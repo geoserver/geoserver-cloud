@@ -22,7 +22,7 @@
     <java.version>25</java.version>
     <java.sdk.version>25</java.sdk.version>
     <spring-cloud.version>2025.1.1</spring-cloud.version>
-    <spring-boot.version>4.0.2</spring-boot.version>
+    <spring-boot.version>4.0.3</spring-boot.version>
     <jackson.version>3.1.0</jackson.version>
     <jackson2.version>2.21.0</jackson2.version>
     <gs.version>3.0.0-SNAPSHOT</gs.version>
