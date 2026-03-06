@@ -15,12 +15,10 @@ import org.geotools.util.logging.Logging;
 /**
  * A {@link LockProvider} that sequentially acquires locks from two underlying providers.
  *
- * <p>It attempts to obtain locks in the order the providers were passed to the constructor.
- * If any acquisition fails, all previously held locks in the current chain are released
- * immediately to prevent deadlocks and resource leakage.</p>
+ * <p>It attempts to obtain locks in the order the providers were passed to the constructor. If any acquisition fails,
+ * all previously held locks in the current chain are released immediately to prevent deadlocks and resource leakage.
  *
- * <p><b>Lock Ordering:</b> To ensure consistency, locks are released in the
- * reverse order of their acquisition (LIFO).</p>
+ * <p><b>Lock Ordering:</b> To ensure consistency, locks are released in the reverse order of their acquisition (LIFO).
  *
  * @see LockProvider
  */
@@ -34,7 +32,7 @@ public class ChainedLockProvider implements LockProvider {
     /**
      * Creates a new provider that chains two separate locking mechanisms.
      *
-     * @param first  the primary lock provider (acquired first)
+     * @param first the primary lock provider (acquired first)
      * @param second the secondary lock provider (acquired second)
      * @throws NullPointerException if either provider is null
      */
@@ -46,8 +44,8 @@ public class ChainedLockProvider implements LockProvider {
     /**
      * Acquires locks from both internal providers for the given path.
      *
-     * <p>The acquisition is performed sequentially. If the second lock fails,
-     * the first lock is automatically released before the exception is propagated.</p>
+     * <p>The acquisition is performed sequentially. If the second lock fails, the first lock is automatically released
+     * before the exception is propagated.
      *
      * @param path the resource identifier to lock
      * @return a composite {@link Lock} that manages both held locks
@@ -78,9 +76,7 @@ public class ChainedLockProvider implements LockProvider {
         }
     }
 
-    /**
-     * A composite lock implementation that ensures symmetric release order.
-     */
+    /** A composite lock implementation that ensures symmetric release order. */
     private static class ChainedLock implements Lock {
         private final Lock first;
         private final Lock second;
@@ -91,9 +87,8 @@ public class ChainedLockProvider implements LockProvider {
         }
 
         /**
-         * Releases the locks in reverse acquisition order (second, then first).
-         * Uses a {@code finally} block to ensure the first lock is released even if
-         * releasing the second lock throws an exception.
+         * Releases the locks in reverse acquisition order (second, then first). Uses a {@code finally} block to ensure
+         * the first lock is released even if releasing the second lock throws an exception.
          */
         @Override
         public void release() {

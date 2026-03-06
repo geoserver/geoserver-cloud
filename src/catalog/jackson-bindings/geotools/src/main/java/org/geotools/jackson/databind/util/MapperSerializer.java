@@ -17,8 +17,8 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
- * Generic {@link ValueSerializer} that applies a function from the original object type to the
- * encoded object type before {@link JsonGenerator#writePOJO(Object) writing} it
+ * Generic {@link ValueSerializer} that applies a function from the original object type to the encoded object type
+ * before {@link JsonGenerator#writePOJO(Object) writing} it
  *
  * @param <I> object model type
  * @param <D> DTO type

@@ -21,8 +21,8 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 
 /**
- * Purely in-memory {@link ConfigRepository} implementation holding live-objects (no serialization
- * nor {@link Proxy proxying} involved)
+ * Purely in-memory {@link ConfigRepository} implementation holding live-objects (no serialization nor {@link Proxy
+ * proxying} involved)
  */
 public class MemoryConfigRepository implements ConfigRepository {
 

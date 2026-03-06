@@ -37,9 +37,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @Slf4j
 @Transactional(transactionManager = "pgconfigTransactionManager", propagation = SUPPORTS)
 public class PgconfigResourceStore implements ResourceStore {
@@ -71,14 +69,17 @@ public class PgconfigResourceStore implements ResourceStore {
     }
 
     /**
-     * Returns a filter that matches the directories defined in the {@link #defaultIgnoredDirs()} filter, plus the following resources:
+     * Returns a filter that matches the directories defined in the {@link #defaultIgnoredDirs()} filter, plus the
+     * following resources:
+     *
      * <ul>
-     * <li>{@literal security/role/default/roles.xml.lock}:
-     * {@code org.geoserver.security.xml.XMLRoleStore}'s lock file, uses a shutdown
-     * hook through an {@code org.geoserver.security.file.LockFile} which doesn't follow standard locking mechanisms and causes exceptions since the jdbc datasource is alredy closed
-     * <li>{@literal security/usergroup/default/users.xml.lock}:
-     * {@code org.geoserver.security.xml.XMLUserGroupStore}'s lock file, uses a
-     * shutdown hook through an {@code org.geoserver.security.file.LockFile} which doesn't follow standard locking mechanisms and causes exceptions since the jdbc datasource is alredy closed
+     *   <li>{@literal security/role/default/roles.xml.lock}: {@code org.geoserver.security.xml.XMLRoleStore}'s lock
+     *       file, uses a shutdown hook through an {@code org.geoserver.security.file.LockFile} which doesn't follow
+     *       standard locking mechanisms and causes exceptions since the jdbc datasource is alredy closed
+     *   <li>{@literal security/usergroup/default/users.xml.lock}:
+     *       {@code org.geoserver.security.xml.XMLUserGroupStore}'s lock file, uses a shutdown hook through an
+     *       {@code org.geoserver.security.file.LockFile} which doesn't follow standard locking mechanisms and causes
+     *       exceptions since the jdbc datasource is alredy closed
      * </ul>
      *
      * @return
@@ -207,8 +208,8 @@ public class PgconfigResourceStore implements ResourceStore {
 
     /**
      * Creates the resource if it doesn't exist, updates it if it does.
-     * <p>
-     * Uses PostgreSQL {@code UPSERT (INSERT ... ON CONFLICT ... DO UPDATE)} for atomic operation.
+     *
+     * <p>Uses PostgreSQL {@code UPSERT (INSERT ... ON CONFLICT ... DO UPDATE)} for atomic operation.
      *
      * @param resource the resource to save
      * @param contents the content bytes for RESOURCE types, null for DIRECTORY or to keep existing content
@@ -277,23 +278,15 @@ public class PgconfigResourceStore implements ResourceStore {
     /**
      * Updates the state of a resource from the database.
      *
-     * <p>
-     * This method is crucial for maintaining consistency of long-lived resource
-     * references. It queries the database for the current state of a resource and
-     * updates the provided resource instance with the latest information.
-     * </p>
+     * <p>This method is crucial for maintaining consistency of long-lived resource references. It queries the database
+     * for the current state of a resource and updates the provided resource instance with the latest information.
      *
-     * <p>
-     * It's particularly important for components like AbstractAccessRuleDAO and
-     * RESTAccessRuleDAO that hold resource references as instance variables. These
-     * references can become stale when the underlying database record is modified
-     * by another process or service instance.
-     * </p>
+     * <p>It's particularly important for components like AbstractAccessRuleDAO and RESTAccessRuleDAO that hold resource
+     * references as instance variables. These references can become stale when the underlying database record is
+     * modified by another process or service instance.
      *
-     * <p>
-     * If the resource no longer exists in the database, both its type is set to
-     * UNDEFINED and its id is set to UNDEFINED_ID to ensure consistent state.
-     * </p>
+     * <p>If the resource no longer exists in the database, both its type is set to UNDEFINED and its id is set to
+     * UNDEFINED_ID to ensure consistent state.
      *
      * @param resource the resource to update
      * @see PgconfigResource#updateState()
@@ -392,9 +385,7 @@ public class PgconfigResourceStore implements ResourceStore {
         return dispatcher;
     }
 
-    /**
-     * @return
-     */
+    /** @return */
     public byte[] contents(PgconfigResource resource) {
         if (!resource.exists() || resource.isUndefined()) {
             throw new IllegalStateException("File not found %s".formatted(resource.path()));
@@ -423,10 +414,7 @@ public class PgconfigResourceStore implements ResourceStore {
         return deleted;
     }
 
-    /**
-     * @return direct children of resource if resource is a directory, empty list
-     *         otherwise
-     */
+    /** @return direct children of resource if resource is a directory, empty list otherwise */
     public List<Resource> list(PgconfigResource resource) {
         if (!resource.exists() || !resource.isDirectory()) {
             return List.of();
@@ -449,9 +437,7 @@ public class PgconfigResourceStore implements ResourceStore {
         return list;
     }
 
-    /**
-     * @return
-     */
+    /** @return */
     public File asFile(PgconfigResource resource) {
         if (!resource.exists()) {
             resource.type = Type.RESOURCE;

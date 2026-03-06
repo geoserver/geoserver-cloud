@@ -22,18 +22,14 @@ import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 @ToString(callSuper = true)
 @JsonTypeName("GeoServerInfo")
 public class GeoServerInfoDto extends ConfigInfoDto {
-    /**
-     * DTO for {@link org.geoserver.config.ResourceErrorHandling}
-     */
+    /** DTO for {@link org.geoserver.config.ResourceErrorHandling} */
     @JsonTypeName("ResourceErrorHandling")
     public enum ResourceErrorHandlingDto {
         OGC_EXCEPTION_REPORT,
         SKIP_MISCONFIGURED_LAYERS
     }
 
-    /**
-     * DTO for {@link GeoServerInfo.WebUIMode}
-     */
+    /** DTO for {@link GeoServerInfo.WebUIMode} */
     @JsonTypeName("WebUIMode")
     public enum WebUIModeDto {
         DEFAULT,
@@ -59,18 +55,15 @@ public class GeoServerInfoDto extends ConfigInfoDto {
     private Boolean allowStoredQueriesPerWorkspace;
     private ResourceErrorHandlingDto resourceErrorHandling;
 
-    /**
-     * @since geoserver 2.24.0
-     */
+    /** @since geoserver 2.24.0 */
     private boolean trailingSlashMatch;
 
-    /**
-     * @since 2.28.1
-     */
+    /** @since 2.28.1 */
     private UserDetailsDisplaySettingsInfoDto userDetailsDisplaySettings = new UserDetailsDisplaySettingsInfoDto();
 
     /**
      * DTO for {@link UserDetailsDisplaySettingsInfo}
+     *
      * @since 2.28.1
      */
     @Data

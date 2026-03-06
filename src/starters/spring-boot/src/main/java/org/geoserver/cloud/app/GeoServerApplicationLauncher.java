@@ -11,8 +11,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
 
 /**
- * Utility to launch a {@link SpringBootApplication @SpringBootApplication} annotated class, enabling the {@code /actuator/startup}
- * endpoint dependency on {@link BufferingApplicationStartup}.
+ * Utility to launch a {@link SpringBootApplication @SpringBootApplication} annotated class, enabling the
+ * {@code /actuator/startup} endpoint dependency on {@link BufferingApplicationStartup}.
  */
 public class GeoServerApplicationLauncher {
 

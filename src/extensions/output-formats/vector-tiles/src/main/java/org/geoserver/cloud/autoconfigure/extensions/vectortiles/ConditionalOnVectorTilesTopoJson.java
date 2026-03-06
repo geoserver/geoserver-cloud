@@ -16,16 +16,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 /**
  * Composite annotation that combines conditions required for TopoJSON Vector Tiles format.
  *
- * <p>
- * This conditional activates when:
+ * <p>This conditional activates when:
+ *
  * <ul>
- *   <li>The Vector Tiles extension is enabled</li>
- *   <li>The geoserver.extension.vector-tiles.topojson property is true (the default)</li>
+ *   <li>The Vector Tiles extension is enabled
+ *   <li>The geoserver.extension.vector-tiles.topojson property is true (the default)
  * </ul>
  *
- * <p>
- * This annotation can be used on configuration classes or bean methods to make them
- * conditional on the TopoJSON vector tiles format being enabled.
+ * <p>This annotation can be used on configuration classes or bean methods to make them conditional on the TopoJSON
+ * vector tiles format being enabled.
  *
  * @see ConditionalOnVectorTiles
  * @see ConditionalOnProperty

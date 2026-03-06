@@ -61,21 +61,18 @@ public abstract class InfoEvent extends UpdateSequenceEvent {
     }
 
     /**
-     * {@link #getObjectId() object identifier} for changes performed to the {@link Catalog} itself
-     * (e.g. {@code defaultWorkspace} and the like)
+     * {@link #getObjectId() object identifier} for changes performed to the {@link Catalog} itself (e.g.
+     * {@code defaultWorkspace} and the like)
      */
     protected static final String CATALOG_ID = "catalog";
 
     /**
-     * {@link #getObjectId() object identifier} for changes performed to the {@link GeoServerInfo
-     * global config} itself (e.g. {@code updateSequence} and the like)
+     * {@link #getObjectId() object identifier} for changes performed to the {@link GeoServerInfo global config} itself
+     * (e.g. {@code updateSequence} and the like)
      */
     private static final String GEOSERVER_ID = "geoserver";
 
-    /**
-     * {@link #getObjectId() object identifier} for changes performed to the {@link LoggingInfo}
-     * config
-     */
+    /** {@link #getObjectId() object identifier} for changes performed to the {@link LoggingInfo} config */
     private static final String LOGGING_ID = "logging";
 
     @Override

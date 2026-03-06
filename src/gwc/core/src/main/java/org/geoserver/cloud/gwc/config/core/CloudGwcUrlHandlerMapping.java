@@ -12,17 +12,16 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.util.ServletRequestPathUtils;
 
 /**
- * Extends {@link GwcUrlHandlerMapping} to fix virtual service URL handling with Spring 6's {@link
- * org.springframework.web.util.pattern.PathPattern PathPattern}-based request matching.
+ * Extends {@link GwcUrlHandlerMapping} to fix virtual service URL handling with Spring 6's
+ * {@link org.springframework.web.util.pattern.PathPattern PathPattern}-based request matching.
  *
- * <p>Spring 6 uses the cached parsed request path from {@link ServletRequestPathUtils} for pattern
- * matching, ignoring the {@code lookupPath} string parameter passed to {@code
- * lookupHandlerMethod}. The upstream {@link GwcUrlHandlerMapping} strips the workspace prefix from
- * the lookupPath string but doesn't update the cached parsed path, causing virtual service URLs to
- * return 404.
+ * <p>Spring 6 uses the cached parsed request path from {@link ServletRequestPathUtils} for pattern matching, ignoring
+ * the {@code lookupPath} string parameter passed to {@code lookupHandlerMethod}. The upstream
+ * {@link GwcUrlHandlerMapping} strips the workspace prefix from the lookupPath string but doesn't update the cached
+ * parsed path, causing virtual service URLs to return 404.
  *
- * <p>This subclass updates the cached parsed path to the workspace-stripped path before delegating
- * to the parent's {@code lookupHandlerMethod}, and restores it afterwards.
+ * <p>This subclass updates the cached parsed path to the workspace-stripped path before delegating to the parent's
+ * {@code lookupHandlerMethod}, and restores it afterwards.
  */
 public class CloudGwcUrlHandlerMapping extends GwcUrlHandlerMapping {
 

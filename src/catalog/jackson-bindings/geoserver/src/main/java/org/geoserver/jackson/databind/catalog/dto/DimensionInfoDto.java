@@ -16,9 +16,7 @@ import org.geoserver.catalog.DimensionPresentation;
 @Data
 @JsonTypeName("DimensionInfo")
 public class DimensionInfoDto {
-    /**
-     * @since geoserver 2.24.1
-     */
+    /** @since geoserver 2.24.1 */
     public enum NearestFailBehavior {
         IGNORE,
         EXCEPTION
@@ -40,18 +38,12 @@ public class DimensionInfoDto {
     // defaultValue.referenceValue
     private String defaultValueReferenceValue;
 
-    /**
-     * @since geoserver 2.23.0
-     */
+    /** @since geoserver 2.23.0 */
     private String startValue;
 
-    /**
-     * @since geoserver 2.23.0
-     */
+    /** @since geoserver 2.23.0 */
     private String endValue;
 
-    /**
-     * @since geoserver 2.24.1
-     */
+    /** @since geoserver 2.24.1 */
     private NearestFailBehavior nearestFailBehavior;
 }

@@ -11,9 +11,7 @@ import org.geoserver.cloud.web.service.WebUiCloudServicesConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @AutoConfiguration
 @Import(WebUiCloudServicesConfiguration.class)
 @Slf4j

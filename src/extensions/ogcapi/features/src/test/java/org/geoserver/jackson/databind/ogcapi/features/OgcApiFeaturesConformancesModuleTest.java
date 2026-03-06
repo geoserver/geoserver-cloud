@@ -20,9 +20,8 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Tests for the OgcApiFeaturesConformancesModule, particularly focused on
- * ensuring the serialization works correctly for all supported conformance
- * classes.
+ * Tests for the OgcApiFeaturesConformancesModule, particularly focused on ensuring the serialization works correctly
+ * for all supported conformance classes.
  */
 class OgcApiFeaturesConformancesModuleTest {
 

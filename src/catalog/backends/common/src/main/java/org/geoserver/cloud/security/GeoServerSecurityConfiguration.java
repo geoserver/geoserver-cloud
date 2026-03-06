@@ -28,11 +28,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationProvider;
 
 /**
- * Loads geoserver security bean definitions from {@code
- * classpath*:/applicationSecurityContext.xml}.
+ * Loads geoserver security bean definitions from {@code classpath*:/applicationSecurityContext.xml}.
  *
- * <p>Note that if spring boot auto-configuration is enabled, at the very least {@code
- * org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration} or
+ * <p>Note that if spring boot auto-configuration is enabled, at the very least
+ * {@code org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration} or
  * {@code org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration} must be disabled, for
  * example using the following annotation in a {@link Configuration @Configuration} class:
  *
@@ -40,8 +39,8 @@ import org.springframework.security.authentication.AuthenticationProvider;
  * &#64;EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
  * }</pre>
  *
- * <p>The {@code geoserver.security.enabled=false} config property can be used as a flag to disable
- * this configuration. Defaults to {@code true}.
+ * <p>The {@code geoserver.security.enabled=false} config property can be used as a flag to disable this configuration.
+ * Defaults to {@code true}.
  */
 @Configuration
 @ImportFilteredResource(
@@ -65,12 +64,12 @@ public class GeoServerSecurityConfiguration {
     }
 
     /**
-     * Override the {@code authenticationManager} bean defined in {@code gs-main}'s {@code
-     * applicationSecurityContext.xml} with a version that notifies other services of any security
-     * configuration change, and listens to remote events from other services in order to {@link
-     * GeoServerSecurityManager#reload() reload} the config.
-     * @param lock
+     * Override the {@code authenticationManager} bean defined in {@code gs-main}'s
+     * {@code applicationSecurityContext.xml} with a version that notifies other services of any security configuration
+     * change, and listens to remote events from other services in order to {@link GeoServerSecurityManager#reload()
+     * reload} the config.
      *
+     * @param lock
      * @return {@link CloudGeoServerSecurityManager}
      */
     @Bean(name = {"authenticationManager", "geoServerSecurityManager"})

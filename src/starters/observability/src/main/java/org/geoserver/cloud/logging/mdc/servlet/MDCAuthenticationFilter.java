@@ -22,16 +22,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Appends the {@code enduser.id} and {@code enduser.role} MDC properties
- * depending on whether {@link AuthenticationMdcConfigProperties#isUser() user}
- * and {@link AuthenticationMdcConfigProperties#isRoles() roles} config
- * properties are enabled, respectively.
+ * Appends the {@code enduser.id} and {@code enduser.role} MDC properties depending on whether
+ * {@link AuthenticationMdcConfigProperties#isUser() user} and {@link AuthenticationMdcConfigProperties#isRoles() roles}
+ * config properties are enabled, respectively.
  *
- * <p>
- * Note the appended MDC properties follow the <a href=
- * "https://opentelemetry.io/docs/specs/semconv/general/attributes/#general-identity-attributes">OpenTelemetry
- * identity attributes</a> convention, so we can replace this component if OTel
- * would automatically add them to the logs.
+ * <p>Note the appended MDC properties follow the <a href=
+ * "https://opentelemetry.io/docs/specs/semconv/general/attributes/#general-identity-attributes">OpenTelemetry identity
+ * attributes</a> convention, so we can replace this component if OTel would automatically add them to the logs.
  */
 @RequiredArgsConstructor
 public class MDCAuthenticationFilter implements Filter {

@@ -17,9 +17,7 @@ import lombok.NoArgsConstructor;
 @JsonTypeName("SortBy")
 public class SortByDto {
 
-    /**
-     * DTO for {@link org.geotools.api.filter.sort.SortOrder}
-     */
+    /** DTO for {@link org.geotools.api.filter.sort.SortOrder} */
     @JsonTypeName("SortOrder")
     public enum SortOrderDto {
         ASCENDING,

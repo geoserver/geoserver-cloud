@@ -34,9 +34,7 @@ import org.geoserver.config.util.XStreamServiceLoader;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.resource.Resource.Lock;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @Slf4j
 public class PgconfigGeoServerLoader extends GeoServerLoader {
 
@@ -44,8 +42,8 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
 
     /**
      * @param resourceLoader
-     * @param knownServiceTypes know {@link ServiceInfo} types used to initialize a default service
-     *     config when starting off an empty config
+     * @param knownServiceTypes know {@link ServiceInfo} types used to initialize a default service config when starting
+     *     off an empty config
      */
     public PgconfigGeoServerLoader(
             @NonNull PgconfigGeoServerResourceLoader resourceLoader, @NonNull GeoServerConfigurationLock configLock) {
@@ -64,9 +62,8 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
     }
 
     /**
-     * Overrides to run inside a lock on "styles" to avoid multiple instances starting up off an
-     * empty database trying to create the same default styles, which results in either a startup
-     * error or multiple styles named the same.
+     * Overrides to run inside a lock on "styles" to avoid multiple instances starting up off an empty database trying
+     * to create the same default styles, which results in either a startup error or multiple styles named the same.
      */
     @Override
     protected void initializeDefaultStyles(Catalog catalog) throws IOException {

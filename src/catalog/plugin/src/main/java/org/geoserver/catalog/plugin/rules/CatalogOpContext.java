@@ -16,18 +16,18 @@ import org.geoserver.catalog.plugin.CatalogInfoTypeRegistry;
 import org.geoserver.catalog.plugin.PropertyDiff;
 
 /**
- * Encapsulates the context on which a catalog add/save/remove operation is being executed,
- * providing the necessary information for {@link CatalogInfoBusinessRules} implementations to act
- * accordingly depending on the type, phase, and status of the operation.
+ * Encapsulates the context on which a catalog add/save/remove operation is being executed, providing the necessary
+ * information for {@link CatalogInfoBusinessRules} implementations to act accordingly depending on the type, phase, and
+ * status of the operation.
  *
  * <p>{@link CatalogInfoBusinessRules#afterAdd},{@link CatalogInfoBusinessRules#afterSave}, and
- * {@link CatalogInfoBusinessRules#afterRemove} can check {@link #isSuccess()} to decide what to do
- * in case of success or failure, may they have to implement some counter-command in case of
- * failure, or change some other state in case of success.
+ * {@link CatalogInfoBusinessRules#afterRemove} can check {@link #isSuccess()} to decide what to do in case of success
+ * or failure, may they have to implement some counter-command in case of failure, or change some other state in case of
+ * success.
  *
- * <p>{@link CatalogInfoBusinessRules#beforeSave(CatalogOpContext)} and {@link
- * CatalogInfoBusinessRules#afterSave} can access the {@link #getDiff() diff} that's going to be
- * applied or has just been applied to the {@link #getObject() object}.
+ * <p>{@link CatalogInfoBusinessRules#beforeSave(CatalogOpContext)} and {@link CatalogInfoBusinessRules#afterSave} can
+ * access the {@link #getDiff() diff} that's going to be applied or has just been applied to the {@link #getObject()
+ * object}.
  */
 public class CatalogOpContext<T extends CatalogInfo> {
     private Catalog catalog;
@@ -54,16 +54,12 @@ public class CatalogOpContext<T extends CatalogInfo> {
         this.diff = diff;
     }
 
-    /**
-     * @return the catalog on which the operation is being executed
-     */
+    /** @return the catalog on which the operation is being executed */
     public Catalog getCatalog() {
         return catalog;
     }
 
-    /**
-     * @return the {@link CatalogInfo} object subject of the add,save, or remove operation.
-     */
+    /** @return the {@link CatalogInfo} object subject of the add,save, or remove operation. */
     public T getObject() {
         return object;
     }
@@ -74,9 +70,9 @@ public class CatalogOpContext<T extends CatalogInfo> {
     }
 
     /**
-     * Returns the diff to be applied on a {@link CatalogInfoBusinessRules#beforeSave beforeSave}
-     * context, just applied on a {@link CatalogInfoBusinessRules#afterSave} context, or {@code
-     * null} if the context is not pre or post modify.
+     * Returns the diff to be applied on a {@link CatalogInfoBusinessRules#beforeSave beforeSave} context, just applied
+     * on a {@link CatalogInfoBusinessRules#afterSave} context, or {@code null} if the context is not pre or post
+     * modify.
      */
     public PropertyDiff getDiff() {
         return diff;
@@ -93,8 +89,8 @@ public class CatalogOpContext<T extends CatalogInfo> {
     }
 
     /**
-     * @return the reason for the operation failure, or {@code null} if the operation succeeded or
-     *     is a pre-operation context
+     * @return the reason for the operation failure, or {@code null} if the operation succeeded or is a pre-operation
+     *     context
      */
     public RuntimeException getError() {
         return error;
@@ -126,9 +122,7 @@ public class CatalogOpContext<T extends CatalogInfo> {
         return value != null && value.booleanValue();
     }
 
-    /**
-     * @return {@code this} type narrowed to a sub type of {@code <T>}
-     */
+    /** @return {@code this} type narrowed to a sub type of {@code <T>} */
     @SuppressWarnings("unchecked")
     public <S extends T> CatalogOpContext<S> as(Class<S> subtype) {
         if (subtype.isInstance(object)) {

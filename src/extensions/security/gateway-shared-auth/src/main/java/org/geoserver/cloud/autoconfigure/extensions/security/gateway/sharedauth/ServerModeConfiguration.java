@@ -20,16 +20,16 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Spring configuration for the Gateway Shared Authentication system in server mode.
  *
- * <p>This configuration is automatically activated when running in the GeoServer WebUI application
- * and creates a {@link GatewaySharedAuthenticationProvider} in SERVER mode. This is intended for use
- * in the WebUI service to add authentication headers to responses.</p>
+ * <p>This configuration is automatically activated when running in the GeoServer WebUI application and creates a
+ * {@link GatewaySharedAuthenticationProvider} in SERVER mode. This is intended for use in the WebUI service to add
+ * authentication headers to responses.
  *
- * <p>Additionally, this configuration contributes Wicket UI panels for the authentication filter
- * in the GeoServer admin interface, allowing administrators to configure the filter through the UI.</p>
+ * <p>Additionally, this configuration contributes Wicket UI panels for the authentication filter in the GeoServer admin
+ * interface, allowing administrators to configure the filter through the UI.
  *
  * <p>Note: Previously, this was controlled by the configuration property
- * {@code geoserver.extension.security.gateway-shared-auth.server=true}, but now the mode
- * is automatically determined based on the application type.
+ * {@code geoserver.extension.security.gateway-shared-auth.server=true}, but now the mode is automatically determined
+ * based on the application type.
  *
  * @see GatewaySharedAuthenticationFilter.ServerFilter
  * @see ClientModeConfiguration

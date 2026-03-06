@@ -28,12 +28,11 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 
 /**
- * Converts binary comparison operators using a property name and a {@link CatalogInfo} instance
- * literal as a comparison by id.
+ * Converts binary comparison operators using a property name and a {@link CatalogInfo} instance literal as a comparison
+ * by id.
  *
- * <p>For example, a filter like {@code workspace = WorkspaceInfo[test]} is translated to {@code
- * workspace.id = WorkspaceInfo[test].id}, where {@code WorkspaceInfo[test]} is an instance of a
- * {@link WorkspaceInfo}.
+ * <p>For example, a filter like {@code workspace = WorkspaceInfo[test]} is translated to {@code workspace.id =
+ * WorkspaceInfo[test].id}, where {@code WorkspaceInfo[test]} is an instance of a {@link WorkspaceInfo}.
  *
  * <p>
  *
@@ -92,12 +91,11 @@ class CatalogInfoLiteralAdaptor extends DuplicatingFilterVisitor {
     }
 
     /**
-     * Converts a binary comparison operator using a property name and a {@link CatalogInfo}
-     * instance literal as a comparison by id.
+     * Converts a binary comparison operator using a property name and a {@link CatalogInfo} instance literal as a
+     * comparison by id.
      *
-     * <p>For example, a filter like {@code workspace = WorkspaceInfo} is translated to {@code
-     * workspace.id = WorkspaceInfo.id}, where {@code WorkspaceInfo} is an instanceo of a {@link
-     * WorkspaceInfo}.
+     * <p>For example, a filter like {@code workspace = WorkspaceInfo} is translated to {@code workspace.id =
+     * WorkspaceInfo.id}, where {@code WorkspaceInfo} is an instanceo of a {@link WorkspaceInfo}.
      */
     private <F extends BinaryComparisonOperator> F adapt(F filter, BinaryComparisonBuilder<F> builder) {
 

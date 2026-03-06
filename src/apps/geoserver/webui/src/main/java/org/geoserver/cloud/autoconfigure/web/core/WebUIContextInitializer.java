@@ -11,9 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
-/**
- * @since 1.8.2
- */
+/** @since 1.8.2 */
 @Slf4j
 public class WebUIContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 

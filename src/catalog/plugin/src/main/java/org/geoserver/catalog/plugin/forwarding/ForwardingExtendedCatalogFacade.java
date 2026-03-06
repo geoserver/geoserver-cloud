@@ -23,12 +23,13 @@ import org.geoserver.catalog.plugin.Query;
 /**
  * A decorator that implements the forwarding pattern for an {@link ExtendedCatalogFacade}.
  *
- * <p>This class extends {@link ForwardingCatalogFacade} to wrap an {@link ExtendedCatalogFacade} subject,
- * delegating all operations to it while providing the additional functionality of `ExtendedCatalogFacade`
- * (e.g., stream-based queries, patch updates). Subclasses can override methods to customize behavior,
- * such as adding logging, validation, or caching, without altering the core facade implementation.
+ * <p>This class extends {@link ForwardingCatalogFacade} to wrap an {@link ExtendedCatalogFacade} subject, delegating
+ * all operations to it while providing the additional functionality of `ExtendedCatalogFacade` (e.g., stream-based
+ * queries, patch updates). Subclasses can override methods to customize behavior, such as adding logging, validation,
+ * or caching, without altering the core facade implementation.
  *
  * <p>Example usage:
+ *
  * <pre>
  * ExtendedCatalogFacade baseFacade = ...;
  * ForwardingExtendedCatalogFacade decorator = new ForwardingExtendedCatalogFacade(baseFacade) {
@@ -49,7 +50,8 @@ public class ForwardingExtendedCatalogFacade extends ForwardingCatalogFacade imp
     /**
      * Constructs a forwarding facade wrapping an {@link ExtendedCatalogFacade} subject.
      *
-     * @param facade The underlying {@link ExtendedCatalogFacade} to forward calls to; may be null (behavior depends on subclass).
+     * @param facade The underlying {@link ExtendedCatalogFacade} to forward calls to; may be null (behavior depends on
+     *     subclass).
      */
     public ForwardingExtendedCatalogFacade(ExtendedCatalogFacade facade) {
         super(facade);

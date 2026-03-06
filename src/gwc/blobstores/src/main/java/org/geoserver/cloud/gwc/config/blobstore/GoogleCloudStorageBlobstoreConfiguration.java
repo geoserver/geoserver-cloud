@@ -13,13 +13,13 @@ import org.springframework.context.annotation.Configuration;
  * Original:
  *
  * <pre>{@code
- *   <bean id="GcsBlobStoreConfigProvider" class="org.geowebcache.storage.blobstore.gcs.GoogleCloudStorageConfigProvider" depends-on="gwcSynchEnv" >
- *     <description>
- *       Contributes XStream configuration settings to org.geowebcache.config.XMLConfiguration to encode GoogleCloudStorageBlobStoreInfo instances
- *     </description>
- *   </bean>
+ * <bean id="GcsBlobStoreConfigProvider" class="org.geowebcache.storage.blobstore.gcs.GoogleCloudStorageConfigProvider" depends-on="gwcSynchEnv" >
+ *   <description>
+ *     Contributes XStream configuration settings to org.geowebcache.config.XMLConfiguration to encode GoogleCloudStorageBlobStoreInfo instances
+ *   </description>
+ * </bean>
  *
- *   <bean class="org.geoserver.gwc.blob.gcs.web.GcsBlobStoreType" />
+ * <bean class="org.geoserver.gwc.blob.gcs.web.GcsBlobStoreType" />
  *
  * }</pre>
  *

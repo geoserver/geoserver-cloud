@@ -10,9 +10,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 public class GridsetEvent extends GeoWebCacheEvent {
     @Serial
     private static final long serialVersionUID = 1L;

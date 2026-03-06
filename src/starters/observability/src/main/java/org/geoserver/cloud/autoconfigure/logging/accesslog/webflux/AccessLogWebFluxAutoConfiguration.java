@@ -17,23 +17,24 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * Auto-configuration for access logging in WebFlux applications.
- * <p>
- * This configuration automatically sets up the {@link AccessLogWebfluxFilter} for reactive web applications,
- * enabling HTTP request access logging. The filter captures key information about each request
- * and logs it at the appropriate level based on the configuration.
- * <p>
- * The configuration activates only for reactive web applications (WebFlux) and provides:
+ *
+ * <p>This configuration automatically sets up the {@link AccessLogWebfluxFilter} for reactive web applications,
+ * enabling HTTP request access logging. The filter captures key information about each request and logs it at the
+ * appropriate level based on the configuration.
+ *
+ * <p>The configuration activates only for reactive web applications (WebFlux) and provides:
+ *
  * <ul>
- *   <li>Configuration properties for controlling which requests are logged and at what level</li>
- *   <li>The AccessLogWebfluxFilter that performs the actual logging</li>
+ *   <li>Configuration properties for controlling which requests are logged and at what level
+ *   <li>The AccessLogWebfluxFilter that performs the actual logging
  * </ul>
- * <p>
- * Access log properties are controlled through the {@link AccessLogFilterConfig} class,
- * which allows defining patterns for requests to be logged at different levels (info, debug, trace).
- * <p>
- * In Spring Cloud Gateway applications, this filter is not activated by default to avoid
- * double-logging, as Gateway uses its own filter chain with a dedicated access log filter.
- * This behavior can be overridden with the property {@code logging.accesslog.webflux.enabled}.
+ *
+ * <p>Access log properties are controlled through the {@link AccessLogFilterConfig} class, which allows defining
+ * patterns for requests to be logged at different levels (info, debug, trace).
+ *
+ * <p>In Spring Cloud Gateway applications, this filter is not activated by default to avoid double-logging, as Gateway
+ * uses its own filter chain with a dedicated access log filter. This behavior can be overridden with the property
+ * {@code logging.accesslog.webflux.enabled}.
  *
  * @see AccessLogWebfluxFilter
  * @see AccessLogFilterConfig
@@ -51,20 +52,21 @@ public class AccessLogWebFluxAutoConfiguration {
 
     /**
      * Creates the AccessLogWebfluxFilter bean for WebFlux applications.
-     * <p>
-     * This bean is responsible for logging HTTP requests based on the provided configuration.
-     * The filter captures key information about each request and logs it at the appropriate level
-     * based on the URL patterns defined in the configuration.
-     * <p>
-     * The filter is configured with the {@link AccessLogFilterConfig} which determines:
+     *
+     * <p>This bean is responsible for logging HTTP requests based on the provided configuration. The filter captures
+     * key information about each request and logs it at the appropriate level based on the URL patterns defined in the
+     * configuration.
+     *
+     * <p>The filter is configured with the {@link AccessLogFilterConfig} which determines:
+     *
      * <ul>
-     *   <li>Which URL patterns are logged</li>
-     *   <li>What log level (info, debug, trace) is used for each pattern</li>
+     *   <li>Which URL patterns are logged
+     *   <li>What log level (info, debug, trace) is used for each pattern
      * </ul>
-     * <p>
-     * In Spring Cloud Gateway applications, this bean is not created by default to avoid
-     * double-logging with the Gateway's GlobalFilter. The Gateway configuration creates its own
-     * dedicated instance of AccessLogWebfluxFilter wrapped in a GlobalFilter adapter.
+     *
+     * <p>In Spring Cloud Gateway applications, this bean is not created by default to avoid double-logging with the
+     * Gateway's GlobalFilter. The Gateway configuration creates its own dedicated instance of AccessLogWebfluxFilter
+     * wrapped in a GlobalFilter adapter.
      *
      * @param conf the access log filter configuration properties
      * @return the configured AccessLogWebfluxFilter bean

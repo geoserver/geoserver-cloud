@@ -59,16 +59,12 @@ public interface StoreMapper {
         throw new IllegalArgumentException("Unknown Store type: " + o);
     }
 
-    /**
-     * Convert ConnectionParameters to a standard Serializable map for StoreInfo.
-     */
+    /** Convert ConnectionParameters to a standard Serializable map for StoreInfo. */
     default Map<String, Serializable> connectionParamsFromDto(ConnectionParameters params) {
         return (params == null) ? new LinkedHashMap<>() : params.toSerializableMap();
     }
 
-    /**
-     * Convert a standard Serializable map to ConnectionParameters for Store DTO.
-     */
+    /** Convert a standard Serializable map to ConnectionParameters for Store DTO. */
     default ConnectionParameters connectionParamsToDto(Map<String, Serializable> params) {
         return (params == null) ? new ConnectionParameters() : new ConnectionParameters(params);
     }

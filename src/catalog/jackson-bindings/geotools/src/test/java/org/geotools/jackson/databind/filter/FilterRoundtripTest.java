@@ -33,9 +33,8 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
 /**
- * Abstract test suite for {@link FilterDto} Data Transfer Objects or POJOS; to be used both for
- * testing serialization/deserialization and mapping to and from {@link
- * org.geotools.api.filter.Filter}
+ * Abstract test suite for {@link FilterDto} Data Transfer Objects or POJOS; to be used both for testing
+ * serialization/deserialization and mapping to and from {@link org.geotools.api.filter.Filter}
  */
 public abstract class FilterRoundtripTest {
 

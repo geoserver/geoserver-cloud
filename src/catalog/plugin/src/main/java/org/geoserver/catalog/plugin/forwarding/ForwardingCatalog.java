@@ -42,14 +42,15 @@ import org.geotools.api.filter.sort.SortBy;
 /**
  * A decorator for {@link Catalog} that forwards all method calls to an underlying catalog instance.
  *
- * <p>This class aids in implementing decorators by providing a base that delegates all operations to a
- * subject {@link Catalog}, allowing subclasses to override specific methods to modify behavior as needed.
- * It’s useful for adding functionality (e.g., logging, caching) without altering the core catalog
- * implementation. The decorator is {@link Serializable} if the subject catalog is serializable.
+ * <p>This class aids in implementing decorators by providing a base that delegates all operations to a subject
+ * {@link Catalog}, allowing subclasses to override specific methods to modify behavior as needed. It’s useful for
+ * adding functionality (e.g., logging, caching) without altering the core catalog implementation. The decorator is
+ * {@link Serializable} if the subject catalog is serializable.
  *
  * <p>Subclasses should override one or more methods to modify the behavior of the backing catalog as needed.
  *
  * <p>Example usage:
+ *
  * <pre>
  * Catalog baseCatalog = ...;
  * ForwardingCatalog decorator = new ForwardingCatalog(baseCatalog) {

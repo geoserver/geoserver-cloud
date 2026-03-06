@@ -25,12 +25,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 /**
  * Tests for the updateState mechanism in PgconfigResource.
  *
- * <p>
- * This mechanism is critical for compatibility with components like
- * AbstractAccessRuleDAO and RESTAccessRuleDAO that hold resource references as
- * instance variables, which can become stale in database-backed resource
- * implementations.
- * </p>
+ * <p>This mechanism is critical for compatibility with components like AbstractAccessRuleDAO and RESTAccessRuleDAO that
+ * hold resource references as instance variables, which can become stale in database-backed resource implementations.
  */
 @ExtendWith(MockitoExtension.class)
 class PgconfigResourceUpdateStateTest {
@@ -45,9 +41,7 @@ class PgconfigResourceUpdateStateTest {
         resource = new PgconfigResource(store, 1L, 0L, Type.RESOURCE, "security/rest.properties", 123456L);
     }
 
-    /**
-     * Test that getType() triggers updateState when sufficient time has passed.
-     */
+    /** Test that getType() triggers updateState when sufficient time has passed. */
     @Test
     void testGetTypeUpdatesState() {
         // Set lastChecked to a time in the past to force update
@@ -60,10 +54,7 @@ class PgconfigResourceUpdateStateTest {
         verify(store).updateState(resource);
     }
 
-    /**
-     * Test that lastmodified() triggers updateState when sufficient time has
-     * passed.
-     */
+    /** Test that lastmodified() triggers updateState when sufficient time has passed. */
     @Test
     void testLastModifiedUpdatesState() {
         // Set lastChecked to a time in the past to force update
@@ -76,9 +67,7 @@ class PgconfigResourceUpdateStateTest {
         verify(store).updateState(resource);
     }
 
-    /**
-     * Test that multiple rapid calls to getType() only trigger updateState once.
-     */
+    /** Test that multiple rapid calls to getType() only trigger updateState once. */
     @Test
     void testUpdateStateNotCalledRepeatedly() {
         // Set lastChecked to a time in the past to force update
@@ -94,9 +83,7 @@ class PgconfigResourceUpdateStateTest {
         verify(store, times(1)).updateState(resource);
     }
 
-    /**
-     * Test that a resource's state is properly updated from the database.
-     */
+    /** Test that a resource's state is properly updated from the database. */
     @Test
     void testStateIsProperlyUpdated() {
         // Create a mock store that updates the resource on updateState
@@ -131,9 +118,7 @@ class PgconfigResourceUpdateStateTest {
         assertEquals(789012L, resource.lastmodified());
     }
 
-    /**
-     * Test that updateState can handle the case where a resource no longer exists.
-     */
+    /** Test that updateState can handle the case where a resource no longer exists. */
     @Test
     void testUpdateStateHandlesDeletedResource() {
         // Create a mock store that marks the resource as undefined on updateState

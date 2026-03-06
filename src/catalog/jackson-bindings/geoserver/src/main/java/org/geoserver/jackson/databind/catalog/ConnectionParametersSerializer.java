@@ -17,9 +17,7 @@ import tools.jackson.databind.ValueSerializer;
 /**
  * Custom serializer for Store connection parameters.
  *
- * <p>
- * This serializer handles complex types like ReferencedEnvelope by wrapping them in a Literal.
- * </p>
+ * <p>This serializer handles complex types like ReferencedEnvelope by wrapping them in a Literal.
  */
 public class ConnectionParametersSerializer extends ValueSerializer<ConnectionParameters> {
 
@@ -61,18 +59,14 @@ public class ConnectionParametersSerializer extends ValueSerializer<ConnectionPa
     /**
      * Determine if a value should be converted to a String.
      *
-     * <p>
-     * Common types like URI, URL, File, and Path should be serialized as strings
-     * since DataAccessFactory.Param.lookUp() will convert them back to the proper type.
-     * </p>
+     * <p>Common types like URI, URL, File, and Path should be serialized as strings since
+     * DataAccessFactory.Param.lookUp() will convert them back to the proper type.
      */
     private boolean shouldConvertToString(Object value) {
         return value instanceof URI || value instanceof URL || value instanceof File || value instanceof Path;
     }
 
-    /**
-     * Determine if a value should be wrapped in a Literal.
-     */
+    /** Determine if a value should be wrapped in a Literal. */
     private boolean shouldWrapAsLiteral(Object value) {
         if (value == null) {
             return false;

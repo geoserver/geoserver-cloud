@@ -10,8 +10,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Enables disk quota REST API if both {@link ConditionalOnDiskQuotaEnabled disk-quota} and {@link
- * ConditionalOnGeoWebCacheRestConfigEnabled res-config} are enabled.
+ * Enables disk quota REST API if both {@link ConditionalOnDiskQuotaEnabled disk-quota} and
+ * {@link ConditionalOnGeoWebCacheRestConfigEnabled res-config} are enabled.
  */
 @Configuration
 @ComponentScan(basePackageClasses = DiskQuotaController.class)

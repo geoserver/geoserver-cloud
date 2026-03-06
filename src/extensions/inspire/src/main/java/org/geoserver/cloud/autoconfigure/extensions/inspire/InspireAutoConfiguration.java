@@ -15,9 +15,8 @@ import org.springframework.context.annotation.Bean;
 /**
  * Auto-configuration for the GeoServer INSPIRE extension.
  *
- * <p>This extension enables some INSPIRE metadata features. It allows
- * GeoServer to configure INSPIRE metadata that can be served by
- * in GetCapabilities.
+ * <p>This extension enables some INSPIRE metadata features. It allows GeoServer to configure INSPIRE metadata that can
+ * be served by in GetCapabilities.
  *
  * <p>The extension is disabled by default and can be enabled with:
  *
@@ -45,8 +44,7 @@ public class InspireAutoConfiguration {
      *
      * <p>Equivalent to the following XML configuration:
      *
-     * <pre>
-     * {@code
+     * <pre>{@code
      * <bean id="inspireExtension" class=
      * "org.geoserver.platform.ModuleStatusImpl">
      *  <property name="module" value="gs-inspire" />

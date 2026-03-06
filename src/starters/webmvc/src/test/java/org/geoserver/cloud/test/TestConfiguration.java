@@ -13,9 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.TestPropertySource;
 
 /**
- * Simple test configuration to refer to in {@link SpringBootTest @SpringBootTest} annotations, does
- * nothing as we rely in auto-configuration by default. Individual tests can enable/disable the
- * desired auto configurations as needed
+ * Simple test configuration to refer to in {@link SpringBootTest @SpringBootTest} annotations, does nothing as we rely
+ * in auto-configuration by default. Individual tests can enable/disable the desired auto configurations as needed
  */
 @Configuration
 @EnableAutoConfiguration(

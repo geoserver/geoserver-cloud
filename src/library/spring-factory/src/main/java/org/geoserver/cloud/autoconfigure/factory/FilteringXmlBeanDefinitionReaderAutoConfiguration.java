@@ -9,10 +9,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
-/**
- * Calls {@link FilteringXmlBeanDefinitionReader#clearCaches()} once the application context is
- * refreshed
- */
+/** Calls {@link FilteringXmlBeanDefinitionReader#clearCaches()} once the application context is refreshed */
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class FilteringXmlBeanDefinitionReaderAutoConfiguration {

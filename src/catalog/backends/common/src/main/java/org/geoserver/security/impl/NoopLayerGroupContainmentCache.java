@@ -9,16 +9,16 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.impl.CatalogImpl;
 
 /**
- * A no-op {@link LayerGroupContainmentCache}, since some services like WFS do not deal with {@link
- * LayerGroupInfo layer groups} at all, then avoid the startup overhead.
+ * A no-op {@link LayerGroupContainmentCache}, since some services like WFS do not deal with {@link LayerGroupInfo layer
+ * groups} at all, then avoid the startup overhead.
  *
  * @since 1.8.2
  */
 public class NoopLayerGroupContainmentCache extends LayerGroupContainmentCache {
 
     /**
-     * Since {@link LayerGroupContainmentCache} is a class and the initialization methods are
-     * private, we give it an empty in-memory catalog and call it a day
+     * Since {@link LayerGroupContainmentCache} is a class and the initialization methods are private, we give it an
+     * empty in-memory catalog and call it a day
      */
     public NoopLayerGroupContainmentCache() {
         super(new CatalogImpl());

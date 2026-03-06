@@ -15,8 +15,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
- * {@link ConditionalOnProperty @ConditionalOnProperty} that checks if {@code
- * geoserver.extension.importer.enabled} is {@code true}.
+ * {@link ConditionalOnProperty @ConditionalOnProperty} that checks if {@code geoserver.extension.importer.enabled} is
+ * {@code true}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})

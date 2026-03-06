@@ -21,11 +21,10 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 /**
- * Listens to local catalog and configuration change {@link InfoEvent}s produced
- * by this service instance and broadcasts them to the cluster as
- * {@link RemoteGeoServerEvent}, and conversely, listens to incoming
- * {@link RemoteGeoServerEvent}s and publishes their
- * {@link RemoteGeoServerEvent#getEvent() event} payload as local events
+ * Listens to local catalog and configuration change {@link InfoEvent}s produced by this service instance and broadcasts
+ * them to the cluster as {@link RemoteGeoServerEvent}, and conversely, listens to incoming
+ * {@link RemoteGeoServerEvent}s and publishes their {@link RemoteGeoServerEvent#getEvent() event} payload as local
+ * events
  *
  * @see #publishRemoteEvent(GeoServerEvent)
  * @see #publishLocalEvent(RemoteGeoServerEvent)
@@ -34,16 +33,16 @@ import org.springframework.core.annotation.Order;
 public class RemoteGeoServerEventBridge implements DisposableBean {
 
     /**
-     * Provided event publisher for incoming remote events converted to local events
-     * (e.g. {@link ApplicationEventPublisher#publishEvent})
+     * Provided event publisher for incoming remote events converted to local events (e.g.
+     * {@link ApplicationEventPublisher#publishEvent})
      *
      * @see #publishRemoteEvent(GeoServerEvent)
      */
     private final Consumer<GeoServerEvent> inboundEventPublisher;
 
     /**
-     * Provided event publisher for outgoing remote events converted from local
-     * events (e.g. {@link ApplicationEventPublisher#publishEvent})
+     * Provided event publisher for outgoing remote events converted from local events (e.g.
+     * {@link ApplicationEventPublisher#publishEvent})
      *
      * @see #publishLocalEvent(RemoteGeoServerEvent)
      */
@@ -89,10 +88,9 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     }
 
     /**
-     * Highest priority listener for incoming {@link RemoteGeoServerEvent} events to
-     * resolve the payload {@link CatalogInfo} properties, as they may come either
-     * as {@link ResolvingProxy} proxies, or {@code null} in case of collection
-     * properties.
+     * Highest priority listener for incoming {@link RemoteGeoServerEvent} events to resolve the payload
+     * {@link CatalogInfo} properties, as they may come either as {@link ResolvingProxy} proxies, or {@code null} in
+     * case of collection properties.
      */
     @EventListener(RemoteGeoServerEvent.class)
     @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -107,8 +105,8 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     }
 
     /**
-     * Lowest priority listener on a local {@link GeoServerEvent}, publishes a
-     * matching {@link RemoteGeoServerEvent} to the event bus
+     * Lowest priority listener on a local {@link GeoServerEvent}, publishes a matching {@link RemoteGeoServerEvent} to
+     * the event bus
      */
     @EventListener(GeoServerEvent.class)
     @Order(Ordered.LOWEST_PRECEDENCE)

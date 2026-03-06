@@ -63,38 +63,35 @@ import org.geotools.util.logging.Logging;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Alternative to {@link org.geoserver.catalog.impl.CatalogImpl} to improve separation of concerns
- * between levels of abstractions and favor plug-ability of the underlying object store.
+ * Alternative to {@link org.geoserver.catalog.impl.CatalogImpl} to improve separation of concerns between levels of
+ * abstractions and favor plug-ability of the underlying object store.
  *
  * <p>
  *
  * <ul>
- *   <li>Allows decorating the {@link CatalogFacade} with an {@link IsolatedCatalogFacade} when
- *       {@link #setFacade} is called, instead of only in the default constructor
- *   <li>Requires the {@code CatalogFacade} to derive from {@link ExtendedCatalogFacade}, to make
- *       use of {@link ExtendedCatalogFacade#query query(Query&lt;T&gt;):Stream&lt;T&gt;} and {@link
- *       ExtendedCatalogFacade#update update(CatalogInfo, Patch)}
- *   <li>Enables setting a {@link RepositoryCatalogFacade}, which allows to easily abstract out the
- *       underlying backend storage using {@link CatalogInfoRepository} implementations
- *   <li>Uses {@link DefaultMemoryCatalogFacade} as the default facade implementation for attached,
- *       on-heap {@link CatalogInfo} storage
- *   <li>Implements all business-logic, like event handling and ensuring no {@link CatalogInfo}
- *       instance gets in or out of the {@link Catalog} without being decorated with a {@link
- *       ModificationProxy}, relieving the lower-level {@link CatalogFacade} abstraction of such
- *       concerns. Hence {@link ExtendedCatalogFacade} works on plain POJOS, or whatever is supplied
- *       by its {@link CatalogInfoRepository repositories}, though in practice it can only be
- *       implementations of {@code org.geoserver.catalog.impl.*InfoImpl} due to coupling in other
- *       areas.
- *   <li>Of special interest is the use of {@link PropertyDiff} and {@link Patch} on all the {@link
- *       #save} methods, delegating to {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)} , in
- *       order to keep the {@code ModificationProxy} logic local to this catalog implementation, and
- *       let the backend (facade) implement atomic updates as it fits it better.
+ *   <li>Allows decorating the {@link CatalogFacade} with an {@link IsolatedCatalogFacade} when {@link #setFacade} is
+ *       called, instead of only in the default constructor
+ *   <li>Requires the {@code CatalogFacade} to derive from {@link ExtendedCatalogFacade}, to make use of
+ *       {@link ExtendedCatalogFacade#query query(Query&lt;T&gt;):Stream&lt;T&gt;} and
+ *       {@link ExtendedCatalogFacade#update update(CatalogInfo, Patch)}
+ *   <li>Enables setting a {@link RepositoryCatalogFacade}, which allows to easily abstract out the underlying backend
+ *       storage using {@link CatalogInfoRepository} implementations
+ *   <li>Uses {@link DefaultMemoryCatalogFacade} as the default facade implementation for attached, on-heap
+ *       {@link CatalogInfo} storage
+ *   <li>Implements all business-logic, like event handling and ensuring no {@link CatalogInfo} instance gets in or out
+ *       of the {@link Catalog} without being decorated with a {@link ModificationProxy}, relieving the lower-level
+ *       {@link CatalogFacade} abstraction of such concerns. Hence {@link ExtendedCatalogFacade} works on plain POJOS,
+ *       or whatever is supplied by its {@link CatalogInfoRepository repositories}, though in practice it can only be
+ *       implementations of {@code org.geoserver.catalog.impl.*InfoImpl} due to coupling in other areas.
+ *   <li>Of special interest is the use of {@link PropertyDiff} and {@link Patch} on all the {@link #save} methods,
+ *       delegating to {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)} , in order to keep the
+ *       {@code ModificationProxy} logic local to this catalog implementation, and let the backend (facade) implement
+ *       atomic updates as it fits it better.
  * </ul>
  *
- * <p>NOTE: subclass of {@link CatalogImpl} due to several unchecked casts in {@link
- * GeoServerLoader}, {@link GeoServerImpl}, {@link XStreamPersister}, {@link DefaultCatalogFacade}
- * and others. We should really code to the interface and leave non API code out of CatalogImpl and
- * into helper classes!
+ * <p>NOTE: subclass of {@link CatalogImpl} due to several unchecked casts in {@link GeoServerLoader},
+ * {@link GeoServerImpl}, {@link XStreamPersister}, {@link DefaultCatalogFacade} and others. We should really code to
+ * the interface and leave non API code out of CatalogImpl and into helper classes!
  */
 @SuppressWarnings("serial")
 public class CatalogPlugin extends CatalogImpl implements Catalog {
@@ -140,9 +137,9 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     /**
-     * Returns a truly raw version of the CatalogImpl, that means with a raw catalog facade instead
-     * of the Isolated Workspace one, nothing is filtered or hidden. Only for usage by the
-     * ResolvingProxy, should otherwise never be used.
+     * Returns a truly raw version of the CatalogImpl, that means with a raw catalog facade instead of the Isolated
+     * Workspace one, nothing is filtered or hidden. Only for usage by the ResolvingProxy, should otherwise never be
+     * used.
      */
     @Override
     public CatalogPlugin getRawCatalog() {
@@ -161,8 +158,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     /**
      * Turn on/off extended validation switch.
      *
-     * <p>This is not part of the public api, it is used for testing purposes where we have to
-     * bootstrap catalog contents.
+     * <p>This is not part of the public api, it is used for testing purposes where we have to bootstrap catalog
+     * contents.
      */
     @Override
     public void setExtendedValidation(boolean extendedValidation) {
@@ -261,9 +258,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         return validationSupport.validate(store, isNew);
     }
 
-    /**
-     * This is not API but we need to decide if MapInfo is deprecated/removed or further developed
-     */
+    /** This is not API but we need to decide if MapInfo is deprecated/removed or further developed */
     public ValidationResult validate(MapInfo map, boolean isNew) {
         return validationSupport.validate(map, isNew);
     }
@@ -274,9 +269,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     /**
-     * Overrides with same logic as {@link CatalogImpl#save(StoreInfo)} but calls {@link
-     * #doSave(CatalogInfo) doSave(store)} instead of {@link CatalogFacade#save(StoreInfo)
-     * facade.save(store)}
+     * Overrides with same logic as {@link CatalogImpl#save(StoreInfo)} but calls {@link #doSave(CatalogInfo)
+     * doSave(store)} instead of {@link CatalogFacade#save(StoreInfo) facade.save(store)}
      */
     @Override
     public void save(StoreInfo store) {
@@ -768,16 +762,13 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     /**
      * Called by all {@code save(...)} methods, creates a {@link Patch} out of the {@code info}
-     * {@link ModificationProxy} and calls {@link ExtendedCatalogFacade#update
-     * facade.update(CatalogInfo, Patch)} with the real object and the patch, for the facade to
-     * apply the changeset to its backend storage as appropriate.
+     * {@link ModificationProxy} and calls {@link ExtendedCatalogFacade#update facade.update(CatalogInfo, Patch)} with
+     * the real object and the patch, for the facade to apply the changeset to its backend storage as appropriate.
      *
-     * <p>Handles {@link #fireModified pre} and {@link #firePostModified post} modify events
-     * publishing. It is no longer {@link CatalogFacade}s responsibility to publish the post-modify
-     * events
+     * <p>Handles {@link #fireModified pre} and {@link #firePostModified post} modify events publishing. It is no longer
+     * {@link CatalogFacade}s responsibility to publish the post-modify events
      *
-     * @param info a {@link ModificationProxy} holding the actual, unchanged object and the changed
-     *     properties
+     * @param info a {@link ModificationProxy} holding the actual, unchanged object and the changed properties
      */
     protected <I extends CatalogInfo> void doSave(final I info) {
         final ModificationProxy proxy = ProxyUtils.handler(info, ModificationProxy.class);

@@ -18,10 +18,10 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
  * <p>This class provides a two-stage resolution process for configuration values:
  *
  * <ol>
- *   <li><b>Placeholder resolution</b>: Resolves {@code ${property:default}} placeholders using the
- *       Spring {@link Environment}, including system properties like {@code ${cpu.cores}}
- *   <li><b>SpEL evaluation</b>: Evaluates the result as a SpEL expression to support arithmetic
- *       operations like {@code "4 * 2"} -> {@code "8"}
+ *   <li><b>Placeholder resolution</b>: Resolves {@code ${property:default}} placeholders using the Spring
+ *       {@link Environment}, including system properties like {@code ${cpu.cores}}
+ *   <li><b>SpEL evaluation</b>: Evaluates the result as a SpEL expression to support arithmetic operations like
+ *       {@code "4 * 2"} -> {@code "8"}
  * </ol>
  *
  * <p>Example resolution flow:
@@ -60,9 +60,8 @@ class ExpressionEvaluator {
     /**
      * Resolves property placeholders in the given string.
      *
-     * <p>Placeholders follow the format {@code ${property:default}} and are resolved against the
-     * Spring Environment, which includes system properties, environment variables, and application
-     * configuration.
+     * <p>Placeholders follow the format {@code ${property:default}} and are resolved against the Spring Environment,
+     * which includes system properties, environment variables, and application configuration.
      *
      * @param expressionString the string containing placeholders to resolve
      * @return the string with all placeholders resolved
@@ -74,13 +73,12 @@ class ExpressionEvaluator {
     /**
      * Evaluates the given string as a SpEL expression.
      *
-     * <p>This is typically called after {@link #resolvePlaceholders(String)} to evaluate arithmetic
-     * expressions like {@code "4 * 2"}.
+     * <p>This is typically called after {@link #resolvePlaceholders(String)} to evaluate arithmetic expressions like
+     * {@code "4 * 2"}.
      *
      * @param expressionString the SpEL expression to evaluate
      * @return the result of evaluating the expression as a String
-     * @throws org.springframework.expression.EvaluationException if the expression cannot be
-     *     evaluated
+     * @throws org.springframework.expression.EvaluationException if the expression cannot be evaluated
      */
     public String evaluateExpressions(String expressionString) {
         Expression exp = parser.parseExpression(expressionString);

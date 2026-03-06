@@ -16,9 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
-/**
- * Test suite for {@link CssStylingAutoConfiguration}
- */
+/** Test suite for {@link CssStylingAutoConfiguration} */
 class CssStylingAutoConfigurationTest {
 
     private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()

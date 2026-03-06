@@ -34,8 +34,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 /**
- * {@link EnableAutoConfiguration @EnableAutoConfiguration} tests for {@link
- * GeoServerSecurityAutoConfiguration}
+ * {@link EnableAutoConfiguration @EnableAutoConfiguration} tests for {@link GeoServerSecurityAutoConfiguration}
  *
  * @since 1.0
  */

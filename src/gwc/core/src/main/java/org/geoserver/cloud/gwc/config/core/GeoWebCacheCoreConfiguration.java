@@ -39,9 +39,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Configuration(proxyBeanMethods = true)
 @EnableConfigurationProperties(GeoWebCacheConfigurationProperties.class)
 @ImportFilteredResource(
@@ -50,8 +48,8 @@ import org.springframework.core.env.Environment;
 public class GeoWebCacheCoreConfiguration {
 
     /**
-     * @return a {@link GeoServerLockProvider} delegating the the {@link LockProvider}, which
-     * is known to be safe for distributed locking
+     * @return a {@link GeoServerLockProvider} delegating the the {@link LockProvider}, which is known to be safe for
+     *     distributed locking
      */
     @Bean(name = AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
     org.geowebcache.locks.LockProvider gwcLockProvider(org.geoserver.platform.resource.LockProvider lockProvider) {
@@ -66,19 +64,17 @@ public class GeoWebCacheCoreConfiguration {
     }
 
     /**
-     * There's only one way to set the default cache directory, through the {@code
-     * gwc.cache-directory} config property, following standard spring-boot externalized
-     * configuration rules.
+     * There's only one way to set the default cache directory, through the {@code gwc.cache-directory} config property,
+     * following standard spring-boot externalized configuration rules.
      *
-     * <p>The directory will be validated to be writable, or an attempt to create it will be made if
-     * it doesn't exist.
+     * <p>The directory will be validated to be writable, or an attempt to create it will be made if it doesn't exist.
      *
-     * <p>The {@literal GEOWEBCACHE_CACHE_DIR} System Property will be forced to the cache directory
-     * once validated, for interoperability with upstream's geowebcache lookup mechanism.
+     * <p>The {@literal GEOWEBCACHE_CACHE_DIR} System Property will be forced to the cache directory once validated, for
+     * interoperability with upstream's geowebcache lookup mechanism.
      *
      * @return
-     * @throws FatalBeanException if the {@code gwc.cache-directory} is not provided, is not a
-     *     writable directory, or can't be created
+     * @throws FatalBeanException if the {@code gwc.cache-directory} is not provided, is not a writable directory, or
+     *     can't be created
      */
     @Bean
     Path gwcDefaultCacheDirectory(GeoWebCacheConfigurationProperties config) {
@@ -100,19 +96,18 @@ public class GeoWebCacheCoreConfiguration {
     }
 
     /**
-     * Resolves the location of the global {@literal geowebcache.xml} configuration file by checking
-     * the {@literal gwc.config-directory} spring-boot configuration property from {@link
-     * GeoWebCacheConfigurationProperties}.
+     * Resolves the location of the global {@literal geowebcache.xml} configuration file by checking the
+     * {@literal gwc.config-directory} spring-boot configuration property from
+     * {@link GeoWebCacheConfigurationProperties}.
      *
-     * <p>This config setting is optional, and if unset defaults to the {@link ResourceStore}'s
-     * {@literal gwc/} directory.
+     * <p>This config setting is optional, and if unset defaults to the {@link ResourceStore}'s {@literal gwc/}
+     * directory.
      *
-     * <p>The {@literal GEOWEBCACHE_CONFIG_DIR} environment variable has no effect, as it's only
-     * used by upstream's {@link XMLFileResourceProvider}, which we replace by {@link
-     * #gwcXmlConfigResourceProvider}.
+     * <p>The {@literal GEOWEBCACHE_CONFIG_DIR} environment variable has no effect, as it's only used by upstream's
+     * {@link XMLFileResourceProvider}, which we replace by {@link #gwcXmlConfigResourceProvider}.
      *
-     * @throws BeanInitializationException if the directory supplied through the {@literal
-     *     gwc.config-directory} config property is invalid
+     * @throws BeanInitializationException if the directory supplied through the {@literal gwc.config-directory} config
+     *     property is invalid
      */
     private Supplier<Resource> gwcDefaultConfigDirectory(
             GeoWebCacheConfigurationProperties config, @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
@@ -150,8 +145,7 @@ public class GeoWebCacheCoreConfiguration {
      * </bean>
      * }</pre>
      *
-     * With one that resolves the default {@literal geowebcache.xml} file from {@link
-     * #gwcDefaultConfigDirectory}
+     * With one that resolves the default {@literal geowebcache.xml} file from {@link #gwcDefaultConfigDirectory}
      */
     @Bean
     ConfigurationResourceProvider gwcXmlConfigResourceProvider(
@@ -185,10 +179,9 @@ public class GeoWebCacheCoreConfiguration {
     }
 
     /**
-     * Define {@code DefaultStorageFinder} in code, excluded from {@literal geowebcache-servlet.xml}
-     * in the {@code @ImportResource} declaration above, to make sure the cache directory
-     * environment variable or system property is set up beforehand (GWC doesn't look it up in the
-     * spring application context).
+     * Define {@code DefaultStorageFinder} in code, excluded from {@literal geowebcache-servlet.xml} in the
+     * {@code @ImportResource} declaration above, to make sure the cache directory environment variable or system
+     * property is set up beforehand (GWC doesn't look it up in the spring application context).
      *
      * @param defaultCacheDirectory
      * @param environment
@@ -199,9 +192,7 @@ public class GeoWebCacheCoreConfiguration {
         return new CloudDefaultStorageFinder(defaultCacheDirectory, environment);
     }
 
-    /**
-     * @param directory
-     */
+    /** @param directory */
     private void validateDirectory(Path directory, String configPropertyName) {
         if (!directory.isAbsolute()) {
             throw new BeanInitializationException(

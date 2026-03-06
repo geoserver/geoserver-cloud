@@ -18,24 +18,24 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 /**
  * Interface for managing and accessing specialized {@link CatalogInfoRepository} instances in GeoServer Cloud.
  *
- * <p>This interface acts as a central holder or registry for type-specific catalog repositories, providing
- * uniform access to repositories for different {@link CatalogInfo} subtypes (e.g., workspaces, layers,
- * styles). It enables retrieval of repositories either by catalog info type or instance, and supports
- * setting and getting each repository explicitly. This design facilitates a modular, repository-based
- * approach to catalog data access, decoupling storage operations from higher-level catalog logic.
+ * <p>This interface acts as a central holder or registry for type-specific catalog repositories, providing uniform
+ * access to repositories for different {@link CatalogInfo} subtypes (e.g., workspaces, layers, styles). It enables
+ * retrieval of repositories either by catalog info type or instance, and supports setting and getting each repository
+ * explicitly. This design facilitates a modular, repository-based approach to catalog data access, decoupling storage
+ * operations from higher-level catalog logic.
  *
  * <p>Key features:
+ *
  * <ul>
- *   <li>Generic retrieval methods ({@link #repository(Class)}, {@link #repositoryFor(CatalogInfo)}) for
- *       type-safe access to repositories.</li>
+ *   <li>Generic retrieval methods ({@link #repository(Class)}, {@link #repositoryFor(CatalogInfo)}) for type-safe
+ *       access to repositories.
  *   <li>Specific getter and setter methods for each repository type (e.g., {@link #getLayerRepository()},
- *       {@link #setStyleRepository(StyleRepository)}).</li>
- *   <li>Support for all core catalog info types defined in {@link CatalogInfoRepository} sub-interfaces.</li>
+ *       {@link #setStyleRepository(StyleRepository)}).
+ *   <li>Support for all core catalog info types defined in {@link CatalogInfoRepository} sub-interfaces.
  * </ul>
  *
- * <p>Implementations of this interface are expected to maintain a consistent mapping between catalog info
- * types and their corresponding repositories, throwing exceptions if a requested repository is unavailable
- * or misconfigured.
+ * <p>Implementations of this interface are expected to maintain a consistent mapping between catalog info types and
+ * their corresponding repositories, throwing exceptions if a requested repository is unavailable or misconfigured.
  *
  * @since 1.0
  * @see CatalogInfoRepository
@@ -47,17 +47,17 @@ public interface CatalogInfoRepositoryHolder {
      * Retrieves the repository responsible for managing objects of the specified {@link CatalogInfo} type.
      *
      * <p>This generic method returns a type-specific repository based on the provided class (e.g.,
-     * {@link WorkspaceInfo.class} returns a {@link WorkspaceRepository}). It enables dynamic access to
-     * repositories without requiring explicit casting in most cases.
+     * {@link WorkspaceInfo.class} returns a {@link WorkspaceRepository}). It enables dynamic access to repositories
+     * without requiring explicit casting in most cases.
      *
      * @param <T> The type of {@link CatalogInfo} to query (e.g., {@link LayerInfo}).
      * @param <R> The corresponding repository type (e.g., {@link LayerRepository}).
-     * @param of  The class of catalog info objects to retrieve the repository for; must not be null.
+     * @param of The class of catalog info objects to retrieve the repository for; must not be null.
      * @return The repository managing objects of type {@code T}; never null.
      * @throws NullPointerException if {@code of} is null.
      * @throws IllegalArgumentException if no repository is configured for the specified type.
      * @example Retrieving a layer repository:
-     *          <pre>
+     *     <pre>
      *          LayerRepository layerRepo = holder.repository(LayerInfo.class);
      *          </pre>
      */
@@ -66,18 +66,18 @@ public interface CatalogInfoRepositoryHolder {
     /**
      * Retrieves the repository responsible for managing the type of the provided {@link CatalogInfo} instance.
      *
-     * <p>This method infers the repository type from the given object (e.g., passing a {@link LayerInfo}
-     * returns a {@link LayerRepository}). It provides a convenient alternative to {@link #repository(Class)}
-     * when an instance is available.
+     * <p>This method infers the repository type from the given object (e.g., passing a {@link LayerInfo} returns a
+     * {@link LayerRepository}). It provides a convenient alternative to {@link #repository(Class)} when an instance is
+     * available.
      *
-     * @param <T>  The type of {@link CatalogInfo} (e.g., {@link StyleInfo}).
-     * @param <R>  The corresponding repository type (e.g., {@link StyleRepository}).
+     * @param <T> The type of {@link CatalogInfo} (e.g., {@link StyleInfo}).
+     * @param <R> The corresponding repository type (e.g., {@link StyleRepository}).
      * @param info The catalog info object whose type determines the repository; must not be null.
      * @return The repository managing objects of the same type as {@code info}; never null.
      * @throws NullPointerException if {@code info} is null.
      * @throws IllegalArgumentException if no repository is configured for the object’s type.
      * @example Retrieving a repository for a specific style:
-     *          <pre>
+     *     <pre>
      *          StyleInfo style = ...; // existing style
      *          StyleRepository styleRepo = holder.repositoryFor(style);
      *          </pre>
@@ -90,7 +90,7 @@ public interface CatalogInfoRepositoryHolder {
      * @param namespaces The {@link NamespaceRepository} to set; must not be null.
      * @throws NullPointerException if {@code namespaces} is null.
      * @example Setting a namespace repository:
-     *          <pre>
+     *     <pre>
      *          NamespaceRepository nsRepo = new DefaultNamespaceRepository();
      *          holder.setNamespaceRepository(nsRepo);
      *          </pre>

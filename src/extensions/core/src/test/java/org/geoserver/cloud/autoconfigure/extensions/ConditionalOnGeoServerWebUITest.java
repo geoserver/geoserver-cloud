@@ -13,9 +13,7 @@ import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Tests for {@link ConditionalOnGeoServerWebUI}.
- */
+/** Tests for {@link ConditionalOnGeoServerWebUI}. */
 class ConditionalOnGeoServerWebUITest extends AbstractConditionalTest {
 
     // No setup needed

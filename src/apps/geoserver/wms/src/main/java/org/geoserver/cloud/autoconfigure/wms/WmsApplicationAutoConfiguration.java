@@ -70,8 +70,8 @@ public class WmsApplicationAutoConfiguration {
     /**
      * Required by {@link GetCapabilitiesTransformer}, excluded from gs-wms.jar
      *
-     * @param catalog using {@code rawCatalog} instead of {@code catalog}, to avoid
-     *                the local workspace and secured catalog decorators
+     * @param catalog using {@code rawCatalog} instead of {@code catalog}, to avoid the local workspace and secured
+     *     catalog decorators
      */
     @Bean
     LegendSample legendSample(@Qualifier("rawCatalog") Catalog catalog, GeoServerResourceLoader loader) {
@@ -96,11 +96,10 @@ public class WmsApplicationAutoConfiguration {
     //    }
     //
     /**
-     * Overrides the {@link #WMS_BEANS_BLACKLIST excluded wms11ExceptionHandler and wms13ExceptionHandler} bean
-     * with a {@link StatusCodeWmsExceptionHandler} to support setting a non 200
-     * status code on http responses.
-     * <p>
-     * The original bean definition is as follows, which this bean method respects:
+     * Overrides the {@link #WMS_BEANS_BLACKLIST excluded wms11ExceptionHandler and wms13ExceptionHandler} bean with a
+     * {@link StatusCodeWmsExceptionHandler} to support setting a non 200 status code on http responses.
+     *
+     * <p>The original bean definition is as follows, which this bean method respects:
      *
      * <pre>
      * <code>
@@ -117,8 +116,8 @@ public class WmsApplicationAutoConfiguration {
      *  </bean>
      * </code>
      * </pre>
-     * @param propertyResolver
      *
+     * @param propertyResolver
      * @return
      */
     @Bean

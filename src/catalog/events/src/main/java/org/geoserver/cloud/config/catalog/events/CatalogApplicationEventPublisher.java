@@ -50,11 +50,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * Adapts the listener pattern used by {@link Catalog#addListener Catalog} and {@link
- * GeoServer#addListener GeoServer} used to notify configuration events, as regular spring {@link
- * ApplicationEvent application events}, and publishes them to the local {@link ApplicationContext},
- * so other components interested in these kind of events don't need to register themselves to the
- * {@link Catalog} and {@link GeoServer} as listeners.
+ * Adapts the listener pattern used by {@link Catalog#addListener Catalog} and {@link GeoServer#addListener GeoServer}
+ * used to notify configuration events, as regular spring {@link ApplicationEvent application events}, and publishes
+ * them to the local {@link ApplicationContext}, so other components interested in these kind of events don't need to
+ * register themselves to the {@link Catalog} and {@link GeoServer} as listeners.
  *
  * <p>
  *
@@ -81,9 +80,7 @@ public class CatalogApplicationEventPublisher {
         geoServer.addListener(publishingConfigListener);
     }
 
-    /**
-     * Disables event publishing. Make sure to call enable() once done forcing not to publish events
-     */
+    /** Disables event publishing. Make sure to call enable() once done forcing not to publish events */
     public static void disable() {
         ENABLED.set(false);
     }
@@ -119,8 +116,8 @@ public class CatalogApplicationEventPublisher {
         }
 
         /**
-         * @throws CatalogException meaning the operation that generated the event should be
-         *     reverted (as handled by Catalog.event())
+         * @throws CatalogException meaning the operation that generated the event should be reverted (as handled by
+         *     Catalog.event())
          */
         private void publish(InfoEvent event) throws CatalogException {
             try {
@@ -165,10 +162,9 @@ public class CatalogApplicationEventPublisher {
 
         /**
          * A given object may get multiple pre-modify events, hence the stack by id. For instance,
-         * {@code UpdateSequenceListener} changes {@code GeoServerInfo} while {@code
-         * GeoServer.save(GeoServerInfo)} is being processed. Note {@code UpdateSequenceListener} is
-         * now unused in gs-cloud, replaced by {@link UpdateSequence}, and hence shall not be loaded
-         * as a bean at all.
+         * {@code UpdateSequenceListener} changes {@code GeoServerInfo} while {@code GeoServer.save(GeoServerInfo)} is
+         * being processed. Note {@code UpdateSequenceListener} is now unused in gs-cloud, replaced by
+         * {@link UpdateSequence}, and hence shall not be loaded as a bean at all.
          */
         private static final ThreadLocal<Map<String, LinkedList<Patch>>> PRE_CHANGE_DIFF =
                 ThreadLocal.withInitial(HashMap::new);
@@ -219,10 +215,7 @@ public class CatalogApplicationEventPublisher {
             preparePreModify(id, propertyNames, oldValues, newValues);
         }
 
-        /**
-         * Note: GeoServerImpl sends a post-modify event on setGlobal(), but no pre-event nor
-         * add-event exists
-         */
+        /** Note: GeoServerImpl sends a post-modify event on setGlobal(), but no pre-event nor add-event exists */
         @Override
         public void handlePostGlobalChange(GeoServerInfo global) {
             final String id = InfoEvent.resolveId(global);
@@ -293,10 +286,10 @@ public class CatalogApplicationEventPublisher {
         }
 
         /**
-         * Note {@link GeoServerImpl} sends a post-service change event (i.e. calls this method)
-         * when a {@link ServiceInfo} has been added. There's no {@code handleServiceAdded} method
-         * in {@link ConfigurationListener}. This method will identify that situation and fire a
-         * {@link ConfigInfoAdded} instead of a {@link ConfigInfoModified}.
+         * Note {@link GeoServerImpl} sends a post-service change event (i.e. calls this method) when a
+         * {@link ServiceInfo} has been added. There's no {@code handleServiceAdded} method in
+         * {@link ConfigurationListener}. This method will identify that situation and fire a {@link ConfigInfoAdded}
+         * instead of a {@link ConfigInfoModified}.
          */
         @Override
         public void handlePostServiceChange(ServiceInfo service) {

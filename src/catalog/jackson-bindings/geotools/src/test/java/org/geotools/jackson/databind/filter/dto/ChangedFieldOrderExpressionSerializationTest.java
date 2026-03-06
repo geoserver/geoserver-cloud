@@ -31,10 +31,9 @@ public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSeri
     }
 
     /**
-     * This is a patched version of the LiteralSerializer that overwrites the writeCollection method
-     * to ensure that the "value" field appears before the "contentType" field, which
-     * is a real scenario in data originating from postgres JSONB columns.
-     *
+     * This is a patched version of the LiteralSerializer that overwrites the writeCollection method to ensure that the
+     * "value" field appears before the "contentType" field, which is a real scenario in data originating from postgres
+     * JSONB columns.
      */
     private static class ChangedAttributeOrderLiteralSerializer extends LiteralSerializer {
         @Override

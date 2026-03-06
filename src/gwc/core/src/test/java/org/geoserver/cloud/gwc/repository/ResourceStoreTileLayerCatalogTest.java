@@ -42,9 +42,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.xmlunit.assertj.XmlAssert;
 import org.xmlunit.builder.Input;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class ResourceStoreTileLayerCatalogTest {
 
     private @TempDir File baseDirectory;

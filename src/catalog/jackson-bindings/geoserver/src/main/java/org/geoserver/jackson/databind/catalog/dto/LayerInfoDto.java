@@ -11,17 +11,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * DTO for {@link org.geoserver.catalog.LayerInfo}
- */
+/** DTO for {@link org.geoserver.catalog.LayerInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonTypeName("LayerInfo")
 public class LayerInfoDto extends PublishedInfoDto {
-    /**
-     * DTO for {@link org.geoserver.catalog.LayerInfo.WMSInterpolation}
-     */
+    /** DTO for {@link org.geoserver.catalog.LayerInfo.WMSInterpolation} */
     @JsonTypeName("WMSInterpolation")
     @SuppressWarnings("java:S115")
     public enum WMSInterpolationDto {

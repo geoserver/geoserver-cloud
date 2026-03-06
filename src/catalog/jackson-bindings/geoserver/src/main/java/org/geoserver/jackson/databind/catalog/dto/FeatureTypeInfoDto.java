@@ -12,9 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.geoserver.catalog.FeatureTypeInfo;
 
-/**
- * DTO for {@link FeatureTypeInfo}
- */
+/** DTO for {@link FeatureTypeInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

@@ -25,9 +25,7 @@ public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
         this.facade = facade;
     }
 
-    /**
-     * @return this decorator's subject
-     */
+    /** @return this decorator's subject */
     public GeoServerFacade getSubject() {
         // if you're wondering, I refuse to derive from org.geotools.util.decorate.AbstractDecorator
         // and by extension from java.sql.Wrapper

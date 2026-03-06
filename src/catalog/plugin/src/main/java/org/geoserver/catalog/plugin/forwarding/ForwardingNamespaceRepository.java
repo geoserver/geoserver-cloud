@@ -13,10 +13,9 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 /**
  * A decorator for {@link NamespaceRepository} that forwards all method calls to an underlying repository.
  *
- * <p>This class extends {@link ForwardingCatalogRepository} to wrap a {@link NamespaceRepository} subject,
- * delegating all operations related to {@link NamespaceInfo} management. It enables subclasses to override
- * specific methods to customize behavior (e.g., adding validation or logging) without modifying the core
- * repository implementation.
+ * <p>This class extends {@link ForwardingCatalogRepository} to wrap a {@link NamespaceRepository} subject, delegating
+ * all operations related to {@link NamespaceInfo} management. It enables subclasses to override specific methods to
+ * customize behavior (e.g., adding validation or logging) without modifying the core repository implementation.
  *
  * @since 1.0
  * @see NamespaceRepository
@@ -28,7 +27,8 @@ public class ForwardingNamespaceRepository extends ForwardingCatalogRepository<N
     /**
      * Constructs a forwarding namespace repository wrapping the provided subject.
      *
-     * @param subject The underlying {@link NamespaceRepository} to forward calls to; may be null (behavior depends on subclass).
+     * @param subject The underlying {@link NamespaceRepository} to forward calls to; may be null (behavior depends on
+     *     subclass).
      */
     public ForwardingNamespaceRepository(NamespaceRepository subject) {
         super(subject);

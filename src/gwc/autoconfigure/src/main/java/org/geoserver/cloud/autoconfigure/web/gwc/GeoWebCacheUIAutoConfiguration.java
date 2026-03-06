@@ -50,8 +50,8 @@ public class GeoWebCacheUIAutoConfiguration {
         return handler;
     }
     /**
-     * Provide a handler for static web resources if missing, for example, because {@link
-     * ConditionalOnGeoWebCacheRestConfigEnabled} is disabled
+     * Provide a handler for static web resources if missing, for example, because
+     * {@link ConditionalOnGeoWebCacheRestConfigEnabled} is disabled
      */
     @Bean
     @ConditionalOnMissingBean(ByteStreamController.class)

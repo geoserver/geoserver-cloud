@@ -12,9 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.geoserver.platform.resource.Resource;
 import org.springframework.jdbc.core.RowMapper;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @RequiredArgsConstructor
 public class PgconfigResourceRowMapper implements RowMapper<PgconfigResource> {
 

@@ -70,8 +70,8 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
     }
 
     /**
-     * {@link TileLayerConfiguration} implementation should be {@link PgconfigTileLayerCatalog}, and
-     * none of the beans from {@link DefaultTileLayerCatalogAutoConfiguration} should be present.
+     * {@link TileLayerConfiguration} implementation should be {@link PgconfigTileLayerCatalog}, and none of the beans
+     * from {@link DefaultTileLayerCatalogAutoConfiguration} should be present.
      *
      * <p>"pgconfig" is enabled already by {@link PgConfigTestContainer#withJdbcUrlConfig()}
      */
@@ -107,8 +107,7 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
     }
 
     /**
-     * {@link PgconfigTileLayerCatalogAutoConfiguration}'s
-     * {@code @ConditionalOnClass(PgconfigTileLayerCatalog.class)}
+     * {@link PgconfigTileLayerCatalogAutoConfiguration}'s {@code @ConditionalOnClass(PgconfigTileLayerCatalog.class)}
      */
     @Test
     void conditionalOnClass_PgconfigTileLayerCatalog() {
@@ -120,9 +119,9 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
     }
 
     /**
-     * {@link PgconfigTileLayerCatalogAutoConfiguration}'s {@link
-     * ConditionalOnGeoWebCacheEnabled @ConditionalOnGeoWebCacheEnabled} shall not have the pqsl nor
-     * the default {@link TileLayerConfiguration}
+     * {@link PgconfigTileLayerCatalogAutoConfiguration}'s
+     * {@link ConditionalOnGeoWebCacheEnabled @ConditionalOnGeoWebCacheEnabled} shall not have the pqsl nor the default
+     * {@link TileLayerConfiguration}
      */
     @Test
     void conditionalOnGeoWebCacheEnabled() {
@@ -133,9 +132,9 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
     }
 
     /**
-     * {@link PgconfigTileLayerCatalogAutoConfiguration}'s {@link
-     * ConditionalOnPgconfigBackendEnabled @ConditionalOnPgconfigBackendEnabled} shall step back and
-     * leave {@link DefaultTileLayerCatalogAutoConfiguration} be
+     * {@link PgconfigTileLayerCatalogAutoConfiguration}'s
+     * {@link ConditionalOnPgconfigBackendEnabled @ConditionalOnPgconfigBackendEnabled} shall step back and leave
+     * {@link DefaultTileLayerCatalogAutoConfiguration} be
      */
     @Test
     void conditionalOnPgconfigBackendEnabled() {

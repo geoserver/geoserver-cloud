@@ -19,9 +19,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
-/**
- * Tests for {@link GridFormatFactoryFilterProcessor}.
- */
+/** Tests for {@link GridFormatFactoryFilterProcessor}. */
 class GridFormatFactoryFilterProcessorTest {
 
     private GridFormatFactoryFilterConfigProperties config;
@@ -118,9 +116,7 @@ class GridFormatFactoryFilterProcessorTest {
                 .collect(Collectors.toSet());
     }
 
-    /**
-     * Checks if the filter was installed by checking the registry class name
-     */
+    /** Checks if the filter was installed by checking the registry class name */
     private boolean checkFilterIsInstalled() {
         try {
             // Check if the registry is our FilteringFactoryCreator

@@ -11,9 +11,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)

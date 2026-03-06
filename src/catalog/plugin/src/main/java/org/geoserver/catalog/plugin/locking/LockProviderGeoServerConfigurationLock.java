@@ -13,8 +13,7 @@ import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource.Lock;
 
 /**
- * Extends {@link GeoServerConfigurationLock} with cluster-wide locking semantics provided by {@link
- * LockProvider}.
+ * Extends {@link GeoServerConfigurationLock} with cluster-wide locking semantics provided by {@link LockProvider}.
  *
  * @since 1.0
  */

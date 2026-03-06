@@ -25,9 +25,8 @@ import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.config.GeoServer;
 
 /**
- * Ensures the {@link Info} and {@link Patch} object payloads on {@link InfoAdded} and {@link
- * InfoModified} events from a remote source get their properties resolved before being catch up by
- * other listeners.
+ * Ensures the {@link Info} and {@link Patch} object payloads on {@link InfoAdded} and {@link InfoModified} events from
+ * a remote source get their properties resolved before being catch up by other listeners.
  */
 @Slf4j(topic = "org.geoserver.cloud.event.bus.resolve")
 class InfoEventResolver {

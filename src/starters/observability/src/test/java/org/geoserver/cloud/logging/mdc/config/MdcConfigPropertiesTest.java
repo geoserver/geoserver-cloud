@@ -25,13 +25,14 @@ import org.springframework.util.MultiValueMap;
 
 /**
  * Tests for the MDC configuration properties classes.
- * <p>
- * This test class covers the configuration properties classes that control MDC behavior:
+ *
+ * <p>This test class covers the configuration properties classes that control MDC behavior:
+ *
  * <ul>
- *   <li>{@link HttpRequestMdcConfigProperties}</li>
- *   <li>{@link SpringEnvironmentMdcConfigProperties}</li>
- *   <li>{@link AuthenticationMdcConfigProperties}</li>
- *   <li>{@link GeoServerMdcConfigProperties}</li>
+ *   <li>{@link HttpRequestMdcConfigProperties}
+ *   <li>{@link SpringEnvironmentMdcConfigProperties}
+ *   <li>{@link AuthenticationMdcConfigProperties}
+ *   <li>{@link GeoServerMdcConfigProperties}
  * </ul>
  */
 class MdcConfigPropertiesTest {

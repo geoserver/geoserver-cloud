@@ -19,10 +19,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * <p>Beans annotated with this condition are only created when both conditions are met:
  *
  * <ul>
- *   <li>The {@code org.geoserver.flow.ControlFlowConfigurator} class is present on the classpath
- *       (i.e., the {@code gs-control-flow} dependency is available)
- *   <li>The property {@code geoserver.extension.control-flow.enabled} is {@code true} (which is
- *       the default if not specified)
+ *   <li>The {@code org.geoserver.flow.ControlFlowConfigurator} class is present on the classpath (i.e., the
+ *       {@code gs-control-flow} dependency is available)
+ *   <li>The property {@code geoserver.extension.control-flow.enabled} is {@code true} (which is the default if not
+ *       specified)
  * </ul>
  *
  * <p>The extension can be disabled by setting:

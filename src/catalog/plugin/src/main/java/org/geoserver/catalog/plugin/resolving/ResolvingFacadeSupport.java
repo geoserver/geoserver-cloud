@@ -13,20 +13,22 @@ import java.util.function.UnaryOperator;
 /**
  * A utility implementation of {@link ResolvingFacade} for managing inbound and outbound resolution of generic objects.
  *
- * <p>This class provides a concrete support mechanism for applying {@link UnaryOperator} functions to objects
- * of type {@code T}, both when received (inbound) and before they are returned (outbound). It maintains two
+ * <p>This class provides a concrete support mechanism for applying {@link UnaryOperator} functions to objects of type
+ * {@code T}, both when received (inbound) and before they are returned (outbound). It maintains two
  * resolvers—{@code outboundResolver} and {@code inboundResolver}—defaulting to the identity function
- * ({@link UnaryOperator#identity()}), and allows customization via {@link #setOutboundResolver(UnaryOperator)}
- * and {@link #setInboundResolver(UnaryOperator)}. It’s designed to simplify the integration of resolution
- * logic into facades or repositories, such as {@link ResolvingCatalogFacadeDecorator}.
+ * ({@link UnaryOperator#identity()}), and allows customization via {@link #setOutboundResolver(UnaryOperator)} and
+ * {@link #setInboundResolver(UnaryOperator)}. It’s designed to simplify the integration of resolution logic into
+ * facades or repositories, such as {@link ResolvingCatalogFacadeDecorator}.
  *
  * <p>Key aspects:
+ *
  * <ul>
- *   <li><strong>Resolver Management:</strong> Holds and applies configurable inbound and outbound resolvers.</li>
- *   <li><strong>List Support:</strong> Includes a helper method to resolve lists of objects outbound.</li>
+ *   <li><strong>Resolver Management:</strong> Holds and applies configurable inbound and outbound resolvers.
+ *   <li><strong>List Support:</strong> Includes a helper method to resolve lists of objects outbound.
  * </ul>
  *
  * <p>Example usage:
+ *
  * <pre>
  * <code>
  * ResolvingFacadeSupport<CatalogInfo> support = new ResolvingFacadeSupport<>();
@@ -47,6 +49,7 @@ public class ResolvingFacadeSupport<T> implements ResolvingFacade<T> {
 
     /**
      * {@inheritDoc}
+     *
      * @throws NullPointerException if {@code resolvingFunction} is null.
      */
     @Override
@@ -57,6 +60,7 @@ public class ResolvingFacadeSupport<T> implements ResolvingFacade<T> {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Returns the current outbound resolver, defaulting to {@link UnaryOperator#identity()}.
      */
     @Override
@@ -66,6 +70,7 @@ public class ResolvingFacadeSupport<T> implements ResolvingFacade<T> {
 
     /**
      * {@inheritDoc}
+     *
      * @throws NullPointerException if {@code resolvingFunction} is null.
      */
     @Override
@@ -76,6 +81,7 @@ public class ResolvingFacadeSupport<T> implements ResolvingFacade<T> {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Returns the current inbound resolver, defaulting to {@link UnaryOperator#identity()}.
      */
     @Override
@@ -107,6 +113,7 @@ public class ResolvingFacadeSupport<T> implements ResolvingFacade<T> {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Applies the outbound resolver to the input object.
      */
     @Override
@@ -117,6 +124,7 @@ public class ResolvingFacadeSupport<T> implements ResolvingFacade<T> {
 
     /**
      * {@inheritDoc}
+     *
      * <p>Applies the inbound resolver to the input object.
      */
     @Override
@@ -128,10 +136,10 @@ public class ResolvingFacadeSupport<T> implements ResolvingFacade<T> {
     /**
      * Resolves a list of objects using the outbound resolver.
      *
-     * <p>Transforms each element in the list via {@link #resolveOutbound(Object)}, preserving order and
-     * allowing null results.
+     * <p>Transforms each element in the list via {@link #resolveOutbound(Object)}, preserving order and allowing null
+     * results.
      *
-     * @param <C>  The subtype of {@code T}.
+     * @param <C> The subtype of {@code T}.
      * @param info The list to resolve; must not be null.
      * @return A new list with resolved elements.
      * @throws NullPointerException if {@code info} is null.

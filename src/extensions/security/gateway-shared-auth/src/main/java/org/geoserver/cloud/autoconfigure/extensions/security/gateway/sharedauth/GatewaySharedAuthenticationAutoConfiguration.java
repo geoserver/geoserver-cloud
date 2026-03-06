@@ -20,33 +20,24 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
- * {@link AutoConfiguration @AutoConfiguration} to enable sharing the webui
- * form-based authentication object with the other services.
+ * {@link AutoConfiguration @AutoConfiguration} to enable sharing the webui form-based authentication object with the
+ * other services.
  *
- * <p>
- * When a user is logged in through the regular web ui's authentication form,
- * the {@link Authentication} object is held in the web ui's servlet session.
- * Hence, further requests to stateless services, as they're on separate
- * containers, don't share the webui session, and hence are executed as
- * anonymous.
+ * <p>When a user is logged in through the regular web ui's authentication form, the {@link Authentication} object is
+ * held in the web ui's servlet session. Hence, further requests to stateless services, as they're on separate
+ * containers, don't share the webui session, and hence are executed as anonymous.
  *
- * <p>
- * This {@link AutoConfiguration} enables a mechanism by which the authenticated
- * user name and roles can be shared with the stateless services through request
- * and response headrers, using the geoserver cloud gateway as the man in the
- * middle.
+ * <p>This {@link AutoConfiguration} enables a mechanism by which the authenticated user name and roles can be shared
+ * with the stateless services through request and response headrers, using the geoserver cloud gateway as the man in
+ * the middle.
  *
- * <p>
- * The webui container will send a couple response headers with the
- * authenticated user name and roles. The gateway will store them in its own
- * session, and forward them to all services as request headers. The stateless
- * services will intercept these request headers and impersonate the
- * authenticated user as a {@link PreAuthenticatedAuthenticationToken}.
+ * <p>The webui container will send a couple response headers with the authenticated user name and roles. The gateway
+ * will store them in its own session, and forward them to all services as request headers. The stateless services will
+ * intercept these request headers and impersonate the authenticated user as a
+ * {@link PreAuthenticatedAuthenticationToken}.
  *
- * <p>
- * At the same time, the gateway will take care of removing the webui response
- * headers from the responses sent to the clients, and from incoming client
- * requests.
+ * <p>At the same time, the gateway will take care of removing the webui response headers from the responses sent to the
+ * clients, and from incoming client requests.
  *
  * @see ServerConfiguration
  * @see ClientConfiguration

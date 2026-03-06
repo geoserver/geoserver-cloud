@@ -14,18 +14,14 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.geoserver.catalog.PublishedInfo;
 
-/**
- * Base DTO for {@link PublishedInfo}
- */
+/** Base DTO for {@link PublishedInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonSubTypes({@JsonSubTypes.Type(value = LayerInfoDto.class), @JsonSubTypes.Type(value = LayerGroupInfoDto.class)})
 public abstract class PublishedInfoDto extends CatalogInfoDto {
 
-    /**
-     * DTO for {@link org.geoserver.catalog.PublishedType}
-     */
+    /** DTO for {@link org.geoserver.catalog.PublishedType} */
     @JsonTypeName("PublishedType")
     public enum PublishedTypeDto {
         VECTOR,

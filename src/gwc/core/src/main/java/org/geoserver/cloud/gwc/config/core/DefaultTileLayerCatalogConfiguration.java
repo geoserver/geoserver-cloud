@@ -31,9 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.context.WebApplicationContext;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Configuration(proxyBeanMethods = false)
 public class DefaultTileLayerCatalogConfiguration {
 
@@ -44,9 +42,8 @@ public class DefaultTileLayerCatalogConfiguration {
      *
      * <ul>
      *   <li>We don't need to upgrade from very old configuration settings
-     *   <li>{@code GWCInitializer} depends on {@link TileLayerCatalog}, assuming {@link
-     *       CatalogConfiguration} is the only tile layer storage backend for geoserver tile layers,
-     *       and it's not the case for GS cloud
+     *   <li>{@code GWCInitializer} depends on {@link TileLayerCatalog}, assuming {@link CatalogConfiguration} is the
+     *       only tile layer storage backend for geoserver tile layers, and it's not the case for GS cloud
      */
     @Bean
     DefaultGwcInitializer gwcInitializer(GWCConfigPersister configPersister, GeoServerConfigurationLock lock) {
@@ -54,18 +51,17 @@ public class DefaultTileLayerCatalogConfiguration {
     }
 
     /**
-     * In vanilla GeoServer, {@link CatalogConfiguration} is the {@link TileLayerConfiguration}
-     * contributed to the app context to serve {@code TileLayer}s ({@link GeoServerTileLayer}) out
-     * of the GeoServer {@link Catalog} by means of a {@link TileLayerCatalog}.
+     * In vanilla GeoServer, {@link CatalogConfiguration} is the {@link TileLayerConfiguration} contributed to the app
+     * context to serve {@code TileLayer}s ({@link GeoServerTileLayer}) out of the GeoServer {@link Catalog} by means of
+     * a {@link TileLayerCatalog}.
      *
-     * <p>Here we contribute a different {@code TileLayerConfiguration} for the same purpose, {@link
-     * GeoServerTileLayerConfiguration}, which is a distributed-event aware decorator over the
-     * actual {@link CloudCatalogConfiguration} implementation of {@code TileLayerCatalog}.
+     * <p>Here we contribute a different {@code TileLayerConfiguration} for the same purpose,
+     * {@link GeoServerTileLayerConfiguration}, which is a distributed-event aware decorator over the actual
+     * {@link CloudCatalogConfiguration} implementation of {@code TileLayerCatalog}.
      *
-     * <p>Since the {@code CloudCatalogConfiguration} isn't hence a spring bean, in order to avoid
-     * registering as a delegate to {@link TileLayerDispatcher}, {@link TileLayerEvents} will need
-     * to be relayed from {@code GeoServerTileLayerConfiguration} to {@link
-     * CloudCatalogConfiguration#onTileLayerEventEvict()}.
+     * <p>Since the {@code CloudCatalogConfiguration} isn't hence a spring bean, in order to avoid registering as a
+     * delegate to {@link TileLayerDispatcher}, {@link TileLayerEvents} will need to be relayed from
+     * {@code GeoServerTileLayerConfiguration} to {@link CloudCatalogConfiguration#onTileLayerEventEvict()}.
      */
     @SuppressWarnings("java:S6830")
     @Bean(name = "gwcCatalogConfiguration")

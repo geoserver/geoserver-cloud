@@ -11,18 +11,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Configuration properties for CSS Styling extension.
  *
- * <p>
- * This class defines the configuration properties for the CSS styling extension,
- * with a prefix of "geoserver.extension.css-styling".
+ * <p>This class defines the configuration properties for the CSS styling extension, with a prefix of
+ * "geoserver.extension.css-styling".
  *
- * <p>
- * Available properties:
+ * <p>Available properties:
+ *
  * <ul>
- *   <li><b>enabled</b>: Whether the CSS Styling extension is enabled (default: true)</li>
+ *   <li><b>enabled</b>: Whether the CSS Styling extension is enabled (default: true)
  * </ul>
  *
- * <p>
- * Example YAML configuration:
+ * <p>Example YAML configuration:
+ *
  * <pre>{@code
  * geoserver:
  *   extension:
@@ -39,9 +38,8 @@ public @Data class CssStylingConfigProperties {
     static final boolean DEFAULT = true;
 
     /**
-     * Whether the CSS Styling extension is enabled.
-     * When true, the CSS styling handler will be registered.
-     * When false, the extension is disabled.
+     * Whether the CSS Styling extension is enabled. When true, the CSS styling handler will be registered. When false,
+     * the extension is disabled.
      */
     private boolean enabled = DEFAULT;
 }

@@ -46,31 +46,37 @@ import org.springframework.context.annotation.Primary;
  * Spring configuration for GeoServer Cloud's traditional file-based data directory backend.
  *
  * <h2>Overview</h2>
- * <p>This configuration provides a GeoServer catalog and configuration backend that stores data in
- * a traditional file-based data directory structure, similar to vanilla GeoServer. The implementation
- * uses an in-memory catalog facade backed by file-based persistence through GeoServer's standard
- * XML serialization mechanisms.
+ *
+ * <p>This configuration provides a GeoServer catalog and configuration backend that stores data in a traditional
+ * file-based data directory structure, similar to vanilla GeoServer. The implementation uses an in-memory catalog
+ * facade backed by file-based persistence through GeoServer's standard XML serialization mechanisms.
  *
  * <h2>Storage Architecture</h2>
+ *
  * <ul>
- *  <li><b>Catalog</b> - In-memory facade ({@code DefaultMemoryCatalogFacade}) with XML file persistence
- *  <li><b>Configuration</b> - In-memory repository facade ({@code RepositoryGeoServerFacadeImpl}) with XML file persistence
- *  <li><b>Resources</b> - File-based resource store for styles, icons, templates, and other assets
- *  <li><b>Locking</b> - File-based locking for configuration consistency across nodes
+ *   <li><b>Catalog</b> - In-memory facade ({@code DefaultMemoryCatalogFacade}) with XML file persistence
+ *   <li><b>Configuration</b> - In-memory repository facade ({@code RepositoryGeoServerFacadeImpl}) with XML file
+ *       persistence
+ *   <li><b>Resources</b> - File-based resource store for styles, icons, templates, and other assets
+ *   <li><b>Locking</b> - File-based locking for configuration consistency across nodes
  * </ul>
  *
  * <h2>Eventual Consistency Support</h2>
- * <p>In multi-node deployments, this backend can be configured with eventual consistency enforcement to
- * handle out-of-order distributed event delivery. When enabled via {@link DataDirectoryProperties},
- * the catalog facade is wrapped with {@link EventuallyConsistentCatalogFacade} which:
+ *
+ * <p>In multi-node deployments, this backend can be configured with eventual consistency enforcement to handle
+ * out-of-order distributed event delivery. When enabled via {@link DataDirectoryProperties}, the catalog facade is
+ * wrapped with {@link EventuallyConsistentCatalogFacade} which:
+ *
  * <ul>
- *  <li>Defers catalog operations when dependencies are not yet available
- *  <li>Implements configurable retry logic for query operations during convergence
- *  <li>Tracks pending operations and resolves them when dependencies arrive
+ *   <li>Defers catalog operations when dependencies are not yet available
+ *   <li>Implements configurable retry logic for query operations during convergence
+ *   <li>Tracks pending operations and resolves them when dependencies arrive
  * </ul>
  *
  * <h2>Configuration</h2>
+ *
  * <p>Backend behavior is controlled through {@link DataDirectoryProperties}, typically configured via:
+ *
  * <pre>
  * geoserver.backend.data-directory.location=/path/to/datadir
  * geoserver.backend.data-directory.eventual-consistency.enabled=true
@@ -78,13 +84,15 @@ import org.springframework.context.annotation.Primary;
  * </pre>
  *
  * <h2>Bean Dependencies</h2>
- * <p>This configuration uses {@code @Configuration(proxyBeanMethods = false)} for optimal performance
- * and flexibility, allowing bean methods to declare their dependencies as method parameters rather than
- * calling other {@code @Bean} methods directly.
+ *
+ * <p>This configuration uses {@code @Configuration(proxyBeanMethods = false)} for optimal performance and flexibility,
+ * allowing bean methods to declare their dependencies as method parameters rather than calling other {@code @Bean}
+ * methods directly.
  *
  * <h2>Optimization</h2>
- * <p>Uses {@link CloudDataDirectoryGeoServerLoader} which provides optimized parallel loading of
- * catalog and configuration data compared to vanilla GeoServer's sequential loader.
+ *
+ * <p>Uses {@link CloudDataDirectoryGeoServerLoader} which provides optimized parallel loading of catalog and
+ * configuration data compared to vanilla GeoServer's sequential loader.
  *
  * @since 1.0
  * @see GeoServerBackendConfigurer
@@ -161,22 +169,22 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
     /**
      * Wraps the catalog facade with eventual consistency enforcement capabilities.
      *
-     * <p>This method decorates the base catalog facade with an {@link EventuallyConsistentCatalogFacade}
-     * that provides resilience against out-of-order distributed event delivery in multi-node deployments.
-     * The wrapper manages deferred catalog operations when dependencies are not yet available and
-     * implements retry logic for query operations during convergence periods.
+     * <p>This method decorates the base catalog facade with an {@link EventuallyConsistentCatalogFacade} that provides
+     * resilience against out-of-order distributed event delivery in multi-node deployments. The wrapper manages
+     * deferred catalog operations when dependencies are not yet available and implements retry logic for query
+     * operations during convergence periods.
      *
-     * <p>The retry behavior is configured via {@link EventualConsistencyConfig#getRetries()}, which
-     * specifies wait intervals in milliseconds between retry attempts. If not configured or empty,
-     * no retries are performed (though operations may still be deferred until dependencies arrive).
+     * <p>The retry behavior is configured via {@link EventualConsistencyConfig#getRetries()}, which specifies wait
+     * intervals in milliseconds between retry attempts. If not configured or empty, no retries are performed (though
+     * operations may still be deferred until dependencies arrive).
      *
-     * <p>The enforcer is configured with a reference to the raw facade to enable direct access
-     * for resolving pending operations once dependencies become available.
+     * <p>The enforcer is configured with a reference to the raw facade to enable direct access for resolving pending
+     * operations once dependencies become available.
      *
      * @param facade the base catalog facade to wrap
      * @param tracker the enforcer that tracks pending operations and manages convergence state
-     * @return the facade wrapped with eventual consistency enforcement, or the original facade if
-     *     retries are not configured
+     * @return the facade wrapped with eventual consistency enforcement, or the original facade if retries are not
+     *     configured
      */
     private EventuallyConsistentCatalogFacade buildEventuallyConsistentCatalogFacade(
             ExtendedCatalogFacade facade, EventualConsistencyEnforcer tracker, DataDirectoryProperties config) {
@@ -196,9 +204,7 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
         return new org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl();
     }
 
-    /**
-     * Contributes the optimized parallel {@link GeoServerLoader}
-     */
+    /** Contributes the optimized parallel {@link GeoServerLoader} */
     @DependsOn({
         "extensions",
         "wmsLoader",

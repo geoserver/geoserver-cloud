@@ -29,9 +29,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
 

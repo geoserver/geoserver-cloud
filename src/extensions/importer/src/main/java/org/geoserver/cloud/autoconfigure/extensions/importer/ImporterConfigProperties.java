@@ -7,9 +7,7 @@ package org.geoserver.cloud.autoconfigure.extensions.importer;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * Configuration properties for the GeoServer Importer extension.
- */
+/** Configuration properties for the GeoServer Importer extension. */
 @Data
 @ConfigurationProperties(prefix = ImporterConfigProperties.PREFIX)
 public class ImporterConfigProperties {
@@ -17,8 +15,6 @@ public class ImporterConfigProperties {
     public static final String PREFIX = "geoserver.extension.importer";
     public static final boolean DEFAULT_ENABLED = false;
 
-    /**
-     * Enable/disable the Importer extension.
-     */
+    /** Enable/disable the Importer extension. */
     private boolean enabled = DEFAULT_ENABLED;
 }

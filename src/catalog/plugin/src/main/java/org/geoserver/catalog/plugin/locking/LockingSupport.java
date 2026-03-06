@@ -26,10 +26,11 @@ import org.geoserver.ows.util.OwsUtils;
  * <p>This class defines a framework for executing actions within a {@link GeoServerConfigurationLock}, which in
  * GeoServer Cloud ensures cluster-wide update safety. It offers two implementations: one that enforces locking
  * ({@link Enabled}) and one that bypasses it ({@link Calling}). The locking variant uses a
- * {@link GeoServerConfigurationLock} to manage write locks, supporting both direct execution and callable tasks
- * with exception handling. Static methods provide utility functions for identifying {@link Info} objects.
+ * {@link GeoServerConfigurationLock} to manage write locks, supporting both direct execution and callable tasks with
+ * exception handling. Static methods provide utility functions for identifying {@link Info} objects.
  *
  * <p>Example usage:
+ *
  * <pre>
  * GeoServerConfigurationLock lock = ...;
  * LockingSupport locking = LockingSupport.locking(lock);
@@ -64,9 +65,7 @@ public abstract class LockingSupport {
     public abstract <V, E extends Exception> V callInWriteLock(
             Class<E> exceptionType, Callable<V> action, String reason) throws E;
 
-    /**
-     * A locking implementation that uses a {@link GeoServerConfigurationLock} to ensure cluster-wide safety.
-     */
+    /** A locking implementation that uses a {@link GeoServerConfigurationLock} to ensure cluster-wide safety. */
     @RequiredArgsConstructor
     private static class Enabled extends LockingSupport {
 
@@ -113,8 +112,10 @@ public abstract class LockingSupport {
 
         /**
          * {@inheritDoc}
+         *
          * <p>Executes the action within a cluster-wide write lock, converting checked exceptions to runtime exceptions.
          */
+        @Override
         public void runInWriteLock(Runnable action, String reason) {
             try {
                 callInWriteLock(
@@ -137,8 +138,11 @@ public abstract class LockingSupport {
 
         /**
          * {@inheritDoc}
-         * <p>Executes the callable within a cluster-wide write lock, handling specified exceptions and ensuring lock release.
+         *
+         * <p>Executes the callable within a cluster-wide write lock, handling specified exceptions and ensuring lock
+         * release.
          */
+        @Override
         public <V, E extends Exception> V callInWriteLock(Class<E> exceptionType, Callable<V> action, String reason)
                 throws E {
             lock(reason);
@@ -155,13 +159,12 @@ public abstract class LockingSupport {
         }
     }
 
-    /**
-     * A non-locking implementation that executes actions without synchronization.
-     */
+    /** A non-locking implementation that executes actions without synchronization. */
     private static class Calling extends LockingSupport {
 
         /**
          * {@inheritDoc}
+         *
          * <p>Executes the action directly without acquiring a lock.
          */
         @Override
@@ -171,6 +174,7 @@ public abstract class LockingSupport {
 
         /**
          * {@inheritDoc}
+         *
          * <p>Executes the callable directly without acquiring a lock, handling specified exceptions.
          */
         @Override

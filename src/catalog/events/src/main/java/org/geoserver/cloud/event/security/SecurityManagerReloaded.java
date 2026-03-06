@@ -13,11 +13,10 @@ import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * Event fired after a {@link GeoServerSecurityManager} has successfully completed its reload
- * process.
+ * Event fired after a {@link GeoServerSecurityManager} has successfully completed its reload process.
  *
- * <p>This event indicates that the security manager has fully initialized or reloaded its
- * configuration, and it's safe to make further security configuration changes.
+ * <p>This event indicates that the security manager has fully initialized or reloaded its configuration, and it's safe
+ * to make further security configuration changes.
  *
  * @since 1.9
  */

@@ -11,14 +11,10 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.impl.GeoServerImpl;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-/**
- * Base test class for testing conditional annotations.
- */
+/** Base test class for testing conditional annotations. */
 public abstract class AbstractConditionalTest {
 
-    /**
-     * Creates and returns a new {@link ApplicationContextRunner} with basic GeoServer context.
-     */
+    /** Creates and returns a new {@link ApplicationContextRunner} with basic GeoServer context. */
     protected ApplicationContextRunner createContextRunner() {
         org.geoserver.config.GeoServer geoServer = new GeoServerImpl();
         return new ApplicationContextRunner().withBean("geoServer", GeoServer.class, () -> geoServer);

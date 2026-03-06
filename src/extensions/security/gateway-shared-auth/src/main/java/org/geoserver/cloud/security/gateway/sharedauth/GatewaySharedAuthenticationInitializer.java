@@ -27,15 +27,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 
 /**
- * Upon a {@link SecurityManagerReloaded} event, creates the
- * {@link GatewaySharedAuthenticationFilter} filter in the
+ * Upon a {@link SecurityManagerReloaded} event, creates the {@link GatewaySharedAuthenticationFilter} filter in the
  * {@link GeoServerSecurityManager} configuration, and appends the filter to the
  * {@link SecurityManagerConfig#getFilterChain() filter chain}.
  *
- * <p>
- * This initializer waits for the SecurityManagerReloaded event to ensure the
- * security manager has completed its own initialization before making any
- * changes to the filter chain.
+ * <p>This initializer waits for the SecurityManagerReloaded event to ensure the security manager has completed its own
+ * initialization before making any changes to the filter chain.
  *
  * @since 1.9
  */
@@ -47,9 +44,8 @@ public class GatewaySharedAuthenticationInitializer implements Ordered {
     private final GeoServerSecurityManager securityManager;
 
     /**
-     * @return {@link Ordered#HIGHEST_PRECEDENCE} since we're now reacting to the
-     *         {@link SecurityManagerReloaded} event which is published after the
-     *         security manager has completed initialization
+     * @return {@link Ordered#HIGHEST_PRECEDENCE} since we're now reacting to the {@link SecurityManagerReloaded} event
+     *     which is published after the security manager has completed initialization
      */
     @Override
     public int getOrder() {

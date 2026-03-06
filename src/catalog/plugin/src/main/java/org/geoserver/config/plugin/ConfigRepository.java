@@ -16,21 +16,19 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 
 /**
- * Raw data access API for GeoServer global configuration and per-workspace settings and services
- * configuration.
+ * Raw data access API for GeoServer global configuration and per-workspace settings and services configuration.
  *
- * <p>This is a null-free, DDD inspired "repository" API to provide storage and querying of plain
- * {@link Info} objects, with precise semantics. No method that receives an argument can receive
- * {@code null}. In cases where different semantics are required, semantically clear query methods
- * are provided. For example, {@link #getGlobalServices()} and {@link
- * #getServicesByWorkspace(WorkspaceInfo)} are self-explanatory.
+ * <p>This is a null-free, DDD inspired "repository" API to provide storage and querying of plain {@link Info} objects,
+ * with precise semantics. No method that receives an argument can receive {@code null}. In cases where different
+ * semantics are required, semantically clear query methods are provided. For example, {@link #getGlobalServices()} and
+ * {@link #getServicesByWorkspace(WorkspaceInfo)} are self-explanatory.
  *
- * <p>All query methods that could return zero or one result, return {@link Optional}. All query
- * methods that could return zero or more results, return {@link Stream}.
+ * <p>All query methods that could return zero or one result, return {@link Optional}. All query methods that could
+ * return zero or more results, return {@link Stream}.
  *
- * <p>Care shall be taken that {@code Stream} implements {@link AutoCloseable} and hence it is
- * expected for users of this api to properly close the received stream, may the implementation be
- * using live connections to some back-end storage and need to release resources.
+ * <p>Care shall be taken that {@code Stream} implements {@link AutoCloseable} and hence it is expected for users of
+ * this api to properly close the received stream, may the implementation be using live connections to some back-end
+ * storage and need to release resources.
  */
 public interface ConfigRepository {
 
@@ -40,10 +38,7 @@ public interface ConfigRepository {
     /** Sets the global configuration, replacing the current one completely. */
     void setGlobal(GeoServerInfo global);
 
-    /**
-     * The settings configuration for the specified workspace, or {@code Optional.empty()} if non
-     * exists.
-     */
+    /** The settings configuration for the specified workspace, or {@code Optional.empty()} if non exists. */
     Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace);
 
     Optional<SettingsInfo> getSettingsById(String id);
@@ -98,8 +93,7 @@ public interface ConfigRepository {
      *
      * @param id The id of the service.
      * @param clazz The type of the service.
-     * @return The service with the specified id, or {@code Optional.empty()} if no such service
-     *     could be found.
+     * @return The service with the specified id, or {@code Optional.empty()} if no such service could be found.
      */
     <T extends ServiceInfo> Optional<T> getServiceById(String id, Class<T> clazz);
 
@@ -108,8 +102,7 @@ public interface ConfigRepository {
      *
      * @param name The name of the service.
      * @param clazz The type of the service.
-     * @return The service with the specified name or {@code Optional.empty()} if no such service
-     *     could be found.
+     * @return The service with the specified name or {@code Optional.empty()} if no such service could be found.
      */
     <T extends ServiceInfo> Optional<T> getServiceByName(String name, Class<T> clazz);
 
@@ -119,8 +112,7 @@ public interface ConfigRepository {
      * @param name The name of the service.
      * @param workspaceId The workspace the service is specific to.
      * @param clazz The type of the service.
-     * @return The service with the specified name or {@code Optional.empty()} if no such service
-     *     could be found.
+     * @return The service with the specified name or {@code Optional.empty()} if no such service could be found.
      */
     <T extends ServiceInfo> Optional<T> getServiceByNameAndWorkspace(
             String name, WorkspaceInfo workspace, Class<T> clazz);

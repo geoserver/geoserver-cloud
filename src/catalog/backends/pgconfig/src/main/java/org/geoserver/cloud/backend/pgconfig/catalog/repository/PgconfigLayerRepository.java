@@ -18,14 +18,10 @@ import org.geotools.api.filter.Filter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<LayerInfo> implements LayerRepository {
 
-    /**
-     * @param template
-     */
+    /** @param template */
     public PgconfigLayerRepository(@NonNull JdbcTemplate template, @NonNull PgconfigStyleRepository styleLoader) {
         super(LayerInfo.class, template, styleLoader);
     }

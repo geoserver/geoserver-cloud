@@ -11,9 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.geoserver.catalog.StoreInfo;
 
-/**
- * Base DTO for {@link StoreInfo}
- */
+/** Base DTO for {@link StoreInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -31,8 +29,6 @@ public abstract class StoreInfoDto extends CatalogInfoDto {
     private org.geoserver.jackson.databind.catalog.ConnectionParameters connectionParameters;
     private MetadataMapDto metadata;
 
-    /**
-     * @since geoserver 2.22.0
-     */
+    /** @since geoserver 2.22.0 */
     private boolean disableOnConnFailure;
 }

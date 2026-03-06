@@ -15,11 +15,11 @@ import java.io.IOException;
 
 /**
  * Servlet filter that proceeds with an {@link HttpServletRequestWrapper} decorator to return
- * {@link HttpServletRequestWrapper#getPathInfo() getPathInfo()} built from {@link
- * HttpServletRequestWrapper#getRequestURI() getRequestURI()}.
+ * {@link HttpServletRequestWrapper#getPathInfo() getPathInfo()} built from
+ * {@link HttpServletRequestWrapper#getRequestURI() getRequestURI()}.
  *
- * <p>GWC makes heavy use of {@link HttpServletRequestWrapper#getPathInfo()}, but it returns
- * {@code null} in a spring-boot application.
+ * <p>GWC makes heavy use of {@link HttpServletRequestWrapper#getPathInfo()}, but it returns {@code null} in a
+ * spring-boot application.
  *
  * @since 1.0
  */

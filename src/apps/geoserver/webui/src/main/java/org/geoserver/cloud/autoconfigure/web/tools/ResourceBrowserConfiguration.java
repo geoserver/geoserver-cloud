@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Configuration to enable the <a href=
- * "https://docs.geoserver.org/latest/en/user/configuration/tools/resource/browser.html">Resource
- * Browser</a> extension in the Web UI.
+ * "https://docs.geoserver.org/latest/en/user/configuration/tools/resource/browser.html">Resource Browser</a> extension
+ * in the Web UI.
  *
  * @see ToolsAutoConfiguration
  */

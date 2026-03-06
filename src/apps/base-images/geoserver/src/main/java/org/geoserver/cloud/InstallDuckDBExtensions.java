@@ -6,18 +6,16 @@ package org.geoserver.cloud;
 
 /**
  * DuckDB extension installer utility.
- * <p>
- * This utility class is designed specifically for build-time use in Docker images.
- * It pre-installs DuckDB extensions (parquet, httpfs, spatial) required for GeoParquet
- * functionality in GeoServer cloud microservices.
- * <p>
- * Running this during image build ensures that:
- * 1. All extensions are pre-installed in a shared base layer
- * 2. Extensions are available when containers run as arbitrary non-root users
- * 3. No runtime installation is required, avoiding permission issues
- * <p>
- * The extensions are installed to $HOME/.duckdb where HOME is expected to be
- * set to a directory with appropriate permissions.
+ *
+ * <p>This utility class is designed specifically for build-time use in Docker images. It pre-installs DuckDB extensions
+ * (parquet, httpfs, spatial) required for GeoParquet functionality in GeoServer cloud microservices.
+ *
+ * <p>Running this during image build ensures that: 1. All extensions are pre-installed in a shared base layer 2.
+ * Extensions are available when containers run as arbitrary non-root users 3. No runtime installation is required,
+ * avoiding permission issues
+ *
+ * <p>The extensions are installed to $HOME/.duckdb where HOME is expected to be set to a directory with appropriate
+ * permissions.
  */
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,9 +24,9 @@ import java.sql.Statement;
 public class InstallDuckDBExtensions {
     /**
      * Main method to install DuckDB extensions.
-     * <p>
-     * Loads the DuckDB JDBC driver, connects to an in-memory database, and executes
-     * SQL commands to install the required extensions.
+     *
+     * <p>Loads the DuckDB JDBC driver, connects to an in-memory database, and executes SQL commands to install the
+     * required extensions.
      *
      * @param args Command line arguments (not used)
      */

@@ -15,8 +15,8 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.platform.GeoServerExtensions;
 
 /**
- * Support class implementing the {@link Catalog} state validation rules for {@link CatalogInfo}
- * objects before being created, updated, or removed;
+ * Support class implementing the {@link Catalog} state validation rules for {@link CatalogInfo} objects before being
+ * created, updated, or removed;
  *
  * @see CatalogValidator
  * @see DefaultCatalogValidator
@@ -37,8 +37,8 @@ public class CatalogValidationRules {
     /**
      * Turn on/off extended validation switch.
      *
-     * <p>This is not part of the public api, it is used for testing purposes where we have to
-     * bootstrap catalog contents.
+     * <p>This is not part of the public api, it is used for testing purposes where we have to bootstrap catalog
+     * contents.
      */
     public void setExtendedValidation(boolean extendedValidation) {
         this.extendedValidation = extendedValidation;
@@ -82,9 +82,7 @@ public class CatalogValidationRules {
         return new ValidationResult(errors);
     }
 
-    /**
-     * @return {@code null} if the validator succeeded, the validator's thrown exception otherwise
-     */
+    /** @return {@code null} if the validator succeeded, the validator's thrown exception otherwise */
     private RuntimeException validate(CatalogInfo info, CatalogValidator validator, boolean isNew) {
         try {
             info.accept(new CatalogValidatorVisitor(validator, isNew));

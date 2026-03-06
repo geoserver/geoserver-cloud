@@ -14,9 +14,7 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 public class DefaultUpdateSequence implements UpdateSequence {
 
     private static final long UNSET = Long.MIN_VALUE;

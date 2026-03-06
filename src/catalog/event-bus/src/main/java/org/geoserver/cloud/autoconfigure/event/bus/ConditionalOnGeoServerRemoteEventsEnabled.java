@@ -14,9 +14,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.bus.ConditionalOnBusEnabled;
 
 /**
- * GeoServer remote events enablement checks base on {@link
- * ConditionalOnBusEnabled @ConditionalOnBusEnabled} (spring-cloud-bus enabled) and configuration
- * property {@code geoserver.bus.enabled=true} (defaults to {@code true}).
+ * GeoServer remote events enablement checks base on {@link ConditionalOnBusEnabled @ConditionalOnBusEnabled}
+ * (spring-cloud-bus enabled) and configuration property {@code geoserver.bus.enabled=true} (defaults to {@code true}).
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})

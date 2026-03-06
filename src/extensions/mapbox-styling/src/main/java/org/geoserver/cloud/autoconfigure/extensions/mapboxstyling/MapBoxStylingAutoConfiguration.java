@@ -22,8 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * Auto-configuration for MapBox Styling extension that provides a style handler
- * for MapBox stylesheets.
+ * Auto-configuration for MapBox Styling extension that provides a style handler for MapBox stylesheets.
  *
  * @since 2.27.0
  */

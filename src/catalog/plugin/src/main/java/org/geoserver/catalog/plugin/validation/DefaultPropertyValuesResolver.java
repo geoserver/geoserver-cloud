@@ -111,10 +111,7 @@ public class DefaultPropertyValuesResolver {
         return r;
     }
 
-    /**
-     * We don't want the world to be able and call this without going through {@link
-     * #resolve(ResourceInfo)}
-     */
+    /** We don't want the world to be able and call this without going through {@link #resolve(ResourceInfo)} */
     private void resolve(FeatureTypeInfo featureType) {
         FeatureTypeInfoImpl ft = (FeatureTypeInfoImpl) featureType;
         resolveCollections(ft);

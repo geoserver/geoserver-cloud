@@ -12,9 +12,7 @@ import org.geoserver.config.GeoServerLoaderProxy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 
-/**
- * A {@link GeoServerLoaderProxy} that doesn't act as a BeanPostProcessor
- */
+/** A {@link GeoServerLoaderProxy} that doesn't act as a BeanPostProcessor */
 public class CloudGeoServerLoaderProxy extends GeoServerLoaderProxy implements InitializingBean {
 
     private Catalog rawCatalog;
@@ -33,8 +31,8 @@ public class CloudGeoServerLoaderProxy extends GeoServerLoaderProxy implements I
     }
 
     /**
-     * Override as no-op, the catalog and geoserver beans are created before this
-     * bean, hence it'll never be in charge if their pre-post initialization
+     * Override as no-op, the catalog and geoserver beans are created before this bean, hence it'll never be in charge
+     * if their pre-post initialization
      */
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
@@ -42,8 +40,8 @@ public class CloudGeoServerLoaderProxy extends GeoServerLoaderProxy implements I
     }
 
     /**
-     * Override as no-op, the catalog and geoserver beans are created before this
-     * bean, hence it'll never be in charge if their pre-post initialization
+     * Override as no-op, the catalog and geoserver beans are created before this bean, hence it'll never be in charge
+     * if their pre-post initialization
      */
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -51,11 +49,11 @@ public class CloudGeoServerLoaderProxy extends GeoServerLoaderProxy implements I
     }
 
     /**
-     * Overrides as no-op, the loaders initialize default styles during load and end
-     * up calling this {@link GeoServerInitializer} while the loader proxy's
-     * delegate is unset:
+     * Overrides as no-op, the loaders initialize default styles during load and end up calling this
+     * {@link GeoServerInitializer} while the loader proxy's delegate is unset:
      *
-     * <pre>{@code java.lang.NullPointerException: Cannot invoke "org.geoserver.config.GeoServerLoader.initializeDefaultStyles(org.geoserver.catalog.Catalog)" because "this.loader" is null
+     * <pre>
+     * {@code java.lang.NullPointerException: Cannot invoke "org.geoserver.config.GeoServerLoader.initializeDefaultStyles(org.geoserver.catalog.Catalog)" because "this.loader" is null
      * at org.geoserver.config.GeoServerLoaderProxy.initialize(GeoServerLoaderProxy.java:91)
      * at org.geoserver.config.GeoServerLoader.loadInitializers(GeoServerLoader.java:342)
      * at org.geoserver.config.GeoServerLoader.postProcessBeforeInitializationGeoServer(GeoServerLoader.java:302)

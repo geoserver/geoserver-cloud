@@ -10,8 +10,8 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
 
 /**
- * {@link GeoServerConfigConformanceTest} for {@link GeoServerImpl} with {@link
- * RepositoryGeoServerFacade} backed by {@link MemoryConfigRepository} and a {@link CatalogPlugin}
+ * {@link GeoServerConfigConformanceTest} for {@link GeoServerImpl} with {@link RepositoryGeoServerFacade} backed by
+ * {@link MemoryConfigRepository} and a {@link CatalogPlugin}
  */
 class GeoServerImplConformanceTest extends GeoServerConfigConformanceTest {
 

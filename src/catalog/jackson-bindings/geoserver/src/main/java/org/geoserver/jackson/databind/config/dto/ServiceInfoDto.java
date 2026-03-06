@@ -71,24 +71,16 @@ public abstract class ServiceInfoDto extends ConfigInfoDto {
     private MetadataMapDto metadata;
     private List<String> versions;
 
-    /**
-     * @since 3.0
-     */
+    /** @since 3.0 */
     private List<String> disabledVersions;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Locale defaultLocale;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalTitle;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAbstract;
 
     @Data
@@ -141,39 +133,25 @@ public abstract class ServiceInfoDto extends ConfigInfoDto {
         private int remoteStyleMaxRequestTime;
         private int remoteStyleTimeout;
 
-        /**
-         * @since geoserver 2.19.2
-         */
+        /** @since geoserver 2.19.2 */
         private boolean defaultGroupStyleEnabled;
 
-        /**
-         * @since geoserver 2.20.0
-         */
+        /** @since geoserver 2.20.0 */
         private Map<String, String> internationalRootLayerTitle;
 
-        /**
-         * @since geoserver 2.20.0
-         */
+        /** @since geoserver 2.20.0 */
         private Map<String, String> internationalRootLayerAbstract;
 
-        /**
-         * @since geoserver 2.22.0
-         */
+        /** @since geoserver 2.22.0 */
         private List<String> allowedURLsForAuthForwarding;
 
-        /**
-         * @since geoserver 2.22.0
-         */
+        /** @since geoserver 2.22.0 */
         private boolean autoEscapeTemplateValues;
 
-        /**
-         * @since geoserver 2.24.0
-         */
+        /** @since geoserver 2.24.0 */
         private boolean transformFeatureInfoDisabled;
 
-        /**
-         * @since geoserver 2.24.2
-         */
+        /** @since geoserver 2.24.2 */
         private Boolean exceptionOnInvalidDimension;
     }
 
@@ -200,24 +178,16 @@ public abstract class ServiceInfoDto extends ConfigInfoDto {
         private Boolean allowGlobalQueries;
         private boolean simpleConversionEnabled;
 
-        /**
-         * @since geoserver 2.22.0
-         */
+        /** @since geoserver 2.22.0 */
         private boolean getFeatureOutputTypeCheckingEnabled;
 
-        /**
-         * @since geoserver 2.22.0
-         */
+        /** @since geoserver 2.22.0 */
         private Set<String> getFeatureOutputTypes = new HashSet<>();
 
-        /**
-         * @since geoserver 2.24.0
-         */
+        /** @since geoserver 2.24.0 */
         private String csvDateFormat;
 
-        /**
-         * @since geoserver 2.28.0
-         */
+        /** @since geoserver 2.28.0 */
         private boolean disableStoredQueriesManagement;
     }
 

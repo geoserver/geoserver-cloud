@@ -12,10 +12,7 @@ import org.geoserver.catalog.plugin.CatalogConformanceTest;
 import org.geoserver.config.GeoServerResourcePersister;
 import org.geoserver.platform.GeoServerResourceLoader;
 
-/**
- * {@link CatalogConformanceTest} for the traditional {@link CatalogImpl} with {@link
- * DefaultCatalogFacade}
- */
+/** {@link CatalogConformanceTest} for the traditional {@link CatalogImpl} with {@link DefaultCatalogFacade} */
 class CatalogImplConformanceTest extends CatalogConformanceTest {
 
     protected @Override CatalogImpl createCatalog(File tmpFolder) {

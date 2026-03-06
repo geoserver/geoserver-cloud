@@ -18,15 +18,11 @@ import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepository<LayerGroupInfo>
         implements LayerGroupRepository {
 
-    /**
-     * @param template
-     */
+    /** @param template */
     public PgconfigLayerGroupRepository(@NonNull JdbcTemplate template, @NonNull PgconfigStyleRepository styleLoader) {
         super(LayerGroupInfo.class, template, styleLoader);
     }

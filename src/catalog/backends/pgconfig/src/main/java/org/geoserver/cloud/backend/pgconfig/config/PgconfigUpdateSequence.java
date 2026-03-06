@@ -16,9 +16,7 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.platform.config.UpdateSequence;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @RequiredArgsConstructor
 public class PgconfigUpdateSequence implements UpdateSequence {
 

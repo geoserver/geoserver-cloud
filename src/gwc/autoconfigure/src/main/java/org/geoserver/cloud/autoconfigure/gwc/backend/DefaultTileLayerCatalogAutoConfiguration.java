@@ -17,12 +17,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Import;
 
 /**
- * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer {@link TileLayerCatalog}
- * @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
- * using the default implementation based on the {@link ResourceStore}.
+ * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer
+ * {@link TileLayerCatalog} @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be
+ * public using the default implementation based on the {@link ResourceStore}.
  *
- * <p>This default configuration applies if there's no other {@link GeoServerTileLayerConfiguration}
- * provided.
+ * <p>This default configuration applies if there's no other {@link GeoServerTileLayerConfiguration} provided.
  *
  * @see DefaultTileLayerCatalogConfiguration
  * @see ConditionalOnGeoWebCacheEnabled

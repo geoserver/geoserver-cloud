@@ -12,9 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgconfig")
 @Data
 @Accessors(chain = true)

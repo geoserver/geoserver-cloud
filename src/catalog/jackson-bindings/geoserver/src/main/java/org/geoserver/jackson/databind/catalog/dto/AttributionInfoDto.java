@@ -8,9 +8,7 @@ package org.geoserver.jackson.databind.catalog.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 
-/**
- * DTO for {@link org.geoserver.catalog.AttributionInfo}
- */
+/** DTO for {@link org.geoserver.catalog.AttributionInfo} */
 @Data
 @JsonTypeName("AttributionInfo")
 public class AttributionInfoDto {

@@ -15,9 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class JNDIDataSourceAutoConfigurationTest {
 
     private ApplicationContextRunner runner = new ApplicationContextRunner()

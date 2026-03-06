@@ -14,9 +14,7 @@ import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Tests for {@link ConditionalOnGeoServerWPS}.
- */
+/** Tests for {@link ConditionalOnGeoServerWPS}. */
 class ConditionalOnGeoServerWPSTest extends AbstractConditionalTest {
 
     // No setup needed

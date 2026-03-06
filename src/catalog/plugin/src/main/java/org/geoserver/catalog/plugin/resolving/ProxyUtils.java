@@ -49,28 +49,30 @@ import org.geoserver.security.decorators.SecuredLayerInfo;
 import org.geotools.util.decorate.AbstractDecorator;
 
 /**
- * A utility class for resolving {@link Info} objects and {@link Patch} properties within a GeoServer
- * catalog context, handling proxy references and nested structures.
+ * A utility class for resolving {@link Info} objects and {@link Patch} properties within a GeoServer catalog context,
+ * handling proxy references and nested structures.
  *
- * <p>This class provides methods to resolve {@link CatalogInfo} and configuration {@link Info} objects by
- * replacing {@link ResolvingProxy} references with actual catalog instances, managing nested collections,
- * and determining whether objects should be encoded as references in a {@link Patch}. It uses a catalog
- * supplier and an optional {@link GeoServer} configuration to fetch resolved instances, supporting both
- * catalog entities (e.g., {@link StoreInfo}) and configuration objects (e.g., {@link ServiceInfo}).
+ * <p>This class provides methods to resolve {@link CatalogInfo} and configuration {@link Info} objects by replacing
+ * {@link ResolvingProxy} references with actual catalog instances, managing nested collections, and determining whether
+ * objects should be encoded as references in a {@link Patch}. It uses a catalog supplier and an optional
+ * {@link GeoServer} configuration to fetch resolved instances, supporting both catalog entities (e.g.,
+ * {@link StoreInfo}) and configuration objects (e.g., {@link ServiceInfo}).
  *
  * <p>Key features:
+ *
  * <ul>
- *   <li><strong>Proxy Resolution:</strong> Resolves {@link ResolvingProxy} instances to actual objects
- *       using the provided catalog and configuration.</li>
- *   <li><strong>Patch Processing:</strong> Transforms {@link Patch} properties, resolving nested
- *       {@link Info} objects and collections.</li>
- *   <li><strong>Reference Detection:</strong> Identifies types (e.g., {@link WorkspaceInfo}) to encode as
- *       references rather than full values in patches.</li>
+ *   <li><strong>Proxy Resolution:</strong> Resolves {@link ResolvingProxy} instances to actual objects using the
+ *       provided catalog and configuration.
+ *   <li><strong>Patch Processing:</strong> Transforms {@link Patch} properties, resolving nested {@link Info} objects
+ *       and collections.
+ *   <li><strong>Reference Detection:</strong> Identifies types (e.g., {@link WorkspaceInfo}) to encode as references
+ *       rather than full values in patches.
  *   <li><strong>Configurability:</strong> Allows toggling failure on missing references via
- *       {@link #failOnMissingReference(boolean)}.</li>
+ *       {@link #failOnMissingReference(boolean)}.
  * </ul>
  *
  * <p>Example usage:
+ *
  * <pre>
  * Catalog catalog = ...;
  * ProxyUtils utils = new ProxyUtils(() -> catalog, Optional.empty());
@@ -87,11 +89,10 @@ import org.geotools.util.decorate.AbstractDecorator;
 @RequiredArgsConstructor
 public class ProxyUtils {
     /**
-     * Types that shall be encoded as {@link InfoReference reference} instead of as a full value
-     * object when coming as a Patch {@link Patch.Property#getValue() Property} value. Some config
-     * info types like {@link SettingsInfo} and {@link LoggingInfo} shall be encoded as values, and
-     * so all other {@link Info} subtypes that are not entities but value objects (such as {@link
-     * AttributionInfo}, {@link LegendInfo}, etc.)
+     * Types that shall be encoded as {@link InfoReference reference} instead of as a full value object when coming as a
+     * Patch {@link Patch.Property#getValue() Property} value. Some config info types like {@link SettingsInfo} and
+     * {@link LoggingInfo} shall be encoded as values, and so all other {@link Info} subtypes that are not entities but
+     * value objects (such as {@link AttributionInfo}, {@link LegendInfo}, etc.)
      *
      * @see #encodeByReference
      * @see #referenceTypeOf
@@ -115,9 +116,8 @@ public class ProxyUtils {
     /**
      * Configures whether unresolved proxy references should throw an exception.
      *
-     * <p>If set to {@code true}, a {@link ResolvingProxy} reference not found in the catalog or
-     * configuration will result in an {@link IllegalStateException}. If {@code false} (default), such
-     * cases return null without failing.
+     * <p>If set to {@code true}, a {@link ResolvingProxy} reference not found in the catalog or configuration will
+     * result in an {@link IllegalStateException}. If {@code false} (default), such cases return null without failing.
      *
      * @param fail If {@code true}, fail on unresolved references; if {@code false}, return null.
      * @return This {@link ProxyUtils} instance for chaining.
@@ -131,8 +131,7 @@ public class ProxyUtils {
      * Resolves all {@link Info} references within a {@link Patch}.
      *
      * <p>Creates a new {@link Patch} where each property value is processed by
-     * {@link #resolvePatchPropertyValue(Object)}, handling {@link Info} objects, collections, and nested
-     * structures.
+     * {@link #resolvePatchPropertyValue(Object)}, handling {@link Info} objects, collections, and nested structures.
      *
      * @param patch The {@link Patch} to resolve; must not be null.
      * @return A new {@link Patch} with resolved property values.
@@ -150,8 +149,8 @@ public class ProxyUtils {
      * Resolves a single patch property value, handling various types.
      *
      * <p>Processes the value based on its type: resolves {@link Info} objects via {@link #resolve(Info)},
-     * {@link AttributeTypeInfo} via {@link #resolve(AttributeTypeInfo)}, and collections ({@link List},
-     * {@link Set}) via their respective methods. Non-matching types are returned unchanged.
+     * {@link AttributeTypeInfo} via {@link #resolve(AttributeTypeInfo)}, and collections ({@link List}, {@link Set})
+     * via their respective methods. Non-matching types are returned unchanged.
      *
      * @param orig The value to resolve; may be null.
      * @return The resolved value, or {@code orig} if unchanged.
@@ -195,8 +194,7 @@ public class ProxyUtils {
     /**
      * Resolves a list of objects by processing each element.
      *
-     * <p>Creates a new {@link ArrayList} with each element resolved via
-     * {@link #resolvePatchPropertyValue(Object)}.
+     * <p>Creates a new {@link ArrayList} with each element resolved via {@link #resolvePatchPropertyValue(Object)}.
      *
      * @param mutableList The list to resolve; must not be null.
      * @return A new list with resolved elements.
@@ -211,8 +209,8 @@ public class ProxyUtils {
     /**
      * Resolves a set of objects by processing each element.
      *
-     * <p>Creates a new set of the same type (or {@link HashSet} if instantiation fails) with each element
-     * resolved via {@link #resolvePatchPropertyValue(Object)}.
+     * <p>Creates a new set of the same type (or {@link HashSet} if instantiation fails) with each element resolved via
+     * {@link #resolvePatchPropertyValue(Object)}.
      *
      * @param set The set to resolve; must not be null.
      * @return A new set with resolved elements.
@@ -244,11 +242,11 @@ public class ProxyUtils {
     /**
      * Resolves an {@link Info} object, handling proxies and nested references.
      *
-     * <p>Unwraps any {@link ModificationProxy}, resolves {@link ResolvingProxy} references using the
-     * catalog or configuration, and processes nested references via type-specific methods. Returns null if
-     * unresolved and {@link #failOnMissingReference(boolean)} is false; otherwise, throws an exception.
+     * <p>Unwraps any {@link ModificationProxy}, resolves {@link ResolvingProxy} references using the catalog or
+     * configuration, and processes nested references via type-specific methods. Returns null if unresolved and
+     * {@link #failOnMissingReference(boolean)} is false; otherwise, throws an exception.
      *
-     * @param <T>        The type of {@link Info}.
+     * @param <T> The type of {@link Info}.
      * @param unresolved The {@link Info} object to resolve; may be null.
      * @return The resolved {@link Info}, or {@code unresolved} if unresolved and not failing.
      * @throws IllegalArgumentException if an unresolved proxy is encountered and {@code failOnNotFound} is true.
@@ -276,10 +274,11 @@ public class ProxyUtils {
 
     /**
      * Dispatches resolution to type-specific internal methods.
-     * <p>
-     * Handles {@link AbstractDecorator decorated} objects such as {@link SecuredFeatureTypeInfo}, {@link SecuredLayerInfo}, etc. by
-     * {@link AbstractDecorator#unwrap unwrapping} and delegating back to {@link #resolve(Info)} to handle decorated objects being
-     * possibly a proxied instance (such as {@link ModificationProxy}).
+     *
+     * <p>Handles {@link AbstractDecorator decorated} objects such as {@link SecuredFeatureTypeInfo},
+     * {@link SecuredLayerInfo}, etc. by {@link AbstractDecorator#unwrap unwrapping} and delegating back to
+     * {@link #resolve(Info)} to handle decorated objects being possibly a proxied instance (such as
+     * {@link ModificationProxy}).
      *
      * @param info The {@link Info} object to resolve; must not be null.
      * @return The resolved {@link Info}.
@@ -317,10 +316,10 @@ public class ProxyUtils {
     /**
      * Resolves a {@link ResolvingProxy} reference to a catalog or configuration object.
      *
-     * <p>For {@link CatalogInfo}, uses the catalog; for configuration objects (e.g., {@link GeoServerInfo}),
-     * uses the optional {@link GeoServer} instance.
+     * <p>For {@link CatalogInfo}, uses the catalog; for configuration objects (e.g., {@link GeoServerInfo}), uses the
+     * optional {@link GeoServer} instance.
      *
-     * @param <T>  The type of {@link Info}.
+     * @param <T> The type of {@link Info}.
      * @param info The {@link Info} proxy to resolve; must not be null.
      * @return The resolved {@link Info}, or the original if unresolved.
      */
@@ -351,10 +350,10 @@ public class ProxyUtils {
     /**
      * Resolves a {@link CatalogInfo} proxy using the catalog.
      *
-     * <p>Handles special case for {@link PublishedInfo} to try both {@link LayerInfo} and
-     * {@link LayerGroupInfo} resolutions due to a known {@link ResolvingProxy} limitation.
+     * <p>Handles special case for {@link PublishedInfo} to try both {@link LayerInfo} and {@link LayerGroupInfo}
+     * resolutions due to a known {@link ResolvingProxy} limitation.
      *
-     * @param <T>  The type of {@link CatalogInfo}.
+     * @param <T> The type of {@link CatalogInfo}.
      * @param info The {@link CatalogInfo} proxy to resolve; must not be null.
      * @return The resolved {@link CatalogInfo}, or the original if unresolved.
      */
@@ -393,7 +392,7 @@ public class ProxyUtils {
     /**
      * Checks if an {@link Info} object is a {@link ResolvingProxy}.
      *
-     * @param <T>  The type of {@link Info}.
+     * @param <T> The type of {@link Info}.
      * @param info The object to check; may be null.
      * @return {@code true} if it’s a {@link ResolvingProxy}, {@code false} otherwise.
      */
@@ -404,7 +403,7 @@ public class ProxyUtils {
     /**
      * Checks if an {@link Info} object is a {@link ModificationProxy}.
      *
-     * @param <T>  The type of {@link Info}.
+     * @param <T> The type of {@link Info}.
      * @param info The object to check; may be null.
      * @return {@code true} if it’s a {@link ModificationProxy}, {@code false} otherwise.
      */
@@ -458,7 +457,7 @@ public class ProxyUtils {
     /**
      * Resolves nested references in a {@link PublishedInfo} object polymorphically.
      *
-     * @param <T>       The type of {@link PublishedInfo}.
+     * @param <T> The type of {@link PublishedInfo}.
      * @param published The {@link PublishedInfo} to resolve; must not be null.
      * @return The resolved {@link PublishedInfo}.
      */

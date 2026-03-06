@@ -29,9 +29,7 @@ class ControlFlowAutoConfigurationIT {
         assertThat(cores).isEqualTo(Runtime.getRuntime().availableProcessors() + "");
     }
 
-    /**
-     * See {@literal src/test/resources/application.yml}
-     */
+    /** See {@literal src/test/resources/application.yml} */
     @Test
     void testResolvedProperties() {
         Properties props = config.getProperties();

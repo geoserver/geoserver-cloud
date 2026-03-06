@@ -26,8 +26,8 @@ import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.ows.util.OwsUtils;
 
 /**
- * Example {@link ConfigRepository} alternative that serializes to XML using {@link
- * XStreamPersister} and keeps serialized config objects as strings in memory.
+ * Example {@link ConfigRepository} alternative that serializes to XML using {@link XStreamPersister} and keeps
+ * serialized config objects as strings in memory.
  */
 class XmlSerializedConfigRepository implements ConfigRepository {
 

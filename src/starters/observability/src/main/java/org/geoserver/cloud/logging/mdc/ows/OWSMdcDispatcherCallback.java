@@ -17,21 +17,22 @@ import org.slf4j.MDC;
 
 /**
  * A GeoServer {@link DispatcherCallback} that adds OWS (OGC Web Service) request information to the MDC.
- * <p>
- * This callback hooks into GeoServer's request dispatching process and adds OWS-specific
- * information to the MDC (Mapped Diagnostic Context). This information can include:
+ *
+ * <p>This callback hooks into GeoServer's request dispatching process and adds OWS-specific information to the MDC
+ * (Mapped Diagnostic Context). This information can include:
+ *
  * <ul>
- *   <li>Service name (WMS, WFS, etc.)</li>
- *   <li>Service version</li>
- *   <li>Output format</li>
- *   <li>Operation name (GetMap, GetFeature, etc.)</li>
+ *   <li>Service name (WMS, WFS, etc.)
+ *   <li>Service version
+ *   <li>Output format
+ *   <li>Operation name (GetMap, GetFeature, etc.)
  * </ul>
- * <p>
- * Adding this information to the MDC makes it available to all logging statements during
- * request processing, providing valuable context for debugging and monitoring OGC service requests.
- * <p>
- * The callback extends {@link AbstractDispatcherCallback} and implements {@link DispatcherCallback},
- * allowing it to interact with GeoServer's request dispatching process.
+ *
+ * <p>Adding this information to the MDC makes it available to all logging statements during request processing,
+ * providing valuable context for debugging and monitoring OGC service requests.
+ *
+ * <p>The callback extends {@link AbstractDispatcherCallback} and implements {@link DispatcherCallback}, allowing it to
+ * interact with GeoServer's request dispatching process.
  *
  * @see GeoServerMdcConfigProperties.OWSMdcConfigProperties
  * @see org.slf4j.MDC
@@ -43,13 +44,14 @@ public class OWSMdcDispatcherCallback extends AbstractDispatcherCallback impleme
 
     /**
      * Callback method invoked when a service is dispatched.
-     * <p>
-     * This method adds service-specific information to the MDC based on the configuration
-     * in {@link GeoServerMdcConfigProperties.OWSMdcConfigProperties}. The information can include:
+     *
+     * <p>This method adds service-specific information to the MDC based on the configuration in
+     * {@link GeoServerMdcConfigProperties.OWSMdcConfigProperties}. The information can include:
+     *
      * <ul>
-     *   <li>Service name (e.g., WMS, WFS)</li>
-     *   <li>Service version</li>
-     *   <li>Output format</li>
+     *   <li>Service name (e.g., WMS, WFS)
+     *   <li>Service version
+     *   <li>Output format
      * </ul>
      *
      * @param request the OWS request being processed
@@ -73,10 +75,10 @@ public class OWSMdcDispatcherCallback extends AbstractDispatcherCallback impleme
 
     /**
      * Callback method invoked when an operation is dispatched.
-     * <p>
-     * This method adds operation-specific information to the MDC based on the configuration
-     * in {@link GeoServerMdcConfigProperties.OWSMdcConfigProperties}. Currently, it adds
-     * the operation name (e.g., GetMap, GetFeature) if configured.
+     *
+     * <p>This method adds operation-specific information to the MDC based on the configuration in
+     * {@link GeoServerMdcConfigProperties.OWSMdcConfigProperties}. Currently, it adds the operation name (e.g., GetMap,
+     * GetFeature) if configured.
      *
      * @param request the OWS request being processed
      * @param operation the operation that will handle the request

@@ -13,9 +13,8 @@ import org.geoserver.rest.SuffixStripFilter;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Specialized version of {@link SuffixStripFilter} that ensures the request is properly adapted
- * before processing, preventing potential NullPointerExceptions in the base filter logic when
- * running in the GeoServer Cloud environment.
+ * Specialized version of {@link SuffixStripFilter} that ensures the request is properly adapted before processing,
+ * preventing potential NullPointerExceptions in the base filter logic when running in the GeoServer Cloud environment.
  */
 class NpeAwareSuffixStripFilter extends SuffixStripFilter {
 

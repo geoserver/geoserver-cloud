@@ -39,9 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * @since 1.7
- */
+/** @since 1.7 */
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigTileLayerCatalogIT {
 

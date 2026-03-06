@@ -24,21 +24,18 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * Gateway predicate factory that allows matching by HTTP request query string parameters using
- * {@link Pattern Java regular expressions} for both parameter name and value.
+ * Gateway predicate factory that allows matching by HTTP request query string parameters using {@link Pattern Java
+ * regular expressions} for both parameter name and value.
  *
- * <p>This predicate factory is similar to the {@link QueryRoutePredicateFactory} but besides
- * allowing regular expressions to match a parameter value, also allows to match the parameter name
- * through a regex.
+ * <p>This predicate factory is similar to the {@link QueryRoutePredicateFactory} but besides allowing regular
+ * expressions to match a parameter value, also allows to match the parameter name through a regex.
  *
- * <p>Just like with {@link QueryRoutePredicateFactory}, the "value" regular expression is optional.
- * If not given, the test will be performed only against the query parameter names. If a value
- * regular expression is present, though, the evaluation will be performed against the values of the
- * first parameter that matches the name regex.
+ * <p>Just like with {@link QueryRoutePredicateFactory}, the "value" regular expression is optional. If not given, the
+ * test will be performed only against the query parameter names. If a value regular expression is present, though, the
+ * evaluation will be performed against the values of the first parameter that matches the name regex.
  *
- * <p>Sample usage: the following route configuration example uses a {@code RegExpQuery} predicate
- * to match the {@code service} query parameter name and {@code wfs} value in a case insensitive
- * fashion.
+ * <p>Sample usage: the following route configuration example uses a {@code RegExpQuery} predicate to match the
+ * {@code service} query parameter name and {@code wfs} value in a case insensitive fashion.
  *
  * <pre>
  * <code>

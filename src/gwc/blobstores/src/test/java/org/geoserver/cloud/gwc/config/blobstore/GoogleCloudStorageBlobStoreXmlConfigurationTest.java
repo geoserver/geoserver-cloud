@@ -36,9 +36,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * @since 2.28.0
- */
+/** @since 2.28.0 */
 class GoogleCloudStorageBlobStoreXmlConfigurationTest {
 
     private CloudGwcXmlConfiguration config;

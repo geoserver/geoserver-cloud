@@ -16,11 +16,10 @@ public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<Names
     private static final String SET_DEFAULT = "set_default_namespace";
 
     /**
-     * Determines whether there's no current default namespace and stores it as a flag in {@code
-     * context} for {@link #afterAdd} to proceed if so. This allows to improve consistency for
-     * {@code Catalog.add(NamespaceInfo)} in situations where there are multiple catalogs: if there
-     * was no default namespace when the method was entered, then the created one is set as the
-     * default when the method returns.
+     * Determines whether there's no current default namespace and stores it as a flag in {@code context} for
+     * {@link #afterAdd} to proceed if so. This allows to improve consistency for {@code Catalog.add(NamespaceInfo)} in
+     * situations where there are multiple catalogs: if there was no default namespace when the method was entered, then
+     * the created one is set as the default when the method returns.
      */
     @Override
     public void beforeAdd(CatalogOpContext<NamespaceInfo> context) {
@@ -30,8 +29,8 @@ public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<Names
     }
 
     /**
-     * Sets the created namespace as the catalog's default namespace if so determined in {@link
-     * #beforeAdd} and the operation was successful.
+     * Sets the created namespace as the catalog's default namespace if so determined in {@link #beforeAdd} and the
+     * operation was successful.
      */
     @Override
     public void afterAdd(CatalogOpContext<NamespaceInfo> context) {
@@ -48,8 +47,8 @@ public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<Names
     }
 
     /**
-     * Selects a new catalog default namespace if as the result of removing the namespace referred
-     * to by {@code context.getObject()}, the catalog has no default one.
+     * Selects a new catalog default namespace if as the result of removing the namespace referred to by
+     * {@code context.getObject()}, the catalog has no default one.
      */
     @Override
     public void afterRemove(CatalogOpContext<NamespaceInfo> context) {

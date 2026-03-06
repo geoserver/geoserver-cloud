@@ -7,9 +7,7 @@ package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import java.sql.SQLException;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @SuppressWarnings("serial")
 class UncheckedSqlException extends RuntimeException {
 

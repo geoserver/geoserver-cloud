@@ -15,15 +15,14 @@ import org.springframework.context.annotation.Bean;
 import tools.jackson.databind.JacksonModule;
 
 /**
- * Spring boot {@link EnableAutoConfiguration @EnableAutoConfiguration} to register GeoServer
- * jackson databind {@link JacksonModule modules}.
+ * Spring boot {@link EnableAutoConfiguration @EnableAutoConfiguration} to register GeoServer jackson databind
+ * {@link JacksonModule modules}.
  *
- * <p>Configuration enablement is conditional on the presence of {@link GeoServerCatalogModule} on
- * the classpath. Add an explicit dependency on {@code gs-cloud-core:gs-jackson-bindings} to use it.
+ * <p>Configuration enablement is conditional on the presence of {@link GeoServerCatalogModule} on the classpath. Add an
+ * explicit dependency on {@code gs-cloud-core:gs-jackson-bindings} to use it.
  *
- * <p>Spring-boot's default auto configuration does not register all modules in the classpath,
- * despite them being register-able through Jackson's SPI; a configuration like this is needed to
- * set up the application required ones.
+ * <p>Spring-boot's default auto configuration does not register all modules in the classpath, despite them being
+ * register-able through Jackson's SPI; a configuration like this is needed to set up the application required ones.
  */
 @AutoConfiguration(after = GeoToolsJacksonBindingsAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public

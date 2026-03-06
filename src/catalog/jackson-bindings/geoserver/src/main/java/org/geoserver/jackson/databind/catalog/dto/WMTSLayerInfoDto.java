@@ -11,9 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.geoserver.catalog.WMTSLayerInfo;
 
-/**
- * DTO for {@link WMTSLayerInfo}
- */
+/** DTO for {@link WMTSLayerInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

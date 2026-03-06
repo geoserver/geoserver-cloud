@@ -18,6 +18,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Conditional annotation that only matches when:
+ *
  * <ul>
  *   <li>A GeoServer bean instance is available in the application context
  *   <li>The application is a servlet web application
@@ -25,10 +26,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  *   <li>The AuthKey extension is enabled via configuration property
  * </ul>
  *
- * <p>This can be used on any Spring components that should only be registered when the
- * AuthKey extension is enabled.
+ * <p>This can be used on any Spring components that should only be registered when the AuthKey extension is enabled.
  *
  * <p>Usage example:
+ *
  * <pre>{@code
  * @Configuration
  * @ConditionalOnAuthKey

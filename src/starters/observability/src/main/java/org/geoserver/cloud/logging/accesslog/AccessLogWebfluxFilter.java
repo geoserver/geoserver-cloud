@@ -21,21 +21,22 @@ import reactor.core.publisher.Mono;
 
 /**
  * A WebFlux filter for logging HTTP request access in a reactive environment.
- * <p>
- * This filter logs HTTP requests based on the provided {@link AccessLogFilterConfig} configuration.
- * It captures the following information about each request:
+ *
+ * <p>This filter logs HTTP requests based on the provided {@link AccessLogFilterConfig} configuration. It captures the
+ * following information about each request:
+ *
  * <ul>
- *   <li>HTTP method (GET, POST, etc.)</li>
- *   <li>URI path</li>
- *   <li>Status code</li>
- *   <li>Processing duration</li>
+ *   <li>HTTP method (GET, POST, etc.)
+ *   <li>URI path
+ *   <li>Status code
+ *   <li>Processing duration
  * </ul>
- * <p>
- * Note: This filter does not support MDC propagation in Spring Boot 2.7 WebFlux applications.
- * For full MDC support, use the Spring Boot 3 compatible module.
- * <p>
- * This filter is configured with {@link Ordered#LOWEST_PRECEDENCE} to ensure it executes
- * after all other filters, capturing the complete request processing time and final status code.
+ *
+ * <p>Note: This filter does not support MDC propagation in Spring Boot 2.7 WebFlux applications. For full MDC support,
+ * use the Spring Boot 3 compatible module.
+ *
+ * <p>This filter is configured with {@link Ordered#LOWEST_PRECEDENCE} to ensure it executes after all other filters,
+ * capturing the complete request processing time and final status code.
  */
 @Slf4j
 public class AccessLogWebfluxFilter implements OrderedWebFilter {
@@ -53,10 +54,9 @@ public class AccessLogWebfluxFilter implements OrderedWebFilter {
 
     /**
      * Returns the order of this filter in the filter chain.
-     * <p>
-     * This filter is set to {@link Ordered#LOWEST_PRECEDENCE} to ensure it executes after
-     * all other filters in the chain. This allows it to capture the complete request
-     * processing time and the final status code.
+     *
+     * <p>This filter is set to {@link Ordered#LOWEST_PRECEDENCE} to ensure it executes after all other filters in the
+     * chain. This allows it to capture the complete request processing time and the final status code.
      *
      * @return the lowest precedence order value
      */
@@ -67,18 +67,19 @@ public class AccessLogWebfluxFilter implements OrderedWebFilter {
 
     /**
      * Main filter method that processes WebFlux requests and logs access information.
-     * <p>
-     * This method performs the following steps:
+     *
+     * <p>This method performs the following steps:
+     *
      * <ol>
-     *   <li>Checks if the request URI should be logged based on the configuration</li>
-     *   <li>Captures the request start time, method, and URI</li>
-     *   <li>Continues the filter chain</li>
-     *   <li>After the response is complete, retrieves the status code and calculates duration</li>
-     *   <li>Logs the request</li>
+     *   <li>Checks if the request URI should be logged based on the configuration
+     *   <li>Captures the request start time, method, and URI
+     *   <li>Continues the filter chain
+     *   <li>After the response is complete, retrieves the status code and calculates duration
+     *   <li>Logs the request
      * </ol>
-     * <p>
-     * If the request URI doesn't match any of the configured patterns, the request is not logged
-     * and the filter simply passes control to the next filter in the chain.
+     *
+     * <p>If the request URI doesn't match any of the configured patterns, the request is not logged and the filter
+     * simply passes control to the next filter in the chain.
      *
      * @param exchange the current server exchange
      * @param chain the filter chain to delegate to

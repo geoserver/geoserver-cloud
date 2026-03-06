@@ -9,9 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import org.geoserver.catalog.KeywordInfo;
 
-/**
- * DTO for {@link KeywordInfo}
- */
+/** DTO for {@link KeywordInfo} */
 @Data
 @JsonTypeName("KeywordInfo")
 public class KeywordInfoDto {

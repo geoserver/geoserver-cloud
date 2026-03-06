@@ -15,13 +15,11 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 /**
- * A BeanPostProcessor that handles DataAccessFactory filtering by directly
- * deregistering disabled factories from DataAccessFinder and DataStoreFinder.
+ * A BeanPostProcessor that handles DataAccessFactory filtering by directly deregistering disabled factories from
+ * DataAccessFinder and DataStoreFinder.
  *
- * <p>
- * This processor runs early in the application lifecycle, just after the
- * DataAccessFactoryFilterConfigProperties bean is created, which ensures
- * factories are deregistered before any beans that might use them.
+ * <p>This processor runs early in the application lifecycle, just after the DataAccessFactoryFilterConfigProperties
+ * bean is created, which ensures factories are deregistered before any beans that might use them.
  */
 @Slf4j(topic = "org.geotools.autoconfigure.vectorformats")
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -35,8 +33,7 @@ public class DataAccessFactoryFilterProcessor {
     }
 
     /**
-     * Processes DataAccessFactory implementations, deregistering any that are
-     * disabled.
+     * Processes DataAccessFactory implementations, deregistering any that are disabled.
      *
      * @param config the configuration properties
      */

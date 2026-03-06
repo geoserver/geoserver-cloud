@@ -19,9 +19,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * See gateway's issue <a
- * href="https://github.com/spring-cloud/spring-cloud-gateway/issues/2065">#2065</a> "Double Encoded
- * URLs"
+ * See gateway's issue <a href="https://github.com/spring-cloud/spring-cloud-gateway/issues/2065">#2065</a> "Double
+ * Encoded URLs"
  */
 @Component
 public class GlobalUriFilter implements GlobalFilter, Ordered {

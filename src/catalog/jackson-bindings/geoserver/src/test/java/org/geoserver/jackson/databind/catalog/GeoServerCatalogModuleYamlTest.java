@@ -8,9 +8,7 @@ package org.geoserver.jackson.databind.catalog;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class GeoServerCatalogModuleYamlTest extends GeoServerCatalogModuleTest {
 
     protected @Override ObjectMapper newObjectMapper() {

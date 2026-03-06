@@ -25,28 +25,27 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 
 /**
- * A concrete implementation of {@link CatalogInfoRepositoryHolder} that manages a registry of type-specific
- * catalog repositories in GeoServer Cloud.
+ * A concrete implementation of {@link CatalogInfoRepositoryHolder} that manages a registry of type-specific catalog
+ * repositories in GeoServer Cloud.
  *
- * <p>This class maintains a collection of {@link CatalogInfoRepository} instances, each responsible for a
- * specific type of {@link CatalogInfo} (e.g., {@link WorkspaceInfo}, {@link LayerInfo}), using a
- * {@link CatalogInfoTypeRegistry} for type-safe mapping and retrieval. It provides methods to set and get
- * repositories for all core catalog info types, ensuring that catalog operations can access the appropriate
- * persistence layer. The implementation supports hierarchical types (e.g., {@link StoreInfo} and its
- * subtypes) through recursive registration where applicable.
+ * <p>This class maintains a collection of {@link CatalogInfoRepository} instances, each responsible for a specific type
+ * of {@link CatalogInfo} (e.g., {@link WorkspaceInfo}, {@link LayerInfo}), using a {@link CatalogInfoTypeRegistry} for
+ * type-safe mapping and retrieval. It provides methods to set and get repositories for all core catalog info types,
+ * ensuring that catalog operations can access the appropriate persistence layer. The implementation supports
+ * hierarchical types (e.g., {@link StoreInfo} and its subtypes) through recursive registration where applicable.
  *
  * <p>Key features:
+ *
  * <ul>
  *   <li><strong>Type-Safe Registry:</strong> Maps {@link CatalogInfo} types to their repositories using
- *       {@link CatalogInfoTypeRegistry}.</li>
- *   <li><strong>Comprehensive Coverage:</strong> Handles all standard catalog info types via dedicated
- *       setters and getters.</li>
- *   <li><strong>Resource Management:</strong> Provides a {@link #dispose()} method to clean up repository
- *       resources.</li>
+ *       {@link CatalogInfoTypeRegistry}.
+ *   <li><strong>Comprehensive Coverage:</strong> Handles all standard catalog info types via dedicated setters and
+ *       getters.
+ *   <li><strong>Resource Management:</strong> Provides a {@link #dispose()} method to clean up repository resources.
  * </ul>
  *
- * <p>This class is typically used within a {@link RepositoryCatalogFacade} to coordinate repository access
- * for catalog operations in GeoServer Cloud.
+ * <p>This class is typically used within a {@link RepositoryCatalogFacade} to coordinate repository access for catalog
+ * operations in GeoServer Cloud.
  *
  * @since 1.0
  * @see CatalogInfoRepositoryHolder
@@ -70,18 +69,18 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Retrieves the repository for a specific {@link CatalogInfo} type from the internal registry.
      *
-     * <p>This method uses the {@link CatalogInfoTypeRegistry} to map the provided type to its corresponding
-     * repository (e.g., {@link LayerInfo.class} to {@link LayerRepository}). It ensures type safety through
-     * generics, suppressing unchecked warnings due to the registry’s type erasure handling.
+     * <p>This method uses the {@link CatalogInfoTypeRegistry} to map the provided type to its corresponding repository
+     * (e.g., {@link LayerInfo.class} to {@link LayerRepository}). It ensures type safety through generics, suppressing
+     * unchecked warnings due to the registry’s type erasure handling.
      *
      * @param <T> The type of {@link CatalogInfo} to query (e.g., {@link WorkspaceInfo}).
      * @param <R> The corresponding repository type (e.g., {@link WorkspaceRepository}).
-     * @param of  The class of catalog info objects to retrieve the repository for; must not be null.
+     * @param of The class of catalog info objects to retrieve the repository for; must not be null.
      * @return The repository managing objects of type {@code T}; never null.
      * @throws NullPointerException if {@code of} is null.
      * @throws IllegalArgumentException if no repository is configured for the specified type.
      * @example Retrieving a layer repository:
-     *          <pre>
+     *     <pre>
      *          LayerRepository layerRepo = holder.repository(LayerInfo.class);
      *          </pre>
      */
@@ -94,18 +93,18 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Retrieves the repository for the type of a given {@link CatalogInfo} instance.
      *
-     * <p>This method determines the repository based on the object’s runtime type (e.g., a {@link StyleInfo}
-     * instance returns a {@link StyleRepository}), using the {@link CatalogInfoTypeRegistry} for mapping.
-     * It suppresses unchecked warnings due to type erasure in the registry.
+     * <p>This method determines the repository based on the object’s runtime type (e.g., a {@link StyleInfo} instance
+     * returns a {@link StyleRepository}), using the {@link CatalogInfoTypeRegistry} for mapping. It suppresses
+     * unchecked warnings due to type erasure in the registry.
      *
-     * @param <T>  The type of {@link CatalogInfo} (e.g., {@link StyleInfo}).
-     * @param <R>  The corresponding repository type (e.g., {@link StyleRepository}).
+     * @param <T> The type of {@link CatalogInfo} (e.g., {@link StyleInfo}).
+     * @param <R> The corresponding repository type (e.g., {@link StyleRepository}).
      * @param info The catalog info object whose type determines the repository; must not be null.
      * @return The repository managing objects of the same type as {@code info}; never null.
      * @throws NullPointerException if {@code info} is null.
      * @throws IllegalArgumentException if no repository is configured for the object’s type.
      * @example Retrieving a repository for a specific style:
-     *          <pre>
+     *     <pre>
      *          StyleInfo style = new StyleInfoImpl();
      *          StyleRepository styleRepo = holder.repositoryFor(style);
      *          </pre>
@@ -119,12 +118,12 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Returns a list of all configured repositories.
      *
-     * <p>This method provides access to all repositories registered in the internal
-     * {@link CatalogInfoTypeRegistry}, useful for introspection or bulk operations. The wildcard return
-     * type is intentionally suppressed as the list contains heterogeneous repository types.
+     * <p>This method provides access to all repositories registered in the internal {@link CatalogInfoTypeRegistry},
+     * useful for introspection or bulk operations. The wildcard return type is intentionally suppressed as the list
+     * contains heterogeneous repository types.
      *
-     * @return A list of all {@link CatalogInfoRepository} instances; never null.
-     * @SuppressWarnings("java:S1452") Wildcard return type is intentional due to mixed repository types.
+     * @return A list of all {@link CatalogInfoRepository} instances; never null. @SuppressWarnings("java:S1452")
+     *     Wildcard return type is intentional due to mixed repository types.
      */
     @SuppressWarnings("java:S1452")
     public List<CatalogInfoRepository<?>> all() {
@@ -134,13 +133,13 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Sets the repository for managing {@link NamespaceInfo} objects.
      *
-     * <p>Registers the provided {@link NamespaceRepository} in the internal type registry and assigns it
-     * to the namespaces field.
+     * <p>Registers the provided {@link NamespaceRepository} in the internal type registry and assigns it to the
+     * namespaces field.
      *
      * @param namespaces The {@link NamespaceRepository} to set; must not be null.
      * @throws NullPointerException if {@code namespaces} is null.
      * @example Setting a namespace repository:
-     *          <pre>
+     *     <pre>
      *          NamespaceRepository nsRepo = new DefaultNamespaceRepository();
      *          holder.setNamespaceRepository(nsRepo);
      *          </pre>
@@ -164,8 +163,8 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Sets the repository for managing {@link WorkspaceInfo} objects.
      *
-     * <p>Registers the provided {@link WorkspaceRepository} in the internal type registry and assigns it
-     * to the workspaces field.
+     * <p>Registers the provided {@link WorkspaceRepository} in the internal type registry and assigns it to the
+     * workspaces field.
      *
      * @param workspaces The {@link WorkspaceRepository} to set; must not be null.
      * @throws NullPointerException if {@code workspaces} is null.
@@ -189,9 +188,8 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Sets the repository for managing {@link StoreInfo} objects and its subtypes.
      *
-     * <p>Registers the provided {@link StoreRepository} recursively in the internal type registry to
-     * support all {@link StoreInfo} subtypes (e.g., {@link DataStoreInfo}) and assigns it to the stores
-     * field.
+     * <p>Registers the provided {@link StoreRepository} recursively in the internal type registry to support all
+     * {@link StoreInfo} subtypes (e.g., {@link DataStoreInfo}) and assigns it to the stores field.
      *
      * @param stores The {@link StoreRepository} to set; must not be null.
      * @throws NullPointerException if {@code stores} is null.
@@ -215,9 +213,9 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Sets the repository for managing {@link ResourceInfo} objects and its subtypes.
      *
-     * <p>Registers the provided {@link ResourceRepository} recursively in the internal type registry to
-     * support all {@link ResourceInfo} subtypes (e.g., {@link org.geoserver.catalog.FeatureTypeInfo}) and
-     * assigns it to the resources field.
+     * <p>Registers the provided {@link ResourceRepository} recursively in the internal type registry to support all
+     * {@link ResourceInfo} subtypes (e.g., {@link org.geoserver.catalog.FeatureTypeInfo}) and assigns it to the
+     * resources field.
      *
      * @param resources The {@link ResourceRepository} to set; must not be null.
      * @throws NullPointerException if {@code resources} is null.
@@ -241,8 +239,8 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Sets the repository for managing {@link LayerInfo} objects.
      *
-     * <p>Registers the provided {@link LayerRepository} in the internal type registry and assigns it to
-     * the layers field.
+     * <p>Registers the provided {@link LayerRepository} in the internal type registry and assigns it to the layers
+     * field.
      *
      * @param layers The {@link LayerRepository} to set; must not be null.
      * @throws NullPointerException if {@code layers} is null.
@@ -266,8 +264,8 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Sets the repository for managing {@link LayerGroupInfo} objects.
      *
-     * <p>Registers the provided {@link LayerGroupRepository} in the internal type registry and assigns it
-     * to the layerGroups field.
+     * <p>Registers the provided {@link LayerGroupRepository} in the internal type registry and assigns it to the
+     * layerGroups field.
      *
      * @param layerGroups The {@link LayerGroupRepository} to set; must not be null.
      * @throws NullPointerException if {@code layerGroups} is null.
@@ -291,8 +289,8 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Sets the repository for managing {@link StyleInfo} objects.
      *
-     * <p>Registers the provided {@link StyleRepository} in the internal type registry and assigns it to
-     * the styles field.
+     * <p>Registers the provided {@link StyleRepository} in the internal type registry and assigns it to the styles
+     * field.
      *
      * @param styles The {@link StyleRepository} to set; must not be null.
      * @throws NullPointerException if {@code styles} is null.
@@ -316,8 +314,7 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Sets the repository for managing {@link MapInfo} objects.
      *
-     * <p>Registers the provided {@link MapRepository} in the internal type registry and assigns it to the
-     * maps field.
+     * <p>Registers the provided {@link MapRepository} in the internal type registry and assigns it to the maps field.
      *
      * @param maps The {@link MapRepository} to set; must not be null.
      * @throws NullPointerException if {@code maps} is null.
@@ -341,8 +338,8 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     /**
      * Disposes of all resources held by the configured repositories.
      *
-     * <p>Iterates through all registered repositories and calls their {@code dispose()} methods to release
-     * resources (e.g., database connections). Null repositories are skipped.
+     * <p>Iterates through all registered repositories and calls their {@code dispose()} methods to release resources
+     * (e.g., database connections). Null repositories are skipped.
      */
     public void dispose() {
         dispose(stores);

@@ -16,10 +16,9 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 /**
  * A decorator for {@link StoreRepository} that forwards all method calls to an underlying repository.
  *
- * <p>This class extends {@link ForwardingCatalogRepository} to wrap a {@link StoreRepository} subject,
- * delegating all operations related to {@link StoreInfo} management. It enables subclasses to override
- * specific methods to customize behavior (e.g., adding validation or logging) without modifying the core
- * repository implementation.
+ * <p>This class extends {@link ForwardingCatalogRepository} to wrap a {@link StoreRepository} subject, delegating all
+ * operations related to {@link StoreInfo} management. It enables subclasses to override specific methods to customize
+ * behavior (e.g., adding validation or logging) without modifying the core repository implementation.
  *
  * @since 1.0
  * @see StoreRepository
@@ -31,7 +30,8 @@ public class ForwardingStoreRepository extends ForwardingCatalogRepository<Store
     /**
      * Constructs a forwarding store repository wrapping the provided subject.
      *
-     * @param subject The underlying {@link StoreRepository} to forward calls to; may be null (behavior depends on subclass).
+     * @param subject The underlying {@link StoreRepository} to forward calls to; may be null (behavior depends on
+     *     subclass).
      */
     public ForwardingStoreRepository(StoreRepository subject) {
         super(subject);

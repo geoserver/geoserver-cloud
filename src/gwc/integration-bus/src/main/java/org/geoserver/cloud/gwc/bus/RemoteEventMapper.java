@@ -18,9 +18,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.ReportingPolicy;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Mapper(componentModel = "default", unmappedTargetPolicy = ReportingPolicy.ERROR)
 @AnnotateWith(value = Generated.class)
 interface RemoteEventMapper {

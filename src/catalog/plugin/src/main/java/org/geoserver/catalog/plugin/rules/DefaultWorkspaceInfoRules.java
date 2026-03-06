@@ -16,11 +16,10 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
     private static final String SET_DEFAULT = "set_default_workspace";
 
     /**
-     * Determines whether there's no current default workspace and stores it as a flag in {@code
-     * context} for {@link #afterAdd} to proceed if so. This allows to improve consistency for
-     * {@code Catalog.add(WorkspaceInfo)} in situations where there are multiple catalogs: if there
-     * was no default workspace when the method was entered, then the created one is set as the
-     * default when the method returns.
+     * Determines whether there's no current default workspace and stores it as a flag in {@code context} for
+     * {@link #afterAdd} to proceed if so. This allows to improve consistency for {@code Catalog.add(WorkspaceInfo)} in
+     * situations where there are multiple catalogs: if there was no default workspace when the method was entered, then
+     * the created one is set as the default when the method returns.
      */
     @Override
     public void beforeAdd(CatalogOpContext<WorkspaceInfo> context) {
@@ -30,8 +29,8 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
     }
 
     /**
-     * Sets the created workspace as the catalog's default workspace if so determined in {@link
-     * #beforeAdd} and the operation was successful.
+     * Sets the created workspace as the catalog's default workspace if so determined in {@link #beforeAdd} and the
+     * operation was successful.
      */
     @Override
     public void afterAdd(CatalogOpContext<WorkspaceInfo> context) {
@@ -40,8 +39,8 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
     }
 
     /**
-     * Selects a new catalog default workspace if as the result of removing the workspace referred
-     * to by {@code context.getObject()}, the catalog has no default workspace.
+     * Selects a new catalog default workspace if as the result of removing the workspace referred to by
+     * {@code context.getObject()}, the catalog has no default workspace.
      */
     @Override
     public void afterRemove(CatalogOpContext<WorkspaceInfo> context) {

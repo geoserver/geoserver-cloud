@@ -14,13 +14,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
  * Auto-configuration for the GeoServer LDAP security web UI components.
  *
  * <p>This configuration is only active when:
+ *
  * <ul>
  *   <li>The LDAP security extension is enabled
  *   <li>The GeoServer web UI classes are available on the classpath
  * </ul>
  *
- * <p>It registers the LDAP security web UI components like panel info classes
- * for configuration through the GeoServer web admin interface.
+ * <p>It registers the LDAP security web UI components like panel info classes for configuration through the GeoServer
+ * web admin interface.
  *
  * @since 2.27.0.0
  */

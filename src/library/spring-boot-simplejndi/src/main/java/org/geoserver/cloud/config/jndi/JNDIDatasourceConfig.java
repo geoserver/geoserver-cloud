@@ -9,9 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceProperties;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class JNDIDatasourceConfig extends DataSourceProperties {
@@ -24,8 +22,6 @@ public class JNDIDatasourceConfig extends DataSourceProperties {
     long connectionTimeout = 250; // ms
     long idleTimeout = 60_000; // ms
 
-    /**
-     * @since 1.3
-     */
+    /** @since 1.3 */
     String schema;
 }

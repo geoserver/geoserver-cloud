@@ -34,9 +34,7 @@ import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.cache.Cache;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 
-/**
- * @since 1.7
- */
+/** @since 1.7 */
 @Slf4j(topic = "org.geoserver.cloud.catalog.cache")
 class CachingCatalogFacadeContainmentSupport {
     /** Key used to cache and evict {@link CatalogFacade#getDefaultNamespace() default namespace} */
@@ -56,8 +54,8 @@ class CachingCatalogFacadeContainmentSupport {
     private final @NonNull Cache cache;
 
     /**
-     * Cascade evicts cached {@link CatalogInfo} objects that directly or indirectly reference an
-     * object called to be evicted
+     * Cascade evicts cached {@link CatalogInfo} objects that directly or indirectly reference an object called to be
+     * evicted
      */
     private final CachedReferenceCleaner referenceCleaner;
 
@@ -81,22 +79,19 @@ class CachingCatalogFacadeContainmentSupport {
     }
 
     /**
-     * Evicts the {@link InfoIdKey} entry used for id lookups and the {@link InfoNameKey} used for
-     * name lookups.
+     * Evicts the {@link InfoIdKey} entry used for id lookups and the {@link InfoNameKey} used for name lookups.
      *
-     * <p>For {@link ResourceInfo} concrete-types, also evicts the entries for {@link
-     * ConfigInfoType#RESOURCE}, accounting for {@link #getResource(String, Class) getResource(id,
-     * ResourceInfo.class)} cached entries.
+     * <p>For {@link ResourceInfo} concrete-types, also evicts the entries for {@link ConfigInfoType#RESOURCE},
+     * accounting for {@link #getResource(String, Class) getResource(id, ResourceInfo.class)} cached entries.
      *
-     * <p>For {@link StoreInfo} concrete-types, also evicts the entries for {@link
-     * ConfigInfoType#STORE}, accounting for {@link #getStore(String, Class) getStore(id,
-     * StoreInfo.class)} cached entries.
+     * <p>For {@link StoreInfo} concrete-types, also evicts the entries for {@link ConfigInfoType#STORE}, accounting for
+     * {@link #getStore(String, Class) getStore(id, StoreInfo.class)} cached entries.
      *
-     * <p>For {@link ResourceInfo} and {@link PublishedInfo} sub-types, also evicts any {@link
-     * LayerGroupInfo} key directly or indirectly referencing it.
+     * <p>For {@link ResourceInfo} and {@link PublishedInfo} sub-types, also evicts any {@link LayerGroupInfo} key
+     * directly or indirectly referencing it.
      *
-     * <p>For {@link StyleInfo}, also evict the entries for any {@link LayerInfo} and {@link
-     * LayerGroupInfo} referencing the style.
+     * <p>For {@link StyleInfo}, also evict the entries for any {@link LayerInfo} and {@link LayerGroupInfo} referencing
+     * the style.
      */
     public boolean evict(String id, String prefixedName, ConfigInfoType type) {
         return evictInternal(id, prefixedName, type, true);

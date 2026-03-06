@@ -12,15 +12,13 @@ import org.geotools.autoconfigure.vectorformats.DataAccessFactoryFilteringAutoCo
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 
 /**
- * Auto-configuration for Graticule extension that provides a data store for
- * graticule lines.
+ * Auto-configuration for Graticule extension that provides a data store for graticule lines.
  *
- * <p>
- * This auto-configuration class enables the Graticule extension in GeoServer
- * Cloud, allowing users to create data stores for latitude/longitude graticule
- * lines. It will be activated when the following conditions are met:
+ * <p>This auto-configuration class enables the Graticule extension in GeoServer Cloud, allowing users to create data
+ * stores for latitude/longitude graticule lines. It will be activated when the following conditions are met:
+ *
  * <ul>
- * <li>The GraticuleDataStoreFactory class is on the classpath</li>
+ *   <li>The GraticuleDataStoreFactory class is on the classpath
  * </ul>
  *
  * @since 2.27.0

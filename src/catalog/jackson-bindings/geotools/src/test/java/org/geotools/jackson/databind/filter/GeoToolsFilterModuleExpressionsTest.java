@@ -19,8 +19,8 @@ import org.mapstruct.factory.Mappers;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Test suite for {@link GeoToolsFilterModule} serialization and deserialization of {@link
- * org.geotools.api.filter.expression.Expression}s
+ * Test suite for {@link GeoToolsFilterModule} serialization and deserialization of
+ * {@link org.geotools.api.filter.expression.Expression}s
  */
 public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoundtripTest {
 

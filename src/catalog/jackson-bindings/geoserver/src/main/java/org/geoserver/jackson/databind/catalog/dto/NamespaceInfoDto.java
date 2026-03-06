@@ -11,9 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * DTO for {@link org.geoserver.catalog.NamespaceInfo}
- */
+/** DTO for {@link org.geoserver.catalog.NamespaceInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

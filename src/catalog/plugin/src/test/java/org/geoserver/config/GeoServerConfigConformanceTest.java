@@ -50,10 +50,9 @@ public abstract class GeoServerConfigConformanceTest {
     protected abstract GeoServer createGeoServer();
 
     /**
-     * Subclasses may override to create a real service instead of a generic ServiceInfo, in case
-     * they're performing an integration test where the generic ServiceInfoImpl won't work (for
-     * example, if using a real data-directory, it would fail because there's no
-     * XStreamServiceLoader for it)
+     * Subclasses may override to create a real service instead of a generic ServiceInfo, in case they're performing an
+     * integration test where the generic ServiceInfoImpl won't work (for example, if using a real data-directory, it
+     * would fail because there's no XStreamServiceLoader for it)
      */
     protected ServiceInfo createService() {
         return geoServer.getFactory().createService();

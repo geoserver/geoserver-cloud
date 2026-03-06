@@ -30,13 +30,13 @@ import org.geoserver.ows.util.OwsUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 
 /**
- * Catalog facade decorator that ensures eventual consistency when processing distributed catalog
- * events that may arrive out of order.
+ * Catalog facade decorator that ensures eventual consistency when processing distributed catalog events that may arrive
+ * out of order.
  *
- * <p>In a distributed GeoServer Cloud deployment, catalog modification events are broadcast over a
- * message bus to synchronize all nodes. Network latency and message delivery guarantees mean that
- * events may arrive at each node in a different order than they were generated. This creates a
- * consistency problem when catalog objects reference other objects:
+ * <p>In a distributed GeoServer Cloud deployment, catalog modification events are broadcast over a message bus to
+ * synchronize all nodes. Network latency and message delivery guarantees mean that events may arrive at each node in a
+ * different order than they were generated. This creates a consistency problem when catalog objects reference other
+ * objects:
  *
  * <ul>
  *   <li>A LayerInfo references a ResourceInfo and a StyleInfo
@@ -44,14 +44,13 @@ import org.springframework.web.context.request.RequestContextHolder;
  *   <li>A StoreInfo references a WorkspaceInfo
  * </ul>
  *
- * <p>If an event to add a LayerInfo arrives before the event to add its referenced ResourceInfo,
- * attempting to add the LayerInfo with unresolved references would fail or corrupt the catalog.
+ * <p>If an event to add a LayerInfo arrives before the event to add its referenced ResourceInfo, attempting to add the
+ * LayerInfo with unresolved references would fail or corrupt the catalog.
  *
- * <p><b>Solution:</b> This facade delegates all mutating operations ({@code add}, {@code update},
- * {@code remove}) to an {@link EventualConsistencyEnforcer}, which defers operations with
- * unresolved references until the referenced objects arrive. Query operations ({@code get*}
- * methods) implement retry logic for REST API requests, allowing brief wait periods for pending
- * operations to converge.
+ * <p><b>Solution:</b> This facade delegates all mutating operations ({@code add}, {@code update}, {@code remove}) to an
+ * {@link EventualConsistencyEnforcer}, which defers operations with unresolved references until the referenced objects
+ * arrive. Query operations ({@code get*} methods) implement retry logic for REST API requests, allowing brief wait
+ * periods for pending operations to converge.
  *
  * <p><b>Example scenario:</b>
  *
@@ -69,20 +68,19 @@ import org.springframework.web.context.request.RequestContextHolder;
  *
  * <p><b>Query retry behavior:</b>
  *
- * <p>Query methods (e.g., {@code getWorkspaceByName()}) implement retry logic to handle queries
- * that occur while pending operations are resolving:
+ * <p>Query methods (e.g., {@code getWorkspaceByName()}) implement retry logic to handle queries that occur while
+ * pending operations are resolving:
  *
  * <ul>
- *   <li><b>Web requests (REST API, OWS services):</b> Retry when pending operations exist
- *       ({@code !isConverged()}). Each retry invokes {@code forceResolve()} to attempt resolving
- *       pending operations. If the catalog has converged (no pending operations), queries return
- *       immediately as retrying cannot find anything new.
- *   <li><b>Internal operations:</b> Never retry. Internal catalog access during startup or event
- *       processing returns immediately to avoid blocking.
+ *   <li><b>Web requests (REST API, OWS services):</b> Retry when pending operations exist ({@code !isConverged()}).
+ *       Each retry invokes {@code forceResolve()} to attempt resolving pending operations. If the catalog has converged
+ *       (no pending operations), queries return immediately as retrying cannot find anything new.
+ *   <li><b>Internal operations:</b> Never retry. Internal catalog access during startup or event processing returns
+ *       immediately to avoid blocking.
  * </ul>
  *
- * <p>Retry intervals are configured via
- * {@code geoserver.backend.data-directory.eventual-consistency.retries} (default: [25, 25, 50] ms).
+ * <p>Retry intervals are configured via {@code geoserver.backend.data-directory.eventual-consistency.retries} (default:
+ * [25, 25, 50] ms).
  *
  * @since 1.9
  * @see EventualConsistencyEnforcer

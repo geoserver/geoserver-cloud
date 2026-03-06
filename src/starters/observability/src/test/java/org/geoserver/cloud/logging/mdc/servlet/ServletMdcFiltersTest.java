@@ -37,13 +37,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Tests for the Servlet-based MDC filters.
- * <p>
- * This test class covers the following MDC filter implementations:
+ *
+ * <p>This test class covers the following MDC filter implementations:
+ *
  * <ul>
- *   <li>{@link HttpRequestMdcFilter}</li>
- *   <li>{@link MDCCleaningFilter}</li>
- *   <li>{@link SpringEnvironmentMdcFilter}</li>
- *   <li>{@link MDCAuthenticationFilter}</li>
+ *   <li>{@link HttpRequestMdcFilter}
+ *   <li>{@link MDCCleaningFilter}
+ *   <li>{@link SpringEnvironmentMdcFilter}
+ *   <li>{@link MDCAuthenticationFilter}
  * </ul>
  */
 class ServletMdcFiltersTest {
@@ -313,9 +314,7 @@ class ServletMdcFiltersTest {
         }
     }
 
-    /**
-     * Helper class to simulate a filter chain that throws an exception
-     */
+    /** Helper class to simulate a filter chain that throws an exception */
     private static class MockFilterChain implements FilterChain {
         private final Exception exception;
 

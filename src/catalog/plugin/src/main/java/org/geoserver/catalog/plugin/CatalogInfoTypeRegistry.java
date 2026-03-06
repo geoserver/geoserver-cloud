@@ -35,8 +35,8 @@ import org.geoserver.catalog.impl.ClassMappings;
 /**
  * Utility class to register providers of any kind based on {@link CatalogInfo} subtypes.
  *
- * <p>It is often necessary to perform operations or access different object based on {@link
- * CatalogInfo} subtypes; and common to write a bunch of if-else-if blocks with instanceof checks.
+ * <p>It is often necessary to perform operations or access different object based on {@link CatalogInfo} subtypes; and
+ * common to write a bunch of if-else-if blocks with instanceof checks.
  *
  * <p>This utility allows to register those elements and avoid that kind of code.
  *
@@ -47,8 +47,8 @@ public class CatalogInfoTypeRegistry<R> {
     private final EnumMap<ClassMappings, R> mappings = new EnumMap<>(ClassMappings.class);
 
     /**
-     * Registers the {@code resource} for the given type only, first narrowing {@code type} to its
-     * corresponding {@link CatalogInfo} interface type.
+     * Registers the {@code resource} for the given type only, first narrowing {@code type} to its corresponding
+     * {@link CatalogInfo} interface type.
      */
     public <T extends CatalogInfo> CatalogInfoTypeRegistry<R> register(Class<T> type, R resource) {
         requireNonNull(type);
@@ -68,10 +68,9 @@ public class CatalogInfoTypeRegistry<R> {
     }
 
     /**
-     * Registers the {@code resource} for the given type and all its {@link CatalogInfo}
-     * sub-interfaces (e.g. for {@link StoreInfo StoreInfo.class}, registers {@code resource} to
-     * match {@link StoreInfo}, {@link DataStoreInfo}, {@link CoverageStoreInfo}, {@link
-     * WMSStoreInfo}, and {@link WMTSStoreInfo})
+     * Registers the {@code resource} for the given type and all its {@link CatalogInfo} sub-interfaces (e.g. for
+     * {@link StoreInfo StoreInfo.class}, registers {@code resource} to match {@link StoreInfo}, {@link DataStoreInfo},
+     * {@link CoverageStoreInfo}, {@link WMSStoreInfo}, and {@link WMTSStoreInfo})
      */
     @SuppressWarnings("unchecked")
     public <T extends CatalogInfo> CatalogInfoTypeRegistry<R> registerRecursively(Class<T> type, R resource) {

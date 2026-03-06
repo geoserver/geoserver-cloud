@@ -86,22 +86,20 @@ public abstract class GeoToolsValueMappers {
     }
 
     /**
-     * @return {@code null} if {@code clazz} is null, the {@link Class#getCanonicalName() canonical
-     *     name} otherwise. May include a {@code []} suffix for array classes
+     * @return {@code null} if {@code clazz} is null, the {@link Class#getCanonicalName() canonical name} otherwise. May
+     *     include a {@code []} suffix for array classes
      */
     public String classToCanonicalName(Class<?> clazz) {
         return ClassUtils.getCanonicalName(clazz, null);
     }
 
     /**
-     * Returns the (initialized) class represented by {@code className} using the current thread's
-     * context class loader. This implementation supports the syntaxes "{@code
-     * java.util.Map.Entry[]}", "{@code java.util.Map$Entry[]}", "{@code [Ljava.util.Map.Entry;}",
-     * and "{@code [Ljava.util.Map$Entry;}".
+     * Returns the (initialized) class represented by {@code className} using the current thread's context class loader.
+     * This implementation supports the syntaxes "{@code java.util.Map.Entry[]}", "{@code java.util.Map$Entry[]}",
+     * "{@code [Ljava.util.Map.Entry;}", and "{@code [Ljava.util.Map$Entry;}".
      *
      * @param className the class name
-     * @return the class represented by {@code className} using the current thread's context class
-     *     loader
+     * @return the class represented by {@code className} using the current thread's context class loader
      * @throws IllegalArgumentException if the class is not found
      */
     @SuppressWarnings("unchecked")

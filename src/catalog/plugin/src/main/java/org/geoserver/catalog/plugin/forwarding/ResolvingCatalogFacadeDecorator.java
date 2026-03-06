@@ -37,19 +37,18 @@ import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 
 /**
- * A concrete decorator for {@link ExtendedCatalogFacade} implementing {@link ResolvingCatalogFacade},
- * applying inbound and outbound resolvers to {@link CatalogInfo} objects.
+ * A concrete decorator for {@link ExtendedCatalogFacade} implementing {@link ResolvingCatalogFacade}, applying inbound
+ * and outbound resolvers to {@link CatalogInfo} objects.
  *
- * <p>This class wraps an existing {@link ExtendedCatalogFacade} and uses {@link ResolvingFacadeSupport}
- * to apply configurable {@link UnaryOperator} functions to objects entering (inbound) and leaving
- * (outbound) the facade. By default, it uses the identity function for both directions, customizable via
- * {@link #setOutboundResolver(UnaryOperator)} and {@link #setInboundResolver(UnaryOperator)}. It simplifies
- * facade implementations by handling resolution logic, allowing the decorated facade to focus on raw data
- * access.
+ * <p>This class wraps an existing {@link ExtendedCatalogFacade} and uses {@link ResolvingFacadeSupport} to apply
+ * configurable {@link UnaryOperator} functions to objects entering (inbound) and leaving (outbound) the facade. By
+ * default, it uses the identity function for both directions, customizable via
+ * {@link #setOutboundResolver(UnaryOperator)} and {@link #setInboundResolver(UnaryOperator)}. It simplifies facade
+ * implementations by handling resolution logic, allowing the decorated facade to focus on raw data access.
  *
  * <p>Example usage:
- * <pre>
- * {@code
+ *
+ * <pre>{@code
  * Catalog catalog = ...;
  * ExtendedCatalogFacade rawFacade = ...;
  * ResolvingCatalogFacadeDecorator facade = new ResolvingCatalogFacadeDecorator(rawFacade);
@@ -60,15 +59,16 @@ import org.geotools.api.filter.sort.SortBy;
  *         .andThen(ModificationProxyDecorator.wrap());
  * facade.setOutboundResolver(resolver);
  * facade.setInboundResolver(ModificationProxyDecorator.unwrap());
- * }
- * </pre>
- * In this example, outbound objects are resolved for catalog references, proxies, initialized collections,
- * and wrapped in a {@link ModificationProxy}, while inbound objects are unwrapped from proxies.
+ * }</pre>
+ *
+ * In this example, outbound objects are resolved for catalog references, proxies, initialized collections, and wrapped
+ * in a {@link ModificationProxy}, while inbound objects are unwrapped from proxies.
  *
  * <p>Notes:
+ *
  * <ul>
- *   <li>The provided resolvers must be null-safe, as this decorator does not enforce special null handling.</li>
- *   <li>The caller is responsible for ensuring resolvers use the correct {@link Catalog} instance if required.</li>
+ *   <li>The provided resolvers must be null-safe, as this decorator does not enforce special null handling.
+ *   <li>The caller is responsible for ensuring resolvers use the correct {@link Catalog} instance if required.
  * </ul>
  *
  * @since 1.0
@@ -83,9 +83,9 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Constructs a new resolving decorator wrapping the provided {@link ExtendedCatalogFacade}.
      *
-     * <p>Initializes the decorator with default identity resolvers for both inbound and outbound operations.
-     * Use {@link #setOutboundResolver(UnaryOperator)} and {@link #setInboundResolver(UnaryOperator)} to
-     * configure custom resolution logic.
+     * <p>Initializes the decorator with default identity resolvers for both inbound and outbound operations. Use
+     * {@link #setOutboundResolver(UnaryOperator)} and {@link #setInboundResolver(UnaryOperator)} to configure custom
+     * resolution logic.
      *
      * @param facade The underlying {@link ExtendedCatalogFacade} to decorate; must not be null.
      * @throws NullPointerException if {@code facade} is null.
@@ -98,14 +98,14 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Sets the outbound resolver function applied to objects before they are returned.
      *
-     * <p>The resolver transforms {@link CatalogInfo} objects after they are retrieved from the underlying
-     * facade but before they are returned to the caller. It must handle null inputs gracefully.
+     * <p>The resolver transforms {@link CatalogInfo} objects after they are retrieved from the underlying facade but
+     * before they are returned to the caller. It must handle null inputs gracefully.
      *
-     * @param resolvingFunction The {@link UnaryOperator} to apply to outbound objects; must not be null and
-     *                          must accept null arguments.
+     * @param resolvingFunction The {@link UnaryOperator} to apply to outbound objects; must not be null and must accept
+     *     null arguments.
      * @throws NullPointerException if {@code resolvingFunction} is null.
      * @example Setting an outbound resolver:
-     *          <pre>
+     *     <pre>
      *          ResolvingCatalogFacadeDecorator facade = new ResolvingCatalogFacadeDecorator(rawFacade);
      *          UnaryOperator<CatalogInfo> resolver = ModificationProxyDecorator.wrap();
      *          facade.setOutboundResolver(resolver);
@@ -119,8 +119,8 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves the current outbound resolver function.
      *
-     * @return The {@link UnaryOperator} applied to outbound {@link CatalogInfo} objects; never null,
-     *         defaults to {@link Function#identity()}.
+     * @return The {@link UnaryOperator} applied to outbound {@link CatalogInfo} objects; never null, defaults to
+     *     {@link Function#identity()}.
      */
     @Override
     public UnaryOperator<CatalogInfo> getOutboundResolver() {
@@ -130,15 +130,14 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Sets the inbound resolver function applied to objects before they are passed to the underlying facade.
      *
-     * <p>The resolver transforms {@link CatalogInfo} objects received from the caller before they are
-     * processed by the underlying facade (e.g., for add or update operations). It must handle null inputs
-     * gracefully.
+     * <p>The resolver transforms {@link CatalogInfo} objects received from the caller before they are processed by the
+     * underlying facade (e.g., for add or update operations). It must handle null inputs gracefully.
      *
-     * @param resolvingFunction The {@link UnaryOperator} to apply to inbound objects; must not be null and
-     *                          must accept null arguments.
+     * @param resolvingFunction The {@link UnaryOperator} to apply to inbound objects; must not be null and must accept
+     *     null arguments.
      * @throws NullPointerException if {@code resolvingFunction} is null.
      * @example Setting an inbound resolver:
-     *          <pre>
+     *     <pre>
      *          ResolvingCatalogFacadeDecorator facade = new ResolvingCatalogFacadeDecorator(rawFacade);
      *          UnaryOperator<CatalogInfo> resolver = ModificationProxyDecorator.unwrap();
      *          facade.setInboundResolver(resolver);
@@ -152,8 +151,8 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves the current inbound resolver function.
      *
-     * @return The {@link UnaryOperator} applied to inbound {@link CatalogInfo} objects; never null,
-     *         defaults to {@link Function#identity()}.
+     * @return The {@link UnaryOperator} applied to inbound {@link CatalogInfo} objects; never null, defaults to
+     *     {@link Function#identity()}.
      */
     @Override
     public UnaryOperator<CatalogInfo> getInboundResolver() {
@@ -163,10 +162,10 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Applies the outbound resolver to a {@link CatalogInfo} object.
      *
-     * <p>Processes the object using the configured outbound resolver, which may transform it (e.g.,
-     * resolving proxies) or return null.
+     * <p>Processes the object using the configured outbound resolver, which may transform it (e.g., resolving proxies)
+     * or return null.
      *
-     * @param <C>  The type of {@link CatalogInfo}.
+     * @param <C> The type of {@link CatalogInfo}.
      * @param info The {@link CatalogInfo} object to resolve; may be null.
      * @return The resolved {@link CatalogInfo}, or null if the resolver returns null.
      */
@@ -178,10 +177,10 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Applies the inbound resolver to a {@link CatalogInfo} object.
      *
-     * <p>Processes the object using the configured inbound resolver, which may transform it (e.g.,
-     * unwrapping proxies) or return null.
+     * <p>Processes the object using the configured inbound resolver, which may transform it (e.g., unwrapping proxies)
+     * or return null.
      *
-     * @param <C>  The type of {@link CatalogInfo}.
+     * @param <C> The type of {@link CatalogInfo}.
      * @param info The {@link CatalogInfo} object to resolve; may be null.
      * @return The resolved {@link CatalogInfo}, or null if the resolver returns null.
      */
@@ -193,10 +192,10 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Applies the outbound resolver to a list of {@link CatalogInfo} objects.
      *
-     * <p>Transforms each object in the list using {@link #resolveOutbound(CatalogInfo)}, preserving the
-     * original order and allowing null results.
+     * <p>Transforms each object in the list using {@link #resolveOutbound(CatalogInfo)}, preserving the original order
+     * and allowing null results.
      *
-     * @param <C>  The type of {@link CatalogInfo}.
+     * @param <C> The type of {@link CatalogInfo}.
      * @param info The list of {@link CatalogInfo} objects to resolve; must not be null.
      * @return A new list with resolved {@link CatalogInfo} objects, potentially including nulls.
      * @throws NullPointerException if {@code info} is null.
@@ -211,15 +210,14 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * Adds a catalog object after applying the inbound resolver.
      *
      * <p>Resolves the input object using the inbound resolver before passing it to the underlying facade’s
-     * {@link ExtendedCatalogFacade#add(CatalogInfo)} method, then applies the outbound resolver to the
-     * result.
+     * {@link ExtendedCatalogFacade#add(CatalogInfo)} method, then applies the outbound resolver to the result.
      *
-     * @param <T>  The type of {@link CatalogInfo} to add.
+     * @param <T> The type of {@link CatalogInfo} to add.
      * @param info The {@link CatalogInfo} object to add; must not be null.
      * @return The added {@link CatalogInfo} object after outbound resolution.
      * @throws NullPointerException if {@code info} is null.
      * @example Adding a resolved workspace:
-     *          <pre>
+     *     <pre>
      *          WorkspaceInfo ws = new WorkspaceInfoImpl();
      *          ws.setName("test");
      *          WorkspaceInfo added = facade.add(ws);
@@ -236,8 +234,8 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * <p>Resolves the input object inbound, applies the patch via the underlying facade’s
      * {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)}, and resolves the result outbound.
      *
-     * @param <I>   The type of {@link CatalogInfo} to update.
-     * @param info  The {@link CatalogInfo} object to update; must not be null.
+     * @param <I> The type of {@link CatalogInfo} to update.
+     * @param info The {@link CatalogInfo} object to update; must not be null.
      * @param patch The {@link Patch} containing changes; must not be null.
      * @return The updated {@link CatalogInfo} object after outbound resolution.
      * @throws NullPointerException if {@code info} or {@code patch} is null.
@@ -264,8 +262,8 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves a catalog object by ID, applying the outbound resolver.
      *
-     * <p>Fetches the object via the underlying facade’s {@link ExtendedCatalogFacade#get(String)} and
-     * resolves it outbound.
+     * <p>Fetches the object via the underlying facade’s {@link ExtendedCatalogFacade#get(String)} and resolves it
+     * outbound.
      *
      * @param id The unique identifier of the object; must not be null.
      * @return An {@link Optional} containing the resolved {@link CatalogInfo}, or empty if not found.
@@ -279,11 +277,11 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves a typed catalog object by ID, applying the outbound resolver.
      *
-     * <p>Fetches the object via the underlying facade’s {@link ExtendedCatalogFacade#get(String, Class)}
-     * and resolves it outbound.
+     * <p>Fetches the object via the underlying facade’s {@link ExtendedCatalogFacade#get(String, Class)} and resolves
+     * it outbound.
      *
-     * @param <T>  The type of {@link CatalogInfo} to retrieve.
-     * @param id   The unique identifier of the object; must not be null.
+     * @param <T> The type of {@link CatalogInfo} to retrieve.
+     * @param id The unique identifier of the object; must not be null.
      * @param type The class of the object to retrieve; must not be null.
      * @return An {@link Optional} containing the resolved {@link CatalogInfo}, or empty if not found.
      * @throws NullPointerException if {@code id} or {@code type} is null.
@@ -296,8 +294,8 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves a published object (layer or layer group) by ID, applying the outbound resolver.
      *
-     * <p>Fetches the object via the underlying facade’s {@link ExtendedCatalogFacade#getPublished(String)}
-     * and resolves it outbound.
+     * <p>Fetches the object via the underlying facade’s {@link ExtendedCatalogFacade#getPublished(String)} and resolves
+     * it outbound.
      *
      * @param id The unique identifier of the published object; must not be null.
      * @return The resolved {@link PublishedInfo}, or null if not found.
@@ -311,10 +309,10 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Queries the catalog with a {@link Query}, applying the outbound resolver to results.
      *
-     * <p>Delegates to the underlying facade’s {@link ExtendedCatalogFacade#query(Query)}, resolves each
-     * result outbound, and filters out nulls.
+     * <p>Delegates to the underlying facade’s {@link ExtendedCatalogFacade#query(Query)}, resolves each result
+     * outbound, and filters out nulls.
      *
-     * @param <T>   The type of {@link CatalogInfo} to query.
+     * @param <T> The type of {@link CatalogInfo} to query.
      * @param query The {@link Query} defining the criteria; must not be null.
      * @return A {@link Stream} of resolved {@link CatalogInfo} objects; never null.
      * @throws NullPointerException if {@code query} is null.
@@ -343,8 +341,8 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves a store by ID and type, applying the outbound resolver.
      *
-     * @param <T>   The type of {@link StoreInfo}.
-     * @param id    The unique identifier; must not be null.
+     * @param <T> The type of {@link StoreInfo}.
+     * @param id The unique identifier; must not be null.
      * @param clazz The class of the store; must not be null.
      * @return The resolved {@link StoreInfo}, or null if not found.
      * @throws NullPointerException if {@code id} or {@code clazz} is null.
@@ -357,10 +355,10 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves a store by name, workspace, and type, applying the outbound resolver.
      *
-     * @param <T>       The type of {@link StoreInfo}.
+     * @param <T> The type of {@link StoreInfo}.
      * @param workspace The workspace; may be null.
-     * @param name      The name; must not be null.
-     * @param clazz     The class of the store; must not be null.
+     * @param name The name; must not be null.
+     * @param clazz The class of the store; must not be null.
      * @return The resolved {@link StoreInfo}, or null if not found.
      * @throws NullPointerException if {@code name} or {@code clazz} is null.
      */
@@ -372,9 +370,9 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves stores by workspace and type, applying the outbound resolver.
      *
-     * @param <T>       The type of {@link StoreInfo}.
+     * @param <T> The type of {@link StoreInfo}.
      * @param workspace The workspace; may be null.
-     * @param clazz     The class of the stores; must not be null.
+     * @param clazz The class of the stores; must not be null.
      * @return A list of resolved {@link StoreInfo} objects.
      * @throws NullPointerException if {@code clazz} is null.
      */
@@ -386,7 +384,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves all stores of a type, applying the outbound resolver.
      *
-     * @param <T>   The type of {@link StoreInfo}.
+     * @param <T> The type of {@link StoreInfo}.
      * @param clazz The class of the stores; must not be null.
      * @return A list of resolved {@link StoreInfo} objects.
      * @throws NullPointerException if {@code clazz} is null.
@@ -422,8 +420,8 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves a resource by ID and type, applying the outbound resolver.
      *
-     * @param <T>   The type of {@link ResourceInfo}.
-     * @param id    The unique identifier; must not be null.
+     * @param <T> The type of {@link ResourceInfo}.
+     * @param id The unique identifier; must not be null.
      * @param clazz The class of the resource; must not be null.
      * @return The resolved {@link ResourceInfo}, or null if not found.
      * @throws NullPointerException if {@code id} or {@code clazz} is null.
@@ -436,10 +434,10 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves a resource by name, namespace, and type, applying the outbound resolver.
      *
-     * @param <T>       The type of {@link ResourceInfo}.
+     * @param <T> The type of {@link ResourceInfo}.
      * @param namespace The namespace; may be null.
-     * @param name      The name; must not be null.
-     * @param clazz     The class of the resource; must not be null.
+     * @param name The name; must not be null.
+     * @param clazz The class of the resource; must not be null.
      * @return The resolved {@link ResourceInfo}, or null if not found.
      * @throws NullPointerException if {@code name} or {@code clazz} is null.
      */
@@ -451,7 +449,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves all resources of a type, applying the outbound resolver.
      *
-     * @param <T>   The type of {@link ResourceInfo}.
+     * @param <T> The type of {@link ResourceInfo}.
      * @param clazz The class of the resources; must not be null.
      * @return A list of resolved {@link ResourceInfo} objects.
      * @throws NullPointerException if {@code clazz} is null.
@@ -464,9 +462,9 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves resources by namespace and type, applying the outbound resolver.
      *
-     * @param <T>       The type of {@link ResourceInfo}.
+     * @param <T> The type of {@link ResourceInfo}.
      * @param namespace The namespace; may be null.
-     * @param clazz     The class of the resources; must not be null.
+     * @param clazz The class of the resources; must not be null.
      * @return A list of resolved {@link ResourceInfo} objects.
      * @throws NullPointerException if {@code clazz} is null.
      */
@@ -478,9 +476,9 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves a resource by store, name, and type, applying the outbound resolver.
      *
-     * @param <T>   The type of {@link ResourceInfo}.
+     * @param <T> The type of {@link ResourceInfo}.
      * @param store The store; must not be null.
-     * @param name  The name; must not be null.
+     * @param name The name; must not be null.
      * @param clazz The class of the resource; must not be null.
      * @return The resolved {@link ResourceInfo}, or null if not found.
      * @throws NullPointerException if {@code store}, {@code name}, or {@code clazz} is null.
@@ -493,7 +491,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves resources by store and type, applying the outbound resolver.
      *
-     * @param <T>   The type of {@link ResourceInfo}.
+     * @param <T> The type of {@link ResourceInfo}.
      * @param store The store; must not be null.
      * @param clazz The class of the resources; must not be null.
      * @return A list of resolved {@link ResourceInfo} objects.
@@ -660,7 +658,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * Retrieves a layer group by name and workspace, applying the outbound resolver.
      *
      * @param workspace The workspace; may be null.
-     * @param name      The name; must not be null.
+     * @param name The name; must not be null.
      * @return The resolved {@link LayerGroupInfo}, or null if not found.
      * @throws NullPointerException if {@code name} is null.
      */
@@ -804,7 +802,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * Sets the default data store for a workspace, applying the inbound resolver to inputs.
      *
      * @param workspace The workspace; must not be null.
-     * @param store     The {@link DataStoreInfo} to set; may be null.
+     * @param store The {@link DataStoreInfo} to set; may be null.
      * @throws NullPointerException if {@code workspace} is null.
      */
     @Override
@@ -886,7 +884,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * Retrieves a style by name and workspace, applying the outbound resolver.
      *
      * @param workspace The workspace; may be null.
-     * @param name      The name; must not be null.
+     * @param name The name; must not be null.
      * @return The resolved {@link StyleInfo}, or null if not found.
      * @throws NullPointerException if {@code name} is null.
      */
@@ -1114,14 +1112,14 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     /**
      * Retrieves a list of catalog objects matching criteria, applying the outbound resolver (deprecated).
      *
-     * <p>Delegates to the underlying facade’s deprecated {@link ExtendedCatalogFacade#list(Class, Filter, Integer, Integer, SortBy...)}
-     * method and transforms the result iterator with the outbound resolver.
+     * <p>Delegates to the underlying facade’s deprecated {@link ExtendedCatalogFacade#list(Class, Filter, Integer,
+     * Integer, SortBy...)} method and transforms the result iterator with the outbound resolver.
      *
-     * @param <T>       The type of {@link CatalogInfo}.
-     * @param of        The class of objects; must not be null.
-     * @param filter    The filter; must not be null.
-     * @param offset    The offset; may be null.
-     * @param count     The count; may be null.
+     * @param <T> The type of {@link CatalogInfo}.
+     * @param of The class of objects; must not be null.
+     * @param filter The filter; must not be null.
+     * @param offset The offset; may be null.
+     * @param count The count; may be null.
      * @param sortOrder The sort order; may be null.
      * @return A {@link CloseableIterator} of resolved objects.
      * @throws NullPointerException if {@code of} or {@code filter} is null.

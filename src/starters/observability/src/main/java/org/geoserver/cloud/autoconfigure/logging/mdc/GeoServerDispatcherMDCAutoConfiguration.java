@@ -16,24 +16,24 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
- * {@link AutoConfiguration @AutoConfiguration} to enable logging MDC (Mapped Diagnostic Context)
- * @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
- * for GeoServer OWS requests.
- * <p>
- * This configuration automatically sets up the {@link OWSMdcDispatcherCallback} for GeoServer
- * applications, enabling MDC enrichment for OGC Web Service (OWS) requests. The callback
- * adds service and operation information to the MDC, making it available to all logging
- * statements during request processing.
- * <p>
- * The configuration activates only when the following conditions are met:
+ * {@link AutoConfiguration @AutoConfiguration} to enable logging MDC (Mapped Diagnostic
+ * Context) @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public for GeoServer
+ * OWS requests.
+ *
+ * <p>This configuration automatically sets up the {@link OWSMdcDispatcherCallback} for GeoServer applications, enabling
+ * MDC enrichment for OGC Web Service (OWS) requests. The callback adds service and operation information to the MDC,
+ * making it available to all logging statements during request processing.
+ *
+ * <p>The configuration activates only when the following conditions are met:
+ *
  * <ul>
- *   <li>The application is a Servlet web application ({@code spring.main.web-application-type=servlet})</li>
- *   <li>GeoServer's {@code Dispatcher} class is on the classpath</li>
- *   <li>Spring Web MVC's {@link org.springframework.web.servlet.mvc.AbstractController} is on the classpath</li>
+ *   <li>The application is a Servlet web application ({@code spring.main.web-application-type=servlet})
+ *   <li>GeoServer's {@code Dispatcher} class is on the classpath
+ *   <li>Spring Web MVC's {@link org.springframework.web.servlet.mvc.AbstractController} is on the classpath
  * </ul>
- * <p>
- * When active, this configuration creates an {@link OWSMdcDispatcherCallback} bean that integrates
- * with GeoServer's request dispatching process to enrich the MDC with OWS-specific information.
+ *
+ * <p>When active, this configuration creates an {@link OWSMdcDispatcherCallback} bean that integrates with GeoServer's
+ * request dispatching process to enrich the MDC with OWS-specific information.
  *
  * @see OWSMdcDispatcherCallback
  * @see GeoServerMdcConfigProperties
@@ -51,10 +51,9 @@ public class GeoServerDispatcherMDCAutoConfiguration {
 
     /**
      * Creates the OWSMdcDispatcherCallback bean for GeoServer applications.
-     * <p>
-     * This bean is responsible for adding OWS-specific information to the MDC during
-     * GeoServer request processing. It's configured with the OWS-specific settings from
-     * the {@link GeoServerMdcConfigProperties}.
+     *
+     * <p>This bean is responsible for adding OWS-specific information to the MDC during GeoServer request processing.
+     * It's configured with the OWS-specific settings from the {@link GeoServerMdcConfigProperties}.
      *
      * @param config the GeoServer MDC configuration properties
      * @return the configured OWSMdcDispatcherCallback bean

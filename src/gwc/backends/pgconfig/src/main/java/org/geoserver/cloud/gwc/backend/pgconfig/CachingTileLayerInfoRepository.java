@@ -20,8 +20,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.dao.DataAccessException;
 
 /**
- * {@link TileLayerInfoRepository} decorator cache {@link TileLayerInfo}s on demand, alleviating the
- * load on the delegate, especially under load.
+ * {@link TileLayerInfoRepository} decorator cache {@link TileLayerInfo}s on demand, alleviating the load on the
+ * delegate, especially under load.
  */
 @RequiredArgsConstructor
 @Slf4j(topic = "org.geoserver.cloud.gwc.backend.pgconfig.caching")

@@ -12,9 +12,7 @@ import lombok.ToString;
 import org.geoserver.catalog.Info;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 
-/**
- * Base DTO for configuration (i.e. non-catalog) {@link Info} types
- */
+/** Base DTO for configuration (i.e. non-catalog) {@link Info} types */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

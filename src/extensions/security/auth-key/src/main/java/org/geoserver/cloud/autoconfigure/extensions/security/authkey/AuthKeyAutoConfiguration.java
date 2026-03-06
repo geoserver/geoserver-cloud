@@ -33,8 +33,8 @@ import org.springframework.context.annotation.Import;
  *         enabled: false
  * }</pre>
  *
- * <p>The externalized configuration in config/geoserver.yml provides backward compatibility
- * with the older property through property placeholders:
+ * <p>The externalized configuration in config/geoserver.yml provides backward compatibility with the older property
+ * through property placeholders:
  *
  * <pre>{@code
  * geoserver:
@@ -74,9 +74,7 @@ public class AuthKeyAutoConfiguration {
         return module;
     }
 
-    /**
-     * Configuration for the core AuthKey components.
-     */
+    /** Configuration for the core AuthKey components. */
     @ConditionalOnAuthKey
     @ImportFilteredResource(Enabled.INCLUDE)
     static @Configuration class Enabled {
@@ -88,9 +86,7 @@ public class AuthKeyAutoConfiguration {
         }
     }
 
-    /**
-     * Configuration for the AuthKey Web UI components.
-     */
+    /** Configuration for the AuthKey Web UI components. */
     @ConditionalOnAuthKey
     @ConditionalOnClass(AuthenticationFilterPanel.class)
     @ImportFilteredResource(WebUI.INCLUDE)

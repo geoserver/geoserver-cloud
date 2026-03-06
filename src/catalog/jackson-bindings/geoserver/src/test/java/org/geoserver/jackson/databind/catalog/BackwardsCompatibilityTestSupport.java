@@ -12,13 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Base class for backwards-compatibility tests that verify deserialization from known JSON text
- * blocks produced by Jackson 2.
+ * Base class for backwards-compatibility tests that verify deserialization from known JSON text blocks produced by
+ * Jackson 2.
  *
- * <p>These tests ensure that JSON property names produced by Jackson 2's {@code
- * legacyManglePropertyName} behavior (which lowercases leading uppercase characters in field names)
- * are correctly deserialized. This is important for maintaining wire-format compatibility when
- * upgrading to Jackson 3, which preserves field name casing.
+ * <p>These tests ensure that JSON property names produced by Jackson 2's {@code legacyManglePropertyName} behavior
+ * (which lowercases leading uppercase characters in field names) are correctly deserialized. This is important for
+ * maintaining wire-format compatibility when upgrading to Jackson 3, which preserves field name casing.
  */
 public abstract class BackwardsCompatibilityTestSupport {
 

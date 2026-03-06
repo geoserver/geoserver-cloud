@@ -14,9 +14,7 @@ import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitializat
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @Configuration
 @EnableConfigurationProperties(PgconfigBackendProperties.class)
 public class DatabaseMigrationConfiguration {

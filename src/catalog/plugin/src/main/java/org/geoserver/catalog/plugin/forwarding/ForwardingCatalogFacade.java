@@ -27,14 +27,14 @@ import org.jspecify.annotations.Nullable;
 /**
  * A decorator for {@link CatalogFacade} that forwards all method calls to an underlying facade instance.
  *
- * <p>This class facilitates the creation of decorators by delegating all operations to a subject
- * {@link CatalogFacade}, allowing subclasses to override specific methods to customize behavior (e.g.,
- * adding logging, caching, or validation). It serves as a foundation for extending facade functionality
- * without altering the core implementation.
+ * <p>This class facilitates the creation of decorators by delegating all operations to a subject {@link CatalogFacade},
+ * allowing subclasses to override specific methods to customize behavior (e.g., adding logging, caching, or
+ * validation). It serves as a foundation for extending facade functionality without altering the core implementation.
  *
  * <p>Subclasses should override one or more methods to modify the behavior of the backing facade as needed.
  *
  * <p>Example usage:
+ *
  * <pre>
  * CatalogFacade baseFacade = ...;
  * ForwardingCatalogFacade decorator = new ForwardingCatalogFacade(baseFacade) {
@@ -57,7 +57,8 @@ public class ForwardingCatalogFacade implements CatalogFacade {
     /**
      * Constructs a forwarding facade wrapping the provided subject.
      *
-     * @param facade The underlying {@link CatalogFacade} to forward calls to; may be null (behavior depends on subclass).
+     * @param facade The underlying {@link CatalogFacade} to forward calls to; may be null (behavior depends on
+     *     subclass).
      */
     public ForwardingCatalogFacade(CatalogFacade facade) {
         this.facade = facade;

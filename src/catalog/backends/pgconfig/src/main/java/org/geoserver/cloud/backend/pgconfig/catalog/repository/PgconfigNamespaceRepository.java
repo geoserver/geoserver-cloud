@@ -12,15 +12,11 @@ import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<NamespaceInfo>
         implements NamespaceRepository {
 
-    /**
-     * @param template
-     */
+    /** @param template */
     public PgconfigNamespaceRepository(@NonNull JdbcTemplate template) {
         super(NamespaceInfo.class, template);
     }

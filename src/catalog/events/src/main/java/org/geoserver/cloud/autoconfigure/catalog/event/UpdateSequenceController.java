@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @RestController
 @RequestMapping({"${geoserver.base-path:}", "${geoserver.base-path:}/"})
 @RequiredArgsConstructor

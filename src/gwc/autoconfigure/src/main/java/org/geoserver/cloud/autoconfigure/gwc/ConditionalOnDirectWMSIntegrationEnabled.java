@@ -13,9 +13,7 @@ import java.lang.annotation.Target;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented

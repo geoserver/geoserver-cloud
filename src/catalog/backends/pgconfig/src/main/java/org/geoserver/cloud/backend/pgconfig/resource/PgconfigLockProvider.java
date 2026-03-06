@@ -18,9 +18,9 @@ import org.springframework.integration.support.locks.LockRegistry;
 /**
  * Adapts a spring-integration-jdbc's {@link LockRegistry} to a GeoServer {@link LockProvider}
  *
- * <p>Of most interest here is using a {@link LockRegistry} backed by a {@link
- * org.springframework.integration.jdbc.lock.DefaultLockRepository} to provide distributed locking
- * on a clustered environment using the database to hold the locks.
+ * <p>Of most interest here is using a {@link LockRegistry} backed by a
+ * {@link org.springframework.integration.jdbc.lock.DefaultLockRepository} to provide distributed locking on a clustered
+ * environment using the database to hold the locks.
  *
  * @since 1.4
  */

@@ -140,9 +140,7 @@ class PgconfigResourceTest {
         }
     }
 
-    /**
-     * @return
-     */
+    /** @return */
     private JdbcLockRegistry pgconfigLockRegistry() {
         return new JdbcLockRegistry(pgconfigLockRepository());
     }
@@ -339,9 +337,9 @@ class PgconfigResourceTest {
     }
 
     /**
-     * Verify resiliency when moving a resource to the same path. Something that happens for example
-     * when NamespaceWorkspaceConsistencyListener blindly updates a workspace upon a namespace change
-     * even if the workspace name is already equal to the namespace prefix
+     * Verify resiliency when moving a resource to the same path. Something that happens for example when
+     * NamespaceWorkspaceConsistencyListener blindly updates a workspace upon a namespace change even if the workspace
+     * name is already equal to the namespace prefix
      */
     @Test
     void trestMoveSameTarget() {
@@ -439,11 +437,8 @@ class PgconfigResourceTest {
     /**
      * Tests that resource state is properly refreshed when a resource is deleted from the database.
      *
-     * <p>
-     * This verifies that long-lived resource references (as held by components like
-     * AbstractAccessRuleDAO and RESTAccessRuleDAO) will be properly updated when the
-     * underlying database record is modified.
-     * </p>
+     * <p>This verifies that long-lived resource references (as held by components like AbstractAccessRuleDAO and
+     * RESTAccessRuleDAO) will be properly updated when the underlying database record is modified.
      */
     @Test
     void testUpdateStateHandlesDeletedResource() throws Exception {
@@ -484,10 +479,8 @@ class PgconfigResourceTest {
     /**
      * Tests that resource state is properly refreshed when a resource is modified in the database.
      *
-     * <p>
-     * This verifies that long-lived resource references will properly reflect changes
-     * made to the resource in the database by other processes or service instances.
-     * </p>
+     * <p>This verifies that long-lived resource references will properly reflect changes made to the resource in the
+     * database by other processes or service instances.
      */
     @Test
     @SuppressWarnings("java:S2925") // Thread.sleep

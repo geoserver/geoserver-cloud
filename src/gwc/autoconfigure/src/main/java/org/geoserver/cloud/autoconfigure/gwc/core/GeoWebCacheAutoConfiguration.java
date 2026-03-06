@@ -11,9 +11,8 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /**
- * This auto-configuration only integrates the minimal components to have gwc integrated with
- * GeoServer, while allowing to disable certain components through {@link
- * GeoWebCacheConfigurationProperties configuration properties}.
+ * This auto-configuration only integrates the minimal components to have gwc integrated with GeoServer, while allowing
+ * to disable certain components through {@link GeoWebCacheConfigurationProperties configuration properties}.
  *
  * @see GeoWebCacheCoreAutoConfiguration
  * @see GeoServerIntegrationAutoConfiguration

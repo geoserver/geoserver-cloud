@@ -39,9 +39,8 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * A {@link TileLayerConfiguration} is like the GeoServer {@link Catalog} for {@link TileLayer};
- * this one runs against the PostgreSQL database set up for {@link PgconfigCatalogFacade}, and
- * returns {@link GeoServerTileLayer}.
+ * A {@link TileLayerConfiguration} is like the GeoServer {@link Catalog} for {@link TileLayer}; this one runs against
+ * the PostgreSQL database set up for {@link PgconfigCatalogFacade}, and returns {@link GeoServerTileLayer}.
  *
  * @see TileLayerInfoRepository
  * @see PgconfigTileLayerInfoRepository

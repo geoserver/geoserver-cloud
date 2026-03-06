@@ -15,29 +15,26 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
- * {@link EnableAutoConfiguration @EnableAutoConfiguration} auto configuration for a GeoTools {@link
- * HTTPClientFactory} that can be configured through spring-boot externalized properties and only
- * affects GeoTools http clients instead of the whole JVM.
+ * {@link EnableAutoConfiguration @EnableAutoConfiguration} auto configuration for a GeoTools {@link HTTPClientFactory}
+ * that can be configured through spring-boot externalized properties and only affects GeoTools http clients instead of
+ * the whole JVM.
  *
- * <p>The usual way to set an http proxy is through the {@literal http.proxyHost}, {@literal
- * http.proxyPort}, {@literal http.proxyUser}, {@literal http.proxyPassword} Java System Properties.
+ * <p>The usual way to set an http proxy is through the {@literal http.proxyHost}, {@literal http.proxyPort},
+ * {@literal http.proxyUser}, {@literal http.proxyPassword} Java System Properties.
  *
- * <p>In the context of Cloud Native GeoServer containerized applications, this has a number of
- * drawbacks:
+ * <p>In the context of Cloud Native GeoServer containerized applications, this has a number of drawbacks:
  *
  * <ul>
- *   <li>Standard java proxy parameters only work with System properties, not env variables (at
- *       least with the apache http client), and setting system properties is more cumbersome than
- *       env variables (you have to modify the container run command)
- *   <li>{@literal http.proxyUser/Password} are not standard properties, though commonly used, it's
- *       kind of JDK implementation dependent.
- *   <li>Setting {@literal -Dhtt.proxy*} System properties affects all HTTP clients in the
- *       container, meaning requests to the {@literal config}, {@literal discovery} services,
- *       etc., will also try to go through the proxy, or you need to go through the extra burden of
- *       figuring out how to ignore them.
- *   <li>If the proxy is secured, and since the http client used may not respect the {@literal
- *       http.proxyUser/Password} parameters, the apps won't start since they'll get HTTP 407 "Proxy
- *       Authentication Required".
+ *   <li>Standard java proxy parameters only work with System properties, not env variables (at least with the apache
+ *       http client), and setting system properties is more cumbersome than env variables (you have to modify the
+ *       container run command)
+ *   <li>{@literal http.proxyUser/Password} are not standard properties, though commonly used, it's kind of JDK
+ *       implementation dependent.
+ *   <li>Setting {@literal -Dhtt.proxy*} System properties affects all HTTP clients in the container, meaning requests
+ *       to the {@literal config}, {@literal discovery} services, etc., will also try to go through the proxy, or you
+ *       need to go through the extra burden of figuring out how to ignore them.
+ *   <li>If the proxy is secured, and since the http client used may not respect the {@literal http.proxyUser/Password}
+ *       parameters, the apps won't start since they'll get HTTP 407 "Proxy Authentication Required".
  * </ul>
  *
  * <p>The following externalized configuration properties apply:
@@ -73,9 +70,8 @@ import org.springframework.context.annotation.Bean;
 public class GeoToolsHttpClientAutoConfiguration {
 
     /**
-     * Updates the
-     * {@link SpringEnvironmentAwareGeoToolsHttpClientFactory#setProxyConfig()
-     * factory config} with the provided configuration properties
+     * Updates the {@link SpringEnvironmentAwareGeoToolsHttpClientFactory#setProxyConfig() factory config} with the
+     * provided configuration properties
      */
     @Bean
     SpringEnvironmentAwareGeoToolsHttpClientFactory springEnvironmentAwareGeoToolsHttpClientFactory(

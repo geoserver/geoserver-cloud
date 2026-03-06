@@ -115,12 +115,10 @@ abstract class RestConfigApplicationTest {
     /**
      * Tests the service-specific conditional annotations.
      *
-     * <p>
-     * Verifies that only the REST conditional bean is activated in this service,
-     * based on the geoserver.service.restconfig.enabled=true property set in bootstrap.yml.
-     * This test relies on the ConditionalTestAutoConfiguration class from the
-     * extensions-core test-jar, which contains beans conditionally activated
-     * based on each GeoServer service type.
+     * <p>Verifies that only the REST conditional bean is activated in this service, based on the
+     * geoserver.service.restconfig.enabled=true property set in bootstrap.yml. This test relies on the
+     * ConditionalTestAutoConfiguration class from the extensions-core test-jar, which contains beans conditionally
+     * activated based on each GeoServer service type.
      */
     @Test
     void testServiceConditionalAnnotations() {

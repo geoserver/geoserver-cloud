@@ -24,9 +24,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
-/**
- * Tests for {@link ConnectionParameters} serialization and deserialization.
- */
+/** Tests for {@link ConnectionParameters} serialization and deserialization. */
 class ConnectionParametersSerializerTest {
 
     private ObjectMapper objectMapper;

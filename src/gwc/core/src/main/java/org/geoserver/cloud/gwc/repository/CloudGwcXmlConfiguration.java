@@ -39,10 +39,9 @@ import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.context.event.EventListener;
 
 /**
- * @implNote there is a {@link BlobStoreConfigurationListener} abstraction, but no homologous one to
- *     listen to gridset configuration changes, so for the sake of consistency, we're overriding the
- *     blobstore and gridset add/remove/modify methods as decorator throwing {@link GridsetEvent}
- *     and {@link BlobStoreEvent} appropriately.
+ * @implNote there is a {@link BlobStoreConfigurationListener} abstraction, but no homologous one to listen to gridset
+ *     configuration changes, so for the sake of consistency, we're overriding the blobstore and gridset
+ *     add/remove/modify methods as decorator throwing {@link GridsetEvent} and {@link BlobStoreEvent} appropriately.
  * @since 1.0
  */
 @Slf4j(topic = "org.geoserver.cloud.gwc.repository")

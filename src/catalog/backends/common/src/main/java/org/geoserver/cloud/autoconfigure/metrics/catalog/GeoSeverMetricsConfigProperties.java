@@ -8,9 +8,7 @@ package org.geoserver.cloud.autoconfigure.metrics.catalog;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Data
 @ConfigurationProperties(prefix = "geoserver.metrics")
 public class GeoSeverMetricsConfigProperties {

@@ -13,10 +13,7 @@ import org.geoserver.cloud.event.UpdateSequenceEvent;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.core.style.ToStringCreator;
 
-/**
- * Application event to notify services of changes in the {@link GeoServerSecurityManager security
- * configuration}.
- */
+/** Application event to notify services of changes in the {@link GeoServerSecurityManager security configuration}. */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("SecurityConfigChanged")
 @SuppressWarnings("serial")

@@ -21,9 +21,7 @@ public class RemoteGeoServerEvent extends RemoteApplicationEvent {
     @NonNull
     private GeoServerEvent event;
 
-    /**
-     * Deserialization-time constructor, {@link #getSource()} will be {@code null}
-     */
+    /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
     @SuppressWarnings("java:S2637") // final fields initialized by deserialization
     @JsonCreator
     protected RemoteGeoServerEvent() {

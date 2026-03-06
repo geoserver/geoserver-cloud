@@ -48,9 +48,7 @@ public class GeoServerSecurityAutoConfiguration {
             }
         }
 
-        /**
-         * @since 1.3, required since geoserver 2.23.2
-         */
+        /** @since 1.3, required since geoserver 2.23.2 */
         @Bean
         @ConditionalOnMissingBean
         XStreamPersisterFactory xstreamPersisterFactory() {

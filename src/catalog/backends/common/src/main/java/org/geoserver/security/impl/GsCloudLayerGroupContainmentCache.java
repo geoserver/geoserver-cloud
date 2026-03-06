@@ -50,19 +50,17 @@ import org.springframework.web.context.WebApplicationContext;
  *       {@link #onApplicationEvent(ContextRefreshedEvent)}
  *   <li>{@link #onApplicationEvent(ContextRefreshedEvent)} ignores the event if it's not for a
  *       {@link WebApplicationContext} (e.g. the spring boot actuator's context)
- *   <li>Makes a single pass over the {@link LayerGroupInfo}s in the catalog at {@link
- *       #buildLayerGroupCaches()}
- *   <li>Traverses the layer groups in a streaming fashion, avoiding loading them all in memory
- *       through {@link Catalog#getLayerGroups()}
+ *   <li>Makes a single pass over the {@link LayerGroupInfo}s in the catalog at {@link #buildLayerGroupCaches()}
+ *   <li>Traverses the layer groups in a streaming fashion, avoiding loading them all in memory through
+ *       {@link Catalog#getLayerGroups()}
  * </ul>
  *
- * With this, it takes 1 minute to build the cache with the pgconfig catalog backend, on a catalog
- * with 70k layer groups, whereas previously it would go out of memory after several minutes.
+ * With this, it takes 1 minute to build the cache with the pgconfig catalog backend, on a catalog with 70k layer
+ * groups, whereas previously it would go out of memory after several minutes.
  *
  * <p>Further improvements may involve making the cache being build lazily as required by calls to
- * {@link #getContainerGroupsFor(LayerGroupInfo)} and/or {@link
- * #getContainerGroupsFor(ResourceInfo)}. For the later, only global and same-workspace layer groups
- * may be queried.
+ * {@link #getContainerGroupsFor(LayerGroupInfo)} and/or {@link #getContainerGroupsFor(ResourceInfo)}. For the later,
+ * only global and same-workspace layer groups may be queried.
  *
  * @see NoopLayerGroupContainmentCache
  * @since 1.8.2
@@ -79,8 +77,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
 
     /**
      * abort flag for a running {@link #buildLayerGroupCaches()} before running again in response to
-     * {@link CatalogChangeListener#reloaded()} or {@link
-     * #onApplicationEvent(ContextRefreshedEvent)}
+     * {@link CatalogChangeListener#reloaded()} or {@link #onApplicationEvent(ContextRefreshedEvent)}
      */
     private volatile boolean abort;
 
@@ -185,8 +182,8 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
     }
 
     /**
-     * fix: use computeIfAbsent, {@link #addGroupInfo} and {@link #registerContainedGroups} can
-     * hence be called in a single pass
+     * fix: use computeIfAbsent, {@link #addGroupInfo} and {@link #registerContainedGroups} can hence be called in a
+     * single pass
      */
     private LayerGroupSummary getGroupData(LayerGroupInfo lg) {
         LayerGroupSummary groupData = groupCache.get(lg.getId());
@@ -213,8 +210,8 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
     }
 
     /**
-     * Returns all groups containing directly or indirectly the specified group, and relevant for
-     * security (e.g., anything but {@link LayerGroupInfo.Mode#SINGLE} ones
+     * Returns all groups containing directly or indirectly the specified group, and relevant for security (e.g.,
+     * anything but {@link LayerGroupInfo.Mode#SINGLE} ones
      */
     @Override
     public Collection<LayerGroupSummary> getContainerGroupsFor(LayerGroupInfo lg) {
@@ -230,9 +227,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
         return Set.of();
     }
 
-    /**
-     * Recursively collects the group and all its containers in the <data>groups</data> collection
-     */
+    /** Recursively collects the group and all its containers in the <data>groups</data> collection */
     private void collectContainers(LayerGroupSummary lg, Set<LayerGroupSummary> groups) {
         if (!groups.contains(lg)) {
             if (lg.getMode() != LayerGroupInfo.Mode.SINGLE) {
@@ -243,8 +238,8 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
     }
 
     /**
-     * This listener keeps the "layer group" flags in the authorization tree current, in order to
-     * optimize the application of layer group containment rules
+     * This listener keeps the "layer group" flags in the authorization tree current, in order to optimize the
+     * application of layer group containment rules
      */
     final class CatalogChangeListener implements CatalogListener {
 

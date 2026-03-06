@@ -12,9 +12,7 @@ import java.util.Map;
 import lombok.Data;
 import org.geotools.jackson.databind.dto.NumberRangeDto;
 
-/**
- * JSON DTO for {@link org.geoserver.catalog.AttributeTypeInfo}
- */
+/** JSON DTO for {@link org.geoserver.catalog.AttributeTypeInfo} */
 @Data
 @JsonTypeName("AttributeTypeInfo")
 public class AttributeTypeInfoDto {
@@ -28,25 +26,19 @@ public class AttributeTypeInfoDto {
     private Integer length;
 
     /**
-     * Source expression (a valid CQL expression). If not set, it will default to the attribute name
-     * (in AttributeTypeInfoImpl, not here, here it can be {@code null}).
+     * Source expression (a valid CQL expression). If not set, it will default to the attribute name (in
+     * AttributeTypeInfoImpl, not here, here it can be {@code null}).
      *
      * @since GeoServer 2.21
      */
     private String source;
 
-    /**
-     * @since geoserver 2.23.0
-     */
+    /** @since geoserver 2.23.0 */
     private Map<String, String> description;
 
-    /**
-     * @since 2.28.0
-     */
+    /** @since 2.28.0 */
     private List<Object> options;
 
-    /**
-     * @since 2.28.0
-     */
+    /** @since 2.28.0 */
     private NumberRangeDto range;
 }

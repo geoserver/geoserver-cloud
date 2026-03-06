@@ -37,10 +37,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer {@link TileLayerCatalog}
- * @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
- * using the "pgconfig" module implementation to store the tile layer configuration as part of the
- * GeoServer Catalog in the Postgres database;
+ * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer
+ * {@link TileLayerCatalog} @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be
+ * public using the "pgconfig" module implementation to store the tile layer configuration as part of the GeoServer
+ * Catalog in the Postgres database;
  *
  * @since 1.7
  * @see ConditionalOnPgconfigBackendEnabled

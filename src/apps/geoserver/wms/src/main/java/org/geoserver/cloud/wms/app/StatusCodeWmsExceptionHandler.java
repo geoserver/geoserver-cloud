@@ -22,17 +22,20 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpStatus;
 
 /**
- * WMS exception handler that will check the {@code W3CSTATUS=true} query parameter, or
- * the {@code geoserver.wms.exceptions.w3cstatus=true} Spring configuration property, to assign an HTTP Status code to the response,
- * bypassing the OWS protocol, which always returns a {@code 200 OK} status code, even when errors occurred.
- * <p>
- * This is of especial interest for testing the service (e.g. for performance/scalability testing), where tools would expect errors to be reported as HTTP status codes.
- * <p>
- * The following well-known {@link ServiceException#getCode() service exception codes} are mapped:
+ * WMS exception handler that will check the {@code W3CSTATUS=true} query parameter, or the
+ * {@code geoserver.wms.exceptions.w3cstatus=true} Spring configuration property, to assign an HTTP Status code to the
+ * response, bypassing the OWS protocol, which always returns a {@code 200 OK} status code, even when errors occurred.
+ *
+ * <p>This is of especial interest for testing the service (e.g. for performance/scalability testing), where tools would
+ * expect errors to be reported as HTTP status codes.
+ *
+ * <p>The following well-known {@link ServiceException#getCode() service exception codes} are mapped:
+ *
  * <ul>
- * <li> MISSING_PARAMETER_VALUE, INVALID_PARAMETER_VALUE, "InvalidCRS" -> {@code 400 BAD_REQUEST}
- * <li> SERVICE_UNAVAILABLE, MAX_MEMORY_EXCEEDED (and rendering timeout, though it doesn't have its own code) -> {@code 503 SERVICE_UNAVAILABLE}
- * <li> Default -> {@code 500 INTERNAL_SERVER_ERROR}
+ *   <li>MISSING_PARAMETER_VALUE, INVALID_PARAMETER_VALUE, "InvalidCRS" -> {@code 400 BAD_REQUEST}
+ *   <li>SERVICE_UNAVAILABLE, MAX_MEMORY_EXCEEDED (and rendering timeout, though it doesn't have its own code) ->
+ *       {@code 503 SERVICE_UNAVAILABLE}
+ *   <li>Default -> {@code 500 INTERNAL_SERVER_ERROR}
  * </ul>
  *
  * @since 2.27
@@ -44,15 +47,11 @@ public class StatusCodeWmsExceptionHandler extends WMSServiceExceptionHandler {
     private PropertyResolver propertyResolver;
 
     /**
-     *
-     * @param services         the {@link WMSInfo}s this handler writes exceptions
-     *                         for
-     * @param geoServer        needed to know whether to write detailed exception
-     *                         reports or not (as per
-     *                         {@code GeoServer.getGlobal().isVerbose()})
-     * @param propertyResolver Spring property resolver to check if
-     *                         {@code geoserver.wms.exceptions.w3cstatus=true} is
-     *                         set through externalized configuration
+     * @param services the {@link WMSInfo}s this handler writes exceptions for
+     * @param geoServer needed to know whether to write detailed exception reports or not (as per
+     *     {@code GeoServer.getGlobal().isVerbose()})
+     * @param propertyResolver Spring property resolver to check if {@code geoserver.wms.exceptions.w3cstatus=true} is
+     *     set through externalized configuration
      */
     public StatusCodeWmsExceptionHandler(
             List<Service> services, GeoServer geoServer, PropertyResolver propertyResolver) {

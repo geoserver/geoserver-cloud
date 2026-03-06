@@ -15,12 +15,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 
 /**
  * Auto-configuration that enables Reactor Context Propagation.
- * <p>
- * This is important for ensuring MDC values are properly propagated in reactive code,
- * particularly when using WebFlux or Spring Cloud Gateway.
- * <p>
- * The configuration sets the system property "reactor.context.propagation.enabled" to "true"
- * which enables automatic context propagation in Reactor 3.5.0+.
+ *
+ * <p>This is important for ensuring MDC values are properly propagated in reactive code, particularly when using
+ * WebFlux or Spring Cloud Gateway.
+ *
+ * <p>The configuration sets the system property "reactor.context.propagation.enabled" to "true" which enables automatic
+ * context propagation in Reactor 3.5.0+.
  */
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public

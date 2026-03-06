@@ -51,8 +51,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.module.SimpleModule;
 
 /**
- * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoServer {@link CatalogInfo}
- * bindings.
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoServer {@link CatalogInfo} bindings.
  *
  * <p>Depends on {@link GeoToolsGeoJsonModule} and {@link GeoToolsFilterModule}.
  *

@@ -20,23 +20,24 @@ import org.springframework.core.env.Environment;
 
 /**
  * Auto-configuration for MDC logging in WebFlux applications.
- * <p>
- * This configuration automatically sets up the {@link MDCWebFilter} for reactive web applications,
- * enabling MDC (Mapped Diagnostic Context) support in a WebFlux environment. The MDC context
- * is propagated through the reactive chain using Reactor Context, making diagnostic information
- * available for logging throughout the request processing.
- * <p>
- * The configuration activates only for reactive web applications (WebFlux) and provides the following:
+ *
+ * <p>This configuration automatically sets up the {@link MDCWebFilter} for reactive web applications, enabling MDC
+ * (Mapped Diagnostic Context) support in a WebFlux environment. The MDC context is propagated through the reactive
+ * chain using Reactor Context, making diagnostic information available for logging throughout the request processing.
+ *
+ * <p>The configuration activates only for reactive web applications (WebFlux) and provides the following:
+ *
  * <ul>
- *   <li>Configuration properties for controlling what information is included in the MDC</li>
- *   <li>The MDCWebFilter that populates and propagates the MDC</li>
+ *   <li>Configuration properties for controlling what information is included in the MDC
+ *   <li>The MDCWebFilter that populates and propagates the MDC
  * </ul>
- * <p>
- * MDC properties are controlled through the following configuration properties classes:
+ *
+ * <p>MDC properties are controlled through the following configuration properties classes:
+ *
  * <ul>
- *   <li>{@link AuthenticationMdcConfigProperties} - For user authentication information</li>
- *   <li>{@link HttpRequestMdcConfigProperties} - For HTTP request details</li>
- *   <li>{@link SpringEnvironmentMdcConfigProperties} - For application environment properties</li>
+ *   <li>{@link AuthenticationMdcConfigProperties} - For user authentication information
+ *   <li>{@link HttpRequestMdcConfigProperties} - For HTTP request details
+ *   <li>{@link SpringEnvironmentMdcConfigProperties} - For application environment properties
  * </ul>
  *
  * @see MDCWebFilter
@@ -56,16 +57,16 @@ public class LoggingMDCWebFluxAutoConfiguration {
 
     /**
      * Creates the MDCWebFilter bean for WebFlux applications.
-     * <p>
-     * This bean is responsible for populating the MDC with information from various sources
-     * and propagating it through the reactive chain. The filter is configured with the
-     * following dependencies:
+     *
+     * <p>This bean is responsible for populating the MDC with information from various sources and propagating it
+     * through the reactive chain. The filter is configured with the following dependencies:
+     *
      * <ul>
-     *   <li>Authentication configuration - Controls user-related MDC attributes</li>
-     *   <li>HTTP request configuration - Controls request-related MDC attributes</li>
-     *   <li>Environment configuration - Controls application environment MDC attributes</li>
-     *   <li>Spring Environment - For accessing application properties</li>
-     *   <li>BuildProperties - For accessing application version information (optional)</li>
+     *   <li>Authentication configuration - Controls user-related MDC attributes
+     *   <li>HTTP request configuration - Controls request-related MDC attributes
+     *   <li>Environment configuration - Controls application environment MDC attributes
+     *   <li>Spring Environment - For accessing application properties
+     *   <li>BuildProperties - For accessing application version information (optional)
      * </ul>
      *
      * @param authConfig authentication MDC configuration properties

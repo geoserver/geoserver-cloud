@@ -10,9 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import org.geoserver.jackson.databind.config.dto.ConfigInfoDto;
 
-/**
- * Base DTO for {@link org.geoserver.catalog.Info}
- */
+/** Base DTO for {@link org.geoserver.catalog.Info} */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes({@JsonSubTypes.Type(value = CatalogInfoDto.class), @JsonSubTypes.Type(value = ConfigInfoDto.class)})
 @Data

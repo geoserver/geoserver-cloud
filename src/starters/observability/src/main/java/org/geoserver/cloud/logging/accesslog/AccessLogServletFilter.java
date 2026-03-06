@@ -18,22 +18,23 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * A Servlet filter for logging HTTP request access.
- * <p>
- * This filter is similar to Spring's {@link CommonsRequestLoggingFilter} but uses SLF4J for logging
- * and provides more configuration options through {@link AccessLogFilterConfig}. It captures the
- * following information about each request:
+ *
+ * <p>This filter is similar to Spring's {@link CommonsRequestLoggingFilter} but uses SLF4J for logging and provides
+ * more configuration options through {@link AccessLogFilterConfig}. It captures the following information about each
+ * request:
+ *
  * <ul>
- *   <li>HTTP method (GET, POST, etc.)</li>
- *   <li>URI path</li>
- *   <li>Status code</li>
+ *   <li>HTTP method (GET, POST, etc.)
+ *   <li>URI path
+ *   <li>Status code
  * </ul>
- * <p>
- * The filter leverages MDC (Mapped Diagnostic Context) for enriched logging. By configuring this
- * filter along with the MDC filters (like {@link org.geoserver.cloud.logging.mdc.servlet.HttpRequestMdcFilter}),
- * you can include detailed request information in your access logs.
- * <p>
- * This filter is positioned with {@link Ordered#HIGHEST_PRECEDENCE} + 3 to ensure it executes
- * after the MDC context is set up but before most application processing occurs.
+ *
+ * <p>The filter leverages MDC (Mapped Diagnostic Context) for enriched logging. By configuring this filter along with
+ * the MDC filters (like {@link org.geoserver.cloud.logging.mdc.servlet.HttpRequestMdcFilter}), you can include detailed
+ * request information in your access logs.
+ *
+ * <p>This filter is positioned with {@link Ordered#HIGHEST_PRECEDENCE} + 3 to ensure it executes after the MDC context
+ * is set up but before most application processing occurs.
  *
  * @see AccessLogFilterConfig
  * @see CommonsRequestLoggingFilter
@@ -49,16 +50,17 @@ public class AccessLogServletFilter extends OncePerRequestFilter {
 
     /**
      * Main filter method that processes HTTP requests and logs access information.
-     * <p>
-     * This method performs the following steps:
+     *
+     * <p>This method performs the following steps:
+     *
      * <ol>
-     *   <li>Allows the request to proceed through the filter chain</li>
-     *   <li>After the response is complete, captures the method, URI, and status code</li>
-     *   <li>Logs the request using the configured patterns and log levels</li>
+     *   <li>Allows the request to proceed through the filter chain
+     *   <li>After the response is complete, captures the method, URI, and status code
+     *   <li>Logs the request using the configured patterns and log levels
      * </ol>
-     * <p>
-     * The method is designed to always log the request, even if an exception occurs during processing,
-     * by using a try-finally block.
+     *
+     * <p>The method is designed to always log the request, even if an exception occurs during processing, by using a
+     * try-finally block.
      *
      * @param request the current HTTP request
      * @param response the current HTTP response

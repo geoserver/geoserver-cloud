@@ -10,9 +10,7 @@ import lombok.Setter;
 import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.web.LoginFormInfo;
 
-/**
- * @since 1.2
- */
+/** @since 1.2 */
 @SuppressWarnings("serial")
 public class PrioritizableLoginFormInfo extends LoginFormInfo implements ExtensionPriority {
 

@@ -34,18 +34,12 @@ public class SettingsInfoDto extends ConfigInfoDto {
     private boolean showCreatedTimeColumnsInAdminList;
     private boolean showModifiedTimeColumnsInAdminList;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Locale defaultLocale;
 
-    /**
-     * @since geoserver 2.22.0
-     */
+    /** @since geoserver 2.22.0 */
     private boolean useHeadersProxyURL;
 
-    /**
-     * @since 2.28.0
-     */
+    /** @since 2.28.0 */
     private boolean isShowModifiedUserInAdminList;
 }

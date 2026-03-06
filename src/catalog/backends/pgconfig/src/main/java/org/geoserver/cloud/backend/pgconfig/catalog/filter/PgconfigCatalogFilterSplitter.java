@@ -12,8 +12,8 @@ import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
 
 /**
- * Splits a {@link Filter} into supported and unsupported filters for SQL encoding and
- * post-filtering, based on the supported column names provided in the constructor.
+ * Splits a {@link Filter} into supported and unsupported filters for SQL encoding and post-filtering, based on the
+ * supported column names provided in the constructor.
  *
  * @since 1.4
  */
@@ -33,8 +33,8 @@ class PgconfigCatalogFilterSplitter extends PostPreProcessFilterSplittingVisitor
     }
 
     /**
-     * If the property name is supported, proceeds with the splitting, otherwise aborts splitting
-     * the current filter making it part of the unsupported filter result.
+     * If the property name is supported, proceeds with the splitting, otherwise aborts splitting the current filter
+     * making it part of the unsupported filter result.
      */
     @Override
     public Object visit(PropertyName expression, Object notUsed) {

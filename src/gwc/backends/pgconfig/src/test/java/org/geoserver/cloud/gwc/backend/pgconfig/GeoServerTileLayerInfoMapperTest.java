@@ -39,9 +39,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-/**
- * @since 1.7
- */
+/** @since 1.7 */
 class GeoServerTileLayerInfoMapperTest {
 
     GeoServerTileLayerInfoMapper mapper;

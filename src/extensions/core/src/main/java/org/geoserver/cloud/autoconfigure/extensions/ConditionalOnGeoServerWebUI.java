@@ -14,30 +14,27 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
- * Annotation that marks a component to be conditional on the application being
- * the GeoServer Web UI application (containing {@code org.geoserver.web.GeoServerApplication}).
+ * Annotation that marks a component to be conditional on the application being the GeoServer Web UI application
+ * (containing {@code org.geoserver.web.GeoServerApplication}).
  *
- * <p>
- * This annotation is used to selectively enable components that should only be active
- * in the GeoServer Web UI application, such as UI panels, page components, and related
- * configurations.
+ * <p>This annotation is used to selectively enable components that should only be active in the GeoServer Web UI
+ * application, such as UI panels, page components, and related configurations.
  *
- * <p>
- * The condition checks for:
+ * <p>The condition checks for:
+ *
  * <ul>
- *   <li>The presence of GeoServer core classes ({@link ConditionalOnGeoServer})</li>
- *   <li>The presence of the GeoServer Web UI application class</li>
- *   <li>The {@code geoserver.service.webui.enabled} property is set to {@code true}</li>
+ *   <li>The presence of GeoServer core classes ({@link ConditionalOnGeoServer})
+ *   <li>The presence of the GeoServer Web UI application class
+ *   <li>The {@code geoserver.service.webui.enabled} property is set to {@code true}
  * </ul>
  *
- * <p>
- * This conditional uses a property-based approach rather than relying solely on class presence
- * to avoid potential issues with bean initialization order during auto-configuration processing.
- * Each GeoServer service module is responsible for setting its corresponding
- * {@code geoserver.service.[service-name].enabled} property in its bootstrap configuration.
+ * <p>This conditional uses a property-based approach rather than relying solely on class presence to avoid potential
+ * issues with bean initialization order during auto-configuration processing. Each GeoServer service module is
+ * responsible for setting its corresponding {@code geoserver.service.[service-name].enabled} property in its bootstrap
+ * configuration.
  *
- * <p>
- * Usage example:
+ * <p>Usage example:
+ *
  * <pre>{@code
  * @Configuration
  * @ConditionalOnGeoServerWebUI

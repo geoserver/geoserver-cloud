@@ -41,11 +41,11 @@ class CachedReferenceCleaner {
     }
 
     /**
-     * Evicts ant {@link CatalogInfo} that has a reference to the evicted {@code InfoKey}, to avoid
-     * having cached entries with references to stale objects that have been modified
+     * Evicts ant {@link CatalogInfo} that has a reference to the evicted {@code InfoKey}, to avoid having cached
+     * entries with references to stale objects that have been modified
      *
-     * <p>For example, a when {@code InfoIdKey} targets a {@link WorkspaceInfo}, it'll also evict
-     * all {@link StyleInfo}s, {@link LayerGroupInfo}s, etc that reference the workspace.
+     * <p>For example, a when {@code InfoIdKey} targets a {@link WorkspaceInfo}, it'll also evict all
+     * {@link StyleInfo}s, {@link LayerGroupInfo}s, etc that reference the workspace.
      *
      * @param evicted
      */
@@ -90,9 +90,7 @@ class CachedReferenceCleaner {
                 .reduce(0, (c1, c2) -> c1 + c2);
     }
 
-    /**
-     * @return whether {@code cached} can directly or indirectly reference {@code evicted}
-     */
+    /** @return whether {@code cached} can directly or indirectly reference {@code evicted} */
     private final boolean canReference(CatalogInfo cached, InfoIdKey evicted) {
         if (null == cached) {
             return true;
@@ -169,16 +167,10 @@ class CachedReferenceCleaner {
         @NonNull
         private final InfoIdKey evictedKey;
 
-        /**
-         * The cached object being traversed, to be evicted if it has any nested reference to {@link
-         * #evictedKey}
-         */
+        /** The cached object being traversed, to be evicted if it has any nested reference to {@link #evictedKey} */
         private CatalogInfo cached;
 
-        /**
-         * Number of cascaded evictions (0, 1 or 2 for {@link #cached}'s InfoIdKey and/or
-         * InfoNameKey)
-         */
+        /** Number of cascaded evictions (0, 1 or 2 for {@link #cached}'s InfoIdKey and/or InfoNameKey) */
         @Getter
         private int count;
 

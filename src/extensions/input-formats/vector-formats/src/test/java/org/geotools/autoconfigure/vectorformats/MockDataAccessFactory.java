@@ -6,8 +6,8 @@
 package org.geotools.autoconfigure.vectorformats;
 
 /**
- * A simple mock class for testing the filtering system.
- * We don't implement DataAccessFactory due to incompatibility issues with the classpath.
+ * A simple mock class for testing the filtering system. We don't implement DataAccessFactory due to incompatibility
+ * issues with the classpath.
  */
 public class MockDataAccessFactory {
     private final String name;

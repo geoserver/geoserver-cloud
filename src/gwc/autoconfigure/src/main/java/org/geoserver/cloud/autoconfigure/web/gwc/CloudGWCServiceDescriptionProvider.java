@@ -49,8 +49,8 @@ class CloudGWCServiceDescriptionProvider extends ServiceDescriptionProvider {
     private final GeoServer geoserver;
 
     /**
-     * whether gwc services are available at all (i.e. deployed), regardless of its enabled config
-     * state in {@link GWCConfig}
+     * whether gwc services are available at all (i.e. deployed), regardless of its enabled config state in
+     * {@link GWCConfig}
      */
     private GoServerWebUIConfigurationProperties staticConfig;
 

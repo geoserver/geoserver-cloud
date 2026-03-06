@@ -23,16 +23,15 @@ import org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto;
 import org.junit.jupiter.api.Test;
 
 /**
- * Verifies that hardcoded JSON produced by Jackson 2's property naming convention can be
- * deserialized correctly into {@link Patch} objects. This ensures backwards compatibility when
- * upgrading to Jackson 3.
+ * Verifies that hardcoded JSON produced by Jackson 2's property naming convention can be deserialized correctly into
+ * {@link Patch} objects. This ensures backwards compatibility when upgrading to Jackson 3.
  *
- * <p>Each test uses a hardcoded JSON text block captured from Jackson 2 serialization output, then
- * calls {@link #decode(String, Class)} to verify deserialization.
+ * <p>Each test uses a hardcoded JSON text block captured from Jackson 2 serialization output, then calls
+ * {@link #decode(String, Class)} to verify deserialization.
  *
- * <p>Note: CatalogInfo and ServiceInfo objects used as Patch values are encoded as {@link
- * ResolvingProxyDto} (by type and id), not as full objects. After deserialization, these are converted
- * to proxy Info objects by the {@link org.geoserver.jackson.databind.mapper.PatchMapper}.
+ * <p>Note: CatalogInfo and ServiceInfo objects used as Patch values are encoded as {@link ResolvingProxyDto} (by type
+ * and id), not as full objects. After deserialization, these are converted to proxy Info objects by the
+ * {@link org.geoserver.jackson.databind.mapper.PatchMapper}.
  */
 class PatchSerializationBackwardsCompatibilityTest extends BackwardsCompatibilityTestSupport {
 

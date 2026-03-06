@@ -24,9 +24,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Configuration to create a decorator around {@link WebMapService} to set {@link
- * GeoServerTileLayer#WEB_MAP} as expected by {@link GeoServerTileLayer} when requested to seed a
- * tile.
+ * Configuration to create a decorator around {@link WebMapService} to set {@link GeoServerTileLayer#WEB_MAP} as
+ * expected by {@link GeoServerTileLayer} when requested to seed a tile.
  *
  * @since 1.0
  */
@@ -34,13 +33,12 @@ import org.springframework.context.annotation.Configuration;
 public class WebMapServiceCacheSeedingConfiguration {
 
     /**
-     * AspectJ around advise on {@link DefaultWebMapService#getMap} to set {@link
-     * GeoServerTileLayer#WEB_MAP} if the request came from a tile layer for seeding.
+     * AspectJ around advise on {@link DefaultWebMapService#getMap} to set {@link GeoServerTileLayer#WEB_MAP} if the
+     * request came from a tile layer for seeding.
      *
-     * <p>Replaces {@link CacheSeedingWebMapService} declared in {@literal
-     * geowebcache-geoserver-wms-integration.xml} for simplicity and because its {@literal
-     * wmsServiceInterceptor_SeedingWMS} pointcut advisor forces eager loading of the wms context
-     * before the catalog is initialized, making {@link GetMapKvpRequestReader} constructor throw a
+     * <p>Replaces {@link CacheSeedingWebMapService} declared in {@literal geowebcache-geoserver-wms-integration.xml}
+     * for simplicity and because its {@literal wmsServiceInterceptor_SeedingWMS} pointcut advisor forces eager loading
+     * of the wms context before the catalog is initialized, making {@link GetMapKvpRequestReader} constructor throw a
      * NPE.
      */
     @Bean
@@ -55,8 +53,7 @@ public class WebMapServiceCacheSeedingConfiguration {
          * Wraps {@link WebMapService#getMap(GetMapRequest)}, called by the {@link Dispatcher}
          *
          * @see WebMapService#getMap(GetMapRequest)
-         * @see
-         *     org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
+         * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
          */
         @Around("execution (* org.geoserver.wms.DefaultWebMapService.getMap(..))")
         public WebMap getMap(ProceedingJoinPoint joinPoint) throws Throwable {

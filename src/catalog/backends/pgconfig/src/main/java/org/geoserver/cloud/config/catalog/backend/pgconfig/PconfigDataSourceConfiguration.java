@@ -18,9 +18,7 @@ import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.StringUtils;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @Configuration(proxyBeanMethods = true)
 @EnableTransactionManagement
 @EnableConfigurationProperties(PgconfigBackendProperties.class)

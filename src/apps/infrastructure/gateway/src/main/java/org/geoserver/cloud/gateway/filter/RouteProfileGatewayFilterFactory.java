@@ -90,14 +90,12 @@ public class RouteProfileGatewayFilterFactory
     @Validated
     public static class Config {
 
-        /**
-         * Profiles key, indicates which profiles must be enabled to allow the request to proceed
-         */
+        /** Profiles key, indicates which profiles must be enabled to allow the request to proceed */
         public static final String PROFILE_KEY = "profile";
 
         /**
-         * Status code key. HTTP status code to return when the request is not allowed to proceed
-         * because the required profiles are not active
+         * Status code key. HTTP status code to return when the request is not allowed to proceed because the required
+         * profiles are not active
          */
         public static final String HTTPSTATUS_KEY = "statusCode";
 

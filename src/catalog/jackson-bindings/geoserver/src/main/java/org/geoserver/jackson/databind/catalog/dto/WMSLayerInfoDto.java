@@ -13,9 +13,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.geoserver.catalog.WMSLayerInfo;
 
-/**
- * DTO for {@link WMSLayerInfo}
- */
+/** DTO for {@link WMSLayerInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -28,8 +26,6 @@ public class WMSLayerInfoDto extends ResourceInfoDto {
     private boolean metadataBBoxRespected;
     private List<String> selectedRemoteFormats;
     private List<String> selectedRemoteStyles;
-    /**
-     * @since 2.28
-     */
+    /** @since 2.28 */
     private Map<String, String> vendorParameters;
 }

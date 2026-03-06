@@ -51,12 +51,11 @@ import org.geotools.util.logging.Logging;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A support index for {@link DefaultMemoryCatalogFacade}, can perform fast lookups of {@link
- * CatalogInfo} objects by id or by "name", where the name is defined by a user provided mapping
- * function.
+ * A support index for {@link DefaultMemoryCatalogFacade}, can perform fast lookups of {@link CatalogInfo} objects by id
+ * or by "name", where the name is defined by a user provided mapping function.
  *
- * <p>The lookups by predicate have been tested and optimized for performance, in particular the
- * current for loops turned out to be significantly faster than building and returning streams
+ * <p>The lookups by predicate have been tested and optimized for performance, in particular the current for loops
+ * turned out to be significantly faster than building and returning streams
  *
  * @param <T>
  */
@@ -67,32 +66,23 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     static final Ordering<?> PROVIDED_ORDER = Ordering.allEqual();
 
     /**
-     * Name mapper for {@link MapInfo}, uses simple name mapping on {@link MapInfo#getName()} as it
-     * doesn't have a namespace component
+     * Name mapper for {@link MapInfo}, uses simple name mapping on {@link MapInfo#getName()} as it doesn't have a
+     * namespace component
      */
     static final Function<MapInfo, Name> MAP_NAME_MAPPER = m -> new NameImpl(m.getName());
 
-    /**
-     * The name uses the workspace id as it does not need to be updated when the workspace is
-     * renamed
-     */
+    /** The name uses the workspace id as it does not need to be updated when the workspace is renamed */
     static final Function<StoreInfo, Name> STORE_NAME_MAPPER =
             s -> new NameImpl(s.getWorkspace().getId(), s.getName());
 
-    /**
-     * The name uses the namespace id as it does not need to be updated when the namespace is
-     * renamed
-     */
+    /** The name uses the namespace id as it does not need to be updated when the namespace is renamed */
     static final Function<ResourceInfo, Name> RESOURCE_NAME_MAPPER =
             r -> new NameImpl(r.getNamespace().getId(), r.getName());
 
     /** Like LayerInfo, actually delegates to the resource logic */
     static final Function<LayerInfo, Name> LAYER_NAME_MAPPER = l -> RESOURCE_NAME_MAPPER.apply(l.getResource());
 
-    /**
-     * The name uses the workspace id as it does not need to be updated when the workspace is
-     * renamed
-     */
+    /** The name uses the workspace id as it does not need to be updated when the workspace is renamed */
     static final Function<LayerGroupInfo, Name> LAYERGROUP_NAME_MAPPER =
             lg -> new NameImpl(lg.getWorkspace() != null ? lg.getWorkspace().getId() : null, lg.getName());
 
@@ -224,8 +214,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     }
 
     /**
-     * This default implementation supports sorting against properties (could be nested) that are
-     * either of a primitive type or implement {@link Comparable}.
+     * This default implementation supports sorting against properties (could be nested) that are either of a primitive
+     * type or implement {@link Comparable}.
      *
      * @param propertyName the property name of the objects of type {@code type} to sort by
      * @see org.geoserver.catalog.CatalogFacade#canSort(java.lang.Class, java.lang.String)
@@ -329,10 +319,9 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     /**
      * Looks up objects by class and matching predicate.
      *
-     * <p>This method is significantly faster than creating a stream and the applying the predicate
-     * on it. Just using this approach instead of the stream makes the overall startup of GeoServer
-     * with 20k layers go down from 50s to 44s (which is a lot, considering there is a lot of other
-     * things going on)
+     * <p>This method is significantly faster than creating a stream and the applying the predicate on it. Just using
+     * this approach instead of the stream makes the overall startup of GeoServer with 20k layers go down from 50s to
+     * 44s (which is a lot, considering there is a lot of other things going on)
      */
     <U extends CatalogInfo> Stream<U> list(Class<U> clazz, Predicate<U> predicate, Comparator<U> comparator) {
         requireNonNull(clazz);
@@ -406,10 +395,9 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     /**
      * Looks up objects by class and matching predicate.
      *
-     * <p>This method is significantly faster than creating a stream and the applying the predicate
-     * on it. Just using this approach instead of the stream makes the overall startup of GeoServer
-     * with 20k layers go down from 50s to 44s (which is a lot, considering there is a lot of other
-     * things going on)
+     * <p>This method is significantly faster than creating a stream and the applying the predicate on it. Just using
+     * this approach instead of the stream makes the overall startup of GeoServer with 20k layers go down from 50s to
+     * 44s (which is a lot, considering there is a lot of other things going on)
      */
     <U extends CatalogInfo> Optional<U> findFirst(Class<U> clazz, Predicate<U> predicate) {
         for (Class<? extends T> key : nameMultiMap.keySet()) {
@@ -571,8 +559,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
          *
          * @param uri the index key
          * @param create whether to create the index entry list if it doesn't exist
-         * @return the index entry, may an unmodifiable empty list if it doesn't exist and {@code
-         *     create == false}
+         * @return the index entry, may an unmodifiable empty list if it doesn't exist and {@code create == false}
          */
         @VisibleForTesting
         List<NamespaceInfo> valueList(String uri, boolean create) {
@@ -717,9 +704,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     }
 
     /**
-     * CatalogInfoLookup specialization for {@code ResourceInfo} that encapsulates the logic to
-     * update the name lookup for the linked {@code LayerInfo} given that {@code LayerInfo.getName()
-     * == LayerInfo.getResource().getName()}
+     * CatalogInfoLookup specialization for {@code ResourceInfo} that encapsulates the logic to update the name lookup
+     * for the linked {@code LayerInfo} given that {@code LayerInfo.getName() == LayerInfo.getResource().getName()}
      */
     static final class ResourceInfoLookup extends CatalogInfoLookup<ResourceInfo> implements ResourceRepository {
         private final LayerInfoLookup layers;

@@ -14,10 +14,10 @@ import org.springframework.core.env.Environment;
 /**
  * Configuration properties for the GeoServer Control-Flow extension.
  *
- * <p>This class binds properties under the {@code geoserver.extension.control-flow} prefix and
- * supports dynamic property resolution using Spring Environment placeholders and SpEL expressions.
- * <p>
- * {@link #resolvedProperties()} is used to obtain the final property values.
+ * <p>This class binds properties under the {@code geoserver.extension.control-flow} prefix and supports dynamic
+ * property resolution using Spring Environment placeholders and SpEL expressions.
+ *
+ * <p>{@link #resolvedProperties()} is used to obtain the final property values.
  *
  * <p>Example configuration in {@code application.yml}:
  *
@@ -49,15 +49,10 @@ class ControlFlowConfigurationProperties {
     private ExpressionEvaluator evaluator;
     private Properties resolved;
 
-    /**
-     * Whether to enable the control-flow extension
-     */
+    /** Whether to enable the control-flow extension */
     private boolean enabled = true;
 
-    /**
-     * Whether to use the default control-flow.properties file in the data directory
-     * for configuration
-     */
+    /** Whether to use the default control-flow.properties file in the data directory for configuration */
     private boolean usePropertiesFile = false;
 
     /**

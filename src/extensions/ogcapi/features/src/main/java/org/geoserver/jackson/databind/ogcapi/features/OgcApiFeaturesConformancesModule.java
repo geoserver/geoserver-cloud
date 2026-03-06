@@ -21,13 +21,13 @@ import tools.jackson.databind.module.SimpleModule;
 
 /**
  * Jackson module for serializing and deserializing OGC API Features Conformance classes.
- * <p>
- * This module is registered through the SPI mechanism via META-INF/services/tools.jackson.databind.JacksonModule
- * to ensure it's picked up by the {@code PgconfigObjectMapper} utility class.
- * <p>
- * NOTE: This module particularly addresses a bug in {@link CQL2Conformance#isAdvanced()} which can throw
- * {@code NullPointerException} when the 'advanced' field is null. This workaround should be removed once
- * the issue is fixed in the upstream GeoServer codebase.
+ *
+ * <p>This module is registered through the SPI mechanism via META-INF/services/tools.jackson.databind.JacksonModule to
+ * ensure it's picked up by the {@code PgconfigObjectMapper} utility class.
+ *
+ * <p>NOTE: This module particularly addresses a bug in {@link CQL2Conformance#isAdvanced()} which can throw
+ * {@code NullPointerException} when the 'advanced' field is null. This workaround should be removed once the issue is
+ * fixed in the upstream GeoServer codebase.
  */
 @Slf4j
 public class OgcApiFeaturesConformancesModule extends SimpleModule {
@@ -57,9 +57,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
         registerSubtypes(FeatureConformance.class);
     }
 
-    /**
-     * Custom serializer for CQL2Conformance that safely handles the problematic isAdvanced() method.
-     */
+    /** Custom serializer for CQL2Conformance that safely handles the problematic isAdvanced() method. */
     static class CQL2ConformanceSerializer extends ValueSerializer<CQL2Conformance> {
         @Override
         public Class<CQL2Conformance> handledType() {
@@ -121,9 +119,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
         }
     }
 
-    /**
-     * Custom deserializer for CQL2Conformance that handles all possible fields.
-     */
+    /** Custom deserializer for CQL2Conformance that handles all possible fields. */
     static class CQL2ConformanceDeserializer extends ValueDeserializer<CQL2Conformance> {
         @Override
         public Class<CQL2Conformance> handledType() {
@@ -180,9 +176,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
         }
     }
 
-    /**
-     * Custom serializer for ECQLConformance.
-     */
+    /** Custom serializer for ECQLConformance. */
     static class ECQLConformanceSerializer extends ValueSerializer<ECQLConformance> {
         @Override
         public Class<ECQLConformance> handledType() {
@@ -214,9 +208,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
         }
     }
 
-    /**
-     * Custom deserializer for ECQLConformance.
-     */
+    /** Custom deserializer for ECQLConformance. */
     static class ECQLConformanceDeserializer extends ValueDeserializer<ECQLConformance> {
         @Override
         public Class<ECQLConformance> handledType() {
@@ -258,9 +250,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
         }
     }
 
-    /**
-     * Custom serializer for FeatureConformance.
-     */
+    /** Custom serializer for FeatureConformance. */
     static class FeatureConformanceSerializer extends ValueSerializer<FeatureConformance> {
         @Override
         public Class<FeatureConformance> handledType() {
@@ -302,9 +292,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
         }
     }
 
-    /**
-     * Custom deserializer for FeatureConformance.
-     */
+    /** Custom deserializer for FeatureConformance. */
     static class FeatureConformanceDeserializer extends ValueDeserializer<FeatureConformance> {
         @Override
         public Class<FeatureConformance> handledType() {

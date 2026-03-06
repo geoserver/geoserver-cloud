@@ -87,9 +87,7 @@ public interface GeoServerValueObjectsMapper {
 
     List<SortByDto> sortByDtoListToSortByList(List<SortBy> sortBy);
 
-    /**
-     * @see XStreamPersister#GridGeometry2DConverter
-     */
+    /** @see XStreamPersister#GridGeometry2DConverter */
     default GridGeometry dtoToGridGeometry2D(GridGeometryDto value) {
         if (value == null) {
             return null;

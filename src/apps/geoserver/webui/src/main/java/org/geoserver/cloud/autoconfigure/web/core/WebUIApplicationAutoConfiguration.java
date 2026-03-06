@@ -45,8 +45,8 @@ public class WebUIApplicationAutoConfiguration {
     }
 
     /**
-     * A {@link WicketComponentFilter} that effectively hides pages (returns 404)
-     * for components that are disabled by {@link WebUIConfigurationProperties}
+     * A {@link WicketComponentFilter} that effectively hides pages (returns 404) for components that are disabled by
+     * {@link WebUIConfigurationProperties}
      */
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)

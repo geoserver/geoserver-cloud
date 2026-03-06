@@ -29,8 +29,8 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 /**
- * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration}
- * when {@code geoserver.backend.data-directory.enabled=true}
+ * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration} when
+ * {@code geoserver.backend.data-directory.enabled=true}
  */
 class DataDirectoryAutoConfigurationTest {
 

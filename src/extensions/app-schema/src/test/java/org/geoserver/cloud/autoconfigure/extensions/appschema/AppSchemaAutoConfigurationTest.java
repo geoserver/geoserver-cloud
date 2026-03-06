@@ -28,10 +28,8 @@ class AppSchemaAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(AppSchemaAutoConfiguration.class));
 
     /**
-     * The config property
-     * {@code geoserver.data.filtering.vector-formats.[Application Schema
-     * DataAccess]=${geoserver.extension.appschema.enabled:false}} shall make the
-     * app schema datastore unavailable
+     * The config property {@code geoserver.data.filtering.vector-formats.[Application Schema
+     * DataAccess]=${geoserver.extension.appschema.enabled:false}} shall make the app schema datastore unavailable
      */
     @Test
     void testDisabledByDefault() {

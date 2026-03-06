@@ -23,8 +23,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.context.request.RequestContextListener;
 
 /**
- * Smoke test to check geoserver servlet context related spring beans are not loaded if the
- * auto-configuration is disabled through {@code geoserver.servlet.enabled=false}
+ * Smoke test to check geoserver servlet context related spring beans are not loaded if the auto-configuration is
+ * disabled through {@code geoserver.servlet.enabled=false}
  */
 @SpringBootTest(
         classes = TestConfiguration.class,

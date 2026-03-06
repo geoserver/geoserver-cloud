@@ -17,17 +17,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Filter that cleans up the MDC (Mapped Diagnostic Context) after request processing.
- * <p>
- * This filter ensures that the MDC is cleared after each request is processed, preventing
- * MDC properties from leaking between requests. This is especially important in servlet
- * containers that reuse threads for handling multiple requests.
- * <p>
- * The filter has the {@link Ordered#HIGHEST_PRECEDENCE} to ensure it wraps all other filters
- * in the chain. This positioning guarantees that any MDC cleanup happens regardless of where
- * in the filter chain an exception might occur.
- * <p>
- * This filter extends {@link OncePerRequestFilter} to ensure it's only applied once per request,
- * even in a nested dispatch scenario (e.g., forward).
+ *
+ * <p>This filter ensures that the MDC is cleared after each request is processed, preventing MDC properties from
+ * leaking between requests. This is especially important in servlet containers that reuse threads for handling multiple
+ * requests.
+ *
+ * <p>The filter has the {@link Ordered#HIGHEST_PRECEDENCE} to ensure it wraps all other filters in the chain. This
+ * positioning guarantees that any MDC cleanup happens regardless of where in the filter chain an exception might occur.
+ *
+ * <p>This filter extends {@link OncePerRequestFilter} to ensure it's only applied once per request, even in a nested
+ * dispatch scenario (e.g., forward).
  *
  * @see org.slf4j.MDC
  */
@@ -36,10 +35,9 @@ public class MDCCleaningFilter extends OncePerRequestFilter {
 
     /**
      * Main filter method that ensures MDC cleanup after request processing.
-     * <p>
-     * This method allows the request to proceed through the filter chain and then
-     * clears the MDC in a finally block to ensure cleanup happens even if an exception
-     * occurs during request processing.
+     *
+     * <p>This method allows the request to proceed through the filter chain and then clears the MDC in a finally block
+     * to ensure cleanup happens even if an exception occurs during request processing.
      *
      * @param request the current HTTP request
      * @param response the current HTTP response

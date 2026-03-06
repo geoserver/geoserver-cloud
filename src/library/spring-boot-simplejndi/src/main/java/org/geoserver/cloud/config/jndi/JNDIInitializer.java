@@ -18,9 +18,7 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.jdbc.support.DatabaseStartupValidator;
 import org.springframework.util.StringUtils;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Slf4j(topic = "org.geoserver.cloud.config.jndidatasource")
 public class JNDIInitializer implements InitializingBean, DisposableBean {
 

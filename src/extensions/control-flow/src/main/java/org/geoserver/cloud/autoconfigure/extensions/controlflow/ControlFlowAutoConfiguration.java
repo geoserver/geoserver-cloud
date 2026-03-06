@@ -26,17 +26,17 @@ import org.springframework.context.annotation.Import;
 /**
  * Auto-configuration for the GeoServer Control-Flow extension.
  *
- * <p>The Control-Flow extension throttles incoming requests to prevent server overload and ensure
- * fair resource distribution. It queues excess requests rather than rejecting them, helping achieve
- * optimal throughput and preventing OutOfMemoryErrors.
+ * <p>The Control-Flow extension throttles incoming requests to prevent server overload and ensure fair resource
+ * distribution. It queues excess requests rather than rejecting them, helping achieve optimal throughput and preventing
+ * OutOfMemoryErrors.
  *
  * <p>This configuration supports two mutually exclusive modes:
  *
  * <ul>
- *   <li><b>Externalized Configuration</b> (default): Uses Spring Boot properties with SpEL
- *       expression support for dynamic limits based on CPU cores
- *   <li><b>Data Directory Configuration</b>: Uses the traditional {@code control-flow.properties}
- *       file from the GeoServer data directory
+ *   <li><b>Externalized Configuration</b> (default): Uses Spring Boot properties with SpEL expression support for
+ *       dynamic limits based on CPU cores
+ *   <li><b>Data Directory Configuration</b>: Uses the traditional {@code control-flow.properties} file from the
+ *       GeoServer data directory
  * </ul>
  *
  * <p>The mode is controlled by {@code geoserver.extension.control-flow.use-properties-file}:
@@ -61,8 +61,8 @@ import org.springframework.context.annotation.Import;
  *
  * @see ControlFlowConfigurationProperties
  * @see ConditionalOnControlFlow
- * @see <a href="https://docs.geoserver.org/main/en/user/extensions/controlflow/index.html">
- *     GeoServer Control Flow Documentation</a>
+ * @see <a href="https://docs.geoserver.org/main/en/user/extensions/controlflow/index.html">GeoServer Control Flow
+ *     Documentation</a>
  * @since 2.28.1.1
  */
 @AutoConfiguration
@@ -86,7 +86,8 @@ public class ControlFlowAutoConfiguration {
     }
 
     /**
-     * Sets up {@link ControlFlowConfigurator} and {@link FlowControllerProvider} when {@code geoserver.extension.control-flow.use-properties-file=true}
+     * Sets up {@link ControlFlowConfigurator} and {@link FlowControllerProvider} when
+     * {@code geoserver.extension.control-flow.use-properties-file=true}
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnControlFlow
@@ -94,7 +95,8 @@ public class ControlFlowAutoConfiguration {
     static class UsingDataDirectoryConfiguration {
 
         /**
-         * Parameter {@code loader} added because {@link DefaultControlFlowConfigurator} calls {@code GeoServerExtensions.bean(GeoServerResourceLoader.class)}
+         * Parameter {@code loader} added because {@link DefaultControlFlowConfigurator} calls
+         * {@code GeoServerExtensions.bean(GeoServerResourceLoader.class)}
          */
         @Bean
         ControlFlowConfigurator dataDirectoryPropertiesFileControlFlowConfigurator(GeoServerResourceLoader loader) {
@@ -108,7 +110,8 @@ public class ControlFlowAutoConfiguration {
     }
 
     /**
-     * Sets up {@link ControlFlowConfigurator} and {@link FlowControllerProvider} when {@code geoserver.extension.control-flow.use-properties-file=false} (default)
+     * Sets up {@link ControlFlowConfigurator} and {@link FlowControllerProvider} when
+     * {@code geoserver.extension.control-flow.use-properties-file=false} (default)
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnControlFlow
@@ -134,10 +137,9 @@ public class ControlFlowAutoConfiguration {
     @ConditionalOnControlFlow
     static class Enabled {
         /**
-         * Parameters {@code provider} and {@code configurator} added to ensure they're
-         * created before
-         * {@link ControlFlowCallback#setApplicationContext(org.springframework.context.ApplicationContext)}
-         * tries to register them itself.
+         * Parameters {@code provider} and {@code configurator} added to ensure they're created before
+         * {@link ControlFlowCallback#setApplicationContext(org.springframework.context.ApplicationContext)} tries to
+         * register them itself.
          */
         @Bean
         ControlFlowCallback controlFlowCallback(FlowControllerProvider provider, ControlFlowConfigurator configurator) {

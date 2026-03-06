@@ -15,19 +15,14 @@ import org.slf4j.MDC;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-/**
- * Tests to verify that MDC values are properly included when using Spring Boot 3's
- * automatic context propagation.
- */
+/** Tests to verify that MDC values are properly included when using Spring Boot 3's automatic context propagation. */
 @SpringBootTest(
         classes = {GatewayApplication.class, TestMdcConfiguration.class},
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"test"})
 class MdcJsonLoggingTest {
 
-    /**
-     * Test direct MDC usage to verify it works as expected
-     */
+    /** Test direct MDC usage to verify it works as expected */
     @Test
     void testDirectMdcLogging() {
         // We'll directly set and use MDC values

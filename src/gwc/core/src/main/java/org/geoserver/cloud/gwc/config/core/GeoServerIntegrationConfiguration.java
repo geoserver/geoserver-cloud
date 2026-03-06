@@ -48,9 +48,8 @@ public class GeoServerIntegrationConfiguration {
     }
 
     /**
-     * Overrides {@code gwcGeoServervConfigPersister} with a cluster-aware {@link
-     * GWCConfigPersister} that sends {@link ConfigChangeEvent}s upon {@link
-     * GWCConfigPersister#save(org.geoserver.gwc.config.GWCConfig)}
+     * Overrides {@code gwcGeoServervConfigPersister} with a cluster-aware {@link GWCConfigPersister} that sends
+     * {@link ConfigChangeEvent}s upon {@link GWCConfigPersister#save(org.geoserver.gwc.config.GWCConfig)}
      *
      * @param xsfp
      * @param resourceLoader

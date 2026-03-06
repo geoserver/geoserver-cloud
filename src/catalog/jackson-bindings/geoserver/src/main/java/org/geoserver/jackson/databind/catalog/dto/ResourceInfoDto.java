@@ -15,9 +15,7 @@ import lombok.ToString;
 import org.geotools.jackson.databind.dto.CoordinateReferenceSystemDto;
 import org.geotools.jackson.databind.dto.ReferencedEnvelopeDto;
 
-/**
- * Base DTO for {@link org.geoserver.catalog.ResourceInfo}
- */
+/** Base DTO for {@link org.geoserver.catalog.ResourceInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -65,13 +63,9 @@ public abstract class ResourceInfoDto extends CatalogInfoDto {
     private List<String> disabledServices;
     private Boolean simpleConversionEnabled;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalTitle;
 
-    /**
-     * @since geoserver 2.20.0
-     */
+    /** @since geoserver 2.20.0 */
     private Map<String, String> internationalAbstract;
 }

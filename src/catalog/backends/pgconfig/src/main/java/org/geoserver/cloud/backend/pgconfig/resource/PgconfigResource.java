@@ -18,9 +18,7 @@ import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceListener;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 @EqualsAndHashCode(exclude = {"store", "lastChecked"})
 class PgconfigResource implements Resource {
 
@@ -59,10 +57,8 @@ class PgconfigResource implements Resource {
     /**
      * Factory method to create an undefined resource.
      *
-     * <p>
-     * Creates a PgconfigResource with Type.UNDEFINED and UNDEFINED_ID for both
-     * id and parentId. This is used when a resource doesn't exist in the database.
-     * </p>
+     * <p>Creates a PgconfigResource with Type.UNDEFINED and UNDEFINED_ID for both id and parentId. This is used when a
+     * resource doesn't exist in the database.
      *
      * @param store the resource store
      * @param path the path for the undefined resource
@@ -81,11 +77,9 @@ class PgconfigResource implements Resource {
     /**
      * Copies all state from another PgconfigResource into this one.
      *
-     * <p>
-     * This is used by the {@link PgconfigResourceStore#updateState} method to update a resource
-     * with the latest information from the database. It's particularly important for maintaining
-     * consistency of long-lived resource references that are held by other components.
-     * </p>
+     * <p>This is used by the {@link PgconfigResourceStore#updateState} method to update a resource with the latest
+     * information from the database. It's particularly important for maintaining consistency of long-lived resource
+     * references that are held by other components.
      *
      * @param other the resource whose state should be copied to this resource
      * @see PgconfigResourceStore#updateState
@@ -169,22 +163,16 @@ class PgconfigResource implements Resource {
     /**
      * Updates the resource state if it's been held for longer than a threshold.
      *
-     * <p>
-     * This method is critical for compatibility with GeoServer components that hold
-     * resource references as instance variables, such as AbstractAccessRuleDAO and RESTAccessRuleDAO.
-     * Since pgconfig resources are backed by database entries, long-lived references can become stale.
-     * </p>
+     * <p>This method is critical for compatibility with GeoServer components that hold resource references as instance
+     * variables, such as AbstractAccessRuleDAO and RESTAccessRuleDAO. Since pgconfig resources are backed by database
+     * entries, long-lived references can become stale.
      *
-     * <p>
-     * By refreshing the state periodically when getType() or lastmodified() are called,
-     * we ensure that these long-lived references remain valid even if the underlying resource
-     * has been modified in the database by another process or service instance.
-     * </p>
+     * <p>By refreshing the state periodically when getType() or lastmodified() are called, we ensure that these
+     * long-lived references remain valid even if the underlying resource has been modified in the database by another
+     * process or service instance.
      *
-     * <p>
-     * This prevents issues such as 403 errors when REST resources appear to be missing
-     * because a stale resource reference doesn't reflect the current state in the database.
-     * </p>
+     * <p>This prevents issues such as 403 errors when REST resources appear to be missing because a stale resource
+     * reference doesn't reflect the current state in the database.
      *
      * @see #getType()
      * @see #lastmodified()
@@ -229,10 +217,7 @@ class PgconfigResource implements Resource {
     /**
      * Gets the path of the parent resource.
      *
-     * <p>
-     * This is a convenience method that calls {@link Paths#parent(String)}
-     * on the result of {@link #path()}.
-     * </p>
+     * <p>This is a convenience method that calls {@link Paths#parent(String)} on the result of {@link #path()}.
      *
      * @return the parent path, or null if this is the root resource
      */
@@ -243,9 +228,7 @@ class PgconfigResource implements Resource {
     /**
      * Creates this resource as a directory, including any necessary parent directories.
      *
-     * <p>
-     * This is a convenience method that delegates to {@link PgconfigResourceStore#mkdirs(PgconfigResource)}.
-     * </p>
+     * <p>This is a convenience method that delegates to {@link PgconfigResourceStore#mkdirs(PgconfigResource)}.
      *
      * @return this resource, updated with the database ID of the created directory
      */
@@ -256,9 +239,7 @@ class PgconfigResource implements Resource {
     /**
      * Checks if this resource exists in the database.
      *
-     * <p>
-     * A resource exists if its ID is not {@link PgconfigResourceStore#UNDEFINED_ID}.
-     * </p>
+     * <p>A resource exists if its ID is not {@link PgconfigResourceStore#UNDEFINED_ID}.
      *
      * @return true if the resource exists, false otherwise
      */
@@ -269,9 +250,7 @@ class PgconfigResource implements Resource {
     /**
      * Checks if this resource is a file.
      *
-     * <p>
-     * A resource is a file if its type is {@link Type#RESOURCE}.
-     * </p>
+     * <p>A resource is a file if its type is {@link Type#RESOURCE}.
      *
      * @return true if the resource is a file, false otherwise
      */
@@ -282,9 +261,7 @@ class PgconfigResource implements Resource {
     /**
      * Checks if this resource is a directory.
      *
-     * <p>
-     * A resource is a directory if its type is {@link Type#DIRECTORY}.
-     * </p>
+     * <p>A resource is a directory if its type is {@link Type#DIRECTORY}.
      *
      * @return true if the resource is a directory, false otherwise
      */
@@ -295,10 +272,8 @@ class PgconfigResource implements Resource {
     /**
      * Checks if this resource is undefined.
      *
-     * <p>
-     * A resource is undefined if its type is {@link Type#UNDEFINED},
-     * which typically means it doesn't exist in the database.
-     * </p>
+     * <p>A resource is undefined if its type is {@link Type#UNDEFINED}, which typically means it doesn't exist in the
+     * database.
      *
      * @return true if the resource is undefined, false otherwise
      */

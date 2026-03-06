@@ -9,9 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
-/**
- * DTO for {@link ReferencedEnvelope}
- */
+/** DTO for {@link ReferencedEnvelope} */
 @Data
 @JsonTypeName("ReferencedEnvelope")
 public class ReferencedEnvelopeDto {

@@ -29,22 +29,18 @@ import org.springframework.context.annotation.Import;
 /**
  * Placeholder auto-configuration for the GeoServer ACL extension.
  *
- * <p>
- * <strong>Both</strong> {@code geoserver.extension.security.acl.enabled} and
- * {@code geoserver.acl.client.enabled} configuration properties must be
- * {@code true}.
- * <p>
- * The former enables the extension in GeoServer Cloud, when disabled no attempt
- * to create an {@link AclResourceAccessManager} is performed.
- * <p>
- * {@code geoserver.acl.client.enabled=true} sets up an
- * {@link AclResourceAccessManager} backed by the GeoServer ACL REST API client.
- * In the future there might be other composites that create the resource access
- * manager with ACL different application/domain port implementations (e.g. JPA,
- * GRPC, etc.).
- * <p>
- * Only when both are enabled, the {@link ApiClientProperties ACL client
- * configuration properties} are taken into account:
+ * <p><strong>Both</strong> {@code geoserver.extension.security.acl.enabled} and {@code geoserver.acl.client.enabled}
+ * configuration properties must be {@code true}.
+ *
+ * <p>The former enables the extension in GeoServer Cloud, when disabled no attempt to create an
+ * {@link AclResourceAccessManager} is performed.
+ *
+ * <p>{@code geoserver.acl.client.enabled=true} sets up an {@link AclResourceAccessManager} backed by the GeoServer ACL
+ * REST API client. In the future there might be other composites that create the resource access manager with ACL
+ * different application/domain port implementations (e.g. JPA, GRPC, etc.).
+ *
+ * <p>Only when both are enabled, the {@link ApiClientProperties ACL client configuration properties} are taken into
+ * account:
  *
  * <pre>{@code
  * geoserver:
@@ -93,8 +89,8 @@ public class AclExtensionAutoConfiguration {
         }
     }
     /**
-     * Imports {@link AclWebApiAccessManagerConfiguration} for an
-     * {@link AclResourceAccessManager} backed by the GeoServer ACL REST API client
+     * Imports {@link AclWebApiAccessManagerConfiguration} for an {@link AclResourceAccessManager} backed by the
+     * GeoServer ACL REST API client
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnProperty(name = "geoserver.acl.client.enabled", havingValue = "true", matchIfMissing = true)
@@ -102,7 +98,8 @@ public class AclExtensionAutoConfiguration {
     public static class AclWebApiAccessManagerAutoConfiguration {}
 
     /**
-     * Imports {@link CachingAuthorizationServicePluginConfiguration} for a Spring Cache caching decorator on {@link AuthorizationService}
+     * Imports {@link CachingAuthorizationServicePluginConfiguration} for a Spring Cache caching decorator on
+     * {@link AuthorizationService}
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnProperty(name = "geoserver.acl.client.caching", havingValue = "true", matchIfMissing = true)
@@ -116,9 +113,7 @@ public class AclExtensionAutoConfiguration {
         }
     }
 
-    /**
-     * Imports {@link AclWebUIConfiguration} when the {@link ConditionalOnGeoServerWebUI WEB-UI} is running
-     */
+    /** Imports {@link AclWebUIConfiguration} when the {@link ConditionalOnGeoServerWebUI WEB-UI} is running */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnGeoServerWebUI
     @ConditionalOnProperty(name = "geoserver.web-ui.acl.enabled", havingValue = "true", matchIfMissing = false)
@@ -130,9 +125,7 @@ public class AclExtensionAutoConfiguration {
         }
     }
 
-    /**
-     * Imports {@link AclWpsIntegrationConfiguration} when the {@link ConditionalOnGeoServerWPS WPS} is running
-     */
+    /** Imports {@link AclWpsIntegrationConfiguration} when the {@link ConditionalOnGeoServerWPS WPS} is running */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnGeoServerWPS
     @Import(AclWpsIntegrationConfiguration.class)

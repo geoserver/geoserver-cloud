@@ -13,9 +13,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class LockingCatalogDataDirectoryTest extends LockingCatalogTest {
 
     @TempDir

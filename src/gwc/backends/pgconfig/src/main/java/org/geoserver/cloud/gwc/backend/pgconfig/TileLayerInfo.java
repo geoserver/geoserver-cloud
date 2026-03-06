@@ -22,9 +22,7 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.PublishedInfo;
 import org.geowebcache.util.GWCVars;
 
-/**
- * @since 1.7
- */
+/** @since 1.7 */
 @Data
 @Accessors(chain = true)
 public class TileLayerInfo {

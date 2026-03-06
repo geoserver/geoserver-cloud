@@ -23,9 +23,7 @@ import org.locationtech.jts.geom.Polygon;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
-/**
- * Test to verify our VirtualTable serialization fixes work correctly
- */
+/** Test to verify our VirtualTable serialization fixes work correctly */
 @Slf4j
 class VirtualTableSerializationTest {
 

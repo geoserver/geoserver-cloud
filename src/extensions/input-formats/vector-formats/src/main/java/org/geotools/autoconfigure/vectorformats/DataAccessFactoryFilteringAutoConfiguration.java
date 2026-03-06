@@ -13,16 +13,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
- * Auto-configuration to enable filtering of GeoTools DataAccessFactory
- * implementations.
+ * Auto-configuration to enable filtering of GeoTools DataAccessFactory implementations.
  *
- * <p>
- * This configuration provides fine-grained control over which data formats are
- * available in the application, allowing selective enabling/disabling of
- * specific factory implementations using their user-friendly display names.
+ * <p>This configuration provides fine-grained control over which data formats are available in the application,
+ * allowing selective enabling/disabling of specific factory implementations using their user-friendly display names.
  *
- * <p>
- * Configuration example:
+ * <p>Configuration example:
  *
  * <pre>
  * geotools.data.filtering:
@@ -33,10 +29,9 @@ import org.springframework.context.annotation.Bean;
  *     "[Shapefile]": true
  *     "[Web Feature Server (NG)]": ${my.wfs.enabled:false}
  * </pre>
- * <p>
- * It works by directly deregistering disabled factories from DataAccessFinder
- * and DataStoreFinder through a BeanPostProcessor that processes the
- * configuration as early as possible in the application startup process.
+ *
+ * <p>It works by directly deregistering disabled factories from DataAccessFinder and DataStoreFinder through a
+ * BeanPostProcessor that processes the configuration as early as possible in the application startup process.
  */
 @AutoConfiguration(before = GeoServerBackendAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public

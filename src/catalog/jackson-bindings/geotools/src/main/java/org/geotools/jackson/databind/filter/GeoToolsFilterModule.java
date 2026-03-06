@@ -45,15 +45,14 @@ import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.module.SimpleModule;
 
 /**
- * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoTools {@link Filter} and
- * {@link Expression} bindings.
+ * Jackson {@link tools.jackson.databind.JacksonModule} to handle GeoTools {@link Filter} and {@link Expression}
+ * bindings.
  *
- * <p>Depends on {@link GeoToolsGeoJsonModule} to being able of encoding and decoding JTS {@link
- * Geometry} literals.
+ * <p>Depends on {@link GeoToolsGeoJsonModule} to being able of encoding and decoding JTS {@link Geometry} literals.
  *
- * <p>When running a spring-boot application, being on the classpath should be enough to get this
- * module auto-registered to all {@link ObjectMapper}s, by means of being registered under {@code
- * META-INF/services/tools.jackson.databind.Module}.
+ * <p>When running a spring-boot application, being on the classpath should be enough to get this module auto-registered
+ * to all {@link ObjectMapper}s, by means of being registered under
+ * {@code META-INF/services/tools.jackson.databind.Module}.
  *
  * <p>To register the module for a specific {@link ObjectMapper}, either:
  *

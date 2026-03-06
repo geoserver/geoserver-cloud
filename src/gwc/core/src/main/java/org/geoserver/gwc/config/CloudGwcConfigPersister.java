@@ -23,8 +23,8 @@ import org.geoserver.util.DimensionWarning;
 import org.springframework.context.event.EventListener;
 
 /**
- * extends {@link GWCConfigPersister} to send {@link ConfigChangeEvent}s upon {@link
- * #save(org.geoserver.gwc.config.GWCConfig)}
+ * extends {@link GWCConfigPersister} to send {@link ConfigChangeEvent}s upon
+ * {@link #save(org.geoserver.gwc.config.GWCConfig)}
  */
 @Slf4j
 public class CloudGwcConfigPersister extends GWCConfigPersister {
@@ -43,8 +43,8 @@ public class CloudGwcConfigPersister extends GWCConfigPersister {
     }
 
     /**
-     * Override to get a hold to the config and be able of re-loading it upon {@link
-     * ConfigChangeEvent}, since super.config is private
+     * Override to get a hold to the config and be able of re-loading it upon {@link ConfigChangeEvent}, since
+     * super.config is private
      */
     @Override
     public GWCConfig getConfig() {

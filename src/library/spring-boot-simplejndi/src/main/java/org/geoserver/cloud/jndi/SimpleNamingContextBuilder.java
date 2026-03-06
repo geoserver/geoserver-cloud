@@ -17,17 +17,14 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * A simple implementation of a JNDI naming context builder that provides an
- * initial context factory for applications requiring JNDI support.
+ * A simple implementation of a JNDI naming context builder that provides an initial context factory for applications
+ * requiring JNDI support.
  *
- * <p>
- * This builder allows the configuration of an {@link InitialContextFactory}
- * dynamically based on environment properties. If no factory is explicitly
- * provided in the environment, a default {@link SimpleNamingContextFactory} is
+ * <p>This builder allows the configuration of an {@link InitialContextFactory} dynamically based on environment
+ * properties. If no factory is explicitly provided in the environment, a default {@link SimpleNamingContextFactory} is
  * used.
  *
- * <p>
- * Example usage:
+ * <p>Example usage:
  *
  * <pre class="code">
  * SimpleNamingContextBuilder builder = new SimpleNamingContextBuilder();
@@ -42,30 +39,21 @@ import org.springframework.util.ReflectionUtils;
  */
 public class SimpleNamingContextBuilder implements InitialContextFactoryBuilder {
 
-    /**
-     * Default factory instance used when no custom factory is provided in the
-     * environment.
-     */
+    /** Default factory instance used when no custom factory is provided in the environment. */
     private final SimpleNamingContextFactory factory = new SimpleNamingContextFactory();
 
     /**
-     * Creates an {@link InitialContextFactory} instance based on the provided
-     * environment properties.
+     * Creates an {@link InitialContextFactory} instance based on the provided environment properties.
      *
-     * <p>
-     * If the environment specifies an {@link InitialContextFactory} class name or
-     * instance, through the {@code java.naming.factory.initial} parameter, this
-     * method attempts to instantiate and return it. Otherwise, it falls back to the
-     * default {@link SimpleNamingContextFactory}.
+     * <p>If the environment specifies an {@link InitialContextFactory} class name or instance, through the
+     * {@code java.naming.factory.initial} parameter, this method attempts to instantiate and return it. Otherwise, it
+     * falls back to the default {@link SimpleNamingContextFactory}.
      *
-     * @param environment a {@link Hashtable} containing JNDI environment
-     *                    properties, or {@code null}
+     * @param environment a {@link Hashtable} containing JNDI environment properties, or {@code null}
      * @return an instance of {@link InitialContextFactory}
-     * @throws IllegalArgumentException if the specified factory class is invalid or
-     *                                  does not implement
-     *                                  {@link InitialContextFactory}
-     * @throws IllegalStateException    if the specified factory class cannot be
-     *                                  instantiated
+     * @throws IllegalArgumentException if the specified factory class is invalid or does not implement
+     *     {@link InitialContextFactory}
+     * @throws IllegalStateException if the specified factory class cannot be instantiated
      */
     @Override
     public InitialContextFactory createInitialContextFactory(@Nullable Hashtable<?, ?> environment) {

@@ -15,25 +15,23 @@ import org.geoserver.config.GeoServer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 /**
- * Annotation that marks a component to be conditional on the application being
- * a GeoServer application with the GeoServer core classes available in the classpath.
+ * Annotation that marks a component to be conditional on the application being a GeoServer application with the
+ * GeoServer core classes available in the classpath.
  *
- * <p>
- * This annotation is used as a base for all GeoServer extension conditional
- * annotations. It verifies that the application has the GeoServer core classes
- * in its classpath, indicating that it's a GeoServer-based application.
+ * <p>This annotation is used as a base for all GeoServer extension conditional annotations. It verifies that the
+ * application has the GeoServer core classes in its classpath, indicating that it's a GeoServer-based application.
  *
- * <p>
- * This provides a foundation for more specific conditional annotations like:
+ * <p>This provides a foundation for more specific conditional annotations like:
+ *
  * <ul>
- *   <li>{@link ConditionalOnGeoServerWebUI} - For Web UI specific components</li>
- *   <li>{@link ConditionalOnGeoServerWMS} - For WMS service specific components</li>
- *   <li>{@link ConditionalOnGeoServerWFS} - For WFS service specific components</li>
- *   <li>And other service-specific conditions</li>
+ *   <li>{@link ConditionalOnGeoServerWebUI} - For Web UI specific components
+ *   <li>{@link ConditionalOnGeoServerWMS} - For WMS service specific components
+ *   <li>{@link ConditionalOnGeoServerWFS} - For WFS service specific components
+ *   <li>And other service-specific conditions
  * </ul>
  *
- * <p>
- * Usage example:
+ * <p>Usage example:
+ *
  * <pre>{@code
  * @Configuration
  * @ConditionalOnGeoServer

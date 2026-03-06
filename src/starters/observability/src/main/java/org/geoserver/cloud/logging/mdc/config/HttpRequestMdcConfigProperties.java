@@ -24,15 +24,16 @@ import org.springframework.util.MultiValueMap;
 
 /**
  * Configuration properties for controlling which HTTP request information is included in the MDC.
- * <p>
- * These properties determine what request-related information is added to the MDC (Mapped Diagnostic Context)
- * during request processing. Including this information in the MDC makes it available to all logging
- * statements, providing valuable context for debugging, monitoring, and audit purposes.
- * <p>
- * The properties are configured using the prefix {@code logging.mdc.include.http} in the application
- * properties or YAML files.
- * <p>
- * Example configuration in YAML:
+ *
+ * <p>These properties determine what request-related information is added to the MDC (Mapped Diagnostic Context) during
+ * request processing. Including this information in the MDC makes it available to all logging statements, providing
+ * valuable context for debugging, monitoring, and audit purposes.
+ *
+ * <p>The properties are configured using the prefix {@code logging.mdc.include.http} in the application properties or
+ * YAML files.
+ *
+ * <p>Example configuration in YAML:
+ *
  * <pre>
  * logging:
  *   mdc:
@@ -45,9 +46,9 @@ import org.springframework.util.MultiValueMap;
  *         headers: true
  *         headers-pattern: "(?i)x-.*|correlation-.*"
  * </pre>
- * <p>
- * This class provides methods to extract and add HTTP request properties to the MDC based on the
- * configuration. It supports both Servlet and WebFlux environments through its flexible API.
+ *
+ * <p>This class provides methods to extract and add HTTP request properties to the MDC based on the configuration. It
+ * supports both Servlet and WebFlux environments through its flexible API.
  *
  * @see org.geoserver.cloud.logging.mdc.servlet.HttpRequestMdcFilter
  * @see org.geoserver.cloud.logging.mdc.webflux.MDCWebFilter
@@ -59,24 +60,23 @@ public class HttpRequestMdcConfigProperties {
     public static final String REQUEST_ID_HEADER = "http.request.id";
 
     /**
-     * Whether to append the http.request.id MDC property. The value is the id provided by the
-     * http.request.id header, or a new monotonically increating UID if no such header is present.
+     * Whether to append the http.request.id MDC property. The value is the id provided by the http.request.id header,
+     * or a new monotonically increating UID if no such header is present.
      */
     private boolean id = true;
 
     /**
-     * Whether to append the http.request.remote-addr MDC property, interpreted as the Internet
-     * Protocol (IP) address of the client or last proxy that sent the request. For HTTP servlets,
-     * same as the value of the CGI variable REMOTE_ADDR.
+     * Whether to append the http.request.remote-addr MDC property, interpreted as the Internet Protocol (IP) address of
+     * the client or last proxy that sent the request. For HTTP servlets, same as the value of the CGI variable
+     * REMOTE_ADDR.
      */
     private boolean remoteAddr = false;
 
     /**
-     * Whether to append the http.request.remote-host MDC property, interpreted as the fully
-     * qualified name of the client or the last proxy that sent the request. If the engine cannot or
-     * chooses not to resolve the hostname (to improve performance), this method returns the
-     * dotted-string form of the IP address. For HTTP servlets, same as the value of the CGI
-     * variable REMOTE_HOST. Defaults to false to avoid the possible overhead in reverse DNS
+     * Whether to append the http.request.remote-host MDC property, interpreted as the fully qualified name of the
+     * client or the last proxy that sent the request. If the engine cannot or chooses not to resolve the hostname (to
+     * improve performance), this method returns the dotted-string form of the IP address. For HTTP servlets, same as
+     * the value of the CGI variable REMOTE_HOST. Defaults to false to avoid the possible overhead in reverse DNS
      * lookups. remoteAddress should be enough in most cases.
      */
     private boolean remoteHost = false;
@@ -87,20 +87,14 @@ public class HttpRequestMdcConfigProperties {
     /** Whether to append the http.request.url MDC property, without the query string */
     private boolean url = true;
 
-    /**
-     * Whether to append one http.request.parameter.[name] MDC property from each request parameter
-     */
+    /** Whether to append one http.request.parameter.[name] MDC property from each request parameter */
     private boolean parameters = false;
 
-    /**
-     * Whether to append the http.request.query-string MDC property from the HTTP request query
-     * string
-     */
+    /** Whether to append the http.request.query-string MDC property from the HTTP request query string */
     private boolean queryString = false;
 
     /**
-     * Whether to append the http.request.session.is MDC property if there's an HttpSession
-     * associated to the request
+     * Whether to append the http.request.session.is MDC property if there's an HttpSession associated to the request
      */
     private boolean sessionId = false;
 
@@ -108,8 +102,8 @@ public class HttpRequestMdcConfigProperties {
     private boolean cookies = false;
 
     /**
-     * Whether to append one http.request.header.[name] MDC property from each HTTP request header
-     * whose name matches the headers-pattern
+     * Whether to append one http.request.header.[name] MDC property from each HTTP request header whose name matches
+     * the headers-pattern
      */
     private boolean headers = false;
 
@@ -121,10 +115,9 @@ public class HttpRequestMdcConfigProperties {
 
     /**
      * Adds HTTP headers to the MDC if enabled by configuration.
-     * <p>
-     * This method extracts headers from the supplied HttpHeaders and adds them to the MDC
-     * if {@link #isHeaders()} is true. Only headers matching the {@link #getHeadersPattern()}
-     * will be included.
+     *
+     * <p>This method extracts headers from the supplied HttpHeaders and adds them to the MDC if {@link #isHeaders()} is
+     * true. Only headers matching the {@link #getHeadersPattern()} will be included.
      *
      * @param headers a supplier that provides the HTTP headers
      * @return this instance for method chaining
@@ -139,10 +132,9 @@ public class HttpRequestMdcConfigProperties {
 
     /**
      * Adds HTTP cookies to the MDC if enabled by configuration.
-     * <p>
-     * This method extracts cookies from the supplied MultiValueMap and adds them to the MDC
-     * if {@link #isCookies()} is true. Each cookie is added with the key format
-     * {@code http.request.cookie.[name]}.
+     *
+     * <p>This method extracts cookies from the supplied MultiValueMap and adds them to the MDC if {@link #isCookies()}
+     * is true. Each cookie is added with the key format {@code http.request.cookie.[name]}.
      *
      * @param cookies a supplier that provides the HTTP cookies
      * @return this instance for method chaining
@@ -156,10 +148,10 @@ public class HttpRequestMdcConfigProperties {
 
     /**
      * Adds a list of cookies with the same name to the MDC.
-     * <p>
-     * This method processes a list of cookies and adds them to the MDC with the key format
-     * {@code http.request.cookie.[name]}. If multiple cookies with the same name exist,
-     * their values are concatenated with semicolons.
+     *
+     * <p>This method processes a list of cookies and adds them to the MDC with the key format
+     * {@code http.request.cookie.[name]}. If multiple cookies with the same name exist, their values are concatenated
+     * with semicolons.
      *
      * @param cookies the list of cookies to add to the MDC
      */
@@ -178,10 +170,10 @@ public class HttpRequestMdcConfigProperties {
 
     /**
      * Determines if a header should be included in the MDC based on the header pattern.
-     * <p>
-     * This method checks if the header name matches the pattern defined in {@link #getHeadersPattern()}.
-     * The "cookie" header is always excluded because cookies are handled separately by
-     * the {@link #cookies(Supplier)} method.
+     *
+     * <p>This method checks if the header name matches the pattern defined in {@link #getHeadersPattern()}. The
+     * "cookie" header is always excluded because cookies are handled separately by the {@link #cookies(Supplier)}
+     * method.
      *
      * @param headerName the name of the header to check
      * @return true if the header should be included, false otherwise
@@ -195,10 +187,9 @@ public class HttpRequestMdcConfigProperties {
 
     /**
      * Adds a header to the MDC if it matches the inclusion criteria.
-     * <p>
-     * This method adds a header to the MDC with the key format {@code http.request.header.[name]}
-     * if the header name matches the inclusion pattern. Multiple values for the same header
-     * are joined with commas.
+     *
+     * <p>This method adds a header to the MDC with the key format {@code http.request.header.[name]} if the header name
+     * matches the inclusion pattern. Multiple values for the same header are joined with commas.
      *
      * @param name the header name
      * @param values the list of header values
@@ -287,23 +278,21 @@ public class HttpRequestMdcConfigProperties {
     }
 
     /**
-     * @return the id provided by the {@code traceId} header, {@code http.request.id} header, or a
-     *     new monotonically increating UID if no such header is present
+     * @return the id provided by the {@code traceId} header, {@code http.request.id} header, or a new monotonically
+     *     increating UID if no such header is present
      */
     public static String findOrCreateRequestId(Supplier<HttpHeaders> headers) {
         return findRequestId(headers).orElseGet(() -> newRequestId());
     }
 
-    /**
-     * @return a new monotonically increating UID
-     */
+    /** @return a new monotonically increating UID */
     public static String newRequestId() {
         return UlidCreator.getMonotonicUlid().toLowerCase();
     }
 
     /**
-     * Obtains the request id, if present, fromt the {@code trace-id}, {@code http.request.id}, or
-     * {@code x-request-id} request headers.
+     * Obtains the request id, if present, fromt the {@code trace-id}, {@code http.request.id}, or {@code x-request-id}
+     * request headers.
      */
     public static Optional<String> findRequestId(Supplier<HttpHeaders> headers) {
         HttpHeaders httpHeaders = headers.get();

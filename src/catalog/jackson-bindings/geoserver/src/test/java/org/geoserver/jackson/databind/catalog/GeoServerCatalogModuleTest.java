@@ -96,9 +96,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 
 /**
- * Verifies that all {@link CatalogInfo} can be sent over the wire and parsed
- * back using jackson, thanks to {@link GeoServerCatalogModule} jackcon-databind
- * module
+ * Verifies that all {@link CatalogInfo} can be sent over the wire and parsed back using jackson, thanks to
+ * {@link GeoServerCatalogModule} jackcon-databind module
  */
 @Slf4j
 public abstract class GeoServerCatalogModuleTest {
@@ -634,8 +633,8 @@ public abstract class GeoServerCatalogModuleTest {
     }
 
     /**
-     * Does not perform equals check, for value types that don't implement
-     * {@link Object#equals(Object)} or have misbehaving implementations
+     * Does not perform equals check, for value types that don't implement {@link Object#equals(Object)} or have
+     * misbehaving implementations
      */
     private <T> T testValue(final T value, Class<T> type) {
         T decoded = roundTrip(value, type);

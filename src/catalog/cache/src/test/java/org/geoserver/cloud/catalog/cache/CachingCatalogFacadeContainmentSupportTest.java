@@ -52,9 +52,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.cache.Cache.ValueWrapper;
 
-/**
- * @since 1.7
- */
+/** @since 1.7 */
 class CachingCatalogFacadeContainmentSupportTest {
 
     private CachingCatalogFacadeContainmentSupport support;

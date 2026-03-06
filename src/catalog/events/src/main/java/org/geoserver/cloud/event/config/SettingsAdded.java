@@ -12,10 +12,7 @@ import lombok.EqualsAndHashCode;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.SettingsInfo;
 
-/**
- * Remote event sent when {@link GeoServer#add(org.geoserver.config.SettingsInfo)} is called on a
- * node
- */
+/** Remote event sent when {@link GeoServer#add(org.geoserver.config.SettingsInfo)} is called on a node */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("SettingsAdded")
 @EqualsAndHashCode(callSuper = true)

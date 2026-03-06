@@ -60,10 +60,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-/**
- * Mapper to/from GeoServer config objects and their respective DTO
- * representations
- */
+/** Mapper to/from GeoServer config objects and their respective DTO representations */
 @Mapper(config = ConfigInfoMapperConfig.class)
 @AnnotateWith(value = Generated.class)
 public interface GeoServerConfigMapper {
@@ -225,8 +222,8 @@ public interface GeoServerConfigMapper {
     }
 
     /**
-     * {@link ServiceInfo#getVersions()} does not parameterize the list, hence
-     * Mapstruct assigns the {@code List<String>} as is
+     * {@link ServiceInfo#getVersions()} does not parameterize the list, hence Mapstruct assigns the
+     * {@code List<String>} as is
      */
     default List<org.geotools.util.Version> stringListToVersionList(List<String> list) {
         return list == null ? null : list.stream().map(Version::new).collect(toCollection(ArrayList::new));

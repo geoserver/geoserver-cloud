@@ -19,9 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-/**
- * @since 1.2
- */
+/** @since 1.2 */
 @Slf4j
 @SuppressWarnings("java:S110") // not much to do about the large inheritance chain
 class GatewayPreAuthenticationFilter extends GeoServerRequestHeaderAuthenticationFilter {

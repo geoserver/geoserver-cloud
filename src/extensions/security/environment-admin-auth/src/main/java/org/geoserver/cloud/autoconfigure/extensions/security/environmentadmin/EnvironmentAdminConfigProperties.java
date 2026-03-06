@@ -11,18 +11,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Configuration properties for the Environment Admin Authentication extension.
  *
- * <p>
- * This class defines the configuration properties for the Environment Admin Authentication extension,
- * with a prefix of "geoserver.extension.security.environment-admin".
+ * <p>This class defines the configuration properties for the Environment Admin Authentication extension, with a prefix
+ * of "geoserver.extension.security.environment-admin".
  *
- * <p>
- * Available properties:
+ * <p>Available properties:
+ *
  * <ul>
- *   <li><b>enabled</b>: Whether the Environment Admin Authentication extension is enabled (default: true)</li>
+ *   <li><b>enabled</b>: Whether the Environment Admin Authentication extension is enabled (default: true)
  * </ul>
  *
- * <p>
- * Example YAML configuration:
+ * <p>Example YAML configuration:
+ *
  * <pre>{@code
  * geoserver:
  *   extension:
@@ -31,8 +30,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *         enabled: true
  * }</pre>
  *
- * <p>
- * This extension also requires the core admin username and password properties to be set:
+ * <p>This extension also requires the core admin username and password properties to be set:
+ *
  * <pre>{@code
  * geoserver:
  *   admin:

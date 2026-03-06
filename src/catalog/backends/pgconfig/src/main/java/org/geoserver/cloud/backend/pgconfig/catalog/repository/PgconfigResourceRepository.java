@@ -17,18 +17,14 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<ResourceInfo>
         implements ResourceRepository {
 
     private static final String AND_TYPE_INFOTYPE = " AND \"@type\" = ?::infotype";
     private final PgconfigLayerRepository layerrepo;
 
-    /**
-     * @param template
-     */
+    /** @param template */
     public PgconfigResourceRepository(@NonNull JdbcTemplate template, @NonNull PgconfigLayerRepository layerrepo) {
         super(ResourceInfo.class, template);
         this.layerrepo = layerrepo;

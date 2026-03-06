@@ -22,9 +22,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @SuppressWarnings("serial")
 public class UpdateSequenceEvent extends GeoServerEvent implements Comparable<UpdateSequenceEvent> {
     /**
-     * The provided {@link GeoServerInfo}'s {@link GeoServerInfo#getUpdateSequence() update
-     * sequence}. Being the most frequently updated property, it's readily available for remote
-     * listeners even when the {@link #getPatch() patch} is not sent over the wire.
+     * The provided {@link GeoServerInfo}'s {@link GeoServerInfo#getUpdateSequence() update sequence}. Being the most
+     * frequently updated property, it's readily available for remote listeners even when the {@link #getPatch() patch}
+     * is not sent over the wire.
      */
     private @Getter long updateSequence;
 

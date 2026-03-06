@@ -8,9 +8,7 @@ package org.geoserver.cloud.jndi;
 import java.io.Serial;
 import java.util.Objects;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class SimpleNameClassPair extends javax.naming.NameClassPair {
 
     @Serial

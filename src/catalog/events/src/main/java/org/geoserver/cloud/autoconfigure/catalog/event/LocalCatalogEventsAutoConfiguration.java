@@ -10,10 +10,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-/**
- * {@link EnableAutoConfiguration auto-configuration} for {@link
- * CatalogApplicationEventsConfiguration}
- */
+/** {@link EnableAutoConfiguration auto-configuration} for {@link CatalogApplicationEventsConfiguration} */
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnCatalogEvents

@@ -33,18 +33,14 @@ import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 class LockingCatalogTest {
 
     private GeoServerConfigurationLock configLock;
     private CatalogPlugin catalog;
     private CatalogFaker faker;
 
-    /**
-     * @throws java.lang.Exception
-     */
+    /** @throws java.lang.Exception */
     @BeforeEach
     void setUp() {
         configLock = createConfigLock();

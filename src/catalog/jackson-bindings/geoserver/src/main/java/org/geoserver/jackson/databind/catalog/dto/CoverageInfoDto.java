@@ -13,9 +13,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * DTO for {@link org.geoserver.catalog.CoverageInfo}
- */
+/** DTO for {@link org.geoserver.catalog.CoverageInfo} */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

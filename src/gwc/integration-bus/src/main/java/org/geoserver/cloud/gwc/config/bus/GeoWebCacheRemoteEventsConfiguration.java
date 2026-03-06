@@ -19,9 +19,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @since 1.0
- */
+/** @since 1.0 */
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(BusAutoConfiguration.class)
 @RemoteApplicationEventScan(basePackageClasses = {RemoteGeoWebCacheEvent.class})

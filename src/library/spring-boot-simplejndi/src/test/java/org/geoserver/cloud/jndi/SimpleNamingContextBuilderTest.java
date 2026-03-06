@@ -68,9 +68,7 @@ class SimpleNamingContextBuilderTest {
         assertThat(subcontext).isInstanceOf(SimpleNamingContext.class);
     }
 
-    /**
-     * Simulates an LDAP authentication request as performed by GeoServer
-     */
+    /** Simulates an LDAP authentication request as performed by GeoServer */
     @Order(3)
     @Test
     void testParameterizedLDAPInitialContextFactory() throws NamingException, ClassNotFoundException {

@@ -49,8 +49,8 @@ import org.springframework.web.server.session.WebSessionManager;
 import org.springframework.web.server.session.WebSessionStore;
 
 /**
- * Wiremock integration test for a running gateway with {@link GatewaySharedAuthenticationPreFilter}
- * and {@link GatewaySharedAuthenticationPostFilter}
+ * Wiremock integration test for a running gateway with {@link GatewaySharedAuthenticationPreFilter} and
+ * {@link GatewaySharedAuthenticationPostFilter}
  */
 @SpringBootTest(
         classes = GatewayApplication.class, //
@@ -93,8 +93,8 @@ class GatewaySharedAuthenticationTest {
             """;
 
     /**
-     * request stub for the webui returning an empty-string on the {@literal x-gsc-username}
-     * response header, meaning to log out (remove the user and roles from the session)
+     * request stub for the webui returning an empty-string on the {@literal x-gsc-username} response header, meaning to
+     * log out (remove the user and roles from the session)
      */
     private static final String WEB_LOGOUT_SPEC =
             """
@@ -156,8 +156,8 @@ class GatewaySharedAuthenticationTest {
     private static WireMockRuntimeInfo wmRuntimeInfo;
 
     /**
-     * Set up stub requests for the wiremock server. WireMock is running on a random port, so this
-     * method saves {@link #wmRuntimeInfo} for {@link #registerRoutes(DynamicPropertyRegistry)}
+     * Set up stub requests for the wiremock server. WireMock is running on a random port, so this method saves
+     * {@link #wmRuntimeInfo} for {@link #registerRoutes(DynamicPropertyRegistry)}
      */
     @BeforeAll
     static void saveWireMock(WireMockRuntimeInfo runtimeInfo) {
@@ -178,9 +178,9 @@ class GatewaySharedAuthenticationTest {
     TestRestTemplate testRestTemplate;
 
     /**
-     * Concrete implementation of {@link WebSessionManager} as created by {@link
-     * EnableWebFluxConfiguration#webSessionManager()} so we can access {@link
-     * DefaultWebSessionManager#getSessionStore()}
+     * Concrete implementation of {@link WebSessionManager} as created by
+     * {@link EnableWebFluxConfiguration#webSessionManager()} so we can access
+     * {@link DefaultWebSessionManager#getSessionStore()}
      */
     @Autowired
     DefaultWebSessionManager webSessionManager;
@@ -218,9 +218,8 @@ class GatewaySharedAuthenticationTest {
     }
 
     /**
-     * Make a request where the caller is trying to impersonate a user with request headers {@code
-     * x-gsc-username} and {@code x-gsc-roles}, verify {@link GatewaySharedAuthenticationPreFilter}
-     * removes them from the proxy request
+     * Make a request where the caller is trying to impersonate a user with request headers {@code x-gsc-username} and
+     * {@code x-gsc-roles}, verify {@link GatewaySharedAuthenticationPreFilter} removes them from the proxy request
      */
     @Test
     @Order(1)
@@ -244,9 +243,9 @@ class GatewaySharedAuthenticationTest {
     }
 
     /**
-     * Make a request to the wms service, once the {@code x-gsc-username} and {@code x-gsc-roles}
-     * are stored in the the {@link WebSession}, verify {@link GatewaySharedAuthenticationPreFilter}
-     * appends them as request headers to the wms service proxied request
+     * Make a request to the wms service, once the {@code x-gsc-username} and {@code x-gsc-roles} are stored in the the
+     * {@link WebSession}, verify {@link GatewaySharedAuthenticationPreFilter} appends them as request headers to the
+     * wms service proxied request
      */
     @Test
     @Order(2)
@@ -283,9 +282,8 @@ class GatewaySharedAuthenticationTest {
     }
 
     /**
-     * Make a request to the webui that returns the {@code x-gsc-username} and {@code x-gsc-roles}
-     * response headers, verify {@link GatewaySharedAuthenticationPostFilter} saves them in the
-     * {@link WebSession}
+     * Make a request to the webui that returns the {@code x-gsc-username} and {@code x-gsc-roles} response headers,
+     * verify {@link GatewaySharedAuthenticationPostFilter} saves them in the {@link WebSession}
      */
     @Test
     @Order(3)
@@ -317,9 +315,8 @@ class GatewaySharedAuthenticationTest {
     }
 
     /**
-     * Make a call to the web-ui that returns {@code x-gsc-username} and {@code x-gsc-roles}
-     * headers, and verify {@link GatewaySharedAuthenticationPostFilter} does not propagate them to
-     * the response.
+     * Make a call to the web-ui that returns {@code x-gsc-username} and {@code x-gsc-roles} headers, and verify
+     * {@link GatewaySharedAuthenticationPostFilter} does not propagate them to the response.
      */
     @Test
     @Order(5)

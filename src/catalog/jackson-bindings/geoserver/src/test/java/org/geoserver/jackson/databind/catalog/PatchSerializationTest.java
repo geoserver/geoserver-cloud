@@ -99,9 +99,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 
 /**
- * Verifies that {@link Patch patches} can be JSON round-tripped. As a
- * reference, it should cover as much of {@link SharedMappers},
- * {@link GeoServerValueObjectsMapper}, {@link GeoServerConfigMapper}, and
+ * Verifies that {@link Patch patches} can be JSON round-tripped. As a reference, it should cover as much of
+ * {@link SharedMappers}, {@link GeoServerValueObjectsMapper}, {@link GeoServerConfigMapper}, and
  * {@link CatalogInfoMapper} as possible.
  */
 @Slf4j
@@ -472,12 +471,12 @@ public abstract class PatchSerializationTest {
     }
 
     /**
-     * UserDetailsDisplaySettingsInfo is a value object, has no id, hence can't be
-     * encoded by reference, yet the webui is setting
-     * {@link GeoServerInfo#setUserDetailsDisplaySettings(UserDetailsDisplaySettingsInfo)}
-     * using a {@link ModificationProxy}
-     * <p>
-     * The solution is to ensure {@link GeoServerConfigModule} registers a de/serializer for the {@link UserDetailsDisplaySettingsInfo} interface
+     * UserDetailsDisplaySettingsInfo is a value object, has no id, hence can't be encoded by reference, yet the webui
+     * is setting {@link GeoServerInfo#setUserDetailsDisplaySettings(UserDetailsDisplaySettingsInfo)} using a
+     * {@link ModificationProxy}
+     *
+     * <p>The solution is to ensure {@link GeoServerConfigModule} registers a de/serializer for the
+     * {@link UserDetailsDisplaySettingsInfo} interface
      */
     @Test
     void modificationProxy_UserDetailsDisplaySettingsInfo() throws Exception {

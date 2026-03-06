@@ -71,22 +71,21 @@ public @Data class GeoWebCacheConfigurationProperties {
     public static final String BLOBSTORE_GCS_ENABLED = "gwc.blobstores.gcs";
 
     /**
-     * Enables the core GeoWebCache functionality and integration with GeoServer tile layers. All
-     * other config properties depend on this one to be enabled.
+     * Enables the core GeoWebCache functionality and integration with GeoServer tile layers. All other config
+     * properties depend on this one to be enabled.
      */
     private boolean enabled = true;
 
     /**
-     * Location of the default cache directory. This is the directory where tile images will be
-     * stored, unless a separate "Blob Store" is configured for a given Tile Layer.
+     * Location of the default cache directory. This is the directory where tile images will be stored, unless a
+     * separate "Blob Store" is configured for a given Tile Layer.
      */
     private Path cacheDirectory;
 
     /**
-     * Alternate parent directory for the global geowebcache.xml configuration file. If specified,
-     * must be an absolute path to a writable directory. An attempt to create it will be made if it
-     * doesn't exist. Defaults to null, meaning the GeoServer resource store's gwc/ directory will
-     * be used.
+     * Alternate parent directory for the global geowebcache.xml configuration file. If specified, must be an absolute
+     * path to a writable directory. An attempt to create it will be made if it doesn't exist. Defaults to null, meaning
+     * the GeoServer resource store's gwc/ directory will be used.
      */
     private Path configDirectory = null;
 
@@ -94,10 +93,9 @@ public @Data class GeoWebCacheConfigurationProperties {
     private boolean webUi = false;
 
     /**
-     * Enables or disables the extension to integrate GWC with GeoServer's WMS. This is a
-     * component-level configuration property that, if enabled, the option to activate the
-     * integration needs to be configured in GeoServer's WEB-UI, and if disabled, the Web-UI don't
-     * even show the option
+     * Enables or disables the extension to integrate GWC with GeoServer's WMS. This is a component-level configuration
+     * property that, if enabled, the option to activate the integration needs to be configured in GeoServer's WEB-UI,
+     * and if disabled, the Web-UI don't even show the option
      */
     private boolean wmsIntegration = false;
 
@@ -111,73 +109,63 @@ public @Data class GeoWebCacheConfigurationProperties {
     private BlobstoresConfig blobstores = new BlobstoresConfig();
 
     /**
-     * Configure which tile services to load at startup time. These are not dynamic enablements for
-     * individual services, but application container level one. Disabled services won't even be
-     * loaded to the runtime context.
+     * Configure which tile services to load at startup time. These are not dynamic enablements for individual services,
+     * but application container level one. Disabled services won't even be loaded to the runtime context.
      */
     public static @Data class ServicesConfig {
         /**
-         * Enables or disables the WMTS service. This is not a dynamic runtime setting, but an
-         * application container level one. Disabled services won't even be loaded to the runtime
-         * context.
+         * Enables or disables the WMTS service. This is not a dynamic runtime setting, but an application container
+         * level one. Disabled services won't even be loaded to the runtime context.
          */
         private boolean wmts = false;
 
         /**
-         * Enables or disables the TMS service. This is not a dynamic runtime setting, but an
-         * application container level one. Disabled services won't even be loaded to the runtime
-         * context.
+         * Enables or disables the TMS service. This is not a dynamic runtime setting, but an application container
+         * level one. Disabled services won't even be loaded to the runtime context.
          */
         private boolean tms = false;
 
         /**
-         * Enables or disables the WMS service. This is not a dynamic runtime setting, but an
-         * application container level one. Disabled services won't even be loaded to the runtime
-         * context.
+         * Enables or disables the WMS service. This is not a dynamic runtime setting, but an application container
+         * level one. Disabled services won't even be loaded to the runtime context.
          */
         private boolean wms = false;
 
         /**
-         * Enables or disables the KML service. This is not a dynamic runtime setting, but an
-         * application container level one. Disabled services won't even be loaded to the runtime
-         * context.
+         * Enables or disables the KML service. This is not a dynamic runtime setting, but an application container
+         * level one. Disabled services won't even be loaded to the runtime context.
          */
         private boolean kml = false;
 
         /**
-         * Enables or disables the GoogleMaps service. This is not a dynamic runtime setting, but an
-         * application container level one. Disabled services won't even be loaded to the runtime
-         * context.
+         * Enables or disables the GoogleMaps service. This is not a dynamic runtime setting, but an application
+         * container level one. Disabled services won't even be loaded to the runtime context.
          */
         private boolean gmaps = false;
 
         /**
-         * Enables or disables the MGMaps service. This is not a dynamic runtime setting, but an
-         * application container level one. Disabled services won't even be loaded to the runtime
-         * context.
+         * Enables or disables the MGMaps service. This is not a dynamic runtime setting, but an application container
+         * level one. Disabled services won't even be loaded to the runtime context.
          */
         private boolean mgmaps = false;
     }
 
     public static @Data class BlobstoresConfig {
         /**
-         * Enables or disables support for Amazon-S3 BLOB Store. This is not a dynamic runtime
-         * setting, but an application container level one. Disabled BLOB stores won't even be
-         * loaded to the runtime context.
+         * Enables or disables support for Amazon-S3 BLOB Store. This is not a dynamic runtime setting, but an
+         * application container level one. Disabled BLOB stores won't even be loaded to the runtime context.
          */
         private boolean s3 = false;
 
         /**
-         * Enables or disables support for Microsoft Azure BLOB Store. This is not a dynamic runtime
-         * setting, but an application container level one. Disabled BLOB stores won't even be
-         * loaded to the runtime context.
+         * Enables or disables support for Microsoft Azure BLOB Store. This is not a dynamic runtime setting, but an
+         * application container level one. Disabled BLOB stores won't even be loaded to the runtime context.
          */
         private boolean azure = false;
 
         /**
-         * Enables or disables support for Google Cloud Storage BLOB Store. This is not a dynamic runtime
-         * setting, but an application container level one. Disabled BLOB stores won't even be
-         * loaded to the runtime context.
+         * Enables or disables support for Google Cloud Storage BLOB Store. This is not a dynamic runtime setting, but
+         * an application container level one. Disabled BLOB stores won't even be loaded to the runtime context.
          */
         private boolean gcs = false;
     }

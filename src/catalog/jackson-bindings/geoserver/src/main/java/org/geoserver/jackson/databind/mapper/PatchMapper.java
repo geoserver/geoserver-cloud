@@ -72,8 +72,8 @@ public abstract class PatchMapper {
     }
 
     /**
-     * If value is an identified {@link Info} (catalog or config object), returns an {@link
-     * ResolvingProxyDto} instead, to be resolved at the receiving end
+     * If value is an identified {@link Info} (catalog or config object), returns an {@link ResolvingProxyDto} instead,
+     * to be resolved at the receiving end
      */
     @SuppressWarnings("unchecked")
     private <V, R> R valueToDto(final V value) {

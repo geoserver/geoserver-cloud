@@ -406,6 +406,7 @@
           <java>
             <palantirJavaFormat>
               <version>2.74.0</version>
+              <formatJavadoc>true</formatJavadoc>
             </palantirJavaFormat>
           </java>
           <upToDateChecking>

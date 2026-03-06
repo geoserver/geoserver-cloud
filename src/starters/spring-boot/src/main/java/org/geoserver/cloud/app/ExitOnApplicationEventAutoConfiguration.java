@@ -24,12 +24,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 
 /**
- * Allows to pass a JVM argument to exit the application upon specific {@link
- * ApplicationContextEvent application events}, mostly useful to start up an application during the
- * Docker image build process to create the AppCDS archive.
+ * Allows to pass a JVM argument to exit the application upon specific {@link ApplicationContextEvent application
+ * events}, mostly useful to start up an application during the Docker image build process to create the AppCDS archive.
  *
- * <p>Usage: run the application with {@code -Dspring.context.exit=<event>}, where {@code <event>}
- * is one of
+ * <p>Usage: run the application with {@code -Dspring.context.exit=<event>}, where {@code <event>} is one of
  *
  * <ul>
  *   <li>{@link ExitOn#onPrepared onPrepared}
@@ -40,10 +38,10 @@ import org.springframework.core.env.Environment;
  *
  * <p>Note Spring Boot 3.2 supports {@code spring.context.exit=onRefresh} as of <a
  * href="https://github.com/spring-projects/spring-framework/commit/eb3982b6c25d6c3dd49f6c4cc000c40364916a83">this
- * commit</a>, and when we migrate from Spring Boot 2.7 to 3.2+ this will not be necessary most
- * probably, although we've added additional events because some applications may fail to start
- * without all the machinery in place at different stages. Nonetheless, the new {@code offline}
- * embedded spring profile should allow them all to start without spring cloud bus, ACL, etc.
+ * commit</a>, and when we migrate from Spring Boot 2.7 to 3.2+ this will not be necessary most probably, although we've
+ * added additional events because some applications may fail to start without all the machinery in place at different
+ * stages. Nonetheless, the new {@code offline} embedded spring profile should allow them all to start without spring
+ * cloud bus, ACL, etc.
  *
  * @since 1.9.0
  */
@@ -56,9 +54,8 @@ public class ExitOnApplicationEventAutoConfiguration {
 
     public enum ExitOn {
         /**
-         * The {@link SpringApplication} is starting up and the {@link ApplicationContext} is fully
-         * prepared but not refreshed. The bean definitions will be loaded and the {@link
-         * Environment} is ready for use at this stage.
+         * The {@link SpringApplication} is starting up and the {@link ApplicationContext} is fully prepared but not
+         * refreshed. The bean definitions will be loaded and the {@link Environment} is ready for use at this stage.
          *
          * @see ApplicationPreparedEvent
          */
@@ -70,16 +67,16 @@ public class ExitOnApplicationEventAutoConfiguration {
          */
         onRefreshed,
         /**
-         * {@code ApplicationContext} has been refreshed but before any {@link ApplicationRunner
-         * application} and {@link CommandLineRunner command line} runners have been called.
+         * {@code ApplicationContext} has been refreshed but before any {@link ApplicationRunner application} and
+         * {@link CommandLineRunner command line} runners have been called.
          *
          * @see ApplicationStartedEvent
          */
         onStarted,
         /**
-         * Published as late as conceivably possible to indicate that the application is ready to
-         * service requests. The source of the event is the {@link SpringApplication} itself, but
-         * beware all initialization steps will have been completed by then.
+         * Published as late as conceivably possible to indicate that the application is ready to service requests. The
+         * source of the event is the {@link SpringApplication} itself, but beware all initialization steps will have
+         * been completed by then.
          *
          * @see ApplicationReadyEvent
          */

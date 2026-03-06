@@ -23,8 +23,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 
 /**
- * Configuration to make sure all {@link XStreamServiceLoader} extensions are loaded regardless of
- * the microservice this starter is used from.
+ * Configuration to make sure all {@link XStreamServiceLoader} extensions are loaded regardless of the microservice this
+ * starter is used from.
  *
  * @since 1.0
  */

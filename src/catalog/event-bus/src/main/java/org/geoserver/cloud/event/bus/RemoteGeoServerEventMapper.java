@@ -14,8 +14,8 @@ import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.cloud.bus.event.Destination;
 
 /**
- * Aids {@link RemoteGeoServerEventBridge} in mapping {@link RemoteGeoServerEvent} to local {@link
- * GeoServerEvent} and vice-versa.
+ * Aids {@link RemoteGeoServerEventBridge} in mapping {@link RemoteGeoServerEvent} to local {@link GeoServerEvent} and
+ * vice-versa.
  *
  * @see InfoEventResolver
  * @see RemoteGeoServerEventBridge

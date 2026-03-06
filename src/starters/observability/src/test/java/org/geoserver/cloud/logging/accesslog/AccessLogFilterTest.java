@@ -29,9 +29,9 @@ import reactor.test.StepVerifier;
 
 /**
  * Tests for the access log filters.
- * <p>
- * This test class covers both the Servlet-based {@link AccessLogServletFilter} and
- * the WebFlux-based {@link AccessLogWebfluxFilter}.
+ *
+ * <p>This test class covers both the Servlet-based {@link AccessLogServletFilter} and the WebFlux-based
+ * {@link AccessLogWebfluxFilter}.
  */
 class AccessLogFilterTest {
 

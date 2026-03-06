@@ -19,9 +19,9 @@ import org.geoserver.wps.WPSInfo;
 import org.junit.jupiter.api.Test;
 
 /**
- * Verifies that JSON produced by Jackson 2's property naming convention can be deserialized for
- * GeoServer configuration objects. Tests focus on fields where Jackson 2's {@code
- * legacyManglePropertyName} lowercases leading uppercase characters.
+ * Verifies that JSON produced by Jackson 2's property naming convention can be deserialized for GeoServer configuration
+ * objects. Tests focus on fields where Jackson 2's {@code legacyManglePropertyName} lowercases leading uppercase
+ * characters.
  *
  * <p>Key Jackson 2 property name mappings tested:
  *
@@ -30,11 +30,9 @@ import org.junit.jupiter.api.Test;
  *   <li>{@code WmsService.SRS} &rarr; {@code "srs"}
  *   <li>{@code WmsService.BBOXForEachCRS} &rarr; {@code "bboxforEachCRS"}
  *   <li>{@code WmsService.GetMapMimeTypes} &rarr; {@code "getMapMimeTypes"}
- *   <li>{@code WmsService.GetMapMimeTypeCheckingEnabled} &rarr; {@code
- *       "getMapMimeTypeCheckingEnabled"}
+ *   <li>{@code WmsService.GetMapMimeTypeCheckingEnabled} &rarr; {@code "getMapMimeTypeCheckingEnabled"}
  *   <li>{@code WmsService.GetFeatureInfoMimeTypes} &rarr; {@code "getFeatureInfoMimeTypes"}
- *   <li>{@code WmsService.GetFeatureInfoMimeTypeCheckingEnabled} &rarr; {@code
- *       "getFeatureInfoMimeTypeCheckingEnabled"}
+ *   <li>{@code WmsService.GetFeatureInfoMimeTypeCheckingEnabled} &rarr; {@code "getFeatureInfoMimeTypeCheckingEnabled"}
  *   <li>{@code WfsService.GML} &rarr; {@code "gml"}
  *   <li>{@code WfsService.SRS} &rarr; {@code "srs"}
  *   <li>{@code WcsService.GMLPrefixing} &rarr; {@code "gmlprefixing"}

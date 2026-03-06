@@ -13,14 +13,10 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-/**
- * @since 1.4
- */
+/** @since 1.4 */
 public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<StyleInfo> implements StyleRepository {
 
-    /**
-     * @param template
-     */
+    /** @param template */
     public PgconfigStyleRepository(@NonNull JdbcTemplate template) {
         super(StyleInfo.class, template);
     }

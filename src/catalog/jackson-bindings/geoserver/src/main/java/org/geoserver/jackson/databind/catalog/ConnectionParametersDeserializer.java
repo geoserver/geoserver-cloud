@@ -13,9 +13,7 @@ import tools.jackson.databind.ValueDeserializer;
 /**
  * Custom deserializer for Store connection parameters.
  *
- * <p>
- * This deserializer handles Literal objects in the map, extracting their values.
- * </p>
+ * <p>This deserializer handles Literal objects in the map, extracting their values.
  */
 public class ConnectionParametersDeserializer extends ValueDeserializer<ConnectionParameters> {
 

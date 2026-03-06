@@ -11,8 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Configuration properties for MapBox Styling extension.
  *
- * <p>
- * Available properties:
+ * <p>Available properties:
  *
  * <pre>{@code
  * geoserver:
@@ -28,8 +27,6 @@ public @Data class MapBoxStylingConfigProperties {
 
     static final boolean DEFAULT = true;
 
-    /**
-     * Whether the MapBox Styling extension is enabled.
-     */
+    /** Whether the MapBox Styling extension is enabled. */
     private boolean enabled = DEFAULT;
 }

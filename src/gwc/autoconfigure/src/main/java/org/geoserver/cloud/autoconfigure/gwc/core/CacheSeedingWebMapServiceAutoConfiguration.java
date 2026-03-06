@@ -21,8 +21,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * {@link EnableAutoConfiguration Auto configuration} to make sure a minimal {@link WebMapService}
- * and the GeoWebCache-specific decorator exist, as expected by {@link GeoServerTileLayer#seedTile}.
+ * {@link EnableAutoConfiguration Auto configuration} to make sure a minimal {@link WebMapService} and the
+ * GeoWebCache-specific decorator exist, as expected by {@link GeoServerTileLayer#seedTile}.
  *
  * @since 1.0
  */

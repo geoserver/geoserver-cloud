@@ -17,13 +17,10 @@ import org.springframework.context.annotation.Bean;
 /**
  * Test auto-configuration that registers beans conditionally for each GeoServer service.
  *
- * <p>
- * This auto-configuration is intended for testing the conditional annotations
- * in each service application. It creates simple marker beans that should
- * only be registered in their corresponding service context.
+ * <p>This auto-configuration is intended for testing the conditional annotations in each service application. It
+ * creates simple marker beans that should only be registered in their corresponding service context.
  *
- * <p>
- * To use this in a service application test:
+ * <p>To use this in a service application test:
  *
  * <pre>
  * &#64;SpringBootTest
@@ -48,63 +45,49 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 public class ConditionalTestAutoConfiguration {
 
-    /**
-     * Bean that should only be created in WMS service applications.
-     */
+    /** Bean that should only be created in WMS service applications. */
     @Bean("wmsConditionalBean")
     @ConditionalOnGeoServerWMS
     ConditionalTestBean wmsConditionalBean() {
         return new ConditionalTestBean("WMS");
     }
 
-    /**
-     * Bean that should only be created in WFS service applications.
-     */
+    /** Bean that should only be created in WFS service applications. */
     @Bean("wfsConditionalBean")
     @ConditionalOnGeoServerWFS
     ConditionalTestBean wfsConditionalBean() {
         return new ConditionalTestBean("WFS");
     }
 
-    /**
-     * Bean that should only be created in WCS service applications.
-     */
+    /** Bean that should only be created in WCS service applications. */
     @Bean("wcsConditionalBean")
     @ConditionalOnGeoServerWCS
     ConditionalTestBean wcsConditionalBean() {
         return new ConditionalTestBean("WCS");
     }
 
-    /**
-     * Bean that should only be created in WPS service applications.
-     */
+    /** Bean that should only be created in WPS service applications. */
     @Bean("wpsConditionalBean")
     @ConditionalOnGeoServerWPS
     ConditionalTestBean wpsConditionalBean() {
         return new ConditionalTestBean("WPS");
     }
 
-    /**
-     * Bean that should only be created in REST service applications.
-     */
+    /** Bean that should only be created in REST service applications. */
     @Bean("restConditionalBean")
     @ConditionalOnGeoServerREST
     ConditionalTestBean restConditionalBean() {
         return new ConditionalTestBean("REST");
     }
 
-    /**
-     * Bean that should only be created in Web UI applications.
-     */
+    /** Bean that should only be created in Web UI applications. */
     @Bean("webUiConditionalBean")
     @ConditionalOnGeoServerWebUI
     ConditionalTestBean webUiConditionalBean() {
         return new ConditionalTestBean("WebUI");
     }
 
-    /**
-     * Simple marker bean for conditional testing.
-     */
+    /** Simple marker bean for conditional testing. */
     public static class ConditionalTestBean {
         private final String serviceName;
 

@@ -41,21 +41,23 @@ import org.springframework.util.StringUtils;
  * A {@link UnaryOperator} that resolves {@link ResolvingProxy} references within {@link CatalogInfo} objects.
  *
  * <p>This utility resolves proxied properties in {@link CatalogInfo} objects (e.g., {@link StoreInfo#getWorkspace()},
- * {@link ResourceInfo#getNamespace()}) by fetching actual instances from a supplied {@link Catalog}, suitable
- * for use with {@link ResolvingCatalogFacadeDecorator#setOutboundResolver(UnaryOperator)}. It processes both top-level
- * proxies and nested references recursively, with configurable behavior for unresolved proxies via a
- * {@link BiConsumer} callback. A memoizing variant is available via {@link #memoizing()} for efficient stream
- * processing.
+ * {@link ResourceInfo#getNamespace()}) by fetching actual instances from a supplied {@link Catalog}, suitable for use
+ * with {@link ResolvingCatalogFacadeDecorator#setOutboundResolver(UnaryOperator)}. It processes both top-level proxies
+ * and nested references recursively, with configurable behavior for unresolved proxies via a {@link BiConsumer}
+ * callback. A memoizing variant is available via {@link #memoizing()} for efficient stream processing.
  *
  * <p>Key features:
+ *
  * <ul>
- *   <li><strong>Proxy Resolution:</strong> Replaces {@link ResolvingProxy} instances with catalog objects.</li>
- *   <li><strong>Recursive Handling:</strong> Resolves nested references in complex types (e.g., {@link LayerGroupInfo}).</li>
- *   <li><strong>Configurable Failure:</strong> Allows customization of unresolved proxy handling.</li>
- *   <li><strong>Memoization Option:</strong> Offers a caching variant for repeated lookups.</li>
+ *   <li><strong>Proxy Resolution:</strong> Replaces {@link ResolvingProxy} instances with catalog objects.
+ *   <li><strong>Recursive Handling:</strong> Resolves nested references in complex types (e.g.,
+ *       {@link LayerGroupInfo}).
+ *   <li><strong>Configurable Failure:</strong> Allows customization of unresolved proxy handling.
+ *   <li><strong>Memoization Option:</strong> Offers a caching variant for repeated lookups.
  * </ul>
  *
  * <p>Example usage:
+ *
  * <pre>
  * Catalog catalog = ...;
  * ResolvingProxyResolver<CatalogInfo> resolver = ResolvingProxyResolver.of(catalog);
@@ -64,9 +66,9 @@ import org.springframework.util.StringUtils;
  * </pre>
  *
  * <p>When resolving object references from a stream of objects, it’s convenient to use the {@link #memoizing()}
- * supplier, which will keep a local cache during the lifetime of the stream to avoid querying the catalog over
- * repeated occurrences. Note though, this may not be necessary if the catalog can do very fast id lookups—for
- * example, if it has its own caching mechanism or is a purely in-memory catalog.
+ * supplier, which will keep a local cache during the lifetime of the stream to avoid querying the catalog over repeated
+ * occurrences. Note though, this may not be necessary if the catalog can do very fast id lookups—for example, if it has
+ * its own caching mechanism or is a purely in-memory catalog.
  *
  * @param <T> The type of object to resolve (typically {@link CatalogInfo} or its subtypes).
  * @since 1.0
@@ -99,7 +101,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Constructs a resolver with a catalog supplier and custom not-found behavior.
      *
-     * @param catalog   The supplier of the {@link Catalog} for resolution; must not be null.
+     * @param catalog The supplier of the {@link Catalog} for resolution; must not be null.
      * @param onNotFound The action to take when a proxy cannot be resolved; must not be null.
      * @throws NullPointerException if {@code catalog} or {@code onNotFound} is null.
      */
@@ -115,8 +117,8 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Creates a resolver with a fixed catalog and custom not-found behavior.
      *
-     * @param <I>        The type of {@link Info} to resolve.
-     * @param catalog    The {@link Catalog} to use; must not be null.
+     * @param <I> The type of {@link Info} to resolve.
+     * @param catalog The {@link Catalog} to use; must not be null.
      * @param onNotFound The action for unresolved proxies; must not be null.
      * @return A new {@link ResolvingProxyResolver} instance.
      * @throws NullPointerException if {@code catalog} or {@code onNotFound} is null.
@@ -129,8 +131,8 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Creates a resolver with a catalog supplier and custom not-found behavior.
      *
-     * @param <I>        The type of {@link Info} to resolve.
-     * @param catalog    The supplier of the {@link Catalog}; must not be null.
+     * @param <I> The type of {@link Info} to resolve.
+     * @param catalog The supplier of the {@link Catalog}; must not be null.
      * @param onNotFound The action for unresolved proxies; must not be null.
      * @return A new {@link ResolvingProxyResolver} instance.
      * @throws NullPointerException if {@code catalog} or {@code onNotFound} is null.
@@ -143,8 +145,8 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Creates a resolver with a fixed catalog and configurable failure on not found.
      *
-     * @param <I>           The type of {@link Info} to resolve.
-     * @param catalog       The {@link Catalog} to use; must not be null.
+     * @param <I> The type of {@link Info} to resolve.
+     * @param catalog The {@link Catalog} to use; must not be null.
      * @param errorOnNotFound If true, throws an exception on unresolved proxies; if false, logs a warning.
      * @return A new {@link ResolvingProxyResolver} instance.
      * @throws NullPointerException if {@code catalog} is null.
@@ -161,7 +163,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Creates a resolver with a fixed catalog and default not-found behavior.
      *
-     * @param <I>     The type of {@link Info} to resolve.
+     * @param <I> The type of {@link Info} to resolve.
      * @param catalog The {@link Catalog} to use; must not be null.
      * @return A new {@link ResolvingProxyResolver} instance.
      * @throws NullPointerException if {@code catalog} is null.
@@ -173,7 +175,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Creates a resolver with a catalog supplier and default not-found behavior.
      *
-     * @param <I>     The type of {@link Info} to resolve.
+     * @param <I> The type of {@link Info} to resolve.
      * @param catalog The supplier of the {@link Catalog}; must not be null.
      * @return A new {@link ResolvingProxyResolver} instance.
      * @throws NullPointerException if {@code catalog} is null.
@@ -222,11 +224,11 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Resolves an object, handling top-level and nested {@link ResolvingProxy} references.
      *
-     * <p>If the object is a {@link ResolvingProxy}, resolves it via the catalog; otherwise, processes nested
-     * references based on type (e.g., {@link LayerInfo}, {@link StoreInfo}). Unresolved proxies trigger the
-     * configured {@code onNotFound} action, defaulting to keeping the proxy if no exception is thrown.
+     * <p>If the object is a {@link ResolvingProxy}, resolves it via the catalog; otherwise, processes nested references
+     * based on type (e.g., {@link LayerInfo}, {@link StoreInfo}). Unresolved proxies trigger the configured
+     * {@code onNotFound} action, defaulting to keeping the proxy if no exception is thrown.
      *
-     * @param <I>  The type of object to resolve.
+     * @param <I> The type of object to resolve.
      * @param orig The object to resolve; may be null.
      * @return The resolved object, or {@code orig} if unresolved and allowed by {@code onNotFound}.
      */
@@ -318,7 +320,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Performs the actual proxy resolution using {@link ProxyUtils}.
      *
-     * @param <I>  The type of {@link Info}.
+     * @param <I> The type of {@link Info}.
      * @param orig The proxy object to resolve; must not be null.
      * @return The resolved object, or null if not found.
      */
@@ -358,7 +360,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     /**
      * Resolves nested references in a {@link PublishedInfo} polymorphically.
      *
-     * @param <P>       The type of {@link PublishedInfo}.
+     * @param <P> The type of {@link PublishedInfo}.
      * @param published The {@link PublishedInfo} to resolve; must not be null.
      * @return The resolved {@link PublishedInfo}.
      */
@@ -504,9 +506,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
         return resource;
     }
 
-    /**
-     * A memoizing variant of {@link ResolvingProxyResolver} that caches resolved objects.
-     */
+    /** A memoizing variant of {@link ResolvingProxyResolver} that caches resolved objects. */
     private static class MemoizingProxyResolver extends ResolvingProxyResolver<Info> {
 
         private Map<String, Info> resolvedById = new ConcurrentHashMap<>();
@@ -514,7 +514,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
         /**
          * Constructs a memoizing resolver with a catalog supplier and not-found behavior.
          *
-         * @param catalog    The supplier of the {@link Catalog}; must not be null.
+         * @param catalog The supplier of the {@link Catalog}; must not be null.
          * @param onNotFound The action for unresolved proxies; must not be null.
          */
         public MemoizingProxyResolver(@NonNull Supplier<Catalog> catalog, BiConsumer<Info, ResolvingProxy> onNotFound) {
@@ -524,7 +524,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
         /**
          * Resolves a proxy, using the cache to avoid repeated lookups.
          *
-         * @param <I>  The type of {@link Info}.
+         * @param <I> The type of {@link Info}.
          * @param orig The proxy object to resolve; must not be null.
          * @return The resolved object, or null if not found.
          */
@@ -544,7 +544,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
         /**
          * Computes and caches the resolved object if absent.
          *
-         * @param <I>  The type of {@link Info}.
+         * @param <I> The type of {@link Info}.
          * @param orig The proxy object to resolve; must not be null.
          * @return The resolved object.
          */

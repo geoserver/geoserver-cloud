@@ -15,17 +15,16 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 /**
  * Meta-annotation to conditionally register beans only when Gateway Shared Auth is disabled.
  *
- * <p>This conditional annotation is used to enable configuration classes or beans
- * only when the Gateway Shared Authentication feature is explicitly disabled. It checks
- * the following condition:
+ * <p>This conditional annotation is used to enable configuration classes or beans only when the Gateway Shared
+ * Authentication feature is explicitly disabled. It checks the following condition:
  *
  * <pre>
  * geoserver.extension.security.gateway-shared-auth.enabled = false
  * </pre>
  *
- * <p>When the feature is disabled, the {@link DisabledModeConfiguration} is activated,
- * which provides a no-op implementation of the authentication filter to maintain
- * backward compatibility when the feature was previously enabled.
+ * <p>When the feature is disabled, the {@link DisabledModeConfiguration} is activated, which provides a no-op
+ * implementation of the authentication filter to maintain backward compatibility when the feature was previously
+ * enabled.
  *
  * @see GatewaySharedAuthConfigProperties
  * @see ConditionalOnGatewaySharedAuthEnabled

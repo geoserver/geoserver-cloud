@@ -21,9 +21,8 @@ import org.slf4j.Logger;
  * Replacement for {@link GWCInitializer} when using the "pgconfig" storage.
  *
  * <p>This is required because {@link PgconfigTileLayerCatalogAutoConfiguration} does not set up a
- * {@link TileLayerCatalog}, which {@link GWCInitializer} requires, but a {@link
- * PgconfigTileLayerCatalog} instead, which directly implements {@link TileLayerConfiguration} to be
- * contributed to {@link TileLayerDispatcher}.
+ * {@link TileLayerCatalog}, which {@link GWCInitializer} requires, but a {@link PgconfigTileLayerCatalog} instead,
+ * which directly implements {@link TileLayerConfiguration} to be contributed to {@link TileLayerDispatcher}.
  *
  * @since 1.8
  */

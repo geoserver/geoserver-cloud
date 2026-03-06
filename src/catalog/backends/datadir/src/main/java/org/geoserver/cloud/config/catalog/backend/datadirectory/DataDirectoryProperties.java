@@ -16,8 +16,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration properties to use GeoServer's traditional file-system based data directory as the
- * {@link GeoServerBackendConfigurer catalog and configuration backend} through the {@link
- * DataDirectoryAutoConfiguration} auto-configuration.
+ * {@link GeoServerBackendConfigurer catalog and configuration backend} through the
+ * {@link DataDirectoryAutoConfiguration} auto-configuration.
  */
 @ConfigurationProperties(prefix = "geoserver.backend.data-directory")
 @Data
@@ -44,16 +44,15 @@ public class DataDirectoryProperties {
     /**
      * Configuration for eventual consistency enforcement when processing distributed catalog events.
      *
-     * <p>In a distributed deployment, catalog modification events broadcast over the message bus may
-     * arrive at each node in a different order than they were generated due to network conditions.
-     * This configuration controls how the catalog handles out-of-order events where an object
-     * references another object not yet present locally.
+     * <p>In a distributed deployment, catalog modification events broadcast over the message bus may arrive at each
+     * node in a different order than they were generated due to network conditions. This configuration controls how the
+     * catalog handles out-of-order events where an object references another object not yet present locally.
      *
-     * <p><b>When disabled:</b> Operations with missing references will fail immediately, potentially
-     * causing catalog inconsistencies across nodes.
+     * <p><b>When disabled:</b> Operations with missing references will fail immediately, potentially causing catalog
+     * inconsistencies across nodes.
      *
-     * <p><b>When enabled:</b> Operations with missing references are deferred until dependencies
-     * arrive, and query operations implement retry logic to allow brief wait periods for convergence.
+     * <p><b>When enabled:</b> Operations with missing references are deferred until dependencies arrive, and query
+     * operations implement retry logic to allow brief wait periods for convergence.
      *
      * @see org.geoserver.cloud.catalog.backend.datadir.EventuallyConsistentCatalogFacade
      * @see org.geoserver.cloud.catalog.backend.datadir.EventualConsistencyEnforcer
@@ -63,9 +62,8 @@ public class DataDirectoryProperties {
         /**
          * Enable eventual consistency enforcement for resilience against out-of-order catalog events.
          *
-         * <p>When enabled, catalog operations that reference objects not yet present locally will be
-         * deferred until those objects arrive. This prevents catalog corruption when events arrive
-         * out of sequence.
+         * <p>When enabled, catalog operations that reference objects not yet present locally will be deferred until
+         * those objects arrive. This prevents catalog corruption when events arrive out of sequence.
          *
          * <p>Default: {@code true} (recommended for all distributed deployments)
          */
@@ -74,14 +72,15 @@ public class DataDirectoryProperties {
         /**
          * Retry intervals in milliseconds for catalog query operations during REST API requests.
          *
-         * <p>When a REST API query (e.g., {@code GET /rest/workspaces/foo}) returns null and there
-         * are pending operations waiting to converge, the query will retry after waiting the
-         * specified intervals to allow time for dependencies to arrive and operations to complete.
+         * <p>When a REST API query (e.g., {@code GET /rest/workspaces/foo}) returns null and there are pending
+         * operations waiting to converge, the query will retry after waiting the specified intervals to allow time for
+         * dependencies to arrive and operations to complete.
          *
-         * <p>The list size determines the maximum number of retry attempts. Each value specifies the
-         * wait time in milliseconds before that retry attempt.
+         * <p>The list size determines the maximum number of retry attempts. Each value specifies the wait time in
+         * milliseconds before that retry attempt.
          *
          * <p><b>Example:</b> {@code [25, 25, 50]} means:
+         *
          * <ul>
          *   <li>Initial query returns null
          *   <li>Wait 25ms, retry #1

@@ -18,8 +18,8 @@ import org.mapstruct.factory.Mappers;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Test suite for {@link GeoToolsFilterModule} serialization and deserialization of {@link
- * org.geotools.api.filter.Filter}s
+ * Test suite for {@link GeoToolsFilterModule} serialization and deserialization of
+ * {@link org.geotools.api.filter.Filter}s
  */
 @Slf4j
 public abstract class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTest {
