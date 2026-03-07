@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
-import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.config.GeoServerDataDirectory;
@@ -47,7 +46,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
         // exclude authenticationManager from applicationSecurityContext.xml
         GeoServerSecurityConfiguration.APPLICATION_SECURITY_CONTEXT_FILTER)
 @Slf4j(topic = "org.geoserver.cloud.config.security")
-@ConditionalOnGeoServerSecurityEnabled
 public class GeoServerSecurityConfiguration {
 
     /** */
