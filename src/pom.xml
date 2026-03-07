@@ -10,7 +10,7 @@
   <packaging>pom</packaging>
   <name>GeoServer Cloud modules</name>
   <modules>
-    <module>library</module>
+    <module>config</module>
     <module>catalog</module>
     <module>gwc</module>
     <module>extensions</module>
@@ -307,6 +307,18 @@
       <dependency>
         <groupId>org.geoserver.web</groupId>
         <artifactId>gs-web-core</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
+          <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.web</groupId>
+        <artifactId>gs-web-demo</artifactId>
         <version>${gs.version}</version>
         <exclusions>
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
