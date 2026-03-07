@@ -76,25 +76,7 @@ class GeoServerSecurityAutoConfigurationTest {
     }
 
     @Test
-    void disabled() {
-        runner.withPropertyValues("geoserver.security.enabled: false") //
-                .run(context -> {
-                    assertThat(context).hasNotFailed();
-                    assertThat(context).doesNotHaveBean(CloudGeoServerSecurityManager.class);
-                });
-    }
-
-    @Test
-    void enabledByDefault() {
-        testEnabled(runner);
-    }
-
-    @Test
-    void enabledExplicitly() {
-        testEnabled(runner.withPropertyValues("geoserver.security.enabled: true"));
-    }
-
-    private void testEnabled(ApplicationContextRunner runner) {
+    void expectedSecurityBeans() {
         runner.run(context -> {
             assertThat(context).hasNotFailed();
             assertThat(context).hasBean("authenticationManager");

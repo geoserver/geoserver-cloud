@@ -13,8 +13,6 @@ import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
-import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityDisabled;
-import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerFacade;
@@ -143,9 +141,8 @@ public class CoreBackendConfiguration {
      * @return {@link SecureCatalogImpl} decorator if {@code properties.isSecure() == true}, {@code rawCatalog}
      *     otherwise.
      */
-    @DependsOn({"extensions", "dataDirectory", "accessRulesDao"})
-    @ConditionalOnGeoServerSecurityEnabled
     @Bean
+    @DependsOn({"extensions", "dataDirectory", "accessRulesDao"})
     Catalog secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog, CatalogProperties properties) throws Exception {
         if (properties.isSecure()) {
             return new SecureCatalogImpl(rawCatalog);
@@ -154,14 +151,15 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * Default implementation of {@link ResourceAccessManager}, loads simple access rules from a properties file or a
-     * Properties object
+     * Default implementation of {@link ResourceAccessManager}, loads simple access
+     * rules from a properties file or a Properties object
      * <p>
-     *      * Added to {@literal gs-main.jar} in 2.22.x as
+     * * Added to {@literal gs-main.jar} in 2.22.x as
      *
      * <pre>
      * {@code
-     *  <bean id="defaultResourceAccessManager" class="org.geoserver.security.impl.DefaultResourceAccessManager">
+     *  <bean id="defaultResourceAccessManager" class=
+     * "org.geoserver.security.impl.DefaultResourceAccessManager">
      *      <constructor-arg ref="accessRulesDao"/>
      *      <constructor-arg ref="rawCatalog"/>
      *      <property name="groupsCache" ref="layerGroupContainmentCache"/>
@@ -191,7 +189,6 @@ public class CoreBackendConfiguration {
      * @see #noOpLayerGroupContainmentCache(Catalog)
      */
     @Bean(name = "layerGroupContainmentCache")
-    @ConditionalOnGeoServerSecurityEnabled
     @ConditionalOnProperty(
             name = "geoserver.security.layergroup-containmentcache",
             havingValue = "true",
@@ -209,7 +206,6 @@ public class CoreBackendConfiguration {
      * @see #enabledLayerGroupContainmentCache(Catalog)
      */
     @Bean(name = "layerGroupContainmentCache")
-    @ConditionalOnGeoServerSecurityEnabled
     @ConditionalOnProperty(
             name = "geoserver.security.layergroup-containmentcache",
             havingValue = "false",
@@ -218,13 +214,6 @@ public class CoreBackendConfiguration {
 
         log.info("using {}", NoopLayerGroupContainmentCache.class.getSimpleName());
         return new NoopLayerGroupContainmentCache();
-    }
-
-    @ConditionalOnGeoServerSecurityDisabled
-    @Bean(name = {"catalog", "secureCatalog"})
-    @Primary
-    Catalog secureCatalogDisabled(@Qualifier("rawCatalog") Catalog rawCatalog) {
-        return rawCatalog;
     }
 
     /**
