@@ -6,21 +6,11 @@
     <artifactId>gs-cloud</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-lib</artifactId>
+  <artifactId>gs-cloud-config-parent</artifactId>
   <packaging>pom</packaging>
-  <name>Misc libs</name>
+  <name>Parent for Spring configuration modules</name>
   <modules>
     <module>spring-factory</module>
     <module>spring-boot-simplejndi</module>
   </modules>
-  <properties>
-    <java.version>21</java.version>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 </project>
