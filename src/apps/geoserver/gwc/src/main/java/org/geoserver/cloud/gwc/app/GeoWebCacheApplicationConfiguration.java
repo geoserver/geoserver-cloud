@@ -14,6 +14,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.cloud.gwc.config.core.GwcRequestPathInfoFilter;
 import org.geoserver.cloud.gwc.config.core.WebMapServiceMinimalConfiguration;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -93,6 +94,7 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
         public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
                 throws IOException, ServletException {
 
+            request = GwcRequestPathInfoFilter.adaptRequest((HttpServletRequest) request);
             request = adaptRequest((HttpServletRequest) request);
             chain.doFilter(request, response);
         }
