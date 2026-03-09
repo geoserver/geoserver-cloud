@@ -101,5 +101,6 @@ public class CloudGwcConfigPersister extends GWCConfigPersister {
         xs.ignoreUnknownElements("InnerCacheConfiguration");
         xs.allowTypes(new Class[] {GWCConfig.class, DimensionWarning.WarningType.class});
         xs.addDefaultImplementation(LinkedHashSet.class, Set.class);
+        xs.ignoreUnknownElements();
     }
 }
