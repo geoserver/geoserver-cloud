@@ -340,6 +340,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         xstream.allowTypes(new String[] {"java.util.Collections$UnmodifiableSet"});
         xstream.addDefaultImplementation(LinkedHashSet.class, Set.class);
         xstream.alias("warning", DimensionWarning.WarningType.class);
+        xstream.ignoreUnknownElements();
+
         return xstream;
     }
 }
