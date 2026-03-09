@@ -52,13 +52,13 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 public class GeoWebCacheCoreConfiguration {
 
     /**
-     * @return a {@link GeoServerLockProvider} delegating the the {@link ResourceStore}, whose
-     *     {@link ResourceStore#getLockProvider()} is known to be cluster-capable
+     * @return a {@link GeoServerLockProvider} delegating the the {@link LockProvider}, which
+     * is known to be safe for distributed locking
      */
     @Bean(name = AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
-    LockProvider gwcLockProvider(@Qualifier("resourceStoreImpl") ResourceStore resourceStore) {
-        var provider = new GeoServerLockProvider();
-        provider.setDelegate(resourceStore);
+    org.geowebcache.locks.LockProvider gwcLockProvider(@Qualifier("resourceStoreImpl") ResourceStore delegate) {
+        GeoServerLockProvider provider = new GeoServerLockProvider();
+        provider.setDelegate(delegate);
         return provider;
     }
 

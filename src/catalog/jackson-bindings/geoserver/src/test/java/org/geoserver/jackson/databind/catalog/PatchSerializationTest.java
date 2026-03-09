@@ -72,6 +72,8 @@ import org.geoserver.jackson.databind.config.GeoServerConfigModule;
 import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
+import org.geoserver.security.decorators.DecoratingDataStoreInfo;
+import org.geoserver.security.decorators.DecoratingFeatureTypeInfo;
 import org.geoserver.wfs.WFSInfo;
 import org.geoserver.wms.WMSInfo;
 import org.geotools.api.coverage.grid.GridEnvelope;
@@ -556,6 +558,31 @@ public abstract class PatchSerializationTest {
 
         for (AttributeTypeInfo att : rtripAtts) {
             assertModificationProxy(ft, att.getFeatureType());
+        }
+    }
+
+    @Test
+    void testResolvePatchUnwrapsDecorators() throws Exception {
+
+        FeatureTypeInfo ft = data.featureTypeA;
+        ft.setStore(new DecoratingDataStoreInfo(data.dataStoreA));
+        DecoratingFeatureTypeInfo decorated = new DecoratingFeatureTypeInfo(ft) {};
+
+        List<AttributeTypeInfo> attributes = createTestAttributes(decorated);
+
+        Patch patch = patch("attributes", attributes);
+        Patch resolved = proxyResolver.resolve(patch);
+
+        @SuppressWarnings("unchecked")
+        List<AttributeTypeInfo> resolvedAttributes =
+                (List<AttributeTypeInfo>) resolved.getValue("attributes").orElseThrow();
+
+        FeatureTypeInfo expectedFt = ModificationProxy.unwrap(ft);
+        DataStoreInfo expectedDs = ModificationProxy.unwrap(data.dataStoreA);
+        for (AttributeTypeInfo att : resolvedAttributes) {
+            FeatureTypeInfo featureType = att.getFeatureType();
+            assertSame(expectedFt, featureType);
+            assertSame(expectedDs, featureType.getStore());
         }
     }
 

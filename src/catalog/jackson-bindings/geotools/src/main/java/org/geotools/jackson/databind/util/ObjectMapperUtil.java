@@ -8,6 +8,7 @@ package org.geotools.jackson.databind.util;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
@@ -38,6 +39,8 @@ public class ObjectMapperUtil {
         ObjectMapper objectMapper = new ObjectMapper(jsonFactory);
         objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
         objectMapper.disable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        // helps when reverting to a prior version
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         objectMapper.findAndRegisterModules();
 
         return objectMapper;

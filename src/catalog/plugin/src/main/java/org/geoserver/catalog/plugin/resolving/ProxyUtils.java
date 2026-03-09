@@ -37,7 +37,6 @@ import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
-import org.geoserver.catalog.impl.ResourceInfoImpl;
 import org.geoserver.catalog.impl.StoreInfoImpl;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServer;
@@ -45,6 +44,9 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.geoserver.security.decorators.SecuredFeatureTypeInfo;
+import org.geoserver.security.decorators.SecuredLayerInfo;
+import org.geotools.util.decorate.AbstractDecorator;
 
 /**
  * A utility class for resolving {@link Info} objects and {@link Patch} properties within a GeoServer
@@ -256,6 +258,7 @@ public class ProxyUtils {
         if (unresolved == null) {
             return null;
         }
+
         T resolved = ModificationProxy.unwrap(unresolved);
         if (isResolvingProxy(unresolved)) {
             resolved = resolveResolvingProxy(resolved);
@@ -273,11 +276,20 @@ public class ProxyUtils {
 
     /**
      * Dispatches resolution to type-specific internal methods.
+     * <p>
+     * Handles {@link AbstractDecorator decorated} objects such as {@link SecuredFeatureTypeInfo}, {@link SecuredLayerInfo}, etc. by
+     * {@link AbstractDecorator#unwrap unwrapping} and delegating back to {@link #resolve(Info)} to handle decorated objects being
+     * possibly a proxied instance (such as {@link ModificationProxy}).
      *
      * @param info The {@link Info} object to resolve; must not be null.
      * @return The resolved {@link Info}.
      */
     private Info resolveInternal(Info info) {
+        if (info instanceof AbstractDecorator<?> decorator) {
+            Info unresolved = decorator.unwrap(Info.class);
+            return resolve(unresolved);
+        }
+
         if (info instanceof StyleInfo s) {
             return resolveInternal(s);
         }
@@ -534,20 +546,18 @@ public class ProxyUtils {
      * @return The resolved {@link ResourceInfo}.
      */
     protected ResourceInfo resolveInternal(ResourceInfo resource) {
-        ResourceInfoImpl r = (ResourceInfoImpl) resource;
-
         // resolve the store
         StoreInfo store = resource.getStore();
         if (store != null) {
-            r.setStore(resolve(store));
+            resource.setStore(resolve(store));
         }
 
         // resolve the namespace
         NamespaceInfo namespace = resource.getNamespace();
         if (namespace != null) {
-            r.setNamespace(resolve(namespace));
+            resource.setNamespace(resolve(namespace));
         }
-        return r;
+        return resource;
     }
 
     /**

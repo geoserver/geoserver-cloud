@@ -10,7 +10,7 @@
   <packaging>jar</packaging>
   <name>wfs-service</name>
   <properties>
-    <start-class>org.geoserver.cloud.wfs.WfsApplication</start-class>
+    <start-class>org.geoserver.cloud.wfs.app.WfsApplication</start-class>
   </properties>
   <dependencies>
     <!-- Inherit common starters from parent pom -->

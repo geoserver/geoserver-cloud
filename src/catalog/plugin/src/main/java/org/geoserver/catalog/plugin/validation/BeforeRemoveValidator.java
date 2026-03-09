@@ -162,7 +162,7 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
         }
 
         for (PublishedInfo child : lg.getLayers()) {
-            if (toDelete.getId().equals(child.getId())) {
+            if (child != null && toDelete.getId().equals(child.getId())) {
                 return true;
             }
             if (child instanceof LayerGroupInfo childGroup) {

@@ -46,6 +46,7 @@
               <goal>repackage</goal>
             </goals>
             <configuration>
+              <mainClass>${start-class}</mainClass>
               <classifier>bin</classifier>
             </configuration>
           </execution>

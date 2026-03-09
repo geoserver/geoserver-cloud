@@ -18,7 +18,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
@@ -341,6 +343,15 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         if (null != resource) {
             setStore(resource, rs);
             setNamespace(rs, resource);
+        }
+        if (resource instanceof FeatureTypeInfo ft) {
+            List<AttributeTypeInfo> attributes = ft.getAttributes();
+            if (attributes != null && !attributes.isEmpty()) {
+                FeatureTypeInfo mproxy = ModificationProxy.create(ft, FeatureTypeInfo.class);
+                for (AttributeTypeInfo att : attributes) {
+                    att.setFeatureType(mproxy);
+                }
+            }
         }
         return resource;
     }
