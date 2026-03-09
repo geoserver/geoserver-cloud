@@ -153,6 +153,7 @@ class TileLayerMocking {
         LayerGroupInfo lg = faker.layerGroupInfo(ws);
         LayerInfo li = null == ws ? layerInfo() : layerInfo(ws);
         lg.getLayers().add(li);
+        faker.catalog().add(lg);
         return lg;
     }
 }
