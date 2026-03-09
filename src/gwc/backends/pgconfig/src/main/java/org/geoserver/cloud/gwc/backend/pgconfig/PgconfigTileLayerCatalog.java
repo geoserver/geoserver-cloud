@@ -51,7 +51,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
     final @NonNull TileLayerInfoRepository repository;
     final @NonNull GridSetBroker gridsetBroker;
-    final @NonNull Supplier<Catalog> catalogSupplier;
+    final @NonNull Supplier<Catalog> catalogSupplier; // Fix NPE for: Get Capabilities.xml
     final @NonNull UnaryOperator<PublishedInfo> publishedResolver;
     final @NonNull GWCConfigPersister defaultsProvider;
 
