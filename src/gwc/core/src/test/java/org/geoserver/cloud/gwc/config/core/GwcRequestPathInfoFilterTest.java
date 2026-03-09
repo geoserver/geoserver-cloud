@@ -61,7 +61,25 @@ class GwcRequestPathInfoFilterTest {
         HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
         assertThat(result.getServletPath()).isEqualTo("/ws");
         assertThat(result.getPathInfo()).isEqualTo("/service/wmts");
-        assertThat(result.getRequestURI()).isEqualTo("/gwc/service/wmts");
+        assertThat(result.getRequestURI()).isEqualTo("/ws/gwc/service/wmts");
+    }
+
+    @Test
+    void virtual_servicePath_withContextPath() {
+        MockHttpServletRequest request = mockRequest("/ctx/ws/gwc/service/wmts", "/ctx");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result.getServletPath()).isEqualTo("/ws");
+        assertThat(result.getPathInfo()).isEqualTo("/service/wmts");
+        assertThat(result.getRequestURI()).isEqualTo("/ctx/ws/gwc/service/wmts");
+    }
+
+    @Test
+    void virtual_servicePath_withWorkspaceAndLayer() {
+        MockHttpServletRequest request = mockRequest("/ctx/ws/layer/gwc/service/wmts", "/ctx");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result.getServletPath()).isEqualTo("/ws/layer");
+        assertThat(result.getPathInfo()).isEqualTo("/service/wmts");
+        assertThat(result.getRequestURI()).isEqualTo("/ctx/ws/layer/gwc/service/wmts");
     }
 
     @Test
@@ -71,6 +89,15 @@ class GwcRequestPathInfoFilterTest {
         assertThat(result.getServletPath()).isEqualTo("/ws");
         assertThat(result.getPathInfo()).isEqualTo("/rest/web/blobstores");
         assertThat(result.getRequestURI()).isEqualTo("/gwc/rest/web/blobstores");
+    }
+
+    @Test
+    void virtual_demoPath_stillStripsWorkspace() {
+        MockHttpServletRequest request = mockRequest("/ctx/ws/gwc/demo/layer:name", "/ctx");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result.getServletPath()).isEqualTo("/ws");
+        assertThat(result.getPathInfo()).isEqualTo("/demo/layer:name");
+        assertThat(result.getRequestURI()).isEqualTo("/ctx/gwc/demo/layer:name");
     }
 
     private MockHttpServletRequest mockRequest(String requestURI, String contextPath) {

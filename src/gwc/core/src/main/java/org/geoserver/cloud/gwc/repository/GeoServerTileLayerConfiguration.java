@@ -5,12 +5,20 @@
 
 package org.geoserver.cloud.gwc.repository;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.PublishedInfo;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
+import org.geoserver.ows.LocalPublished;
+import org.geoserver.ows.LocalWorkspace;
 import org.geowebcache.config.TileLayerConfiguration;
 import org.geowebcache.layer.TileLayer;
 import org.springframework.context.event.EventListener;
@@ -59,6 +67,50 @@ public class GeoServerTileLayerConfiguration extends ForwardingTileLayerConfigur
     @EventListener(TileLayerEvent.class)
     void onTileLayerEvent(TileLayerEvent event) {
         eventConsumer.accept(event);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<TileLayer> getLayers() {
+        Collection<? extends TileLayer> layers = super.getLayers();
+        final WorkspaceInfo localWorkspace = LocalWorkspace.get();
+        if (localWorkspace != null) {
+            final PublishedInfo localPublished = LocalPublished.get();
+            return layers.stream()
+                    .filter(tl -> tl instanceof GeoServerTileLayer gstl
+                            && belongsToVirtualService(gstl, localWorkspace, localPublished))
+                    .collect(Collectors.toList());
+        }
+        return (Collection<TileLayer>) layers;
+    }
+
+    @Override
+    public Optional<TileLayer> getLayer(String layerName) {
+        Optional<TileLayer> layer = super.getLayer(layerName);
+        final WorkspaceInfo localWorkspace = LocalWorkspace.get();
+        if (localWorkspace != null) {
+            final PublishedInfo localPublished = LocalPublished.get();
+            return layer.filter(tl -> tl instanceof GeoServerTileLayer gstl
+                    && belongsToVirtualService(gstl, localWorkspace, localPublished));
+        }
+        return layer;
+    }
+
+    private static boolean belongsToVirtualService(
+            GeoServerTileLayer layer, WorkspaceInfo localWorkspace, PublishedInfo localPublished) {
+        PublishedInfo publishedInfo = layer.getPublishedInfo();
+        WorkspaceInfo layerWorkspace;
+        if (publishedInfo instanceof LayerInfo li) {
+            layerWorkspace = li.getResource().getStore().getWorkspace();
+        } else if (publishedInfo instanceof LayerGroupInfo lgi) {
+            layerWorkspace = lgi.getWorkspace();
+        } else {
+            return false;
+        }
+        if (layerWorkspace == null || !localWorkspace.getName().equals(layerWorkspace.getName())) {
+            return false;
+        }
+        return localPublished == null || localPublished.getName().equals(publishedInfo.getName());
     }
 
     @Override
