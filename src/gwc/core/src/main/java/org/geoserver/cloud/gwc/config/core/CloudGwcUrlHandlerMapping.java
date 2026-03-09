@@ -10,19 +10,18 @@ import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
 import org.springframework.http.server.RequestPath;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.util.ServletRequestPathUtils;
+import org.springframework.web.util.UrlPathHelper;
 
 /**
- * Extends {@link GwcUrlHandlerMapping} to fix virtual service URL handling with Spring 6's {@link
- * org.springframework.web.util.pattern.PathPattern PathPattern}-based request matching.
+ * Extends {@link GwcUrlHandlerMapping} to fix virtual service URL handling when the workspace
+ * prefix must be stripped before Spring's handler matching.
  *
- * <p>Spring 6 uses the cached parsed request path from {@link ServletRequestPathUtils} for pattern
- * matching, ignoring the {@code lookupPath} string parameter passed to {@code
- * lookupHandlerMethod}. The upstream {@link GwcUrlHandlerMapping} strips the workspace prefix from
- * the lookupPath string but doesn't update the cached parsed path, causing virtual service URLs to
- * return 404.
- *
- * <p>This subclass updates the cached parsed path to the workspace-stripped path before delegating
- * to the parent's {@code lookupHandlerMethod}, and restores it afterwards.
+ * <p>The upstream {@link GwcUrlHandlerMapping} strips the workspace prefix from the lookupPath
+ * string and expects {@link UrlPathHelper#PATH_ATTRIBUTE} to be set on the request so its internal
+ * {@code Wrapper} can adjust it accordingly. This subclass ensures both {@link
+ * UrlPathHelper#PATH_ATTRIBUTE} (used by {@code AntPathMatcher}-based matching) and {@link
+ * ServletRequestPathUtils#PATH_ATTRIBUTE} (used by {@code PathPattern}-based matching) are properly
+ * set before delegating to the parent, and restores them afterwards.
  */
 public class CloudGwcUrlHandlerMapping extends GwcUrlHandlerMapping {
 
@@ -38,27 +37,29 @@ public class CloudGwcUrlHandlerMapping extends GwcUrlHandlerMapping {
             return null;
         }
 
-        // Strip the workspace prefix to get the path matching controller patterns
         String strippedPath = lookupPath.substring(gwcRestBaseIndex);
         String contextPath = request.getContextPath();
 
-        // Save the original cached parsed path set by DispatcherServlet
         Object originalParsedPath = request.getAttribute(ServletRequestPathUtils.PATH_ATTRIBUTE);
+        Object originalUrlPath = request.getAttribute(UrlPathHelper.PATH_ATTRIBUTE);
 
-        // Update the cached parsed request path for Spring 6 PathPattern matching.
-        // The parent will pass the stripped lookupPath string to super.lookupHandlerMethod,
-        // but PathPattern matching reads from this request attribute instead.
         RequestPath parsedStrippedPath = RequestPath.parse(contextPath + strippedPath, contextPath);
         request.setAttribute(ServletRequestPathUtils.PATH_ATTRIBUTE, parsedStrippedPath);
+        request.setAttribute(UrlPathHelper.PATH_ATTRIBUTE, lookupPath);
 
         try {
             return super.lookupHandlerMethod(lookupPath, request);
         } finally {
-            if (originalParsedPath != null) {
-                request.setAttribute(ServletRequestPathUtils.PATH_ATTRIBUTE, originalParsedPath);
-            } else {
-                request.removeAttribute(ServletRequestPathUtils.PATH_ATTRIBUTE);
-            }
+            restoreAttribute(request, ServletRequestPathUtils.PATH_ATTRIBUTE, originalParsedPath);
+            restoreAttribute(request, UrlPathHelper.PATH_ATTRIBUTE, originalUrlPath);
+        }
+    }
+
+    private static void restoreAttribute(HttpServletRequest request, String name, Object original) {
+        if (original != null) {
+            request.setAttribute(name, original);
+        } else {
+            request.removeAttribute(name);
         }
     }
 }
