@@ -6,6 +6,7 @@
 package org.geoserver.cloud.gwc.config.services;
 
 import org.geoserver.catalog.Catalog;
+import org.geoserver.cloud.gwc.config.core.CloudGwcUrlHandlerMapping;
 import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
 import org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider;
 import org.geowebcache.rest.controller.SeedController;
@@ -126,7 +127,7 @@ public class RESTConfigConfiguration {
     @Bean
     @SuppressWarnings({"deprecation", "java:S1874"})
     GwcUrlHandlerMapping gwcWmtsRestUrlHandlerMapping(Catalog catalog) {
-        GwcUrlHandlerMapping handler = new GwcUrlHandlerMapping(catalog, "/gwc/rest/wmts");
+        GwcUrlHandlerMapping handler = new CloudGwcUrlHandlerMapping(catalog, "/gwc/rest/wmts");
         handler.setAlwaysUseFullPath(true);
         handler.setOrder(10);
         return handler;
