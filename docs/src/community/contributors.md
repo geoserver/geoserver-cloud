@@ -61,7 +61,9 @@ If you've contributed through GitHub (code, issues, reviews, etc.), you can requ
 
 1. Comment on any issue or PR: `@all-contributors please add @username for <contribution-type>`
 2. The bot will create a PR adding you to the list
-3. Once merged, you'll appear on this page!
+### For Maintainers
+
+Maintainers can also add contributors manually using the All Contributors CLI. See the [Contributor Recognition guide](../developer-guide/contributor_recognition.md) in the Developer's Guide for more information.
 
 **Contribution types include:**
 

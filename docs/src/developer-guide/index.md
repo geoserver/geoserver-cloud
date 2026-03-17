@@ -166,6 +166,10 @@ GeoServer Cloud follows specific [coding standards and style guidelines](coding_
 
 Learn about [acceptance tests](acceptance_tests.md), how they ensure quality and consistency with upstream GeoServer, and how to run and contribute to them.
 
+# Contributor Recognition
+
+Learn about the [All Contributors initiative and how to manage the contributors list](contributor_recognition.md).
+
 # Creating Extensions
 
 Learn how to create [extensions for GeoServer Cloud](extensions/adding_extensions.md).

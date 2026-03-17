@@ -116,6 +116,7 @@ nav:
     - Building: developer-guide/build_instructions.md
     - Docker Images: developer-guide/docker-images.md
     - Contributing: developer-guide/coding_standards.md
+    - Contributor Recognition: developer-guide/contributor_recognition.md
     - Logging: developer-guide/logging.md
     - Acceptance Tests: developer-guide/acceptance_tests.md
     - Services:
