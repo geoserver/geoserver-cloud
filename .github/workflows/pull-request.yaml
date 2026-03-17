@@ -49,6 +49,12 @@ jobs:
       run: |
         make test
 
+    - name: Remove project jars from cached repository
+      if: always()
+      run: |
+        rm -rf ~/.m2/repository/org/geoserver/cloud
+        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+
   acceptance:
     name: Acceptance
     if: github.repository == 'geoserver/geoserver-cloud'
@@ -130,5 +136,5 @@ jobs:
     - name: Remove project jars from cached repository
       if: always()
       run: |
-        rm -rf ~/.m2/repository/org/geoserver
+        rm -rf ~/.m2/repository/org/geoserver/cloud
         find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}

@@ -66,7 +66,7 @@ jobs:
 
     - name: Clean up Maven project artifacts
       run: |
-        rm -rf ~/.m2/repository/org/geoserver
+        rm -rf ~/.m2/repository/org/geoserver/cloud
         find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} + 2>/dev/null || true
 
   infrastructure-images:
@@ -113,7 +113,7 @@ jobs:
 
     - name: Clean up Maven project artifacts
       run: |
-        rm -rf ~/.m2/repository/org/geoserver
+        rm -rf ~/.m2/repository/org/geoserver/cloud
         find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} + 2>/dev/null || true
 
   geoserver-images:
@@ -165,7 +165,7 @@ jobs:
 
     - name: Clean up Maven project artifacts
       run: |
-        rm -rf ~/.m2/repository/org/geoserver
+        rm -rf ~/.m2/repository/org/geoserver/cloud
         find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} + 2>/dev/null || true
 
   sign-images:
