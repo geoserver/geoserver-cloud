@@ -19,6 +19,20 @@
 
 **GeoServer Cloud** builds on GeoServer to provide a [Cloud Native](https://en.wikipedia.org/wiki/Cloud-native_computing) distribution of its geospatial services and APIs.
 
+## Supporters
+
+This project is made possible through the collaboration and support of the following organizations and individuals.
+
+A **supporter** is anyone who contributes to the project in any way, through code, ideas, time, or funding, while a **sponsor** specifically contributes financially. The current sponsors list is maintained in [SPONSORS.md](SPONSORS.md).
+
+### Organizations
+
+[![Multivers.io](docs/src/assets/images/supporters/logo-multiversio-readme.png)](https://www.multivers.io/)
+
+### Individuals
+
+The complete list of individual contributors is published at [geoserver.org/geoserver-cloud/community/contributors](https://geoserver.org/geoserver-cloud/community/contributors/).
+
 ## Architecture
 
 The following diagram shows the system’s general architecture.
@@ -159,5 +173,3 @@ $ curl -u admin:geoserver "http://localhost:9090/geoserver/cloud/rest/workspaces
 ```
 
 Browse to [http://localhost:9090/geoserver/cloud/](http://localhost:9090/geoserver/cloud/)
-
-
