@@ -63,6 +63,7 @@ public class AuthKeyAutoConfiguration {
     @Bean(name = "authKeyExtension")
     ModuleStatus authKeyExtension(AuthKeyConfigProperties config) {
         ModuleStatusImpl module = new ModuleStatusImpl();
+        module.setCategory(ModuleStatus.Category.EXTENSION);
         module.setName("Authkey Extension");
         module.setModule("gs-authkey");
         module.setComponent("Authkey extension");

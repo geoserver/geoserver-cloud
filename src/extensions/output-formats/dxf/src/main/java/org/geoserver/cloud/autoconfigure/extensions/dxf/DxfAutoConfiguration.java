@@ -62,6 +62,7 @@ public class DxfAutoConfiguration {
     @ConditionalOnMissingBean
     ModuleStatus dxfExtension(DxfConfigProperties config) {
         ModuleStatusImpl status = new ModuleStatusImpl("gs-dxf", "DXF Extension");
+        status.setCategory(ModuleStatus.Category.EXTENSION);
         status.setComponent("DXF extension");
         status.setAvailable(true);
         status.setEnabled(config.isEnabled());

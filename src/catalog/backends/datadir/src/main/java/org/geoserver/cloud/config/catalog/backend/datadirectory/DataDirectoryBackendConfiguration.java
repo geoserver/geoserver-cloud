@@ -30,6 +30,7 @@ import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.FileSystemResourceStore;
@@ -115,6 +116,7 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
     @Bean
     ModuleStatusImpl moduleStatus() {
         ModuleStatusImpl module = new ModuleStatusImpl("gs-cloud-backend-datadir", "DataDirectory loader");
+        module.setCategory(ModuleStatus.Category.CORE);
         module.setAvailable(true);
         module.setEnabled(true);
         return module;

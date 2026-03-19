@@ -8,6 +8,7 @@ package org.geoserver.cloud.autoconfigure.extensions.security.gateway.sharedauth
 import java.util.Optional;
 import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
 import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationInitializer;
+import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -55,6 +56,7 @@ public class GatewaySharedAuthenticationAutoConfiguration {
     ModuleStatusImpl gatewaySharedAuthModuleInfo(
             GatewaySharedAuthConfigProperties config, Optional<BuildProperties> buildProperties) {
         ModuleStatusImpl m = new ModuleStatusImpl();
+        m.setCategory(ModuleStatus.Category.EXTENSION);
         String version = buildProperties.map(BuildProperties::getVersion).orElse("UNKNOWN");
         m.setAvailable(true);
         m.setEnabled(config.isEnabled());

@@ -62,9 +62,9 @@ class ImporterAutoConfigurationTest {
                 .withBean("geoServer", GeoServer.class, () -> geoServer)
                 .withBean(GeoServerResourceLoader.class, () -> loader)
                 // required by importDataMenuPage
-                .withBean("dataCategory", org.geoserver.web.Category.class, () -> mock(Category.class))
+                .withBean("utilitiesCategory", org.geoserver.web.Category.class, () -> mock(Category.class))
                 // required by importerConfigPage
-                .withBean("settingsCategory", org.geoserver.web.Category.class, () -> mock(Category.class))
+                .withBean("serverCategory", org.geoserver.web.Category.class, () -> mock(Category.class))
                 .withConfiguration(AutoConfigurations.of(ImporterAutoConfiguration.class))
                 .withBean(ContextLoadedEventSubmitter.class, ContextLoadedEventSubmitter::new);
     }

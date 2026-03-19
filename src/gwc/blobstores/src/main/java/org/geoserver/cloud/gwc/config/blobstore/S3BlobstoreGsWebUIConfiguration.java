@@ -6,6 +6,7 @@
 package org.geoserver.cloud.gwc.config.blobstore;
 
 import org.geoserver.gwc.web.blob.S3BlobStoreType;
+import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ public class S3BlobstoreGsWebUIConfiguration {
     @Bean
     ModuleStatusImpl gwcS3Extension() {
         ModuleStatusImpl module = new ModuleStatusImpl();
+        module.setCategory(ModuleStatus.Category.EXTENSION);
         module.setModule("gs-gwc-s3");
         module.setName("GeoWebCache S3 Extension");
         module.setComponent("GeoWebCache S3 support plugin");

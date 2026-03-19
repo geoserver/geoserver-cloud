@@ -65,6 +65,7 @@ public class AppSchemaAutoConfiguration {
     ModuleStatus appSchemaExtension(AppSchemaConfigProperties config) {
         ModuleStatusImpl mod =
                 new ModuleStatusImpl("gs-app-schema-core", "App Schema Core Extension", "App Schema Core extension");
+        mod.setCategory(ModuleStatus.Category.EXTENSION);
         mod.setAvailable(true);
         mod.setEnabled(config.isEnabled());
         if (config.isEnabled()) {

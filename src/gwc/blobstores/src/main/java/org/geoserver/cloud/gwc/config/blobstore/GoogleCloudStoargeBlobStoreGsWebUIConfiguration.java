@@ -6,6 +6,7 @@
 package org.geoserver.cloud.gwc.config.blobstore;
 
 import org.geoserver.gwc.blob.gcs.web.GcsBlobStoreType;
+import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ public class GoogleCloudStoargeBlobStoreGsWebUIConfiguration {
     @Bean
     ModuleStatusImpl gwcGcsExtension() {
         ModuleStatusImpl module = new ModuleStatusImpl();
+        module.setCategory(ModuleStatus.Category.COMMUNITY);
         module.setModule("gs-gwc-gcs-blob");
         module.setName("GeoWebCache GCS Extension");
         module.setComponent("GeoWebCache Google Cloud Storage BlobStore plugin");

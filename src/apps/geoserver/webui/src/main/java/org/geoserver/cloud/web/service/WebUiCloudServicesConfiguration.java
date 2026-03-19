@@ -34,24 +34,10 @@ public class WebUiCloudServicesConfiguration {
         return category;
     }
 
-    // <bean id="workspaceMenuPage" class="org.geoserver.web.MenuPageInfo">
-    // <property name="id" value="workspaces" />
-    // <property name="titleKey" value="WorkspacePage.title" />
-    // <property name="descriptionKey" value="WorkspacePage.description" />
-    // <property name="componentClass"
-    // value="org.geoserver.web.data.workspace.WorkspacePage" />
-    // <property name="category" ref="dataCategory" />
-    // <property name="icon" value="../../img/icons/silk/folder.png" />
-    // <property name="order" value="10" />
-    // <property name="authorizer" ref="workspaceAdminAuthorizer"/>
-    // </bean>
-
-    @Bean
-    MenuPageInfo<ServiceRegistryPage> serviceRegistryMenuPage(
-            @Qualifier("aboutStatusCategory") Category aboutStatusCategory) {
+    MenuPageInfo<ServiceRegistryPage> serviceRegistryMenuPage(@Qualifier("serverCategory") Category serverCategory) {
         MenuPageInfo<ServiceRegistryPage> menu = new MenuPageInfo<>();
         menu.setId("serviceRegistry");
-        menu.setCategory(aboutStatusCategory);
+        menu.setCategory(serverCategory);
         menu.setTitleKey("ServiceRegistryPage.title");
         menu.setDescriptionKey("ServiceRegistryPage.description");
         menu.setComponentClass(ServiceRegistryPage.class);

@@ -55,6 +55,7 @@ public class MapBoxStylingAutoConfiguration {
         @Bean(name = "MBStyleExtension")
         ModuleStatus mbStyleDisabledModuleStatus() {
             ModuleStatusImpl mod = new ModuleStatusImpl();
+            mod.setCategory(ModuleStatus.Category.EXTENSION);
             mod.setAvailable(true);
             mod.setEnabled(false);
             mod.setMessage(

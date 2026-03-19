@@ -81,6 +81,7 @@ public class CssStylingAutoConfiguration {
         @Bean
         ModuleStatus cssDisabledModuleStatus() {
             ModuleStatusImpl mod = new ModuleStatusImpl();
+            mod.setCategory(ModuleStatus.Category.EXTENSION);
             mod.setAvailable(true);
             mod.setEnabled(false);
             mod.setMessage(

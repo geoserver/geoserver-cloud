@@ -68,6 +68,7 @@ public class FlatGeobufAutoConfiguration {
     @Bean("flatGeobufExtension")
     ModuleStatus flatGeobufExtension(FlatGeobufConfigProperties config) {
         ModuleStatusImpl status = new ModuleStatusImpl("flatgeobuf", "FlatGeobuf WFS Output Format");
+        status.setCategory(ModuleStatus.Category.COMMUNITY);
         status.setAvailable(true);
         status.setEnabled(config.isEnabled());
         return status;

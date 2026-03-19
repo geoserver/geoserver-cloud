@@ -61,6 +61,7 @@ public class InspireAutoConfiguration {
     @Bean
     ModuleStatus inspireExtension(InspireConfigProperties config) {
         ModuleStatusImpl mod = new ModuleStatusImpl("gs-inspire", "INSPIRE Extension", "INSPIRE extension");
+        mod.setCategory(ModuleStatus.Category.EXTENSION);
         mod.setAvailable(true);
         mod.setEnabled(config.isEnabled());
         if (config.isEnabled()) {

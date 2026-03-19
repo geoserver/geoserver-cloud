@@ -32,6 +32,7 @@ public class OgcApiFeaturesAutoConfiguration {
     @Bean
     ModuleStatus ogcApiFeatureStatus() {
         ModuleStatusImpl moduleStatus = new ModuleStatusImpl();
+        moduleStatus.setCategory(ModuleStatus.Category.EXTENSION);
         moduleStatus.setModule("gs-ogcapi-features");
         moduleStatus.setName("OGC API Features");
         moduleStatus.setAvailable(true);

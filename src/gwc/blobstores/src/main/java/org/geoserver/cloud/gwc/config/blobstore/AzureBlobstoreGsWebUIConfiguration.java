@@ -6,6 +6,7 @@
 package org.geoserver.cloud.gwc.config.blobstore;
 
 import org.geoserver.gwc.web.blob.AzureBlobStoreType;
+import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ public class AzureBlobstoreGsWebUIConfiguration {
     @Bean
     ModuleStatusImpl gwcAzureExtension() {
         ModuleStatusImpl module = new ModuleStatusImpl();
+        module.setCategory(ModuleStatus.Category.EXTENSION);
         module.setModule("gs-gwc-azure");
         module.setName("GeoWebCache Azure Extension");
         module.setComponent("GeoWebCache Azure BlobStore plugin");

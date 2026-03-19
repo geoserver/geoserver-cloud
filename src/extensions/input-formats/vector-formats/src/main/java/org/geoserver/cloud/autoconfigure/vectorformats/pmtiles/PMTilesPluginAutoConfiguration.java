@@ -10,6 +10,7 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWMS;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
+import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.pmtiles.data.PMTilesPluginConfiguration;
 import org.geoserver.pmtiles.data.PMTilesWmsIntegrationConfiguration;
@@ -58,6 +59,7 @@ public class PMTilesPluginAutoConfiguration {
                 new ModuleStatusImpl("gs-pmtiles-store", "PMTiles Store Extension", "PMtiles Store Extension");
         module.setAvailable(true);
         module.setEnabled(enabled);
+        module.setCategory(ModuleStatus.Category.COMMUNITY);
         // set it on 3.x: module.setCategory(ModuleStatus.Category.COMMUNITY);
         return module;
     }
