@@ -1,4 +1,7 @@
 #!/bin/bash
+set -e
+# Change to the directory where the script is located
+cd "$(dirname "$0")"
 
 virtualenv -q .venv/
 source .venv/bin/activate

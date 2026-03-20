@@ -6,6 +6,9 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Change to the directory where the script is located
+cd "${SCRIPT_DIR}"
+
 echo "🧹 Cleaning GeoServer Cloud Documentation"
 echo "========================================="
 

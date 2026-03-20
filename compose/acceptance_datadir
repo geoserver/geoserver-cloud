@@ -1,4 +1,7 @@
-#/bin/bash
+#!/bin/bash
+set -e
+# Change to the directory where the script is located
+cd "$(dirname "$0")"
 
 GSUID=$(id -u)
 GSGID=$(id -g)

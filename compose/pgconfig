@@ -1,7 +1,10 @@
-#/bin/sh
+#!/bin/sh
+set -e
+# Change to the directory where the script is located
+cd "$(dirname "$0")"
 
 GSUID=$(id -u)
 GSGID=$(id -g)
 
 GS_USER="$GSUID:$GSGID" \
-docker compose -f compose.yml -f catalog-pgconfig.yml $@
+docker compose -f compose.yml -f catalog-pgconfig.yml "$@"

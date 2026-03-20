@@ -9,6 +9,9 @@ BANNER_MESSAGE="$1"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="${SCRIPT_DIR}/.venv"
 
+# Change to the directory where the script is located
+cd "${SCRIPT_DIR}"
+
 echo "🌐 Starting GeoServer Cloud Documentation Server"
 echo "================================================"
 
