@@ -24,21 +24,21 @@ scrape_configs:
       - target_label: application
         replacement: 'geoserver-cloud-gateway'
 
-  # Discovery service (Eureka)
+  # Discovery service (Consul)
   - job_name: 'discovery'
-    metrics_path: '/actuator/prometheus'
+    metrics_path: '/metrics'
     dns_sd_configs:
       - names:
-          - 'tasks.discovery'
+          - 'tasks.consul'
         type: 'A'
-        port: 8081
+        port: 8500
     relabel_configs:
       - source_labels: [__address__]
         target_label: instance
       - target_label: service
         replacement: 'discovery'
       - target_label: application
-        replacement: 'geoserver-cloud-discovery'
+        replacement: 'consul'
 
   # Config service
   - job_name: 'config'

@@ -4,7 +4,7 @@ This starter provides comprehensive Spring Cloud integration for GeoServer Cloud
 
 ## Features
 
-- **Service Discovery**: Integration with Netflix Eureka for service registration and discovery
+- **Service Discovery**: Integration with Netflix Consul for service registration and discovery
 - **Configuration Management**: Spring Cloud Config client for centralized, externalized configuration
 - **Event Bus Integration**: Spring Cloud Bus for distributed messaging
 - **Catalog Event Bridging**: Connects GeoServer catalog events to Spring Cloud Bus
@@ -30,7 +30,7 @@ Most GeoServer microservices already include this dependency through their paren
 
 For Docker Compose deployments, you'll typically use the full Spring Cloud infrastructure:
 
-- Eureka service for service discovery and client-side load balancing
+- Consul service for service discovery and client-side load balancing
 - Config Server for centralized configuration
 - RabbitMQ for the event bus
 
@@ -45,11 +45,11 @@ spring:
       enabled: true
       uri: http://config:8888
       failFast: true
-eureka:
+consul:
   client:
     enabled: true
     serviceUrl:
-      defaultZone: http://discovery:8761/eureka
+      defaultZone: http://discovery:8500/consul
   instance:
     preferIpAddress: true
 ```
@@ -73,12 +73,12 @@ spring:
       enabled: false
     config:
       enabled: false
-eureka:
+consul:
   client:
     enabled: false
 ```
 
-In Kubernetes, you should define appropriate Services for each GeoServer microservice, which will enable automatic load balancing, while in Docker Compose eureka provides client-side load balancing.
+In Kubernetes, you should define appropriate Services for each GeoServer microservice, which will enable automatic load balancing, while in Docker Compose consul provides client-side load balancing.
 
 ### Event Bus
 

@@ -11,11 +11,14 @@ x-gs-dependencies: &gs-dependencies
   rabbitmq:
     condition: service_healthy
     required: true
-  discovery:
+  config:
     condition: service_healthy
     required: true
+  consul:
+    condition: service_started
+    required: true
   acl:
-    condition: service_healthy
+    condition: service_started
     required: true
   geodatabase:
     condition: service_started
@@ -58,7 +61,7 @@ services:
         condition: service_started
         required: true
       rabbitmq:
-        condition: service_healthy
+        condition: service_started
         required: true
     deploy:
       resources:
@@ -67,8 +70,7 @@ services:
           memory: 2G
 
   # Spring Cloud Config service, provides centralized configuration to all
-  # microservices. Being a Discovery First Bootstrap configuration, it'll
-  # register itself with the Eureka discovery service and can be scaled
+  # microservices.
   config:
     image: ${REPOSITORY}/geoserver-cloud-config:${TAG}
     user: ${GS_USER}
@@ -79,29 +81,33 @@ services:
     volumes:
       # override with the local copy to test config changes during development
       - $PWD/../config:/etc/geoserver:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 256M
 
-  # Eureka service discovery. This is a Discovery First Bootstrap configuration.
-  # The discovery service is the only fixed entry point.
-  # Browse to http://localhost:8761 to check all services are registered.
-  discovery:
-    image: ${REPOSITORY}/geoserver-cloud-discovery:${TAG}
-    user: ${GS_USER}
-    environment:
-      JAVA_OPTS: "${JAVA_OPTS_DEFAULT}"
-      SPRING_PROFILES_ACTIVE: "${DISCOVERY_SERVER_DEFAULT_PROFILES}"
+  # Consul service discovery.
+  # Browse to http://localhost:8500 to check all services are registered.
+  consul:
+    image: hashicorp/consul:1.22.5
+    command: agent -server -bootstrap-expect=1 -ui -client=0.0.0.0
     restart: unless-stopped
-    depends_on:
-      - config
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: 512M
+          cpus: '1'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "consul", "info"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
     
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
@@ -109,8 +115,10 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-gateway:${TAG}
     user: ${GS_USER}
     depends_on:
-      discovery:
-        condition: service_healthy
+      config:
+        condition: service_started
+      consul:
+        condition: service_started
     environment:
       JAVA_OPTS: "${JAVA_OPTS_DEFAULT}"
       # eat our own dogfood and set a base path

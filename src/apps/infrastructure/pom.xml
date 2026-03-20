@@ -10,7 +10,6 @@
   <packaging>pom</packaging>
   <name>Infrastructure microservices</name>
   <modules>
-    <module>discovery</module>
     <module>config</module>
     <module>gateway</module>
   </modules>

@@ -46,7 +46,8 @@ import org.springframework.test.context.DynamicPropertySource;
             "spring.cloud.bus.enabled: false",
             "spring.cloud.config.enabled: false",
             "spring.cloud.config.discovery.enabled: false",
-            "eureka.client.enabled: false"
+            "spring.cloud.consul.enabled: false",
+            "spring.cloud.consul.discovery.enabled: false"
         })
 @ActiveProfiles("test") // see bootstrap-test.yml
 class WebUIApplicationTest {

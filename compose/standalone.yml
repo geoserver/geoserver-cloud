@@ -20,7 +20,7 @@ x-gs-standalone-dependencies: &gs-standalone-dependencies
 
 services:
   # Disable infrastructure services in standalone mode
-  discovery:
+  consul:
     deploy:
       replicas: 0
 

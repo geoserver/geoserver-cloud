@@ -1,12 +1,4 @@
 services:
-  discovery:
-    extends:
-      file: templates.yml
-      service: multi-platform
-    image: ${REPOSITORY}/geoserver-cloud-discovery:${TAG}
-    build:
-      context: ../src/apps/infrastructure/discovery/
-
   config:
     extends:
       file: templates.yml

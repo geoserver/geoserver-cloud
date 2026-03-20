@@ -10,6 +10,10 @@ spring:
       enabled: false
     discovery:
       enabled: false
+    consul:
+      enabled: false
+      discovery:
+        enabled: false
     gateway.server.webflux:
       httpclient:
         connect-timeout: 5000
@@ -20,11 +24,6 @@ spring:
           predicates:
             - Path=/test/**
 
-eureka:
-  client:
-    enabled: false
-    
-# Enable logging for tests
 logging:
   level:
     root: INFO

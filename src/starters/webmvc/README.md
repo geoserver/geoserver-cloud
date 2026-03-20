@@ -6,7 +6,7 @@ This starter provides essential auto-configuration for servlet/webmvc-based GeoS
 
 - Spring Boot Web MVC framework integration
 - GeoServer catalog backend auto-configuration
-- Spring Cloud service discovery (Eureka)
+- Spring Cloud service discovery (Consul)
 - Spring Cloud Config client integration
 - Load balancing support
 - Retry mechanisms for resilient configuration
@@ -22,7 +22,7 @@ This starter aggregates several key dependencies:
 - `gs-cloud-starter-catalog-backend`: GeoServer catalog backend configuration
 - `gs-cloud-starter-data-formats`: Support for GeoServer data formats
 - Spring Boot Web MVC components
-- Spring Cloud Netflix Eureka client
+- Spring Cloud Netflix Consul client
 - Spring Cloud Config client
 - Spring Cloud Load Balancer
 - Spring Retry and AOP support
@@ -59,10 +59,10 @@ spring:
       ribbon:
         enabled: false
 
-eureka:
+consul:
   client:
     serviceUrl:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: http://consul-server:8500/consul/
 
 management:
   endpoints:

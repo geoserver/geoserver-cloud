@@ -11,37 +11,31 @@ spring:
   config:
     import:
       - classpath:geoserver_spring_boot_profiles.yml
+      - classpath:geoserver_spring_cloud_profiles.yml
   profiles:
     active: native
   cloud:
-    # Enable  DiscoveryClient for Eureka registration
-    discovery.enabled: true
+    # This is the config server, it doesn't need discovery to find itself
+    discovery.enabled: false
     config:
       # allow clients to override external property sources
       allow-override: true
       override-none: false
       override-system-properties: false
-      discovery:
-        enabled: false # this is the config server, no need to look up its location through discovery service
-        service-id: ${spring.application.name}
       server: # see https://cloud.spring.io/spring-cloud-config/reference/html/#_spring_cloud_config_server
         enabled: true
         bootstrap: false
         default-application-name: application
-#        accept-empty: false #send 404 if global application.yml is not found
         git:
           uri: ${config.git.uri}
           default-label: ${config.git.label:master}
           skip-ssl-validation: true
           timeout: 10
-          # Default value of 0 makes the git backend fetch updated configuration from the Git repo every time it is requested
           refresh-rate: 30
-          # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
-          basedir: ${config.git.basedir:/tmp/git_config} # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
+          basedir: ${config.git.basedir:/tmp/git_config}
         native:
           fail-on-error: true
           search-locations:
-          # Dockerfile embeds the default config in /etc/geoserver from geoservercloud/gs-cloud-base-spring-boot
           - ${config.native.path:file:/etc/geoserver}
   rabbitmq:
     host: ${rabbitmq.host:rabbitmq}
@@ -49,26 +43,6 @@ spring:
     username: ${rabbitmq.user:guest}
     password: ${rabbitmq.password:guest}
     virtual-host: ${rabbitmq.vhost:}
-
-eureka.server.url: http://discovery:8761/eureka
-
-eureka:
-  instance:
-    hostname: ${spring.application.name}
-    instance-id: ${info.instance-id}
-    preferIpAddress: true
-    # how often the client sends heartbits to the server
-    lease-renewal-interval-in-seconds: 10
-  client:
-    enabled: true
-    register-with-eureka: true
-    fetch-registry: false
-    registry-fetch-interval-seconds: 10
-    serviceUrl:
-      defaultZone: ${eureka.server.url}
-    healthcheck:
-      enabled: false
-
 
 management:
   endpoints:
@@ -107,14 +81,10 @@ spring:
     default-label: ${config.git.label:master}
     skip-ssl-validation: true
     timeout: 10
-    # Default value of 0 makes the git backend fetch updated configuration from the Git repo every time it is requested
     refresh-rate: 30
-            # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
-            # basedir: ${config.git.basedir:/tmp/git_config} # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
 ---
-# local profile, used for development only. Other settings like config and eureka urls in geoserver_spring_cloud_profiles.yml
+# local profile, used for development only.
 spring.config.activate.on-profile: local
 server.port: 8888
 config.native.path: ${user.dir}/../../config
-eureka.server.url: http://localhost:8761/eureka
 rabbitmq.host: localhost

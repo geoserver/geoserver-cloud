@@ -61,10 +61,10 @@ To enable monitoring, add the `monitoring.yml` overlay file:
 ```
 
 This adds:
-- **Prometheus** at http://localhost:9091 - Metrics collection with Eureka service discovery
+- **Prometheus** at http://localhost:9091 - Metrics collection with Consul service discovery
 - **Grafana** at http://localhost:3000 - Dashboards and visualization (login: admin/admin)
 
-The monitoring setup automatically discovers all service instances via Eureka and supports scaling:
+The monitoring setup automatically discovers all service instances via Consul and supports scaling:
 
 ```bash
 ./pgconfig -f monitoring.yml up -d --scale wms=3 --scale wfs=2
@@ -120,7 +120,7 @@ For debugging a specific service from your IDE while the rest of the cluster run
 4. **Launch the application from your IDE:**
 
    Start the application with the configured run configuration. The application will:
-   - Connect to the discovery service at `http://localhost:8761/eureka`
+   - Connect to the discovery service at `http://localhost:8500/consul`
    - Retrieve configuration from the config service
    - Join the cluster and be discoverable by the gateway
    - Be available for debugging with breakpoints and step-through

@@ -5,9 +5,9 @@ services:
   config:
     ports:
       - 8888:8080 # not needed in production, exposed for local development
-  discovery:
+  consul:
     ports:
-      - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
+      - 8500:8500 # for development, so services can be run from localhost and find the discovery service running on docker
   acl:
     ports:
       - 9000:8080

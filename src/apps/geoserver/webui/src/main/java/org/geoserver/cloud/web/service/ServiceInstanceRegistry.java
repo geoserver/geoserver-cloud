@@ -5,8 +5,6 @@
 
 package org.geoserver.cloud.web.service;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import java.net.URI;
 import java.util.List;
 import java.util.function.Function;
@@ -14,7 +12,7 @@ import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
+import org.springframework.cloud.consul.discovery.ConsulServiceInstance;
 
 /** @since 1.0 */
 @RequiredArgsConstructor
@@ -45,10 +43,10 @@ public class ServiceInstanceRegistry {
     }
 
     private String getStatus(org.springframework.cloud.client.ServiceInstance i) {
-        if (i instanceof EurekaServiceInstance e) {
-            InstanceInfo instanceInfo = e.getInstanceInfo();
-            InstanceStatus status = instanceInfo.getStatus();
-            return status.toString();
+        if (i instanceof ConsulServiceInstance) {
+            // ConsulServiceInstance doesn't expose a direct "status" string like Consul,
+            // but we can assume UP if it's returned by the discovery client.
+            return "UP";
         }
         return "UNKNOWN";
     }

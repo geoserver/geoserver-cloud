@@ -13,21 +13,23 @@ spring:
       # This group will be triggered dynamically below
       "config-first":
         - "config-client"
-        - "discovery-eureka"
+        - "discovery-consul"
         - "bus-rabbitmq"
 ---
 spring.config.activate.on-profile: default
 spring:
   cloud:
     discovery: # discovery-client defaults
-      enabled: false # enables/disables DiscoveryClient for Eureka registration
+      enabled: false
     config: # config-client defaults
       enabled: false # Whether to use config client
       discovery.enabled: false # Whether to use discovery to find config server
     bus.enabled: false
+    consul:
+      enabled: false
+      discovery:
+        enabled: false
 
-# To be enabled in the eureka profile
-eureka.client.enabled: false   
 ---
 spring.config.activate.on-profile: bootstrap_standalone
 #no config-service, load config from /etc/geoserver
@@ -70,31 +72,33 @@ spring:
         service-id: "config-service"
 
 ---
-spring.config.activate.on-profile: "discovery-eureka"
+spring.config.activate.on-profile: "discovery-consul"
 
-eureka.server.url: http://discovery:8761/eureka
+consul.host: consul
+consul.port: 8500
 
-# Enable  DiscoveryClient for Eureka registration
-spring.cloud.discovery.enabled: true
-eureka:
-  instance:
-    hostname: ${spring.application.name}
-    instance-id: ${info.instance-id}
-    preferIpAddress: true
-    # how often the client sends heartbits to the server
-    lease-renewal-interval-in-seconds: 10
-  client:
-    enabled: true
-    register-with-eureka: true
-    fetch-registry: false
-    registry-fetch-interval-seconds: 10
-    serviceUrl:
-      defaultZone: ${eureka.server.url}
-    healthcheck:
-      enabled: false
+spring:
+  cloud:
+    discovery:
+      enabled: true
+    consul:
+      enabled: true
+      host: ${consul.host}
+      port: ${consul.port}
+      discovery:
+        enabled: true
+        prefer-ip-address: true
+        instance-id: ${info.instance-id}
+        service-name: ${spring.application.name}
+        health-check-path: /actuator/health
+        health-check-port: 8081
+        health-check-interval: 10s
+
 ---
 # LOCAL: For IDE development outside of containers
 spring.config.activate.on-profile: "local"
 config.server.url: http://localhost:8888
-eureka.server.url: http://localhost:8761/eureka
+consul.host: localhost
+consul.port: 8500
 rabbitmq.host: localhost
+

@@ -4,9 +4,9 @@ services:
     # Don't set user to avoid permission issues with volumes
     # Prometheus image runs as 'nobody' (uid 65534) by default
     volumes:
-      # Use prometheus-eureka.yml for proper service discovery with multiple replicas
-      # Use prometheus.yml (DNS-based) as fallback if Eureka is not available
-      - ./monitoring/prometheus-eureka.yml:/etc/prometheus/prometheus.yml:ro
+      # Use prometheus-consul.yml for proper service discovery with multiple replicas
+      # Use prometheus.yml (DNS-based) as fallback if Consul is not available
+      - ./monitoring/prometheus-consul.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -18,7 +18,7 @@ services:
       - "9091:9090"
     restart: unless-stopped
     depends_on:
-      - discovery
+      - consul
     deploy:
       resources:
         limits:

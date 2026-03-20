@@ -44,7 +44,7 @@ In the context of Cloud Native GeoServer containerized applications, this presen
 * `http.proxyUser/Password` are not standard properties, though commonly used, it's kind of
 JDK implementation dependent.
 * Setting `-Dhttp.proxy* System properties affects all HTTP clients in the container, meaning
-requests to the config-service, discovery-service, etc., will also try to go through the proxy,
+requests to the config-service, consul-service, etc., will also try to go through the proxy,
 or you need to go through the extra burden of figuring out how to ignore them.
 * If the proxy is secured, and since the http client used may not respect the
 http.proxyUser/Password parameters, the apps won't start since they'll get

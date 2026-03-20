@@ -21,7 +21,7 @@ This monitoring setup provides **basic observability for local development** and
 - Simple Prometheus/Grafana stack for development environments
 - Basic dashboard showing essential metrics (JVM, HTTP, service health)
 - Foundation and reference implementation for custom observability solutions
-- Example of Eureka-based service discovery integration
+- Example of Consul-based service discovery integration
 
 **What this is NOT:**
 - Production-ready monitoring (no alerting, persistence config, security hardening)
@@ -167,17 +167,17 @@ curl http://localhost:9090/geoserver/cloud/wms/actuator/health
 
 ## Scaling Services
 
-The monitoring setup uses **Eureka-based service discovery** to find all service replicas automatically! 🎉
+The monitoring setup uses **Consul-based service discovery** to find all service replicas automatically! 🎉
 
 ### How It Works
 
-All GeoServer Cloud services register themselves with the Eureka discovery service. Prometheus:
-1. Queries the Eureka service registry every 30 seconds
+All GeoServer Cloud services register themselves with the Consul discovery service. Prometheus:
+1. Queries the Consul service registry every 30 seconds
 2. Discovers **all instances** of each service, including all scaled replicas
 3. Scrapes metrics from each instance independently
 4. Labels each instance with service name, instance ID, and hostname
 
-**This works perfectly with Docker Compose scaling** because Eureka tracks every individual container that registers.
+**This works perfectly with Docker Compose scaling** because Consul tracks every individual container that registers.
 
 ### How to Scale
 
@@ -188,8 +188,8 @@ Scale any service to multiple replicas:
 ```
 
 Prometheus will automatically:
-- Discover all 3 WMS replicas from Eureka
-- Discover all 2 WFS replicas from Eureka
+- Discover all 3 WMS replicas from Consul
+- Discover all 2 WFS replicas from Consul
 - Scrape metrics from each replica independently
 - Label each with unique `instance_id`
 
@@ -199,7 +199,7 @@ In Prometheus:
 1. Go to **Status** → **Targets**
 2. You'll see **one target per replica** (e.g., 3 WMS targets if scaled to 3)
 3. Each target has labels: `service`, `instance_id`, `hostname`, `application`
-4. Go to **Status** → **Service Discovery** to see Eureka discovery in action
+4. Go to **Status** → **Service Discovery** to see Consul discovery in action
 
 In Grafana:
 - Metrics are collected from all replicas simultaneously
@@ -222,7 +222,7 @@ wms     | 3           | 0
 
 This is the correct behavior! Each replica is an independent instance that:
 - Runs in its own container
-- Registers independently with Eureka
+- Registers independently with Consul
 - Has its own health status
 - Can fail independently
 
@@ -259,23 +259,23 @@ count by (service) (up{job="geoserver-cloud-services"} == 1)
 
 The setup includes **two Prometheus configurations**:
 
-1. **`prometheus-eureka.yml`** (Default, Recommended)
-   - Uses Eureka service discovery
+1. **`prometheus-consul.yml`** (Default, Recommended)
+   - Uses Consul service discovery
    - Automatically discovers all replicas
    - Works perfectly with scaling
-   - Requires Eureka discovery service to be running
+   - Requires Consul discovery service to be running
 
 2. **`prometheus.yml`** (Fallback)
    - Uses DNS-based service discovery (`tasks.<service>`)
    - Limited replica discovery in Docker Compose
-   - Use if Eureka is disabled
+   - Use if Consul is disabled
 
 **To switch configurations**, edit `compose/monitoring.yml` and change the volume mount:
 
 ```yaml
 volumes:
-  # For Eureka-based discovery (default):
-  - ./prometheus-eureka.yml:/etc/prometheus/prometheus.yml:ro
+  # For Consul-based discovery (default):
+  - ./prometheus-consul.yml:/etc/prometheus/prometheus.yml:ro
 
   # OR for DNS-based discovery:
   - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -349,37 +349,37 @@ To also remove volumes (WARNING: deletes all data including Prometheus metrics a
 
 ## Troubleshooting
 
-### Not Seeing All Replicas in Prometheus (Eureka Discovery)
+### Not Seeing All Replicas in Prometheus (Consul Discovery)
 
-If you're using Eureka discovery but only see one instance per service:
+If you're using Consul discovery but only see one instance per service:
 
-1. **Check Eureka service registry:**
-   - Go to http://localhost:8761 (Eureka console)
+1. **Check Consul service registry:**
+   - Go to http://localhost:8500 (Consul console)
    - Verify all service instances are registered
    - Look for multiple instances of the scaled service
 
 2. **Verify services are registering:**
    ```bash
    # Check if WMS instances are registered
-   curl http://localhost:8761/eureka/apps/WMS-SERVICE | grep -o "<instance>.*</instance>"
+   curl http://localhost:8500/v1/catalog/service/wms | grep -o "<instance>.*</instance>"
    ```
 
 3. **Check Prometheus service discovery:**
    - Go to http://localhost:9091/service-discovery
-   - Look for `eureka_sd_configs` section
-   - Verify discovered targets match Eureka registry
+   - Look for `consul_sd_configs` section
+   - Verify discovered targets match Consul registry
 
 4. **Check Prometheus logs:**
    ```bash
-   ./pgconfig -f monitoring.yml logs prometheus | grep -i eureka
+   ./pgconfig -f monitoring.yml logs prometheus | grep -i consul
    ```
 
 ### Using DNS Discovery Instead
 
-If Eureka discovery isn't working or you prefer DNS:
+If Consul discovery isn't working or you prefer DNS:
 
 1. Edit `compose/monitoring.yml`
-2. Change the volume mount to use `prometheus.yml` instead of `prometheus-eureka.yml`
+2. Change the volume mount to use `prometheus.yml` instead of `prometheus-consul.yml`
 3. Restart: `./pgconfig -f monitoring.yml restart prometheus`
 
 **Note**: DNS discovery has limitations - see the configuration section for details.

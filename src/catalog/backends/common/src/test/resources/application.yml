@@ -12,7 +12,6 @@ spring:
     - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
 
 
-eureka.client.enabled: false
 
 logging:
   level:

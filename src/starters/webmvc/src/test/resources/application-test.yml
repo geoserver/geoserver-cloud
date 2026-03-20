@@ -5,7 +5,6 @@ spring:
     allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
   cloud.config.enabled: false
   cloud.config.discovery.enabled: false
-eureka.client.enabled: false
 
 geoserver:
   backend:

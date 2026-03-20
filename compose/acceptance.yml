@@ -7,7 +7,7 @@ services:
         condition: service_healthy
       gateway:
         condition: service_healthy
-      discovery:
+      consul:
         condition: service_healthy
       config:
         condition: service_healthy
@@ -69,7 +69,7 @@ services:
         limits:
           cpus: "1.0"
           memory: 512M
-  discovery:
+  consul:
     deploy:
       resources:
         limits:

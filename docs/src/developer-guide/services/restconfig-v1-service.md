@@ -6,7 +6,7 @@ Spring Boot/Cloud microservice that exposes GeoServer [REST API](https://docs.ge
 
 **Service name**: `restconfig-v1`.
 
-Logical service name by which the [gateway-service] will get the actual instances addresses from the [discovery-service] and perform client-side load balancing against when interacting with the service.
+The Gateway service discovers this service via Consul and performs client-side load balancing.
 
 ## Configuration
 

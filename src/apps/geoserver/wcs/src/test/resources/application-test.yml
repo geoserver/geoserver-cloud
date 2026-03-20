@@ -7,7 +7,6 @@ spring:
   cloud.config.discovery.enabled: false
   cloud.discovery.enabled: false
   cloud.bus.enabled: false
-eureka.client.enabled: false
 
 geoserver:
   acl.enabled: false

@@ -41,7 +41,7 @@ services:
 
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. Being a Discovery First Bootstrap configuration, it'll
-  # register itself with the Eureka discovery service and can be scaled
+  # register itself with the Consul discovery service and can be scaled
   config:
     image: geoservercloud/geoserver-cloud-config:2.28.2.2
     user: 1000:1000 # set the userid:groupid the container runs as
@@ -67,7 +67,7 @@ services:
     depends_on:
       - config
     ports:
-      - 8761:8761
+      - 8500:8500
     deploy:
       resources:
         limits:

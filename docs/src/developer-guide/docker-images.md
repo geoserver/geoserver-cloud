@@ -19,7 +19,6 @@ graph TD
     D --> J[rest]
     D --> K[webui]
     B --> L[config]
-    B --> M[discovery]
     B --> N[gateway]
 ```
 
@@ -35,7 +34,9 @@ graph TD
 
 All GeoServer OWS services (WFS, WMS, WCS, WPS, GWC, REST, WebUI) extend `gs-cloud-base-geoserver-image`, adding only their service-specific application code.
 
-Infrastructure services (Config, Discovery, Gateway) extend `gs-cloud-base-spring-boot` directly since they don't need GeoServer dependencies.
+Infrastructure services (Config, Gateway) extend `gs-cloud-base-spring-boot` directly since they don't need GeoServer dependencies.
+
+Consul uses the official `hashicorp/consul` image and is not part of this internal hierarchy.
 
 ## Layer Sharing
 

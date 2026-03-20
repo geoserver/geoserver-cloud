@@ -17,6 +17,18 @@ This is a major version upgrade with significant changes:
 
 ## Breaking Changes
 
+### Docker Compose and Service Discovery
+
+We replaced the Eureka discovery service with **Consul**. 
+This change only affects Docker Compose deployments.
+
+**Migration Steps:**
+
+1.  **Update Images**: Rebuild or pull the latest 3.0.0 images.
+2.  **Replace Discovery Service**: Update your `compose.yml` to use `hashicorp/consul:1.22.5` instead of the GeoServer Cloud discovery image.
+3.  **Update Ports**: Map Consul's API/UI to port `8500`.
+4.  **Spring Profile**: Ensure the `discovery-consul` profile is active (part of the `config-first` group).
+
 ### Docker Compose Profile Configuration
 
 **Breaking Change**: The `config-first` profile is no longer included by default in the base service templates.

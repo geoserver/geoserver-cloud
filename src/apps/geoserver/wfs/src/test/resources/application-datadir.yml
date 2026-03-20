@@ -8,7 +8,6 @@ spring:
   cloud.config.fail-fast: false
   cloud.config.discovery.enabled: false
   cloud.discovery.enabled: false
-eureka.client.enabled: false
 
 geoserver:
   acl.enabled: false

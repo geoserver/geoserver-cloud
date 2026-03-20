@@ -77,8 +77,8 @@ x-config-server-overrides:
 x-gs-dependencies: &gs-dependencies
   rabbitmq:
     condition: service_healthy
-  discovery:
-    condition: service_healthy
+  consul:
+    condition: service_started
   geoserverdb:
     condition: service_started
   config:
@@ -161,8 +161,7 @@ services:
           memory: 2G
 
   # Spring Cloud Config service, provides centralized configuration to all
-  # microservices. Being a Discovery First Bootstrap configuration, it'll
-  # register itself with the Eureka discovery service and can be scaled
+  # microservices. It registers itself with the Consul discovery service and can be scaled
   config:
     image: geoservercloud/geoserver-cloud-config:3.0.0-SNAPSHOT
     user: 1000:1000 # set the userid:groupid the container runs as
@@ -182,19 +181,27 @@ services:
         limits:
           cpus: '2.0'
           memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     
-  discovery:
-    image: geoservercloud/geoserver-cloud-discovery:3.0.0-SNAPSHOT
-    user: "1000:1000"
-    depends_on:
-      - config
+  consul:
+    image: hashicorp/consul:1.22.5
+    command: agent -server -bootstrap-expect=1 -ui -client=0.0.0.0
     ports:
-      - 8761:8761
+      - 8500:8500
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 256M
+    healthcheck:
+      test: ["CMD", "consul", "info"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
 
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/cloud/wms, http://localhost:9090/geoserver/cloud/wfs, etc)
@@ -202,8 +209,10 @@ services:
     image: geoservercloud/geoserver-cloud-gateway:3.0.0-SNAPSHOT
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
-      discovery:
+      config:
         condition: service_healthy
+      consul:
+        condition: service_started
     environment:
       <<: *common_env
     ports:

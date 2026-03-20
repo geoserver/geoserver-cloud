@@ -12,7 +12,7 @@ workspace "GeoServer Cloud" "Architecture documentation for GeoServer Cloud" {
             
             group "Infrastructure" {
                 gateway = container "Gateway Service" "API Gateway and Load Balancer" "Spring Cloud Gateway"
-                discovery = container "Discovery Service" "Service Registry" "Eureka"
+                consul = container "Consul Service" "Service Registry and Health Monitoring" "HashiCorp Consul"
                 config = container "Config Service" "Centralized Configuration" "Spring Cloud Config"
             }
 
@@ -37,12 +37,12 @@ workspace "GeoServer Cloud" "Architecture documentation for GeoServer Cloud" {
         gateway -> rest "Routes to"
         gateway -> webui "Routes to"
 
-        wfs -> discovery "Registers with"
-        wms -> discovery "Registers with"
-        wcs -> discovery "Registers with"
-        rest -> discovery "Registers with"
-        webui -> discovery "Registers with"
-        gateway -> discovery "Discovers services from"
+        wfs -> consul "Registers with"
+        wms -> consul "Registers with"
+        wcs -> consul "Registers with"
+        rest -> consul "Registers with"
+        webui -> consul "Registers with"
+        gateway -> consul "Discovers services from"
         
         wfs -> config "Gets config from"
         wms -> config "Gets config from"

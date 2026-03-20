@@ -5,7 +5,8 @@
 
 **Service name**: `gateway-service`. 
 
-This is the logical service name by which web clients will get the actual instances addresses from the [discovery-service] and perform client-side load balancing against when interacting with the service.
+This service routes requests to microservices discovered via Consul.
+It performs client-side load balancing using healthy service instances.
 
 ## Service Configuration
 

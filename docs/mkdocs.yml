@@ -120,7 +120,7 @@ nav:
     - Logging: developer-guide/logging.md
     - Acceptance Tests: developer-guide/acceptance_tests.md
     - Services:
-      - Discovery Service: developer-guide/services/discovery-service.md
+      - Consul Service: developer-guide/services/consul-service.md
       - Gateway Service: developer-guide/services/gateway-service.md
       - REST Config Service: developer-guide/services/restconfig-v1-service.md
     - Event Bus: developer-guide/event-bus/index.md

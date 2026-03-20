@@ -57,14 +57,15 @@ spring.config.activate.on-profile: "bootstrap-standalone"
 spring.config.import: ${standalone.config.location:file:/etc/geoserver/gateway.yml}
 
 ---
-spring.config.activate.on-profile: "discovery-eureka"
-eureka:
-  client:
-    fetch-registry: true
-    registry-fetch-interval-seconds: 5
+spring.config.activate.on-profile: "discovery-consul"
+spring:
+  cloud:
+    consul:
+      discovery:
+        # Gateway needs to see healthy instances for lb:// routes
+        query-passing: true
 
 ---
-# local profile, used for development only. Other settings like config and eureka urls in geoserver_spring_cloud_profiles.yml
 spring.config.activate.on-profile: local
 server.port: 9090
 management.server.port: 9090
