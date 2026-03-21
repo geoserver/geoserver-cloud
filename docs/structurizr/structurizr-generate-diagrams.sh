@@ -7,8 +7,10 @@ EXPORTS_DIR="${SCRIPT_DIR}/exports"
 # Create the export directory if it doesn't exist
 mkdir -p "$EXPORTS_DIR"
 
-echo "Step 1: Pulling the latest Structurizr CLI Docker image"
-docker pull structurizr/cli:latest
+STRUCTURIZR_IMAGE="structurizr/structurizr"
+
+echo "Step 1: Pulling the latest Structurizr Docker image"
+docker pull "${STRUCTURIZR_IMAGE}"
 
 echo "Step 2: Generating PlantUML files from Structurizr DSL"
 
@@ -18,7 +20,7 @@ EXPORTS_SUCCEEDED=false
 # Export workspace.dsl to PlantUML (required)
 if [ -f "${SCRIPT_DIR}/workspace.dsl" ]; then
     echo "Exporting workspace.dsl to PlantUML..."
-    if docker run --rm -v "${SCRIPT_DIR}:/usr/local/structurizr" structurizr/cli:latest export \
+    if docker run --rm -v "${SCRIPT_DIR}:/usr/local/structurizr" ${STRUCTURIZR_IMAGE} export \
       -workspace /usr/local/structurizr/workspace.dsl \
       -format plantuml/c4plantuml \
       -output /usr/local/structurizr/exports; then
@@ -36,7 +38,7 @@ fi
 # Export dynamic-views.dsl to PlantUML (must be valid if present)
 if [ -f "${SCRIPT_DIR}/dynamic-views.dsl" ]; then
     echo "Exporting dynamic-views.dsl to PlantUML..."
-    if docker run --rm -v "${SCRIPT_DIR}:/usr/local/structurizr" structurizr/cli:latest export \
+    if docker run --rm -v "${SCRIPT_DIR}:/usr/local/structurizr" ${STRUCTURIZR_IMAGE} export \
       -workspace /usr/local/structurizr/dynamic-views.dsl \
       -format plantuml/c4plantuml \
       -output /usr/local/structurizr/exports; then
@@ -56,7 +58,7 @@ if ! ls "${EXPORTS_DIR}"/*.puml 1> /dev/null 2>&1; then
 fi
 
 echo "Step 3: Converting PlantUML to SVG"
-./plantuml-generate-svg.sh
+"${SCRIPT_DIR}/plantuml-generate-svg.sh"
 
 # Verify SVG files were created
 SVG_OUTPUT_DIR="${SCRIPT_DIR}/../src/assets/images/structurizr"
