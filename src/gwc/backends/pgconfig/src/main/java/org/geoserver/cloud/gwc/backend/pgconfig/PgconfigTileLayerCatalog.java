@@ -246,7 +246,10 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
         GeoServerTileLayerInfo info = infoMapper.map(pgTileLayerInfo);
         completeWithDefaults(info, published);
-        return new GeoServerTileLayer(catalogSupplier.get(), published.getId(), this.gridsetBroker, info);
+        GeoServerTileLayer layer =
+                new GeoServerTileLayer(catalogSupplier.get(), published.getId(), this.gridsetBroker, info);
+        layer.getPublishedInfo();
+        return layer;
     }
 
     TileLayerInfo toInfo(GeoServerTileLayer tileLayer) {
