@@ -36,7 +36,7 @@
     <flyway.version>12.1.0</flyway.version>
     <tileverse.version>1.3.3</tileverse.version>
     <cloud-dependencies-bom.version>1.0.1</cloud-dependencies-bom.version>
-    <testcontainers.version>2.0.3</testcontainers.version>
+    <testcontainers.version>2.0.4</testcontainers.version>
     <fork.javac>false</fork.javac>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <checkstyle.skip>false</checkstyle.skip>
