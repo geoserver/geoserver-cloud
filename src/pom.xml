@@ -18,23 +18,35 @@
     <module>apps</module>
   </modules>
   <properties>
-    <!-- default target java version, submodules may override -->
-    <java.version>25</java.version>
-    <java.sdk.version>25</java.sdk.version>
+    <!-- ================================ -->
+    <!-- Project version management       -->
+    <!-- ================================ -->
     <spring-cloud.version>2025.1.1</spring-cloud.version>
     <spring-boot.version>4.0.3</spring-boot.version>
-    <jackson.version>3.1.0</jackson.version>
-    <jackson2.version>2.21.0</jackson2.version>
+    <!-- match upstream geoserver dependencies -->
+    <spring.version>7.0.6</spring.version>
+    <spring.security.version>7.0.4</spring.security.version>
+    <spring-integration.version>7.0.4</spring-integration.version>
+
     <gs.version>3.0.0-SNAPSHOT</gs.version>
     <gt.version>35-SNAPSHOT</gt.version>
     <wicket.version>10.7.0</wicket.version>
     <acl.version>3.0-RC2</acl.version>
+    <tileverse.version>1.3.3</tileverse.version>
+    <jackson.version>3.1.0</jackson.version>
+    <jackson2.version>2.21.0</jackson2.version>
+
+    <!-- default target java version, submodules may override -->
+    <java.version>25</java.version>
+    <!-- required java version for building -->
+    <java.sdk.version>25</java.sdk.version>
+
+    <!-- dependency versions -->
     <postgresql.version>42.7.7</postgresql.version>
     <httpclient5.version>5.4.4</httpclient5.version>
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <flyway.version>12.1.0</flyway.version>
-    <tileverse.version>1.3.3</tileverse.version>
     <cloud-dependencies-bom.version>1.0.1</cloud-dependencies-bom.version>
     <testcontainers.version>2.0.4</testcontainers.version>
     <fork.javac>false</fork.javac>
@@ -101,6 +113,29 @@
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-bom</artifactId>
         <version>2.21.1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Spring Framework BOM -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Spring Security BOM -->
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-bom</artifactId>
+        <version>${spring.security.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.integration</groupId>
+        <artifactId>spring-integration-bom</artifactId>
+        <version>${spring-integration.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
