@@ -96,7 +96,7 @@ jobs:
 
     - name: Install CI dependencies
       id: installci
-      run: python3 -m pip install --user --requirement=ci/requirements.txt
+      run: python3 -m pip install --user --requirement=acceptance_tests/ci_requirements.txt
 
     - name: Set up AWS credentials for acceptance tests
       run: |
