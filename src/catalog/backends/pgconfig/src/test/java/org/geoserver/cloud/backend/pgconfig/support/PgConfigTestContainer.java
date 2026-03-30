@@ -26,8 +26,13 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 @SuppressWarnings("java:S119")
 public class PgConfigTestContainer extends PostgreSQLContainer {
 
+    /** System property to override the PostgreSQL docker image (e.g. {@code -Dpgconfig.test.image=postgres:17}). */
+    public static final String IMAGE_PROPERTY = "pgconfig.test.image";
+
+    private static final String DEFAULT_IMAGE = "postgres:15";
+
     public PgConfigTestContainer() {
-        super("postgres:15");
+        super(System.getProperty(IMAGE_PROPERTY, DEFAULT_IMAGE));
     }
 
     @SuppressWarnings("unchecked")
