@@ -21,6 +21,8 @@ import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerReso
 import org.geoserver.security.GeoServerSecurityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,6 +35,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * @since 1.4
  */
 @Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.CONCURRENT)
 class PgconfigBackendAutoConfigurationTest {
 
     @Container

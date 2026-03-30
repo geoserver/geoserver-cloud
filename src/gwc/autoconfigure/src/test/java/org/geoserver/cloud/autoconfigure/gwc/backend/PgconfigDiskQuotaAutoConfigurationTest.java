@@ -15,11 +15,12 @@ import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigMigrat
 import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigTransactionManagerAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.gwc.ConfigurableQuotaStoreProvider;
 import org.geowebcache.diskquota.DiskQuotaMonitor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
@@ -40,6 +41,9 @@ class PgconfigDiskQuotaAutoConfigurationTest {
     @Container
     static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
+
     @TempDir
     File cacheDir;
 
@@ -55,13 +59,7 @@ class PgconfigDiskQuotaAutoConfigurationTest {
                         PgconfigDataSourceAutoConfiguration.class,
                         PgconfigTransactionManagerAutoConfiguration.class,
                         PgconfigMigrationAutoConfiguration.class));
-        container.setUp();
-        runner = container.withJdbcUrlConfig(runner);
-    }
-
-    @AfterEach
-    void tearDown() {
-        container.tearDown();
+        runner = db.withJdbcUrlConfig(runner);
     }
 
     @Test
@@ -123,7 +121,7 @@ class PgconfigDiskQuotaAutoConfigurationTest {
                       AND upper(column_name) = 'EXPIRED_AFTER'
                     """,
                     Long.class,
-                    container.getSchema());
+                    db.getSchema());
             assertThat(expiredAfterColumn).isOne();
         });
     }

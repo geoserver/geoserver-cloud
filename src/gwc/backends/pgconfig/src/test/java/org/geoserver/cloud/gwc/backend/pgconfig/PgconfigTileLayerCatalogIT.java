@@ -26,6 +26,7 @@ import org.geoserver.catalog.faker.CatalogFaker;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.gwc.config.GWCConfig;
 import org.geoserver.gwc.config.GWCConfigPersister;
@@ -36,6 +37,9 @@ import org.geowebcache.layer.TileLayer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -43,10 +47,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * @since 1.7
  */
 @Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.CONCURRENT)
 class PgconfigTileLayerCatalogIT {
 
     @Container
     static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
 
     private TileLayerMocking support;
 
@@ -54,8 +62,7 @@ class PgconfigTileLayerCatalogIT {
 
     @BeforeEach
     void setUp() {
-        container.setUp();
-        PgconfigBackendBuilder backendBuilder = new PgconfigBackendBuilder(container.getDataSource());
+        PgconfigBackendBuilder backendBuilder = new PgconfigBackendBuilder(db.getDataSource());
         CatalogPlugin catalog = backendBuilder.createCatalog();
         GeoServerImpl geoServer = backendBuilder.createGeoServer(catalog);
         support = new TileLayerMocking(catalog, geoServer);
@@ -63,12 +70,11 @@ class PgconfigTileLayerCatalogIT {
         GWCConfigPersister defaultsProvider = mock(GWCConfigPersister.class);
         GWCConfig defaults = new GWCConfig();
         when(defaultsProvider.getConfig()).thenReturn(defaults);
-        tlCatalog = new PgconfigTileLayerCatalog(container.getDataSource(), gridsets, () -> catalog, defaultsProvider);
+        tlCatalog = new PgconfigTileLayerCatalog(db.getDataSource(), gridsets, () -> catalog, defaultsProvider);
     }
 
     @AfterEach
-    void cleanDb() {
-        container.tearDown();
+    void cleanUp() {
         LocalWorkspace.remove();
     }
 
