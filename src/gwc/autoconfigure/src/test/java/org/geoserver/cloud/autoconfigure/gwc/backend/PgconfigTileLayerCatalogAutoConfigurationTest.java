@@ -16,6 +16,7 @@ import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigTransa
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerCatalog;
 import org.geoserver.cloud.gwc.repository.CachingTileLayerCatalog;
 import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
@@ -29,10 +30,12 @@ import org.geowebcache.config.ConfigurationResourceProvider;
 import org.geowebcache.config.TileLayerConfiguration;
 import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.storage.DefaultStorageFinder;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.assertj.AssertableWebApplicationContext;
@@ -42,10 +45,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /** GWC integration test for {@link PgconfigTileLayerCatalogAutoConfiguration} */
 @Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.SAME_THREAD) // FilteringXmlBeanDefinitionReader has a static HashMap race condition
 class PgconfigTileLayerCatalogAutoConfigurationTest {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();
+
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
 
     @TempDir
     File cacheDir;
@@ -61,19 +68,14 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
                         PgconfigDataSourceAutoConfiguration.class,
                         PgconfigTransactionManagerAutoConfiguration.class,
                         PgconfigMigrationAutoConfiguration.class));
-        runner = container.setUp().withJdbcUrlConfig(runner);
-    }
-
-    @AfterEach
-    void tearDown() {
-        container.tearDown();
+        runner = db.withJdbcUrlConfig(runner);
     }
 
     /**
      * {@link TileLayerConfiguration} implementation should be {@link PgconfigTileLayerCatalog}, and none of the beans
      * from {@link DefaultTileLayerCatalogAutoConfiguration} should be present.
      *
-     * <p>"pgconfig" is enabled already by {@link PgConfigTestContainer#withJdbcUrlConfig()}
+     * <p>"pgconfig" is enabled already by {@link PgconfigTestDatabaseSupport#withJdbcUrlConfig}
      */
     @Test
     void testPgconfigTileLayerCatalogReplacesDefaultTileLayerCatalogAutoConfiguration() {

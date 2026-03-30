@@ -11,30 +11,31 @@ import java.util.Optional;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
-import org.junit.jupiter.api.AfterEach;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /** @since 1.4 */
 @Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.CONCURRENT)
 class PgconfigWorkspaceRepositoryTest {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();
 
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
+
     PgconfigWorkspaceRepository repo;
 
     @BeforeEach
     void setUp() {
-        container.setUp();
-        repo = new PgconfigWorkspaceRepository(container.getTemplate());
-    }
-
-    @AfterEach
-    void tearDown() {
-        container.tearDown();
+        repo = new PgconfigWorkspaceRepository(db.getTemplate());
     }
 
     @Test

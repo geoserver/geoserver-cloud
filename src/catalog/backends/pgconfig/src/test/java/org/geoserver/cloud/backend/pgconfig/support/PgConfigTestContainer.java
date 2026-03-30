@@ -5,70 +5,29 @@
 
 package org.geoserver.cloud.backend.pgconfig.support;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import javax.sql.DataSource;
-import lombok.Getter;
-import lombok.SneakyThrows;
 import org.geoserver.cloud.autoconfigure.jndi.SimpleJNDIStaticContextInitializer;
-import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigDatabaseMigrations;
 import org.geoserver.cloud.config.jndi.JNDIDataSourceConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.AbstractApplicationContextRunner;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
- * A {@link Testcontainers test container} based on {@link PostgreSQLContainer} using PostgreSQL 15 to aid in setting up
- * the {@code DataSource}, {@code JdbcTemplate}, and {@link PgconfigDatabaseMigrations Flyway} database migrations for
- * the {@literal pgconfig} catalog backend.
+ * A {@link Testcontainers test container} based on {@link PostgreSQLContainer} using PostgreSQL 15.
+ *
+ * <p>Provides connection properties to Spring {@link AbstractApplicationContextRunner} tests and
+ * {@code @DynamicPropertySource} tests. For DataSource, JdbcTemplate, and Flyway migration management, use
+ * {@link PgconfigTestDatabaseSupport} as a {@code @RegisterExtension}.
  *
  * @since 1.6
+ * @see PgconfigTestDatabaseSupport
  */
 @SuppressWarnings("java:S119")
 public class PgConfigTestContainer extends PostgreSQLContainer {
 
-    private @Getter DataSource dataSource;
-    private @Getter JdbcTemplate template;
-    private @Getter String schema = "pgconfigtest";
-    private @Getter PgconfigDatabaseMigrations databaseMigrations;
-
     public PgConfigTestContainer() {
         super("postgres:15");
-    }
-
-    @SneakyThrows(Exception.class)
-    public PgConfigTestContainer setUp() {
-        String url = getJdbcUrl();
-        String username = getUsername();
-        String password = getPassword();
-        String driverClassName = getDriverClassName();
-
-        HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(url);
-        hikariConfig.setPassword(password);
-        hikariConfig.setUsername(username);
-        hikariConfig.setDriverClassName(driverClassName);
-        hikariConfig.setSchema(schema);
-        dataSource = new HikariDataSource(hikariConfig);
-        template = new JdbcTemplate(dataSource);
-        databaseMigrations = new PgconfigDatabaseMigrations()
-                .setSchema(schema)
-                .setDataSource(dataSource)
-                .setCleanDisabled(false);
-        databaseMigrations.migrate();
-        return this;
-    }
-
-    public void tearDown() {
-        if (null != databaseMigrations) {
-            databaseMigrations.clean();
-        }
-        if (null != dataSource) {
-            ((HikariDataSource) dataSource).close();
-        }
     }
 
     @SuppressWarnings("unchecked")

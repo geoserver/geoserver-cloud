@@ -37,26 +37,35 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Slf4j
+@Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.CONCURRENT)
 class PgconfigResourceTest {
 
+    @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();
+
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
 
     @TempDir
     File tmpDir;
@@ -85,32 +94,15 @@ class PgconfigResourceTest {
         return testPaths().toArray(String[]::new);
     }
 
-    @BeforeAll
-    static void containerSetup() {
-        container.start();
-        container.setUp();
-    }
-
-    @AfterAll
-    static void containerTeardown() {
-        container.stop();
-    }
-
     @BeforeEach
     void setUp() throws Exception {
-        JdbcTemplate template = container.getTemplate();
+        JdbcTemplate template = db.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
         cacheDirectory = newFolder(tmpDir, "junit");
         FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         store = new PgconfigResourceStore(
                 cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
         setupTestData(template);
-    }
-
-    @AfterEach
-    void cleanDb() throws Exception {
-        DataSource dataSource = container.getDataSource();
-        new JdbcTemplate(dataSource).update("DELETE FROM resourcestore WHERE parentid IS NOT NULL");
     }
 
     private void setupTestData(JdbcTemplate template) throws Exception {
@@ -146,7 +138,7 @@ class PgconfigResourceTest {
     }
 
     LockRepository pgconfigLockRepository() {
-        DataSource dataSource = container.getDataSource();
+        DataSource dataSource = db.getDataSource();
         DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
         // override default table prefix "INT" by "RESOURCE_" (matching table RESOURCE_LOCK in flyway ddl scripts)
         lockRepository.setPrefix("RESOURCE_");
@@ -383,7 +375,7 @@ class PgconfigResourceTest {
     @Test
     void testIgnoresFileSystemOnlyResourcesInDb() throws SQLException {
         // for pre 1.8.1 backwards compatibility, ignore fs-only resources already in the db
-        DataSource ds = container.getDataSource();
+        DataSource ds = db.getDataSource();
         String sql =
                 """
                 INSERT INTO resourcestore (parentid, "type", path, content)
@@ -457,7 +449,7 @@ class PgconfigResourceTest {
         assertTrue(resourceId > 0);
 
         // Delete the resource from the database directly
-        JdbcTemplate template = container.getTemplate();
+        JdbcTemplate template = db.getTemplate();
         template.update("DELETE FROM resourcestore WHERE path = ?", path);
 
         // Initial access to resource should still return the cached state
@@ -509,7 +501,7 @@ class PgconfigResourceTest {
         Thread.sleep(10);
 
         // Update the resource content in the database directly
-        JdbcTemplate template = container.getTemplate();
+        JdbcTemplate template = db.getTemplate();
         byte[] updatedContent = "updated=content".getBytes();
         // Use PostgreSQL's now() to ensure timestamp is in UTC like our save() method
         template.update(

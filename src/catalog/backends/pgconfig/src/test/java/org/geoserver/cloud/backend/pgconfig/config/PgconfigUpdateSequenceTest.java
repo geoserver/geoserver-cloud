@@ -6,22 +6,29 @@
 package org.geoserver.cloud.backend.pgconfig.config;
 
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.config.UpdateSequenceConformanceTest;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /** @since 1.4 */
 @Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.CONCURRENT)
 @SuppressWarnings("java:S2187")
 class PgconfigUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();
+
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
 
     private UpdateSequence sequence;
     private PgconfigGeoServerFacade facade;
@@ -29,15 +36,9 @@ class PgconfigUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     @BeforeEach
     void init() {
-        container.setUp();
-        facade = new PgconfigGeoServerFacade(container.getTemplate());
+        facade = new PgconfigGeoServerFacade(db.getTemplate());
         geoserver = new GeoServerImpl(facade);
-        sequence = new PgconfigUpdateSequence(container.getDataSource(), facade);
-    }
-
-    @AfterEach
-    void cleanDb() {
-        container.tearDown();
+        sequence = new PgconfigUpdateSequence(db.getDataSource(), facade);
     }
 
     @Override

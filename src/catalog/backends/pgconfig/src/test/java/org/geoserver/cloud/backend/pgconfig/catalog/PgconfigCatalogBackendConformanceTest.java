@@ -16,12 +16,14 @@ import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCach
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerResourceLoader;
 import org.geotools.util.logging.Logging;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
@@ -31,34 +33,25 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /** @since 1.4 */
 @Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.CONCURRENT)
 class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();
 
-    @Override
-    @BeforeEach
-    public void setUp() {
-        container.setUp();
-        super.setUp();
-    }
-
-    @AfterEach
-    void cleanDb() throws Exception {
-        container.tearDown();
-    }
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
 
     @Override
-    protected CatalogImpl createCatalog(File tmpFolder) {
-        JdbcTemplate template = container.getTemplate();
+    protected CatalogImpl createCatalog(File cacheDirectory) {
+        JdbcTemplate template = db.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
-        File cacheDirectory = tmpFolder;
         FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         PgconfigResourceStore resourceStore = new PgconfigResourceStore(
                 cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
 
         var resourceLoader = new PgconfigGeoServerResourceLoader(resourceStore);
-        CatalogPlugin catalog = new PgconfigBackendBuilder(container.getDataSource()).createCatalog();
+        CatalogPlugin catalog = new PgconfigBackendBuilder(db.getDataSource()).createCatalog();
         catalog.setResourceLoader(resourceLoader);
         final boolean backupSldFiles = false;
         catalog.addListener(new CatalogPluginStyleResourcePersister(catalog, backupSldFiles));
@@ -70,7 +63,7 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
     }
 
     LockRepository pgconfigLockRepository() {
-        DataSource dataSource = container.getDataSource();
+        DataSource dataSource = db.getDataSource();
         DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
         // override default table prefix "INT" by "RESOURCE_" (matching table definition
         // RESOURCE_LOCK in init.XXX.sql

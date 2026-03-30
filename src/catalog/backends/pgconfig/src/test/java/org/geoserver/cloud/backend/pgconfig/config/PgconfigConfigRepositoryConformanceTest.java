@@ -16,36 +16,37 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
 import org.geoserver.config.ServiceInfo;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /** @since 1.4 */
 @Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.CONCURRENT)
 class PgconfigConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();
 
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
+
     @Override
     @BeforeEach
     public void setUp() {
-        container.setUp();
         super.setUp();
     }
 
-    @AfterEach
-    void cleanDb() {
-        container.tearDown();
-    }
-
     protected @Override GeoServer createGeoServer() {
-        PgconfigBackendBuilder builder = new PgconfigBackendBuilder(container.getDataSource());
+        PgconfigBackendBuilder builder = new PgconfigBackendBuilder(db.getDataSource());
         Catalog catalog = builder.createCatalog();
         return builder.createGeoServer(catalog);
     }
