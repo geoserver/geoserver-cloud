@@ -11,10 +11,6 @@
   <description>Auto-configuration for curated list of supported raster data formats</description>
   <dependencies>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-    </dependency>
-    <dependency>
       <!-- Just to make sure the autoconfiguration runs before the catalog loader-->
       <groupId>org.geoserver.cloud.catalog.backend</groupId>
       <artifactId>gs-cloud-catalog-backend-common</artifactId>
@@ -75,6 +71,11 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure-processor</artifactId>
       <optional>true</optional>
     </dependency>
@@ -90,6 +91,10 @@
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
               <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-configuration-processor</artifactId>
             </path>
             <path>
               <groupId>org.springframework.boot</groupId>
