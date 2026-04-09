@@ -7,9 +7,11 @@ package org.geoserver.cloud.autoconfigure.extensions.appschema;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.configuration.extension.appschema.AppSchemaConfiguration;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -30,52 +32,41 @@ import org.springframework.context.annotation.Import;
  * }</pre>
  *
  * @since 2.27.0.0
+ * @see AppSchemaConfiguration
  */
 @AutoConfiguration
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
+@Import({AppSchemaAutoConfiguration.Enabled.class, AppSchemaAutoConfiguration.Disabled.class})
 @EnableConfigurationProperties(AppSchemaConfigProperties.class)
-@Import(AppSchemaConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.appschema")
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class AppSchemaAutoConfiguration {
 
     public @PostConstruct void log() {
         log.info("App-schema configuration detected");
     }
 
-    /**
-     * Creates the App-Schema module status bean.
-     *
-     * <p>Equivalent to the following XML configuration:
-     *
-     * <pre>{@code
-     * <bean id="appSchemaExtension" class=
-     * "org.geoserver.platform.ModuleStatusImpl">
-     *  <property name="module" value="gs-app-schema-core" />
-     *  <property name="name" value="App Schema Core Extension"/>
-     *  <property name="component" value="App Schema Core extension"/>
-     *  <property name="available" value="true"/>
-     *  <property name="enabled" value="true"/>
-     * </bean>
-     * }</pre>
-     *
-     * @param config the App-Schema configuration properties
-     * @return the App-Schema module status bean
-     */
-    @Bean
-    ModuleStatus appSchemaExtension(AppSchemaConfigProperties config) {
-        ModuleStatusImpl mod =
-                new ModuleStatusImpl("gs-app-schema-core", "App Schema Core Extension", "App Schema Core extension");
-        mod.setCategory(ModuleStatus.Category.EXTENSION);
-        mod.setAvailable(true);
-        mod.setEnabled(config.isEnabled());
-        if (config.isEnabled()) {
-            mod.setMessage(
-                    "App schema extension enabled through config property geoserver.extension.appschema.enabled=true");
-        } else {
+    @AutoConfiguration
+    @ConditionalOnAppSchema
+    @Import(AppSchemaConfiguration.class)
+    static class Enabled {}
+
+    @AutoConfiguration(after = AppSchemaAutoConfiguration.Enabled.class)
+    @ConditionalOnProperty(
+            prefix = AppSchemaConfigProperties.PREFIX,
+            name = "enabled",
+            havingValue = "false",
+            matchIfMissing = true)
+    static class Disabled {
+        @Bean
+        ModuleStatus appSchemaExtension() {
+            ModuleStatusImpl mod = new ModuleStatusImpl(
+                    "gs-app-schema-core", "App Schema Core Extension", "App Schema Core extension");
+            mod.setCategory(ModuleStatus.Category.EXTENSION);
+            mod.setAvailable(true);
+            mod.setEnabled(false);
             mod.setMessage(
                     "App schema extension disabled through config property geoserver.extension.appschema.enabled=false");
+            return mod;
         }
-
-        return mod;
     }
 }

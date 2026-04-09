@@ -6,23 +6,15 @@
 package org.geoserver.cloud.gwc.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_XML;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -32,31 +24,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ActiveProfiles("test")
 @AutoConfigureTestRestTemplate
-class GeoWebCacheApplicationTest {
+abstract class GeoWebCacheApplicationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    static @TempDir Path datadir;
-
-    @DynamicPropertySource
-    static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
-        var gwcdir = datadir.resolve("gwc");
-        if (!Files.exists(gwcdir)) {
-            Files.createDirectory(gwcdir);
-        }
-        registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
-        registry.add("gwc.cache-directory", gwcdir::toAbsolutePath);
-    }
 
     @BeforeEach
     void before() {
@@ -65,21 +41,7 @@ class GeoWebCacheApplicationTest {
         assertThat(rootUri).isNotEmpty();
     }
 
-    /**
-     * REVISIT: for some reason, running the REST API tests right after starting off an empty data directory produce a
-     * 403 forbidden response. We're hence forcing the order of the tests and the reload of the context for the time
-     * being
-     */
     @Test
-    @Order(1)
-    @DirtiesContext
-    void smokeTest() {
-        assertTrue(true);
-    }
-
-    @Test
-    @Order(2)
-    @DirtiesContext
     void testRESTDefaultContentType() {
         ResponseEntity<String> response = testGetRequestContentType("/gwc/rest/layers", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());
@@ -87,13 +49,16 @@ class GeoWebCacheApplicationTest {
     }
 
     @Test
-    @Order(3)
-    @DirtiesContext
-    void testRESTPathExtensionContentNegotiation() {
+    void testRESTPathExtensionContentNegotiationJson() {
         ResponseEntity<String> response = testGetRequestContentType("/gwc/rest/layers.json", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());
         assertThat(parsed.isJsonArray()).isTrue();
 
+        testGetRequestContentType("/gwc/rest/layers.xml", APPLICATION_XML);
+    }
+
+    @Test
+    void testRESTPathExtensionContentNegotiationXml() {
         testGetRequestContentType("/gwc/rest/layers.xml", APPLICATION_XML);
     }
 
@@ -102,13 +67,13 @@ class GeoWebCacheApplicationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         @Nullable MediaType contentType = response.getHeaders().getContentType();
         assertThat(contentType).isNotNull();
-        assertThat(contentType.isCompatibleWith(expected)).isTrue();
+        assertThat(contentType.isCompatibleWith(expected))
+                .as("expected %s got %s".formatted(expected, contentType))
+                .isTrue();
         return response;
     }
 
     @Test
-    @Order(4)
-    @DirtiesContext
     void testPostSeedDoesNotThrowAmbiguousHandlerMapping() {
         String payload =
                 """

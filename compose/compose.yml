@@ -15,13 +15,13 @@ x-gs-dependencies: &gs-dependencies
     condition: service_healthy
     required: true
   consul:
-    condition: service_started
+    condition: service_healthy
     required: true
   acl:
-    condition: service_started
+    condition: service_healthy
     required: true
   geodatabase:
-    condition: service_started
+    condition: service_healthy
     required: true
   init-test-data:
     condition: service_completed_successfully

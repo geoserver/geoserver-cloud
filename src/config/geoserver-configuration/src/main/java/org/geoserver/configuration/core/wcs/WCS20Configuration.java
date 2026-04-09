@@ -16,6 +16,6 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration(proxyBeanMethods = false)
 @Import(WCS20Configuration_Generated.class)
-@TranspileXmlConfig(locations = "jar:gs-wcs2_0-.*!/applicationContext.xml", publicAccess = true)
+@TranspileXmlConfig(locations = "jar:gs-wcs2_0-.*!/applicationContext.xml")
 @SuppressWarnings("java:S101")
 public class WCS20Configuration {}

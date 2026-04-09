@@ -7,65 +7,23 @@ package org.geoserver.cloud.autoconfigure.gwc.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheRestConfigEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
-import org.geoserver.cloud.autoconfigure.gwc.core.DiskQuotaAutoConfiguration;
-import org.geoserver.cloud.gwc.config.core.CloudGwcUrlHandlerMapping;
-import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
-import org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider;
+import org.geoserver.configuration.gwc.GwcRestConfiguration;
 import org.geoserver.rest.RestControllerAdvice;
-import org.geowebcache.rest.converter.GWCConverter;
-import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.Ordered;
+import org.springframework.context.annotation.Import;
 
 /**
- * The original {@literal gs-gwc-rest.jar!applicationContext.xml}:
- *
- * <pre>{@code
- *   <!-- Used by org.geoserver.rest.RestConfiguration when setting up converters -->
- *   <bean id="gwcConverter" class="org.geowebcache.rest.converter.GWCConverter">
- *     <constructor-arg ref="gwcAppCtx" />
- *   </bean>
- *
- *   <bean id="GWCGeoServerRESTConfigurationProvider" class="org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider">
- *     <description>
- *       XmlConfiguration contributor to set up XStream with GeoServer provided configuration objects for GWC's REST API
- *     </description>
- *     <constructor-arg ref="catalog"/>
- *   </bean>
- *
- *   <!-- Specific URL mapping for GWC WMTS REST API -->
- *   <bean id="gwcWmtsRestUrlHandlerMapping" class="org.geoserver.gwc.controller.GwcUrlHandlerMapping">
- *     <constructor-arg ref="catalog" />
- *     <constructor-arg type="java.lang.String" value="/gwc/rest/wmts" />
- *     <property name="alwaysUseFullPath" value="true" />
- *     <property name="order" value="10" />
- *   </bean>
- *
- *   <context:component-scan base-package="org.geowebcache.rest, org.geowebcache.diskquota.rest.controller" />
- *
- * </beans>
- *
- * }</pre>
- *
- * <p>scans too much. We're only scanning {@literal org.geowebcache.rest}.
- * {@literal org.geowebcache.diskquota.rest.controller} is up to {@link DiskQuotaAutoConfiguration}, and is omitted, I
- * can't find any {@code @Controller} in there, might need to revisit;
- *
- * <p>Conditionals: see {@link ConditionalOnGeoWebCacheRestConfigEnabled}
- *
- * @see GwcRestServiceConfiguration
+ * @see GwcRestConfiguration
  * @since 1.0
  */
 @AutoConfiguration
+@Import(GwcRestConfiguration.class)
 @ConditionalOnGeoWebCacheRestConfigEnabled
 @ConditionalOnClass(name = "org.geowebcache.rest.converter.GWCConverter")
-@ComponentScan(basePackages = "org.geowebcache.rest")
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.service")
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class GwcRestServiceAutoConfiguration {
@@ -75,31 +33,7 @@ public class GwcRestServiceAutoConfiguration {
     }
 
     /**
-     * The original {@literal geowebcache-rest-context.xml}:
-     *
-     * <pre>{@code
-     * <!-- Specific URL mapping for GWC WMTS REST API -->
-     * <bean id="gwcWmtsRestUrlHandlerMapping" class="org.geoserver.gwc.controller.GwcUrlHandlerMapping">
-     *   <constructor-arg ref="catalog" />
-     *   <constructor-arg type="java.lang.String" value="/gwc/rest/wmts" />
-     *   <property name="alwaysUseFullPath" value="true" />
-     *   <property name="order" value="10" />
-     * </bean>
-     * }</pre>
-     *
-     * @param catalog
-     */
-    @Bean
-    @SuppressWarnings({"deprecation", "java:S1874"})
-    GwcUrlHandlerMapping gwcWmtsRestUrlHandlerMapping(Catalog catalog) {
-        GwcUrlHandlerMapping handler = new CloudGwcUrlHandlerMapping(catalog, "/gwc/rest/wmts");
-        handler.setAlwaysUseFullPath(true);
-        handler.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return handler;
-    }
-
-    /**
-     * Since we don't scan the {@literal org.geowebcache.rest}, we need a {@link RestControllerAdvice} explicitly to
+     * Since we don't scan the {@literal org.geoserver.rest}, we need a {@link RestControllerAdvice} explicitly to
      * handle http error code translations.
      *
      * <p>For example, it ensures that {@code org.geoserver.rest.ResourceNotFoundException} is correctly mapped to a 404
@@ -108,43 +42,5 @@ public class GwcRestServiceAutoConfiguration {
     @Bean
     RestControllerAdvice restControllerAdvice() {
         return new RestControllerAdvice();
-    }
-
-    /**
-     * The original {@literal geowebcache-rest-context.xml}:
-     *
-     * <pre>{@code
-     * <!-- Used by org.geoserver.rest.RestConfiguration when setting up converters -->
-     * <bean id="gwcConverter" class="org.geowebcache.rest.converter.GWCConverter">
-     *   <constructor-arg ref="gwcAppCtx" />
-     * </bean>
-     * }</pre>
-     *
-     * @param appCtx
-     */
-    @Bean
-    @SuppressWarnings("rawtypes")
-    GWCConverter gwcConverter(ApplicationContextProvider appCtx) {
-        return new GWCConverter(appCtx);
-    }
-
-    /**
-     * The original {@literal geowebcache-rest-context.xml}:
-     *
-     * <pre>{@code
-     * <bean id="GWCGeoServerRESTConfigurationProvider" class="org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider">
-     *   <description>
-     *        XmlConfiguration contributor to set up XStream with GeoServer provided configuration objects for GWC's REST API
-     *  </description>
-     *      <constructor-arg ref="catalog"/>
-     * </bean>
-     * }</pre>
-     *
-     * @param catalog
-     */
-    @Bean(name = "GWCGeoServerRESTConfigurationProvider")
-    @SuppressWarnings("java:S6830")
-    GWCGeoServerRESTConfigurationProvider gwcGeoServerRESTConfigurationProvider(Catalog catalog) {
-        return new GWCGeoServerRESTConfigurationProvider(catalog);
     }
 }

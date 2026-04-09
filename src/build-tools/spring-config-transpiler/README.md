@@ -81,7 +81,7 @@ brings its beans into the application context.
 | `excludes`           | `String[]` | `{}`                      | Regex patterns — matching beans are skipped (takes precedence over includes) |
 | `publicAccess`       | `boolean`  | `false`                   | Generate `public` class and methods (needed for cross-package `@Import`) |
 | `proxyBeanMethods`   | `boolean`  | `false`                   | Controls `@Configuration(proxyBeanMethods=...)` on the generated class |
-| `ignoreComponentScan`| `boolean`  | `false`                   | When `true`, `<context:component-scan>` elements in the XML are not transpiled |
+| `componentScanStrategy`| `ComponentScanStrategy` | `INCLUDE`          | How to handle `<context:component-scan>` elements: `INCLUDE` (generate `@ComponentScan` annotations), `IGNORE` (skip entirely), or `GENERATE` (build-time classpath scan producing `@Bean` methods) |
 
 The annotation is `@Repeatable` — you can apply it more than once on the same class
 to process multiple XML files into separate generated classes.
@@ -118,9 +118,16 @@ reflection probing with `$` separators.
 
 ### Component scanning
 
-`<context:component-scan>` elements become `@ComponentScan` annotations on the generated class,
-preserving `base-package`, `use-default-filters`, and `resource-pattern`. Set
-`ignoreComponentScan = true` on the annotation to suppress this.
+`<context:component-scan>` elements are handled according to the `componentScanStrategy` setting:
+
+- **`INCLUDE`** (default): Generates `@ComponentScan` annotations on the generated class,
+  preserving `base-package`, `use-default-filters`, and `resource-pattern`.
+- **`IGNORE`**: Skips component-scan elements entirely — no annotations or beans are generated.
+- **`GENERATE`**: Performs classpath scanning at build time using Spring's
+  `ClassPathScanningCandidateComponentProvider` and generates `@Bean` methods for each
+  discovered component in a static inner `@Configuration` class named `ComponentScannedBeans`.
+  Abstract classes and interfaces are skipped. The `excludes` patterns apply to component-scanned
+  beans, matching against both the fully qualified class name and the default bean name.
 
 ### Bean filtering and aliases
 
@@ -169,12 +176,12 @@ runs filtering, delegates each bean to the matching generator, and writes the `.
 
 ## Tests
 
-74 tests across two test classes:
+83 tests across two test classes:
 
-- `TranspileXmlConfigAnnotationProcessorTest` (19 tests) — end-to-end compilation tests:
-  resource resolution, filtering, component scanning, `ignoreComponentScan`, multiple
-  annotations, public access, error handling.
-- `TranspileXmlConfigAnnotationProcessorMethodGenerationTest` (55 tests) — per-bean-pattern
+- `TranspileXmlConfigAnnotationProcessorTest` (24 tests) — end-to-end compilation tests:
+  resource resolution, filtering, component scan strategies (INCLUDE, IGNORE, GENERATE),
+  multiple annotations, public access, error handling.
+- `TranspileXmlConfigAnnotationProcessorMethodGenerationTest` (59 tests) — per-bean-pattern
   tests using AST-based structural comparison. Each test specifies source XML and the expected
   generated Java.
 
@@ -189,7 +196,7 @@ Main test categories:
 - ProxyFactoryBean (proxy interfaces, interceptor names)
 - MethodInvokingFactoryBean (static and instance methods)
 - SpEL expressions (system properties, elvis operator)
-- Component scanning and `ignoreComponentScan`
+- Component scan strategies (INCLUDE, IGNORE, GENERATE with excludes)
 - Method name collision prevention (unique suffixes for auto-generated beans)
 
 Run them with:

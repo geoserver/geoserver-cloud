@@ -25,7 +25,7 @@ import org.springframework.test.context.DynamicPropertySource;
 @SpringBootTest(
         classes = DataDirectoryTestConfiguration.class, //
         properties = {
-            "geoserver.backend.dataDirectory.enabled=true",
+            "geoserver.backend.data-directory.enabled=true",
         })
 @ActiveProfiles("test")
 class DataDirectoryUpdateSequenceTest implements UpdateSequenceConformanceTest {

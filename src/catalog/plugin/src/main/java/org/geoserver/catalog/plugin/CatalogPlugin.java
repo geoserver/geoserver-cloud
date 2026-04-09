@@ -104,23 +104,12 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     private final transient CatalogBusinessRules businessRules = new CatalogBusinessRules();
 
-    protected final boolean isolated;
-
     public CatalogPlugin() {
-        this(true);
-    }
-
-    public CatalogPlugin(boolean isolated) {
-        this(new DefaultMemoryCatalogFacade(), isolated);
+        this(new DefaultMemoryCatalogFacade());
     }
 
     public CatalogPlugin(CatalogFacade facade) {
-        this(facade, true);
-    }
-
-    public CatalogPlugin(CatalogFacade facade, boolean isolated) {
         Objects.requireNonNull(facade);
-        this.isolated = isolated;
         setFacade(facade);
         resourcePool = ResourcePool.create(this);
         validationSupport = new CatalogValidationRules(this);
@@ -129,7 +118,6 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     /** Constructor for {@link #getRawCatalog()} */
     protected CatalogPlugin(CatalogPlugin catalog) {
         super(catalog); // sets dispatcher and resourcePool
-        this.isolated = false;
         this.validationSupport = new CatalogValidationRules(this);
         super.resourceLoader = catalog.getResourceLoader();
         super.rawFacade = catalog.getRawFacade();
@@ -198,9 +186,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
         // decorate the default catalog facade with one capable of handling isolated
         // workspaces
-        if (this.isolated) {
-            efacade = new IsolatedCatalogFacade(efacade);
-        }
+        efacade = new IsolatedCatalogFacade(efacade);
         ResolvingCatalogFacadeDecorator resolving = new ResolvingCatalogFacadeDecorator(efacade);
         resolving.setOutboundResolver(outboundResolver);
         resolving.setInboundResolver(inboundResolver);

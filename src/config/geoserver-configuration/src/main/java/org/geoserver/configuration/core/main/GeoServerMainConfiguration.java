@@ -5,6 +5,7 @@
 
 package org.geoserver.configuration.core.main;
 
+import org.geoserver.spring.config.annotations.ComponentScanStrategy;
 import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -14,17 +15,17 @@ import org.springframework.context.annotation.Import;
  *
  * <p>Loads bean definitions from {@code jar:gs-main-.*!/applicationContext.xml}, excluding the ones that shall be
  * provided by the enabled {@link GeoServerBackendConfigurer}, as defined in {@code gs-cloud-catalog-backend-starter}.
+ *
+ * @see GeoServerMainConfiguration_Generated
+ * @see GeoServerMainConfiguration_Generated.ComponentScannedBeans
  */
 @Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-main-.*!/applicationContext.xml",
+        componentScanStrategy = ComponentScanStrategy.GENERATE,
         excludes = {
             // Beans overridden by GeoServerBackendConfigurer (from gs-cloud-catalog-backend-starter)
-            "catalog", // overridden by cloud-specific catalog implementation (alias for localWorkspaceCatalog)
             "rawCatalog", // provided by GeoServerBackendConfigurer#rawCatalog
-            "secureCatalog", // provided by GeoServerBackendConfigurer#secureCatalog
-            "localWorkspaceCatalog", // overridden by cloud-specific catalog implementation
-            "advertisedCatalog", // overridden by cloud-specific catalog implementation
             "accessRulesDao", // provided by GeoServerBackendConfigurer#accessRulesDao
             "catalogFacade", // provided by GeoServerBackendConfigurer#catalogFacade
             "dataDirectory", // provided by GeoServerBackendConfigurer#dataDirectory
@@ -49,7 +50,9 @@ import org.springframework.context.annotation.Import;
             "proxyfier", // unused - Spring Boot handles forwarded headers
 
             // Beans unused in geoserver-cloud - lock providers handled differently
+            "nullLockProvider",
             "fileLockProvider", // unused - cloud uses distributed locking mechanisms
+            "lockProvider", // GlobalLockProvider provided by CoreBackendConfiguration
             "memoryLockProvider", // unused - cloud uses distributed locking mechanisms
             "lockProviderInitializer",
 

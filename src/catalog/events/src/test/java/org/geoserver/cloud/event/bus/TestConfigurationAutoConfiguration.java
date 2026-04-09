@@ -69,8 +69,7 @@ public class TestConfigurationAutoConfiguration implements InitializingBean, App
 
     @Bean(name = {"catalog", "rawCatalog"})
     Catalog catalog() {
-        final boolean isolated = false;
-        return new CatalogPlugin(isolated);
+        return new CatalogPlugin();
     }
 
     @Bean

@@ -192,20 +192,24 @@ public @interface TranspileXmlConfig {
     boolean proxyBeanMethods() default false;
 
     /**
-     * Whether to ignore {@code <context:component-scan>} elements in the XML configuration.
+     * Strategy for handling {@code <context:component-scan>} elements in the XML configuration.
      *
      * <ul>
-     *   <li>{@code false} (default): Component scan elements are transpiled to {@code @ComponentScan} annotations
-     *   <li>{@code true}: Component scan elements in the XML are ignored and no {@code @ComponentScan} annotations are
-     *       generated
+     *   <li>{@link ComponentScanStrategy#INCLUDE} (default): Component scan elements are transpiled to
+     *       {@code @ComponentScan} annotations
+     *   <li>{@link ComponentScanStrategy#IGNORE}: Component scan elements are ignored entirely
+     *   <li>{@link ComponentScanStrategy#GENERATE}: Classpath scanning is performed at build time and {@code @Bean}
+     *       methods are generated for each discovered component, placed in a static inner {@code @Configuration} class
      * </ul>
      *
-     * <p>This is useful when the component scan packages from the original XML configuration are not applicable in the
-     * target context (e.g., cloud deployments).
+     * <p>Use {@code GENERATE} to eliminate runtime component scanning for faster startup. The scanned packages' classes
+     * must be available on the annotation processor classpath. The {@code excludes} patterns apply to component-scanned
+     * beans, matching against both the fully qualified class name and the default bean name.
      *
-     * @return {@code true} to ignore component scanning, {@code false} to transpile it (default)
+     * @return the component scan strategy to use
+     * @see ComponentScanStrategy
      */
-    boolean ignoreComponentScan() default false;
+    ComponentScanStrategy componentScanStrategy() default ComponentScanStrategy.INCLUDE;
 
     /**
      * Container annotation for multiple {@code @BuildTimeXmlImport} declarations. This allows using multiple

@@ -5,12 +5,14 @@
 
 package org.geoserver.configuration.gwc;
 
+import org.geoserver.spring.config.annotations.ComponentScanStrategy;
 import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 
 /**
  * @see GwcCoreContextConfiguration
  * @see GwcGeoServerContextConfiguration
  * @see GwcDiskQuotaContextConfiguration
+ * @see GwcRestConfiguration
  * @see GwcDiskQuotaRestConfiguration
  * @see GwcKMLServiceConfiguration
  * @see GwcTMSServiceConfiguration
@@ -43,6 +45,7 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
             // provided by GeoWebCacheCoreAutoConfiguration:
             "gwcXmlConfig",
             "gwcDefaultStorageFinder",
+            "gwcXmlConfigResourceProvider",
             // transpiles wrongly, added to GeoWebCacheCoreAutoConfiguration:
             "gwcGridSetBroker",
             "gwcStorageBroker",
@@ -55,6 +58,18 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
         targetClass = "GwcDiskQuotaContextConfiguration",
         publicAccess = true,
         excludes = {"DiskQuotaConfigLoader"})
+@TranspileXmlConfig(
+        locations = "jar:gs-gwc-rest-[0-9]+.*!/applicationContext.xml",
+        componentScanStrategy = ComponentScanStrategy.GENERATE,
+        excludes = "org.geowebcache.diskquota.rest.controller.*",
+        targetClass = "GwcRestConfiguration",
+        publicAccess = true)
+@TranspileXmlConfig(
+        locations = "jar:gs-gwc-rest-[0-9]+.*!/applicationContext.xml",
+        componentScanStrategy = ComponentScanStrategy.GENERATE,
+        includes = "org.geowebcache.diskquota.rest.controller.*",
+        targetClass = "GwcDiskQuotaRestConfiguration",
+        publicAccess = true)
 @TranspileXmlConfig(
         locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-kmlservice-context.xml",
         targetClass = "GwcKMLServiceConfiguration",

@@ -3,23 +3,52 @@ spring:
   cloud.config.discovery.enabled: false
   cloud.discovery.enabled: false
   cloud.bus.enabled: false
+
+jndi:
+  datasources:
+    pgconfig:
+      enabled: ${geoserver.backend.pgconfig.enabled:false}
+      schema: ${pgconfig.schema}
+      wait-for-it: true
+      wait-timeout: 10
+      url: jdbc:postgresql://${pgconfig.host}:${pgconfig.port}/${pgconfig.database}
+      username: ${pgconfig.username}
+      password: ${pgconfig.password}
+      maximum-pool-size: 10
+      minimum-idle: 0
+      connection-timeout: 2500
+      idle-timeout: 60000
+
 geoserver:
-  acl.enabled: false
-  security.enabled: true
   backend:
+    # configure catalog backends and decide which backend to use on this service.
+    # All backends are disabled, enable the required one on each service. 
     data-directory:
-      enabled: true
-      location: # to be set by test classes
+      enabled: false
+      location: "${geoserver.datadir:${GEOSERVER_DATA_DIR:/opt/app/data_directory}}"
+      eventual-consistency:
+        # eventual consistency enfocement. Bus events may come out of order under stress
+        enabled: true
+        # milliseconds to wait before retries. The list size determines the number of retries. The values the milliseconds to wait
+        retries: 25, 25, 50
+    pgconfig:
+      enabled: false
+      initialize: true
+      schema: ${pgconfig.schema}
+      create-schema: true
+      datasource:
+        jndi-name: java:comp/env/jdbc/pgconfig
 
 logging:
   level:
     root: warn
+    org.testcontainers: warn
     org.geotools: warn
     org.geoserver: warn
     org.geoserver.security: error
-    org.geoserver.cloud: info
+    org.geoserver.cloud: warn
+    org.geoserver.cloud.security: warn
     org.geoserver.cloud.config.catalog: warn
-    org.geoserver.cloud.config.factory: info
     org.geowebcache.config.XMLConfiguration: off
     org.springframework.test: info
     org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader: off

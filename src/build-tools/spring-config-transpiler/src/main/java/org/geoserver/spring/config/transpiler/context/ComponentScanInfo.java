@@ -16,10 +16,25 @@ import org.w3c.dom.Element;
 @Value
 public class ComponentScanInfo {
 
+    /** Comma/semicolon/whitespace-separated list of packages to scan, from the {@code base-package} XML attribute. */
     private final String basePackage;
+
+    /** Optional custom scope-resolver class name, from the {@code scope-resolver} XML attribute. Empty if not set. */
     private final String scopeResolver;
+
+    /**
+     * Whether the default stereotype filters ({@code @Component}, {@code @Service}, etc.) are active. Defaults to
+     * {@code true}; only {@code false} when the XML explicitly sets {@code use-default-filters="false"}.
+     */
     private final boolean useDefaultFilters;
+
+    /**
+     * Optional classpath resource pattern restricting which classes are considered, from the {@code resource-pattern}
+     * XML attribute (e.g. {@code "**&#47;*.class"}). Empty if not set.
+     */
     private final String resourcePattern;
+
+    /** The original DOM element for the {@code <context:component-scan>} declaration. */
     private final Element originalElement;
 
     public ComponentScanInfo(Element element) {

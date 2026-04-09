@@ -9,8 +9,8 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="org.springframework.test" level="WARN"/>
-    <logger name="org.springframework.boot.test" level="WARN"/>
-    <logger name="org.springframework.context" level="WARN"/>
+    <logger name="ch.qos.logback" level="WARN"/>
+    <logger name="org.testcontainers" level="WARN"/>
+    <logger name="tc.testcontainers" level="WARN"/>
     <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
+import org.geoserver.spring.config.annotations.ComponentScanStrategy;
 import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.geoserver.spring.config.transpiler.xml.EnhancedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -40,24 +41,91 @@ import org.springframework.beans.factory.config.BeanDefinition;
  */
 public class TranspilationContext {
 
-    // Immutable configuration derived from annotation
-    private final TypeElement annotatedElement;
-    private final TranspileXmlConfig annotation;
-    private final ProcessingEnvironment processingEnvironment;
-    private final String targetPackage;
-    private final String targetClassName;
-    private final String[] xmlLocations;
-    private final Pattern[] includePatterns;
-    private final Pattern[] excludePatterns;
-    private final boolean publicAccess;
-    private final boolean proxyBeanMethods;
-    private final boolean ignoreComponentScan;
+    // -- Immutable configuration derived from the @TranspileXmlConfig annotation --
 
-    // Mutable state populated during transpilation
+    /** The class that carries the {@code @TranspileXmlConfig} annotation. {@code null} in tests. */
+    private final TypeElement annotatedElement;
+
+    /** The annotation instance this context was created from. {@code null} in tests. */
+    private final TranspileXmlConfig annotation;
+
+    /**
+     * Compile-time processing environment providing {@link javax.annotation.processing.Filer} and
+     * {@link javax.annotation.processing.Messager} access. {@code null} in tests.
+     */
+    private final ProcessingEnvironment processingEnvironment;
+
+    /**
+     * Package name for the generated {@code @Configuration} class. Derived from
+     * {@link TranspileXmlConfig#targetPackage()} or the annotated class's package.
+     */
+    private final String targetPackage;
+
+    /**
+     * Simple class name for the generated {@code @Configuration} class. Derived from
+     * {@link TranspileXmlConfig#targetClass()} or the annotated class name + {@code "_Generated"}.
+     */
+    private final String targetClassName;
+
+    /**
+     * XML resource locations to parse (classpath: or jar: patterns), from {@link TranspileXmlConfig#value()} /
+     * {@link TranspileXmlConfig#locations()}.
+     */
+    private final String[] xmlLocations;
+
+    /**
+     * Compiled regex patterns from {@link TranspileXmlConfig#includes()} — a bean is included when any of its names (or
+     * aliases) matches at least one pattern. Default: {@code {".*"}}.
+     */
+    private final Pattern[] includePatterns;
+
+    /**
+     * Compiled regex patterns from {@link TranspileXmlConfig#excludes()} — a bean is excluded when any of its names (or
+     * aliases) matches at least one pattern. Excludes take precedence over includes.
+     */
+    private final Pattern[] excludePatterns;
+
+    /**
+     * Whether the generated class and its {@code @Bean} methods should be {@code public}. When {@code false} (default),
+     * package-private visibility is used to avoid CGLIB proxying.
+     */
+    private final boolean publicAccess;
+
+    /**
+     * Value for {@code @Configuration(proxyBeanMethods = ...)} on the generated class. Default {@code false} — safe
+     * because the transpiler never generates inter-bean method calls.
+     */
+    private final boolean proxyBeanMethods;
+
+    /**
+     * Controls how {@code <context:component-scan>} XML elements are handled: generate {@code @ComponentScan}
+     * annotations ({@code INCLUDE}), skip them ({@code IGNORE}), or perform build-time classpath scanning and emit
+     * {@code @Bean} methods ({@code GENERATE}).
+     */
+    private final ComponentScanStrategy componentScanStrategy;
+
+    // -- Mutable state populated during transpilation --
+
+    /** Bean names already processed — used to prevent duplicate {@code @Bean} methods. */
     private Set<String> processedBeans;
 
+    /**
+     * All bean definitions loaded from the XML resources, keyed by bean name. Populated by
+     * {@link org.geoserver.spring.config.transpiler.generator.ConfigurationClassGenerator#loadBeanDefinitions}.
+     */
     private Map<String, BeanDefinition> allBeanDefinitions;
+
+    /**
+     * Per-bean metadata consolidating the Spring {@link BeanDefinition} with original XML element, aliases, and
+     * name-resolution info. Keyed by bean name.
+     */
     private Map<String, EnhancedBeanDefinition> enhancedBeanInfoMap;
+
+    /**
+     * Component-scan configurations captured from the parsed XML documents. Each entry corresponds to one
+     * {@code <context:component-scan>} element and carries its attributes (base-package, use-default-filters,
+     * resource-pattern).
+     */
     private List<ComponentScanInfo> globalComponentScans;
 
     private TranspilationContext(Builder builder) {
@@ -73,7 +141,7 @@ public class TranspilationContext {
         this.excludePatterns = compilePatterns(annotation.excludes());
         this.publicAccess = annotation.publicAccess();
         this.proxyBeanMethods = annotation.proxyBeanMethods();
-        this.ignoreComponentScan = annotation.ignoreComponentScan();
+        this.componentScanStrategy = annotation.componentScanStrategy();
 
         // Initialize mutable state
         this.allBeanDefinitions = new HashMap<>();
@@ -84,7 +152,11 @@ public class TranspilationContext {
 
     /** Test-friendly constructor that doesn't require annotation processor dependencies. */
     private TranspilationContext(
-            String targetPackage, String targetClassName, boolean publicAccess, boolean proxyBeanMethods) {
+            String targetPackage,
+            String targetClassName,
+            boolean publicAccess,
+            boolean proxyBeanMethods,
+            String[] excludes) {
         this.annotatedElement = null;
         this.annotation = null;
         this.processingEnvironment = null;
@@ -94,10 +166,10 @@ public class TranspilationContext {
         this.targetClassName = targetClassName;
         this.xmlLocations = new String[] {"test.xml"}; // Minimal for testing
         this.includePatterns = new Pattern[] {Pattern.compile(".*")}; // Include all
-        this.excludePatterns = new Pattern[0]; // Exclude none
+        this.excludePatterns = compilePatterns(excludes);
         this.publicAccess = publicAccess;
         this.proxyBeanMethods = proxyBeanMethods;
-        this.ignoreComponentScan = false;
+        this.componentScanStrategy = ComponentScanStrategy.INCLUDE;
 
         // Initialize mutable state
         this.allBeanDefinitions = new HashMap<>();
@@ -147,8 +219,8 @@ public class TranspilationContext {
         return proxyBeanMethods;
     }
 
-    public boolean isIgnoreComponentScan() {
-        return ignoreComponentScan;
+    public ComponentScanStrategy getComponentScanStrategy() {
+        return componentScanStrategy;
     }
 
     // Mutable state management methods
@@ -274,6 +346,49 @@ public class TranspilationContext {
         return includePatterns.length == 0;
     }
 
+    /**
+     * Check if a component-scanned bean should be included based on include/exclude patterns. Checks both the fully
+     * qualified class name and the default bean name against the patterns.
+     *
+     * <p>Matching rules (same precedence as XML bean filtering):
+     *
+     * <ol>
+     *   <li>If any name matches an exclude pattern, the bean is excluded
+     *   <li>If any name matches an include pattern, the bean is included
+     *   <li>If no include pattern matched but includes are set, the bean is excluded
+     *   <li>If no include patterns are configured, the bean is included
+     * </ol>
+     *
+     * @param fqcn the fully qualified class name of the component
+     * @param beanName the default bean name (simple class name with first letter lowercased)
+     * @return true if the bean should be included
+     */
+    public boolean shouldIncludeComponentScannedBean(String fqcn, String beanName) {
+        Set<String> namesToCheck = new LinkedHashSet<>();
+        namesToCheck.add(fqcn);
+        namesToCheck.add(beanName);
+
+        // Check exclude patterns first (they take precedence)
+        for (String nameToCheck : namesToCheck) {
+            for (Pattern excludePattern : excludePatterns) {
+                if (excludePattern.matcher(nameToCheck).matches()) {
+                    return false;
+                }
+            }
+        }
+
+        // Check include patterns
+        for (String nameToCheck : namesToCheck) {
+            for (Pattern includePattern : includePatterns) {
+                if (includePattern.matcher(nameToCheck).matches()) {
+                    return true;
+                }
+            }
+        }
+
+        return includePatterns.length == 0;
+    }
+
     /** Simple bean inclusion check without alias consideration (fallback). */
     private boolean shouldIncludeBeanSimple(String beanName) {
         // Check exclude patterns first (they take precedence)
@@ -354,7 +469,20 @@ public class TranspilationContext {
      */
     public static TranspilationContext forTesting(
             String targetPackage, String targetClassName, boolean publicAccess, boolean proxyBeanMethods) {
-        return new TranspilationContext(targetPackage, targetClassName, publicAccess, proxyBeanMethods);
+        return new TranspilationContext(targetPackage, targetClassName, publicAccess, proxyBeanMethods, new String[0]);
+    }
+
+    /**
+     * Create a minimal TranspilationContext for testing with exclude patterns. This bypasses the annotation processor
+     * dependencies that are not available in unit tests.
+     */
+    public static TranspilationContext forTesting(
+            String targetPackage,
+            String targetClassName,
+            boolean publicAccess,
+            boolean proxyBeanMethods,
+            String[] excludes) {
+        return new TranspilationContext(targetPackage, targetClassName, publicAccess, proxyBeanMethods, excludes);
     }
 
     public static class Builder {

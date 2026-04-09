@@ -10,22 +10,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.geoserver.catalog.Catalog;
-import org.geoserver.configuration.gwc.GwcWMSMinimalConfiguration;
-import org.geoserver.gwc.layer.GeoServerTileLayer;
-import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.gwc.dispatch.GeoServerGWCDispatcherController;
 import org.geoserver.rest.RestConfiguration;
 import org.geoserver.rest.SuffixStripFilter;
 import org.geoserver.rest.catalog.AdminRequestCallback;
-import org.geoserver.wms.capabilities.LegendSample;
-import org.geoserver.wms.capabilities.LegendSampleImpl;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 
 /**
  * This configuration is intentionally identical to
@@ -33,24 +26,16 @@ import org.springframework.context.annotation.FilterType;
  * bean here) for the gwc rest configuration depends on the same infrastructure.
  */
 @Configuration
-@ComponentScan(
-        basePackageClasses = {
-            org.geoserver.gwc.dispatch.GeoServerGWCDispatcherController.class,
-            org.geoserver.rest.AbstractGeoServerController.class
-        },
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SuffixStripFilter.class))
-public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
+@Import(RestConfiguration.class)
+public class GeoWebCacheApplicationConfiguration {
 
     /**
-     * Required by {@link GeoServerTileLayer#getLegendSample}, excluded by {@link GwcWMSMinimalConfiguration}
-     *
-     * @param catalog using {@code rawCatalog} instead of {@code catalog}, to avoid the local workspace and secured
-     *     catalog decorators
+     * Replaces component scanning on package {@code org.geoserver.gwc.dispatch} from
+     * {@literal jar:gs-gwc-<version>.jar!/geowebcache-servlet.xml}
      */
     @Bean
-    @ConditionalOnMissingBean
-    LegendSample legendSample(@Qualifier("rawCatalog") Catalog catalog, GeoServerResourceLoader loader) {
-        return new LegendSampleImpl(catalog, loader);
+    GeoServerGWCDispatcherController gwcDispatcherController() {
+        return new GeoServerGWCDispatcherController();
     }
 
     @Bean

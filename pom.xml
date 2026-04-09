@@ -262,11 +262,6 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.gwc</groupId>
-        <artifactId>gwc-cloud-services</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.cloud.gwc</groupId>
         <artifactId>gwc-cloud-tiling</artifactId>
         <version>${project.version}</version>
       </dependency>

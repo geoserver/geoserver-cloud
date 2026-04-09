@@ -97,6 +97,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-gwc-rest</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>
       <optional>true</optional>
@@ -129,6 +134,31 @@
     <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-wms</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-restconfig</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-restconfig-wcs</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-restconfig-wfs</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-restconfig-wms</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-restconfig-wmts</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -258,6 +288,11 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-app-schema-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-inspire</artifactId>
       <optional>true</optional>
     </dependency>
@@ -321,243 +356,223 @@
             <path>
               <groupId>org.springframework</groupId>
               <artifactId>spring-webmvc</artifactId>
-              <version>${spring.version}</version>
             </path>
             <!-- GeoServer dependencies needed by the annotation processor -->
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-main</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-core</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-rest</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-demo</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-gwc</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-wcs</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-wfs</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-wms</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-web-wps</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-sec-core</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-sec-jdbc</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-sec-ldap</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wms-core</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wms1_1</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wms1_3</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wms-gml</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-kml</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wfs-core</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wfs1_x</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wfs2_x</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wcs</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wcs2_0</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-wcs1_0</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-wcs1_1</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-gwc</artifactId>
-              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver</groupId>
+              <artifactId>gs-gwc-rest</artifactId>
             </path>
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-gwc</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-vectortiles</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.community</groupId>
               <artifactId>gs-cog-core</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.community</groupId>
               <artifactId>gs-flatgeobuf</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.community</groupId>
               <artifactId>gs-geoparquet</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.community</groupId>
               <artifactId>gs-graticule</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.security</groupId>
               <artifactId>gs-sec-jdbc</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.security</groupId>
               <artifactId>gs-sec-ldap</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-authkey</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-css</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-dxf-core</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-dxf-wps</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.importer</groupId>
               <artifactId>gs-importer-core</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.importer</groupId>
               <artifactId>gs-importer-rest</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.importer</groupId>
               <artifactId>gs-importer-web</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-mbstyle</artifactId>
-              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-app-schema-core</artifactId>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-inspire</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-ogcapi-core</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-web-ogcapi</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-ogcapi-features</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-web-features</artifactId>
-              <version>${gs.version}</version>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-web-resource</artifactId>
-              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver</groupId>
+              <artifactId>gs-restconfig</artifactId>
+            </path>
+            <path>
+              <groupId>org.geoserver</groupId>
+              <artifactId>gs-restconfig-wcs</artifactId>
+            </path>
+            <path>
+              <groupId>org.geoserver</groupId>
+              <artifactId>gs-restconfig-wfs</artifactId>
+            </path>
+            <path>
+              <groupId>org.geoserver</groupId>
+              <artifactId>gs-restconfig-wms</artifactId>
+            </path>
+            <path>
+              <groupId>org.geoserver</groupId>
+              <artifactId>gs-restconfig-wmts</artifactId>
             </path>
           </annotationProcessorPaths>
           <!-- Enable processing of annotations -->

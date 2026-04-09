@@ -248,7 +248,7 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
          * @throws NullPointerException if {@code orig} or {@code facade} is null.
          */
         public SilentCatalog(CatalogPlugin orig, CatalogFacadeExtensionAdapter facade) {
-            super(facade, orig.isolated);
+            super(facade);
             this.orig = orig;
             super.resourceLoader = orig.getResourceLoader();
             super.resourcePool = orig.getResourcePool();

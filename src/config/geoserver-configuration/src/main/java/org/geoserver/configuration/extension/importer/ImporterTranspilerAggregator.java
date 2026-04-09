@@ -4,6 +4,7 @@
  */
 package org.geoserver.configuration.extension.importer;
 
+import org.geoserver.spring.config.annotations.ComponentScanStrategy;
 import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
         publicAccess = true)
 @TranspileXmlConfig(
         locations = "jar:gs-importer-rest-.*!/applicationContext.xml",
+        componentScanStrategy = ComponentScanStrategy.GENERATE,
         targetClass = "ImporterRestConfiguration",
         publicAccess = true)
 @TranspileXmlConfig(

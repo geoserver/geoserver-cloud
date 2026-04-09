@@ -2,7 +2,7 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.geoserver.cloud.restconfig;
+package org.geoserver.configuration.core.rest;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -29,7 +29,8 @@ import org.springframework.http.MediaType;
  * associated {@link SuffixStripFilterAwareHttpServletRequest}, ensures that even when running behind a gateway or in a
  * microservice context, the REST controllers receive requests in the expected format.
  */
-class RestRequestPathInfoFilter implements Filter {
+public class RestRequestPathInfoFilter implements Filter {
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -43,7 +44,7 @@ class RestRequestPathInfoFilter implements Filter {
         @SuppressWarnings("java:S1075") // base path is fixed
         final String basePath = "/rest";
         final int basePathIdx = requestURI.indexOf(basePath);
-        if (basePathIdx > -1) {
+        if (basePathIdx > -1 && !requestURI.contains("/gwc")) {
             return new SuffixStripFilterAwareHttpServletRequest(request, basePath);
         }
         return request;

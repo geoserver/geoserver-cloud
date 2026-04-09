@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Import;
  * set of WFS dependency beans for the minimal {@code WebMapService} bean.
  *
  * @see WMSCoreMinimalConfiguration_Generated
- * @see WmsWfsDependenciesConfiguration
+ * @see GwcWfsMinimalConfiguration
  * @since 2.28.0, previously implemented separately (and duplicated) in {@code gwc-cloud-core} and
  *     {@code gs-cloud-webui}
  */
@@ -29,7 +29,6 @@ import org.springframework.context.annotation.Import;
          * {@link GeoServerTileLayer#getLayerLegendsInfo()}
          */
         excludes = {
-            "legendSample",
             "wmsCapabilitiesXmlReader",
             "getMapXmlReader",
             "sldXmlReader",

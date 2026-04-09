@@ -5,16 +5,13 @@
 
 package org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig;
 
-import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
 
 /** @since 1.4 */
 @AutoConfiguration(after = PgconfigMigrationAutoConfiguration.class)
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnPgconfigBackendEnabled
-@EnableConfigurationProperties(CatalogProperties.class)
 @Import(PgconfigBackendConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class PgconfigBackendAutoConfiguration {}

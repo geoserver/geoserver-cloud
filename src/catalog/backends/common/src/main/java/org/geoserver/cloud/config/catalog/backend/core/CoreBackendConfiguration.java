@@ -7,10 +7,7 @@ package org.geoserver.cloud.config.catalog.backend.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.LayerGroupVisibilityPolicy;
-import org.geoserver.catalog.impl.AdvertisedCatalog;
 import org.geoserver.catalog.impl.CatalogImpl;
-import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.config.GeoServer;
@@ -20,29 +17,20 @@ import org.geoserver.config.GeoServerLoaderProxy;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
-import org.geoserver.ows.LocalWorkspace;
-import org.geoserver.platform.GeoServerEnvironment;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.GlobalLockProvider;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.ResourceStoreFactory;
-import org.geoserver.security.ResourceAccessManager;
-import org.geoserver.security.SecureCatalogImpl;
-import org.geoserver.security.impl.DataAccessRuleDAO;
-import org.geoserver.security.impl.DefaultResourceAccessManager;
 import org.geoserver.security.impl.GsCloudLayerGroupContainmentCache;
 import org.geoserver.security.impl.LayerGroupContainmentCache;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
 
 /**
  * Base configuration to set up the core catalog and configuration geoserver components
@@ -61,17 +49,14 @@ import org.springframework.context.annotation.Primary;
  *   <li>GeoServerResourceLoader resourceLoader
  * </ul>
  */
-// proxyBeanMethods = true required to avoid circular reference exceptions, especially related to
-// GeoServerExtensions still being created
 @Configuration(proxyBeanMethods = true)
-@EnableConfigurationProperties(CatalogProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.core")
 public class CoreBackendConfiguration {
 
     /**
-     * {@code GlobalLockProvider lockProvider} is excluded in {@code GeoServerMainModuleConfiguration} because it
-     * depends on {@code nullLockProvider}. In GeoServer Cloud, a {@link GeoServerBackendConfigurer} is required to
-     * supply a {@link LockProvider} known to perform distributed locking properly.
+     * {@code GlobalLockProvider lockProvider} is excluded in {@code GeoServerMainConfiguration} because it depends on
+     * {@code nullLockProvider}. In GeoServer Cloud, a {@link GeoServerBackendConfigurer} is required to supply a
+     * {@link LockProvider} known to perform distributed locking properly.
      */
     @Bean
     GlobalLockProvider lockProvider(LockProvider suppliedLockProvider) {
@@ -83,22 +68,19 @@ public class CoreBackendConfiguration {
     /** A {@link GeoServerLoaderProxy} that doesn't act as a BeanPostProcessor */
     @Lazy
     @Bean
-    CloudGeoServerLoaderProxy geoServerLoader(
+    GeoServerLoaderProxy geoServerLoader(
             @Qualifier("rawCatalog") CatalogImpl catalog, @Qualifier("geoServer") GeoServer geoserver) {
         return new CloudGeoServerLoaderProxy(catalog, geoserver);
     }
 
     /** Base catalog */
-    @ConditionalOnMissingBean(CatalogPlugin.class)
-    @DependsOn({"resourceLoader", "catalogFacade"})
     @Bean
+    @ConditionalOnMissingBean(CatalogPlugin.class)
     CatalogPlugin rawCatalog(
-            GeoServerResourceLoader resourceLoader,
-            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade,
-            CatalogProperties properties) {
+            @Qualifier("resourceLoader") GeoServerResourceLoader resourceLoader,
+            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade) {
 
-        boolean isolated = properties.isIsolated();
-        CatalogPlugin rawCatalog = new CatalogPlugin(catalogFacade, isolated);
+        CatalogPlugin rawCatalog = new CatalogPlugin(catalogFacade);
         rawCatalog.setResourceLoader(resourceLoader);
         return rawCatalog;
     }
@@ -123,60 +105,6 @@ public class CoreBackendConfiguration {
     @Bean
     GeoServerExtensions extensions() {
         return new GeoServerExtensions();
-    }
-
-    /**
-     * Utility class uses to process GeoServer configuration workflow through external environment variables.
-     *
-     * <p>Usually provided by gs-main
-     */
-    @ConditionalOnMissingBean
-    @DependsOn("extensions")
-    @Bean
-    GeoServerEnvironment environments() {
-        return new GeoServerEnvironment();
-    }
-
-    /**
-     * @return {@link SecureCatalogImpl} decorator if {@code properties.isSecure() == true}, {@code rawCatalog}
-     *     otherwise.
-     */
-    @Bean
-    @DependsOn({"extensions", "dataDirectory", "accessRulesDao"})
-    Catalog secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog, CatalogProperties properties) throws Exception {
-        if (properties.isSecure()) {
-            return new SecureCatalogImpl(rawCatalog);
-        }
-        return rawCatalog;
-    }
-
-    /**
-     * Default implementation of {@link ResourceAccessManager}, loads simple access
-     * rules from a properties file or a Properties object
-     * <p>
-     * * Added to {@literal gs-main.jar} in 2.22.x as
-     *
-     * <pre>
-     * {@code
-     *  <bean id="defaultResourceAccessManager" class=
-     * "org.geoserver.security.impl.DefaultResourceAccessManager">
-     *      <constructor-arg ref="accessRulesDao"/>
-     *      <constructor-arg ref="rawCatalog"/>
-     *      <property name="groupsCache" ref="layerGroupContainmentCache"/>
-     *  </bean>
-     * }
-     */
-    @ConditionalOnMissingBean
-    @DependsOn("layerGroupContainmentCache")
-    @Bean
-    DefaultResourceAccessManager defaultResourceAccessManager( //
-            DataAccessRuleDAO dao, //
-            @Qualifier("rawCatalog") Catalog rawCatalog,
-            LayerGroupContainmentCache layerGroupContainmentCache) {
-
-        DefaultResourceAccessManager accessManager = new DefaultResourceAccessManager(dao, rawCatalog);
-        accessManager.setGroupsCache(layerGroupContainmentCache);
-        return accessManager;
     }
 
     /**
@@ -214,36 +142,6 @@ public class CoreBackendConfiguration {
 
         log.info("using {}", NoopLayerGroupContainmentCache.class.getSimpleName());
         return new NoopLayerGroupContainmentCache();
-    }
-
-    /**
-     * Catalog decorator handling cases when a {@link LocalWorkspace} is set, becomes the primary {@code catalog} bean
-     * (i.e. outer-most decorator)
-     *
-     * @return {@link LocalWorkspaceCatalog} decorator if {@code properties.isLocalWorkspace() == true},
-     *     {@code advertisedCatalog} otherwise
-     */
-    @Bean(name = {"catalog", "localWorkspaceCatalog"})
-    @Primary
-    Catalog localWorkspaceCatalog(
-            @Qualifier("advertisedCatalog") Catalog advertisedCatalog, CatalogProperties properties) {
-        return properties.isLocalWorkspace() ? new LocalWorkspaceCatalog(advertisedCatalog) : advertisedCatalog;
-    }
-
-    /**
-     * Filters out the non advertised layers and resources.
-     *
-     * @return {@link AdvertisedCatalog} decorator if {@code properties.isAdvertised() == true}, {@code secureCatalog}
-     *     otherwise.
-     */
-    @Bean
-    Catalog advertisedCatalog(@Qualifier("secureCatalog") Catalog secureCatalog, CatalogProperties properties) {
-        if (properties.isAdvertised()) {
-            AdvertisedCatalog advertisedCatalog = new AdvertisedCatalog(secureCatalog);
-            advertisedCatalog.setLayerGroupVisibilityPolicy(LayerGroupVisibilityPolicy.HIDE_NEVER);
-            return advertisedCatalog;
-        }
-        return secureCatalog;
     }
 
     /**

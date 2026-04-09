@@ -4,6 +4,7 @@
  */
 package org.geoserver.spring.config.processor;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -1975,6 +1976,268 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 """;
 
         testBeanMethodGeneneration("PNGEncoder", xml, expectedJavaCode);
+    }
+
+    // ========================================================================================
+    // Component Scan GENERATE strategy tests
+    // ========================================================================================
+
+    /**
+     * Helper to generate a ComponentScannedBeans inner class from a component-scan XML fragment. Returns the generated
+     * TypeSpec, or null if no beans were discovered.
+     */
+    private com.palantir.javapoet.TypeSpec generateComponentScannedBeans(String componentScanXml) {
+        return generateComponentScannedBeans(componentScanXml, new String[0]);
+    }
+
+    private com.palantir.javapoet.TypeSpec generateComponentScannedBeans(String componentScanXml, String[] excludes) {
+
+        var parsed = org.geoserver.spring.config.transpiler.xml.XmlBeanDefinitionParser.parseXmlContent(
+                BeanMethodGeneratorTestUtils.wrapInBeansRoot(componentScanXml));
+
+        var context = org.geoserver.spring.config.transpiler.context.TranspilationContext.forTesting(
+                "org.geoserver.test.generated", "TestConfig", false, false, excludes);
+
+        var generator = new org.geoserver.spring.config.transpiler.generator.ComponentScanBeanGenerator();
+        return generator.generateComponentScannedBeans(parsed.getComponentScans(), context);
+    }
+
+    /** Find a method by name in the generated TypeSpec */
+    private MethodSpec findMethod(com.palantir.javapoet.TypeSpec typeSpec, String methodName) {
+        return typeSpec.methodSpecs().stream()
+                .filter(m -> m.name().equals(methodName))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Method '%s' not found in generated class. Available methods: %s"
+                        .formatted(
+                                methodName,
+                                typeSpec.methodSpecs().stream()
+                                        .map(MethodSpec::name)
+                                        .toList())));
+    }
+
+    /** Tests that a simple @Component with a no-arg constructor generates a straightforward @Bean method. */
+    @Test
+    void testComponentScanGenerateSimpleComponent() {
+        String xml =
+                """
+                <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
+                """;
+
+        var typeSpec = generateComponentScannedBeans(xml);
+        assertThat(typeSpec)
+                .as("Should generate inner class for component-scanned beans")
+                .isNotNull();
+        assertThat(typeSpec.name()).isEqualTo("ComponentScannedBeans");
+
+        MethodSpec method = findMethod(typeSpec, "simpleComponent");
+
+        String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.spring.config.test.components.SimpleComponent simpleComponent() {
+                  return new org.geoserver.spring.config.test.components.SimpleComponent();
+                }
+                """;
+
+        assertBeanMethod(method).compilesSuccessfully().isEquivalentTo(expectedJavaCode);
+    }
+
+    /**
+     * Tests that a @Component with a single-parameter constructor generates a @Bean method with an autowired parameter.
+     */
+    @Test
+    void testComponentScanGenerateComponentWithDependency() {
+        String xml =
+                """
+                <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
+                """;
+
+        var typeSpec = generateComponentScannedBeans(xml);
+        assertThat(typeSpec).isNotNull();
+
+        MethodSpec method = findMethod(typeSpec, "componentWithDependency");
+
+        String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.spring.config.test.components.ComponentWithDependency componentWithDependency(
+                    org.geoserver.config.GeoServer geoServer) {
+                  return new org.geoserver.spring.config.test.components.ComponentWithDependency(geoServer);
+                }
+                """;
+
+        assertBeanMethod(method).compilesSuccessfully().isEquivalentTo(expectedJavaCode);
+    }
+
+    /** Tests that when a component has multiple constructors, the @Autowired one is selected. */
+    @Test
+    void testComponentScanGenerateAutowiredConstructor() {
+        String xml =
+                """
+                <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
+                """;
+
+        var typeSpec = generateComponentScannedBeans(xml);
+        assertThat(typeSpec).isNotNull();
+
+        MethodSpec method = findMethod(typeSpec, "componentWithAutowiredConstructor");
+
+        String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.spring.config.test.components.ComponentWithAutowiredConstructor componentWithAutowiredConstructor(
+                    @org.springframework.beans.factory.annotation.Qualifier("geoServer") org.geoserver.config.GeoServer geoServer,
+                    org.geoserver.platform.GeoServerResourceLoader geoServerResourceLoader) {
+                  return new org.geoserver.spring.config.test.components.ComponentWithAutowiredConstructor(geoServer, geoServerResourceLoader);
+                }
+                """;
+
+        assertBeanMethod(method).compilesSuccessfully().isEquivalentTo(expectedJavaCode);
+    }
+
+    /** Tests that a component with a package-private no-arg constructor uses reflection-based instantiation. */
+    @Test
+    void testComponentScanGeneratePackagePrivateConstructor() {
+        String xml =
+                """
+                <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
+                """;
+
+        var typeSpec = generateComponentScannedBeans(xml);
+        assertThat(typeSpec).isNotNull();
+
+        MethodSpec method = findMethod(typeSpec, "packagePrivateConstructorComponent");
+
+        String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.spring.config.test.components.PackagePrivateConstructorComponent packagePrivateConstructorComponent(
+                    ) throws java.lang.Exception {
+                  java.lang.reflect.Constructor<?> constructor = org.geoserver.spring.config.test.components.PackagePrivateConstructorComponent.class.getDeclaredConstructor();
+                  constructor.setAccessible(true);
+                  return (org.geoserver.spring.config.test.components.PackagePrivateConstructorComponent) constructor.newInstance();
+                }
+                """;
+
+        assertBeanMethod(method).compilesSuccessfully().isEquivalentTo(expectedJavaCode);
+    }
+
+    /** Tests that abstract classes and interfaces are excluded from component scan generation. */
+    @Test
+    void testComponentScanGenerateSkipsAbstractAndInterface() {
+        String xml =
+                """
+                <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
+                """;
+
+        var typeSpec = generateComponentScannedBeans(xml);
+        assertThat(typeSpec).isNotNull();
+
+        List<String> methodNames =
+                typeSpec.methodSpecs().stream().map(MethodSpec::name).toList();
+
+        assertThat(methodNames)
+                .as("Should contain concrete component beans")
+                .contains("simpleComponent", "componentWithDependency")
+                .as("Should contain @ControllerAdvice bean (meta-annotated with @Component)")
+                .contains("controllerAdviceComponent")
+                .as("Should contain outer component")
+                .contains("outerComponent")
+                .as("Should NOT contain abstract class bean")
+                .doesNotContain("abstractComponent")
+                .as("Should NOT contain interface bean")
+                .doesNotContain("interfaceComponent")
+                .as("Should NOT contain member/inner class bean")
+                .doesNotContain("innerConfiguration");
+    }
+
+    /**
+     * Tests that the GENERATE strategy with a real GeoServer package generates the expected bean. Uses
+     * org.geoserver.system.status from gs-main which contains @Component OSHISystemInfoMonitor.
+     */
+    @Test
+    void testComponentScanGenerateRealGeoServerComponent() {
+        String xml =
+                """
+                <context:component-scan base-package="org.geoserver.system.status"/>
+                """;
+
+        var typeSpec = generateComponentScannedBeans(xml);
+        assertThat(typeSpec)
+                .as("Should generate inner class for org.geoserver.system.status")
+                .isNotNull();
+
+        // OSHISystemInfoMonitor is @Component with a no-arg public constructor
+        MethodSpec method = findMethod(typeSpec, "OSHISystemInfoMonitor");
+
+        String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.system.status.OSHISystemInfoMonitor OSHISystemInfoMonitor() {
+                  return new org.geoserver.system.status.OSHISystemInfoMonitor();
+                }
+                """;
+
+        assertBeanMethod(method).compilesSuccessfully().isEquivalentTo(expectedJavaCode);
+    }
+
+    /** Tests that component scan with an empty/non-existent package produces no inner class. */
+    @Test
+    void testComponentScanGenerateEmptyPackage() {
+        String xml =
+                """
+                <context:component-scan base-package="com.nonexistent.empty.package"/>
+                """;
+
+        var typeSpec = generateComponentScannedBeans(xml);
+        assertThat(typeSpec).as("Should return null when no components found").isNull();
+    }
+
+    /** Tests that the inner class has the expected @Configuration annotation structure. */
+    @Test
+    void testComponentScanGenerateInnerClassStructure() {
+        String xml =
+                """
+                <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
+                """;
+
+        var typeSpec = generateComponentScannedBeans(xml);
+        assertThat(typeSpec).isNotNull();
+
+        // Verify class name
+        assertThat(typeSpec.name()).isEqualTo("ComponentScannedBeans");
+
+        // Verify it's a static class
+        assertThat(typeSpec.modifiers()).contains(javax.lang.model.element.Modifier.STATIC);
+
+        // Verify @Configuration(proxyBeanMethods = false)
+        var configAnnotation = typeSpec.annotations().stream()
+                .filter(a -> a.type().toString().equals("org.springframework.context.annotation.Configuration"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Missing @Configuration annotation"));
+
+        assertThat(configAnnotation.toString()).contains("proxyBeanMethods = false");
+    }
+
+    /** Tests multiple packages in a single component-scan element. */
+    @Test
+    void testComponentScanGenerateMultiplePackages() {
+        String xml =
+                """
+                <context:component-scan base-package="org.geoserver.spring.config.test.components, org.geoserver.system.status"/>
+                """;
+
+        var typeSpec = generateComponentScannedBeans(xml);
+        assertThat(typeSpec).isNotNull();
+
+        List<String> methodNames =
+                typeSpec.methodSpecs().stream().map(MethodSpec::name).toList();
+
+        assertThat(methodNames)
+                .as("Should contain beans from test.components package")
+                .contains("simpleComponent", "componentWithDependency")
+                .as("Should contain beans from system.status package")
+                .contains("OSHISystemInfoMonitor");
     }
 
     /** Create a fluent assertion builder for verifying MethodSpec properties */

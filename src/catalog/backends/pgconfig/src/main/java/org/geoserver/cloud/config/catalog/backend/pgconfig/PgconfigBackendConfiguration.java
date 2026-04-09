@@ -189,13 +189,14 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
      */
     @Bean
     PgconfigResourceStore resourceStoreImpl(
-            @Qualifier("pgconfigLockProvider") PgconfigLockProvider lockProvider,
+            @Qualifier("pgconfigLockProvider") LockProvider lockProvider,
             FileSystemResourceStoreCache resourceStoreCache,
             @Qualifier("pcconfigJdbcTemplate") JdbcTemplate template) {
 
         log.debug("Creating ResourceStore {}", PgconfigResourceStore.class.getSimpleName());
         Predicate<String> localOnlyFilter = PgconfigResourceStore.defaultIgnoredResources();
-        return new PgconfigResourceStore(resourceStoreCache, template, lockProvider, localOnlyFilter);
+        return new PgconfigResourceStore(
+                resourceStoreCache, template, (PgconfigLockProvider) lockProvider, localOnlyFilter);
     }
 
     @Bean
@@ -221,8 +222,7 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     }
 
     @Bean
-    PgconfigLockProvider pgconfigLockProvider(
-            @Qualifier("pgconfigLockRegistry") JdbcLockRegistry pgconfigLockRegistry) {
+    LockProvider pgconfigLockProvider(@Qualifier("pgconfigLockRegistry") JdbcLockRegistry pgconfigLockRegistry) {
         log.debug("Creating {}", PgconfigLockProvider.class.getSimpleName());
         return new PgconfigLockProvider(pgconfigLockRegistry);
     }

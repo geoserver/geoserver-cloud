@@ -38,10 +38,8 @@
       <artifactId>gwc-cloud-catalog-pgconfig</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud.gwc</groupId>
-      <!-- if available, gwc API services will engage (e.g. tms, wmts, rest, etc) -->
-      <artifactId>gwc-cloud-services</artifactId>
-      <optional>true</optional>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-gwc-rest</artifactId>
     </dependency>
     <dependency>
       <!-- if available, the wicket ui contributions autoconfiguration will engage -->

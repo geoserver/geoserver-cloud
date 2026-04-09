@@ -11,6 +11,7 @@ import static javax.tools.StandardLocation.CLASS_PATH;
 import static javax.tools.StandardLocation.SOURCE_PATH;
 
 import com.palantir.javapoet.AnnotationSpec;
+import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.CodeBlock;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.TypeSpec;
@@ -174,11 +175,30 @@ public class ConfigurationClassGenerator {
         return skip;
     }
 
-    // Generate @ComponentScan annotations for component-scan elements
+    // Handle component-scan elements based on the configured strategy
     private void addComponentScan(TranspilationContext context, TypeSpec.Builder classBuilder) {
-        if (!context.isIgnoreComponentScan()) {
-            for (ComponentScanInfo componentScan : context.getComponentScans()) {
-                generateComponentScanAnnotation(componentScan, classBuilder);
+        switch (context.getComponentScanStrategy()) {
+            case IGNORE -> {
+                // do nothing
+            }
+            case INCLUDE -> {
+                for (ComponentScanInfo componentScan : context.getComponentScans()) {
+                    generateComponentScanAnnotation(componentScan, classBuilder);
+                }
+            }
+            case GENERATE -> {
+                ComponentScanBeanGenerator scanner = new ComponentScanBeanGenerator();
+                TypeSpec innerClass = scanner.generateComponentScannedBeans(context.getComponentScans(), context);
+                if (innerClass != null) {
+                    classBuilder.addType(innerClass);
+                    // Import the inner class so Spring registers its @Bean methods
+                    ClassName innerClassName =
+                            ClassName.get(context.getTargetPackage(), context.getTargetClassName(), innerClass.name());
+                    classBuilder.addAnnotation(
+                            AnnotationSpec.builder(org.springframework.context.annotation.Import.class)
+                                    .addMember("value", "$T.class", innerClassName)
+                                    .build());
+                }
             }
         }
     }

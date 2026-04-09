@@ -864,8 +864,8 @@ class TranspileXmlConfigAnnotationProcessorTest {
     }
 
     /**
-     * Verifies that setting {@code ignoreComponentScan = true} prevents {@code <context:component-scan>} elements from
-     * being transpiled into {@code @ComponentScan} annotations.
+     * Verifies that setting {@code componentScanStrategy = IGNORE} prevents {@code <context:component-scan>} elements
+     * from being transpiled into {@code @ComponentScan} annotations.
      */
     @Test
     void testIgnoreComponentScanProcessing() {
@@ -874,11 +874,15 @@ class TranspileXmlConfigAnnotationProcessorTest {
                 package com.example;
 
                 import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.geoserver.spring.config.annotations.ComponentScanStrategy;
                 import org.springframework.context.annotation.Configuration;
                 import org.springframework.context.annotation.Import;
 
                 @Configuration
-                @TranspileXmlConfig(value = "classpath:test-component-scan.xml", ignoreComponentScan = true)
+                @TranspileXmlConfig(
+                    value = "classpath:test-component-scan.xml",
+                    componentScanStrategy = ComponentScanStrategy.IGNORE
+                )
                 @Import(TestConfiguration_Generated.class)
                 public class TestConfiguration {
                 }
@@ -897,10 +901,200 @@ class TranspileXmlConfigAnnotationProcessorTest {
                 .contains("@Configuration")
                 .as("Should generate the correct class name")
                 .contains("class TestConfiguration_Generated")
-                .as("Should NOT import ComponentScan when ignoreComponentScan=true")
+                .as("Should NOT import ComponentScan when strategy=IGNORE")
                 .doesNotContain("import org.springframework.context.annotation.ComponentScan;")
-                .as("Should NOT have @ComponentScan annotations when ignoreComponentScan=true")
+                .as("Should NOT have @ComponentScan annotations when strategy=IGNORE")
                 .doesNotContain("@ComponentScan");
+    }
+
+    /**
+     * Tests that the GENERATE component scan strategy performs build-time classpath scanning and generates @Bean
+     * methods for discovered components in a static inner @Configuration class.
+     *
+     * <p>Uses test fixture components in {@code org.geoserver.spring.config.test.components}:
+     *
+     * <ul>
+     *   <li>{@code SimpleComponent} — no-arg constructor, should generate simple @Bean method
+     *   <li>{@code ComponentWithDependency} — single-param constructor, should generate @Bean with parameter
+     *   <li>{@code AbstractComponent} — abstract, should be skipped
+     *   <li>{@code InterfaceComponent} — interface, should be skipped
+     * </ul>
+     */
+    @Test
+    void testComponentScanGenerateStrategy() {
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.geoserver.spring.config.annotations.ComponentScanStrategy;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Import;
+
+                @Configuration
+                @TranspileXmlConfig(
+                    value = "classpath:test-component-scan-generate.xml",
+                    componentScanStrategy = ComponentScanStrategy.GENERATE
+                )
+                @Import(TestConfiguration_Generated.class)
+                public class TestConfiguration {
+                }
+                """;
+
+        Compilation compilation = assertCompiles(sourceCode);
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.TestConfiguration_Generated");
+
+        JavaFileObject generated = compilation
+                .generatedSourceFile("com.example.TestConfiguration_Generated")
+                .get();
+        String generatedContent = getSourceContent(generated);
+
+        assertThat(generatedContent)
+                .as("Should have outer @Configuration annotation")
+                .contains("@Configuration")
+                .as("Should NOT have @ComponentScan annotations in GENERATE mode")
+                .doesNotContainPattern("(?m)^\\s*@ComponentScan")
+                .as("Should @Import the inner ComponentScannedBeans class")
+                .contains("@Import(TestConfiguration_Generated.ComponentScannedBeans.class)")
+                .as("Should have inner static ComponentScannedBeans class")
+                .contains("static class ComponentScannedBeans")
+                .as("Should generate @Bean method for SimpleComponent (no-arg constructor)")
+                .contains("SimpleComponent simpleComponent()")
+                .contains("return new SimpleComponent()")
+                .as("Should have per-method javadoc with FQCN, base-package, and XML source")
+                .contains("discovered through")
+                .contains("context:component-scan base-package=\"org.geoserver.spring.config.test.components\"")
+                .contains("classpath:test-component-scan-generate.xml")
+                .as("Should generate @Bean method for ComponentWithDependency (constructor injection)")
+                .contains("ComponentWithDependency componentWithDependency(")
+                .contains("GeoServer geoServer")
+                .contains("return new ComponentWithDependency(geoServer)")
+                .as("Should generate @Bean method for @ControllerAdvice (meta-annotated with @Component)")
+                .contains("ControllerAdviceComponent controllerAdviceComponent()")
+                .as("Should use @Autowired constructor when multiple constructors exist")
+                .contains("ComponentWithAutowiredConstructor componentWithAutowiredConstructor(")
+                .contains("GeoServerResourceLoader geoServerResourceLoader")
+                .as("Should generate @Bean method for outer component")
+                .contains("OuterComponent outerComponent()")
+                .as("Should NOT generate methods for abstract classes")
+                .doesNotContain("AbstractComponent abstractComponent()")
+                .as("Should NOT generate methods for interfaces")
+                .doesNotContain("InterfaceComponent interfaceComponent()")
+                .as("Should NOT generate @Bean methods for member/inner classes")
+                .doesNotContain("InnerConfiguration innerConfiguration()")
+                .doesNotContain("InnerConfiguration outerComponent$InnerConfiguration()");
+    }
+
+    /** Tests that the GENERATE strategy respects exclude patterns, matching against the default bean name. */
+    @Test
+    void testComponentScanGenerateWithExcludes() {
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.geoserver.spring.config.annotations.ComponentScanStrategy;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Import;
+
+                @Configuration
+                @TranspileXmlConfig(
+                    value = "classpath:test-component-scan-generate.xml",
+                    componentScanStrategy = ComponentScanStrategy.GENERATE,
+                    excludes = {"simpleComponent"}
+                )
+                @Import(TestConfiguration_Generated.class)
+                public class TestConfiguration {
+                }
+                """;
+
+        Compilation compilation = assertCompiles(sourceCode);
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.TestConfiguration_Generated");
+
+        JavaFileObject generated = compilation
+                .generatedSourceFile("com.example.TestConfiguration_Generated")
+                .get();
+        String generatedContent = getSourceContent(generated);
+
+        assertThat(generatedContent)
+                .as("Should NOT contain excluded bean")
+                .doesNotContain("SimpleComponent simpleComponent()")
+                .as("Should still contain non-excluded bean")
+                .contains("ComponentWithDependency componentWithDependency(");
+    }
+
+    /** Tests that the GENERATE strategy respects exclude patterns matching against FQCNs. */
+    @Test
+    void testComponentScanGenerateWithFqcnExcludes() {
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.geoserver.spring.config.annotations.ComponentScanStrategy;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Import;
+
+                @Configuration
+                @TranspileXmlConfig(
+                    value = "classpath:test-component-scan-generate.xml",
+                    componentScanStrategy = ComponentScanStrategy.GENERATE,
+                    excludes = {".*ComponentWithDependency"}
+                )
+                @Import(TestConfiguration_Generated.class)
+                public class TestConfiguration {
+                }
+                """;
+
+        Compilation compilation = assertCompiles(sourceCode);
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.TestConfiguration_Generated");
+
+        JavaFileObject generated = compilation
+                .generatedSourceFile("com.example.TestConfiguration_Generated")
+                .get();
+        String generatedContent = getSourceContent(generated);
+
+        assertThat(generatedContent)
+                .as("Should NOT contain FQCN-excluded bean")
+                .doesNotContain("componentWithDependency(")
+                .as("Should still contain non-excluded bean")
+                .contains("SimpleComponent simpleComponent(");
+    }
+
+    /** Tests the GENERATE strategy with a real GeoServer package (org.geoserver.system.status from gs-main). */
+    @Test
+    void testComponentScanGenerateWithRealGeoServerPackage() {
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.geoserver.spring.config.annotations.ComponentScanStrategy;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Import;
+
+                @Configuration
+                @TranspileXmlConfig(
+                    value = "classpath:test-beans.xml",
+                    componentScanStrategy = ComponentScanStrategy.GENERATE
+                )
+                @Import(TestConfiguration_Generated.class)
+                public class TestConfiguration {
+                }
+                """;
+
+        // test-beans.xml has no component-scan, so GENERATE with no scans should produce no inner class
+        Compilation compilation = assertCompiles(sourceCode);
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.TestConfiguration_Generated");
+
+        JavaFileObject generated = compilation
+                .generatedSourceFile("com.example.TestConfiguration_Generated")
+                .get();
+        String generatedContent = getSourceContent(generated);
+
+        assertThat(generatedContent)
+                .as("Should NOT have inner class when no component-scan elements exist")
+                .doesNotContain("ComponentScannedBeans");
     }
 
     @Test

@@ -66,19 +66,6 @@ public class LockingCatalog extends CatalogPlugin {
     }
 
     /**
-     * Constructs a locking catalog with a configuration lock and isolation option.
-     *
-     * @param configurationLock The {@link GeoServerConfigurationLock} for cluster-wide safety; must not be null.
-     * @param isolated Whether the catalog operates in isolated mode.
-     * @throws NullPointerException if {@code configurationLock} is null.
-     */
-    public LockingCatalog(@NonNull GeoServerConfigurationLock configurationLock, boolean isolated) {
-        super(isolated);
-        this.configurationLock = configurationLock;
-        enableLocking();
-    }
-
-    /**
      * Constructs a locking catalog with a configuration lock and custom facade.
      *
      * @param configurationLock The {@link GeoServerConfigurationLock} for cluster-wide safety; must not be null.
@@ -87,21 +74,6 @@ public class LockingCatalog extends CatalogPlugin {
      */
     public LockingCatalog(@NonNull GeoServerConfigurationLock configurationLock, CatalogFacade facade) {
         super(facade);
-        this.configurationLock = configurationLock;
-        enableLocking();
-    }
-
-    /**
-     * Constructs a locking catalog with a configuration lock, custom facade, and isolation option.
-     *
-     * @param configurationLock The {@link GeoServerConfigurationLock} for cluster-wide safety; must not be null.
-     * @param facade The {@link CatalogFacade} to use; may be null.
-     * @param isolated Whether the catalog operates in isolated mode.
-     * @throws NullPointerException if {@code configurationLock} is null.
-     */
-    public LockingCatalog(
-            @NonNull GeoServerConfigurationLock configurationLock, CatalogFacade facade, boolean isolated) {
-        super(facade, isolated);
         this.configurationLock = configurationLock;
         enableLocking();
     }

@@ -21,7 +21,6 @@ import org.geoserver.catalog.plugin.locking.LockingGeoServer;
 import org.geoserver.cloud.catalog.backend.datadir.EventualConsistencyEnforcer;
 import org.geoserver.cloud.catalog.backend.datadir.EventuallyConsistentCatalogFacade;
 import org.geoserver.cloud.catalog.backend.datadir.locking.DistributedFileLockProvider;
-import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties.EventualConsistencyConfig;
 import org.geoserver.config.GeoServerDataDirectory;
@@ -124,13 +123,11 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
 
     @Bean
     CatalogPlugin rawCatalog(
-            CatalogProperties catalogProperties,
             GeoServerResourceLoader resourceLoader,
             ExtendedCatalogFacade catalogFacade,
             GeoServerConfigurationLock configurationLock) {
 
-        boolean isolated = catalogProperties.isIsolated();
-        CatalogPlugin rawCatalog = new LockingCatalog(configurationLock, catalogFacade, isolated);
+        CatalogPlugin rawCatalog = new LockingCatalog(configurationLock, catalogFacade);
         rawCatalog.setResourceLoader(resourceLoader);
         return rawCatalog;
     }

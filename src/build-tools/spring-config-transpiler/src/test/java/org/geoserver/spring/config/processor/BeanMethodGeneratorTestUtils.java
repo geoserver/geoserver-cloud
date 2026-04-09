@@ -93,10 +93,28 @@ public class BeanMethodGeneratorTestUtils {
     }
 
     /** Wrap XML content in a proper beans root element if needed */
-    private static String wrapInBeansRoot(String xmlContent) {
+    static String wrapInBeansRoot(String xmlContent) {
         String trimmed = xmlContent.trim();
         if (trimmed.startsWith("<?xml") || trimmed.startsWith("<beans")) {
             return trimmed;
+        }
+
+        boolean hasContextNamespace = trimmed.contains("context:");
+
+        if (hasContextNamespace) {
+            return """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <beans xmlns="http://www.springframework.org/schema/beans"
+                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                       xmlns:context="http://www.springframework.org/schema/context"
+                       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                       http://www.springframework.org/schema/beans/spring-beans.xsd
+                       http://www.springframework.org/schema/context
+                       http://www.springframework.org/schema/context/spring-context.xsd">
+                """
+                    + trimmed + """
+                </beans>
+                """;
         }
 
         return """

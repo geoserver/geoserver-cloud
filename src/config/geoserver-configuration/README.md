@@ -76,24 +76,37 @@ Override the default `_Generated` suffix when you need a specific name:
         excludes = {"GeoSeverTileLayerCatalog", "gwcGeoServervConfigPersister"})
 ```
 
-### Suppressing component scanning with `ignoreComponentScan`
+### Controlling component scanning with `componentScanStrategy`
 
 Some XML files contain `<context:component-scan>` that would be too broad in a cloud
-deployment. Use `ignoreComponentScan` and register the needed components explicitly:
+deployment. The `componentScanStrategy` attribute controls how these are handled:
+
+- **`INCLUDE`** (default): Generates `@ComponentScan` annotations preserving the original behavior.
+- **`IGNORE`**: Skips component-scan elements entirely.
+- **`GENERATE`**: Performs classpath scanning at build time and generates `@Bean` methods for
+  discovered components in a static inner class, eliminating runtime scanning.
 
 ```java
+// IGNORE mode: suppress component scan, register beans manually
 @Configuration(proxyBeanMethods = false)
-@TranspileXmlConfig(locations = "jar:gs-ogcapi-features-.*!/applicationContext.xml", ignoreComponentScan = true)
+@TranspileXmlConfig(
+    locations = "jar:gs-ogcapi-features-.*!/applicationContext.xml",
+    componentScanStrategy = ComponentScanStrategy.IGNORE)
 @Import({OgcApiCoreConfiguration.class, OgcApiFeaturesConfiguration_Generated.class})
 public class OgcApiFeaturesConfiguration {
-
-    // Stereotyped components that would have been picked up by the XML's component scan,
-    // registered explicitly instead
     @Bean
     FeatureService featureService(GeoServer geoServer, APIFilterParser filterParser) {
         return new FeatureService(geoServer, filterParser);
     }
 }
+
+// GENERATE mode: build-time scanning, automatic @Bean generation
+@Configuration(proxyBeanMethods = false)
+@TranspileXmlConfig(
+    locations = "jar:gs-main-.*!/applicationContext.xml",
+    componentScanStrategy = ComponentScanStrategy.GENERATE)
+@Import(GeoServerMainConfiguration_Generated.class)
+public class GeoServerMainConfiguration {}
 ```
 
 ### Multiple annotations on a single class (`@Repeatable`)
@@ -134,7 +147,7 @@ public class GwcConfigurationTranspilerAggregator {}
 | `excludes`           | `String[]` | `{}`                      | Regex patterns -- matching beans are skipped (takes precedence over includes) |
 | `publicAccess`       | `boolean`  | `false`                   | Generate `public` class and methods (needed for cross-package `@Import`) |
 | `proxyBeanMethods`   | `boolean`  | `false`                   | Controls `@Configuration(proxyBeanMethods=...)` on the generated class |
-| `ignoreComponentScan`| `boolean`  | `false`                   | When `true`, `<context:component-scan>` elements in the XML are not transpiled |
+| `componentScanStrategy`| `ComponentScanStrategy` | `INCLUDE`          | How to handle `<context:component-scan>`: `INCLUDE`, `IGNORE`, or `GENERATE` |
 
 ## Usage from Spring Boot auto-configurations
 
