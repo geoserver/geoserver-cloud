@@ -7,7 +7,7 @@ ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
 COPY ${JAR_FILE} application.jar
 
-RUN java -Djarmode=layertools -jar application.jar extract
+RUN java -Djarmode=tools -jar application.jar extract --layers --launcher
 
 ##########
 FROM $REPOSITORY/gs-cloud-base-jre:$TAG
