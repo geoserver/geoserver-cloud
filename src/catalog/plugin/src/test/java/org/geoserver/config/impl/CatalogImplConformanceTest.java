@@ -11,8 +11,11 @@ import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.plugin.CatalogConformanceTest;
 import org.geoserver.config.GeoServerResourcePersister;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /** {@link CatalogConformanceTest} for the traditional {@link CatalogImpl} with {@link DefaultCatalogFacade} */
+@Execution(ExecutionMode.CONCURRENT)
 class CatalogImplConformanceTest extends CatalogConformanceTest {
 
     protected @Override CatalogImpl createCatalog(File tmpFolder) {

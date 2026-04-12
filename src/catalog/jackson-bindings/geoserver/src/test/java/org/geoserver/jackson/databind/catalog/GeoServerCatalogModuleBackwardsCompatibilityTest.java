@@ -22,6 +22,8 @@ import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geotools.jackson.databind.dto.CoordinateReferenceSystemDto;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /**
  * Verifies that JSON produced by Jackson 2's property naming convention (lowercase leading characters) can be
@@ -41,6 +43,7 @@ import org.junit.jupiter.api.Test;
  *   <li>{@code Filter.NativeFilter.Native} &rarr; {@code "native"}
  * </ul>
  */
+@Execution(ExecutionMode.CONCURRENT)
 class GeoServerCatalogModuleBackwardsCompatibilityTest extends BackwardsCompatibilityTestSupport {
 
     @Test

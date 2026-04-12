@@ -33,8 +33,6 @@ import org.springframework.context.annotation.Bean;
 @Slf4j(topic = "org.geoserver.cloud.config.catalog")
 public class XstreamServiceLoadersAutoConfiguration {
 
-    private static final String CONTRIBUTING_MSG = "Automatically contributing {}";
-
     @ConditionalOnMissingBean(WFSXStreamLoader.class)
     @Bean
     WFSXStreamLoader wfsLoader(GeoServerResourceLoader resourceLoader) {
@@ -104,6 +102,6 @@ public class XstreamServiceLoadersAutoConfiguration {
     }
 
     private void log(Class<? extends Object> extensionType) {
-        log.info(CONTRIBUTING_MSG, extensionType.getSimpleName());
+        log.debug("Automatically contributing {}", extensionType.getSimpleName());
     }
 }

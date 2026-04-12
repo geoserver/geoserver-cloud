@@ -13,6 +13,7 @@
   <modules>
     <module>plugin</module>
     <module>events</module>
+    <module>events-tests</module>
     <module>cache</module>
     <module>jackson-bindings</module>
     <module>backends</module>

@@ -47,6 +47,7 @@ class EventualConsistencyEnforcerTest {
 
     @BeforeEach
     void before() {
+        GeoServerExtensionsHelper.init(null);
         catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
         geoserver.setCatalog(catalog);

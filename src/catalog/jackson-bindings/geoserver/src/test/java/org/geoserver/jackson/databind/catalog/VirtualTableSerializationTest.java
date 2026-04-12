@@ -17,6 +17,8 @@ import org.geotools.jdbc.VirtualTable;
 import org.geotools.jdbc.VirtualTableParameter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -25,6 +27,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 /** Test to verify our VirtualTable serialization fixes work correctly */
 @Slf4j
+@Execution(ExecutionMode.CONCURRENT)
 class VirtualTableSerializationTest {
 
     private ObjectMapper objectMapper;

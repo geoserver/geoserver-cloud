@@ -19,11 +19,11 @@ class ChainedLockProviderTest {
     @Test
     void acquiresBothLocksInOrder() {
         List<String> order = new ArrayList<>();
-        LockProvider first = key -> {
+        LockProvider first = _ -> {
             order.add("first-acquire");
             return () -> order.add("first-release");
         };
-        LockProvider second = key -> {
+        LockProvider second = _ -> {
             order.add("second-acquire");
             return () -> order.add("second-release");
         };
@@ -40,11 +40,11 @@ class ChainedLockProviderTest {
     @Test
     void releasesFirstLockIfSecondFails() {
         List<String> order = new ArrayList<>();
-        LockProvider first = key -> {
+        LockProvider first = _ -> {
             order.add("first-acquire");
             return () -> order.add("first-release");
         };
-        LockProvider second = key -> {
+        LockProvider second = _ -> {
             throw new RuntimeException("forced second lock failure");
         };
 

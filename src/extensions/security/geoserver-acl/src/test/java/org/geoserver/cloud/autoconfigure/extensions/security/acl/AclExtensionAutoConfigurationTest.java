@@ -55,7 +55,7 @@ import org.springframework.cloud.bus.event.PathDestinationFactory;
  *
  * @since 2.27.0.0
  */
-@Execution(value = ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.CONCURRENT)
 class AclExtensionAutoConfigurationTest {
 
     private ApplicationContextRunner runner;

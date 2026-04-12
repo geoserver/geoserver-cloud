@@ -9,8 +9,11 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /** @since 1.2 */
+@Execution(ExecutionMode.CONCURRENT)
 class DefaultUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     GeoServer gs;

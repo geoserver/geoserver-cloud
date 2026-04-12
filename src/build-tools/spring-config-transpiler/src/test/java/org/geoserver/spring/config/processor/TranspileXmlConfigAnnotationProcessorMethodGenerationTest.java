@@ -104,7 +104,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
  * @since 3.0.0
  */
 @SuppressWarnings("java:S5976")
-@Execution(value = ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.CONCURRENT)
 class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
 
     @TempDir

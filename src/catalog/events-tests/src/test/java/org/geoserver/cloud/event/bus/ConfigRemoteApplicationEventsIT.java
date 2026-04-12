@@ -38,7 +38,7 @@ import org.geoserver.wps.WPSInfoImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
+class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTestSupport {
 
     @Override
     @BeforeEach

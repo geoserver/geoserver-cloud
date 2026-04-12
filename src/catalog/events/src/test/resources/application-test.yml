@@ -1,0 +1,2 @@
+spring.cloud.bus.enabled: false
+spring.main.banner-mode: off

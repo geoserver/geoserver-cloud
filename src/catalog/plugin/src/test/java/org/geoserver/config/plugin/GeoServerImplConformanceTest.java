@@ -8,11 +8,14 @@ package org.geoserver.config.plugin;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /**
  * {@link GeoServerConfigConformanceTest} for {@link GeoServerImpl} with {@link RepositoryGeoServerFacade} backed by
  * {@link MemoryConfigRepository} and a {@link CatalogPlugin}
  */
+@Execution(ExecutionMode.CONCURRENT)
 class GeoServerImplConformanceTest extends GeoServerConfigConformanceTest {
 
     protected @Override GeoServer createGeoServer() {

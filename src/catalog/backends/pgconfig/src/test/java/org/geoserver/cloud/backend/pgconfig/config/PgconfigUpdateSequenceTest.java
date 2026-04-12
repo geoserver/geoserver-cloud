@@ -20,7 +20,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /** @since 1.4 */
 @Testcontainers(disabledWithoutDocker = true)
-@Execution(value = ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.CONCURRENT)
 @SuppressWarnings("java:S2187")
 class PgconfigUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
