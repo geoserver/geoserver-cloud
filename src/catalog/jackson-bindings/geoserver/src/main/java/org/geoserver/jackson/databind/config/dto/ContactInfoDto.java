@@ -77,4 +77,10 @@ public class ContactInfoDto {
 
     /** @since geoserver 2.22.0 */
     private Map<String, String> internationalWelcome;
+
+    /** @since geoserver 3.0 */
+    private String title;
+
+    /** @since geoserver 3.0 */
+    private Map<String, String> internationalTitle;
 }

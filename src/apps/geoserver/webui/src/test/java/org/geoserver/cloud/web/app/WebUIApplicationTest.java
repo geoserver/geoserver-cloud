@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.util.tester.WicketTester;
@@ -124,7 +123,8 @@ class WebUIApplicationTest {
     void GeoServerHomePage_smoke_test_anonymous() {
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);
-        tester.assertInvisible("catalogLinks");
+        print(page);
+        tester.assertInvisible("administration");
         tester.assertComponent("providedCaps", ListView.class);
     }
 
@@ -133,9 +133,9 @@ class WebUIApplicationTest {
         login();
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);
-        tester.assertComponent("catalogLinks:layersLink", BookmarkablePageLink.class);
-        tester.assertComponent("catalogLinks:storesLink", BookmarkablePageLink.class);
-        tester.assertComponent("catalogLinks:workspacesLink", BookmarkablePageLink.class);
+        print(page);
+        tester.assertVisible("administration");
+        tester.assertComponent("administration:adminContent", ListView.class);
         tester.assertComponent("providedCaps", ListView.class);
     }
 
