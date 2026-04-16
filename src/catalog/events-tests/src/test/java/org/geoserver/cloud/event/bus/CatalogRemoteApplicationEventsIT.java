@@ -54,7 +54,7 @@ import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
+class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTestSupport {
 
     @Test
     void testCatalogSetDefaultWorkspace() {

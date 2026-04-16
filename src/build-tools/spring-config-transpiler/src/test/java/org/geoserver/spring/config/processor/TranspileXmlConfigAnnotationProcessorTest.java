@@ -28,7 +28,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
  *
  * @since 3.0.0
  */
-@Execution(value = ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.CONCURRENT)
 class TranspileXmlConfigAnnotationProcessorTest {
 
     private Compiler compilerWithProcessor() {

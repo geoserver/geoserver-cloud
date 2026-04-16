@@ -21,6 +21,8 @@ import org.geoserver.config.ContactInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /**
  * Verifies that hardcoded JSON produced by Jackson 2's property naming convention can be deserialized correctly into
@@ -33,6 +35,7 @@ import org.junit.jupiter.api.Test;
  * and id), not as full objects. After deserialization, these are converted to proxy Info objects by the
  * {@link org.geoserver.jackson.databind.mapper.PatchMapper}.
  */
+@Execution(ExecutionMode.CONCURRENT)
 class PatchSerializationBackwardsCompatibilityTest extends BackwardsCompatibilityTestSupport {
 
     @Test

@@ -12,13 +12,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.bus.BusBridge;
 import org.springframework.cloud.bus.ConditionalOnBusEnabled;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
-@ConditionalOnMissingBean(BusBridge.class)
+@ConditionalOnMissingBean(name = "org.springframework.cloud.bus.BusBridge")
 @ConditionalOnProperty(
         value = ConditionalOnBusEnabled.SPRING_CLOUD_BUS_ENABLED,
         matchIfMissing = false,

@@ -16,7 +16,7 @@ import org.geoserver.platform.GeoServerExtensions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class LifecycleRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
+class LifecycleRemoteApplicationEventsIT extends BusAmqpIntegrationTestSupport {
 
     @BeforeAll
     static void handleGsExtensions() {

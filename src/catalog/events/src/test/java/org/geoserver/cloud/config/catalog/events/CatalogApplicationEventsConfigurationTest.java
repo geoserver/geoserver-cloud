@@ -58,9 +58,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class})
 @EnableAutoConfiguration
+@ActiveProfiles("test")
 class CatalogApplicationEventsConfigurationTest {
 
     private @Autowired GeoServer geoserver;

@@ -9,6 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
 import org.geoserver.cloud.catalog.backend.datadir.EventualConsistencyEnforcer;
+import org.geoserver.platform.GeoServerExtensionsHelper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -20,37 +22,40 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
  */
 class RemoteEventDataDirectoryAutoConfigurationTest {
 
-    static @TempDir Path datadir;
+    private ApplicationContextRunner runner;
 
-    private ApplicationContextRunner runner = new ApplicationContextRunner()
-            .withAllowBeanDefinitionOverriding(true)
-            .withAllowCircularReferences(true)
-            .withConfiguration(AutoConfigurations.of(
-                    // AutoConfigurations from gs-cloud-catalog-backend-common
-                    org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientAutoConfiguration.class,
-                    org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration.class,
-                    org.geoserver.cloud.autoconfigure.main.DefaultUpdateSequenceAutoConfiguration.class,
-                    org.geoserver.cloud.autoconfigure.main.XstreamServiceLoadersAutoConfiguration.class,
-                    org.geoserver.cloud.autoconfigure.catalog.backend.core
-                            .RemoteEventResourcePoolCleanupUpAutoConfiguration.class,
-                    org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration.class,
-                    //
-                    org.geoserver.cloud.autoconfigure.main.GeoServerMainSecurityAutoConfiguration.class,
-                    org.geoserver.cloud.autoconfigure.metrics.catalog.CatalogMetricsAutoConfiguration.class,
-                    // AutoConfigurations from gs-cloud-catalog-backend-datadir
-                    org.geoserver.cloud.autoconfigure.catalog.backend.datadir.DataDirectoryAutoConfiguration.class,
-                    org.geoserver.cloud.autoconfigure.catalog.backend.datadir.RemoteEventDataDirectoryAutoConfiguration
-                            .class))
-            .withPropertyValues(
-                    "geoserver.backend.dataDirectory.enabled=true",
-                    "geoserver.backend.dataDirectory.location=%s".formatted(datadir.toAbsolutePath()),
-                    "geoserver.catalog.events.enabled=true");
+    @BeforeEach
+    void beforeEach(@TempDir Path datadir) {
+        GeoServerExtensionsHelper.init(null);
+        runner = new ApplicationContextRunner()
+                .withAllowBeanDefinitionOverriding(true)
+                .withAllowCircularReferences(true)
+                .withConfiguration(AutoConfigurations.of(
+                        // AutoConfigurations from gs-cloud-catalog-backend-common
+                        org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientAutoConfiguration.class,
+                        org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration.class,
+                        org.geoserver.cloud.autoconfigure.main.DefaultUpdateSequenceAutoConfiguration.class,
+                        org.geoserver.cloud.autoconfigure.main.XstreamServiceLoadersAutoConfiguration.class,
+                        org.geoserver.cloud.autoconfigure.catalog.backend.core
+                                .RemoteEventResourcePoolCleanupUpAutoConfiguration.class,
+                        org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration.class,
+                        //
+                        org.geoserver.cloud.autoconfigure.main.GeoServerMainSecurityAutoConfiguration.class,
+                        org.geoserver.cloud.autoconfigure.metrics.catalog.CatalogMetricsAutoConfiguration.class,
+                        // AutoConfigurations from gs-cloud-catalog-backend-datadir
+                        org.geoserver.cloud.autoconfigure.catalog.backend.datadir.DataDirectoryAutoConfiguration.class,
+                        org.geoserver.cloud.autoconfigure.catalog.backend.datadir
+                                .RemoteEventDataDirectoryAutoConfiguration.class))
+                .withPropertyValues(
+                        "geoserver.backend.dataDirectory.enabled=true",
+                        "geoserver.backend.dataDirectory.location=%s".formatted(datadir.toAbsolutePath()),
+                        "geoserver.catalog.events.enabled=true");
+    }
 
     @Test
     void testEventualConsistencyEnforcerEnabledByDefault() {
         runner.run(context -> {
-            assertThat(context).hasNotFailed();
-            assertThat(context).hasSingleBean(EventualConsistencyEnforcer.class);
+            assertThat(context).hasNotFailed().hasSingleBean(EventualConsistencyEnforcer.class);
         });
     }
 
@@ -58,8 +63,7 @@ class RemoteEventDataDirectoryAutoConfigurationTest {
     void testEventualConsistencyEnforcerExplicitlyEnabled() {
         runner.withPropertyValues("geoserver.backend.data-directory.eventual-consistency.enabled=true")
                 .run(context -> {
-                    assertThat(context).hasNotFailed();
-                    assertThat(context).hasSingleBean(EventualConsistencyEnforcer.class);
+                    assertThat(context).hasNotFailed().hasSingleBean(EventualConsistencyEnforcer.class);
                 });
     }
 
@@ -67,8 +71,7 @@ class RemoteEventDataDirectoryAutoConfigurationTest {
     void testEventualConsistencyEnforcerDisabled() {
         runner.withPropertyValues("geoserver.backend.data-directory.eventual-consistency.enabled=false")
                 .run(context -> {
-                    assertThat(context).hasNotFailed();
-                    assertThat(context).doesNotHaveBean(EventualConsistencyEnforcer.class);
+                    assertThat(context).hasNotFailed().doesNotHaveBean(EventualConsistencyEnforcer.class);
                 });
     }
 }

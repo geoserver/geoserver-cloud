@@ -17,6 +17,8 @@ import org.geoserver.wfs.WFSInfo;
 import org.geoserver.wms.WMSInfo;
 import org.geoserver.wps.WPSInfo;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /**
  * Verifies that JSON produced by Jackson 2's property naming convention can be deserialized for GeoServer configuration
@@ -40,6 +42,7 @@ import org.junit.jupiter.api.Test;
  *   <li>{@code WcsService.SRS} &rarr; {@code "srs"}
  * </ul>
  */
+@Execution(ExecutionMode.CONCURRENT)
 class GeoServerConfigModuleBackwardsCompatibilityTest extends BackwardsCompatibilityTestSupport {
 
     @Test

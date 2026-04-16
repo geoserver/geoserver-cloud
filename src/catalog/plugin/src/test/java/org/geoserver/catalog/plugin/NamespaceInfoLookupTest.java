@@ -16,8 +16,11 @@ import org.geoserver.catalog.impl.NamespaceInfoImpl;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.NamespaceInfoLookup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /** Test suite for {@link NamespaceInfoLookup} */
+@Execution(ExecutionMode.CONCURRENT)
 class NamespaceInfoLookupTest {
 
     private static final String URI_1 = "http://gs.test.com/ns1";

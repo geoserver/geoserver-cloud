@@ -35,7 +35,10 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+@Execution(ExecutionMode.CONCURRENT)
 class CatalogPropertyResolverTest {
 
     CatalogTestData testData;

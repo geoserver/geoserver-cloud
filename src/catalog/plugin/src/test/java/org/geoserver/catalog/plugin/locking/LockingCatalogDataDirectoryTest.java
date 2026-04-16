@@ -12,8 +12,11 @@ import org.geoserver.platform.resource.LockProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /** @since 1.0 */
+@Execution(value = ExecutionMode.SAME_THREAD)
 class LockingCatalogDataDirectoryTest extends LockingCatalogTest {
 
     @TempDir

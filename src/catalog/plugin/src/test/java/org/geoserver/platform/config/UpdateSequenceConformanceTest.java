@@ -42,7 +42,7 @@ public interface UpdateSequenceConformanceTest {
         final long initial = updateSequence.currValue();
         final long expected = initial + incrementCount;
 
-        IntStream.range(0, incrementCount).parallel().forEach(i -> updateSequence.nextValue());
+        IntStream.range(0, incrementCount).parallel().forEach(_ -> updateSequence.nextValue());
 
         long v = updateSequence.currValue();
         assertEquals(expected, v);

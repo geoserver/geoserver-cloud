@@ -94,7 +94,7 @@ import org.testcontainers.rabbitmq.RabbitMQContainer;
             "logging.level.org.springframework.cloud.bus.BusConsumer=info"
         })
 @Testcontainers
-public abstract class BusAmqpIntegrationTests {
+abstract class BusAmqpIntegrationTestSupport {
 
     @Container
     private static final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:4-management-alpine");

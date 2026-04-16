@@ -21,10 +21,13 @@ import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
 import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 /** Tests for {@link ConnectionParameters} serialization and deserialization. */
+@Execution(ExecutionMode.CONCURRENT)
 class ConnectionParametersSerializerTest {
 
     private ObjectMapper objectMapper;

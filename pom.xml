@@ -358,6 +358,7 @@
                 <excludes>
                   <exclude>**/logback-test.xml</exclude>
                   <exclude>logback-test.xml</exclude>
+                  <exclude>junit-platform.properties</exclude>
                 </excludes>
                 <skipIfEmpty>true</skipIfEmpty>
               </configuration>

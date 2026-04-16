@@ -22,7 +22,7 @@ import org.geotools.util.logging.Logging;
  *
  * @see LockProvider
  */
-public class ChainedLockProvider implements LockProvider {
+class ChainedLockProvider implements LockProvider {
 
     private static final Logger LOGGER = Logging.getLogger(ChainedLockProvider.class);
 

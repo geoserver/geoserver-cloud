@@ -13,10 +13,13 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.UserDetailsDisplaySettingsInfo;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.skyscreamer.jsonassert.JSONAssert;
 import tools.jackson.databind.ObjectMapper;
 
 /** @since 1.0 */
+@Execution(ExecutionMode.CONCURRENT)
 class GeoSeververConfigModuleJsonTest extends GeoServerConfigModuleTest {
 
     protected @Override ObjectMapper newObjectMapper() {

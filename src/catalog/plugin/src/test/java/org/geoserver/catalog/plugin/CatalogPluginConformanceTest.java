@@ -7,7 +7,10 @@ package org.geoserver.catalog.plugin;
 
 import java.io.File;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+@Execution(ExecutionMode.CONCURRENT)
 class CatalogPluginConformanceTest extends CatalogConformanceTest {
 
     protected @Override CatalogPlugin createCatalog(File tmpFolder) {

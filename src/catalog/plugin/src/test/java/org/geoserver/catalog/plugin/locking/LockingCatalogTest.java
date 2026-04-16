@@ -32,8 +32,11 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /** @since 1.0 */
+@Execution(ExecutionMode.CONCURRENT)
 class LockingCatalogTest {
 
     private GeoServerConfigurationLock configLock;

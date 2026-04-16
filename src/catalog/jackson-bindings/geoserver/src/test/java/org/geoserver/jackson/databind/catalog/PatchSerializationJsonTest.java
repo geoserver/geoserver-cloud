@@ -6,8 +6,11 @@
 package org.geoserver.jackson.databind.catalog;
 
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import tools.jackson.databind.ObjectMapper;
 
+@Execution(ExecutionMode.CONCURRENT)
 class PatchSerializationJsonTest extends PatchSerializationTest {
 
     protected @Override ObjectMapper newObjectMapper() {

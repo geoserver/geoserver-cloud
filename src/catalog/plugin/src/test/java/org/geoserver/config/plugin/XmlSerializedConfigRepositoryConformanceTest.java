@@ -15,7 +15,10 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+@Execution(ExecutionMode.CONCURRENT)
 class XmlSerializedConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
 
     protected @Override GeoServer createGeoServer() {

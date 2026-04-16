@@ -28,7 +28,10 @@ import org.geoserver.catalog.impl.WMTSLayerInfoImpl;
 import org.geoserver.catalog.impl.WMTSStoreInfoImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+@Execution(ExecutionMode.CONCURRENT)
 class AbstractCatalogVisitorTest {
 
     private StoreInfo visitedStore;

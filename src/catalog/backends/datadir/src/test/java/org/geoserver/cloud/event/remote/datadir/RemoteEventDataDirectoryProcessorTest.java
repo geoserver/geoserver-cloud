@@ -55,7 +55,10 @@ import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+@Execution(ExecutionMode.CONCURRENT)
 class RemoteEventDataDirectoryProcessorTest {
 
     ExtendedCatalogFacade mockFacade;

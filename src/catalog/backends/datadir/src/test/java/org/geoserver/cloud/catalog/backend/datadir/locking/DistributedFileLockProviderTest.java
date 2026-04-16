@@ -17,14 +17,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.geoserver.platform.resource.Resource.Lock;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+@Execution(value = ExecutionMode.CONCURRENT)
 class DistributedFileLockProviderTest {
 
-    @TempDir
-    File tempDir;
-
     @Test
-    void acquireAndRelease() {
+    void acquireAndRelease(@TempDir File tempDir) {
         DistributedFileLockProvider provider = new DistributedFileLockProvider(tempDir);
         Lock lock = provider.acquire("testKey");
         assertThat(lock).isNotNull();
@@ -32,7 +32,7 @@ class DistributedFileLockProviderTest {
     }
 
     @Test
-    void createsLockFileAndDirectory() {
+    void createsLockFileAndDirectory(@TempDir File tempDir) {
         new DistributedFileLockProvider(tempDir);
         File locksDir = new File(tempDir, ".filelocks");
         assertThat(locksDir).isDirectory();
@@ -41,7 +41,7 @@ class DistributedFileLockProviderTest {
     }
 
     @Test
-    void destroyCleansUpResources() throws Exception {
+    void destroyCleansUpResources(@TempDir File tempDir) throws Exception {
         DistributedFileLockProvider provider = new DistributedFileLockProvider(tempDir);
         provider.acquire("key").release();
         provider.destroy();
@@ -59,7 +59,7 @@ class DistributedFileLockProviderTest {
     }
 
     @Test
-    void multipleKeysSucceed() {
+    void multipleKeysSucceed(@TempDir File tempDir) {
         DistributedFileLockProvider provider = new DistributedFileLockProvider(tempDir);
         Lock lock1 = provider.acquire("key1");
         Lock lock2 = provider.acquire("key2");
@@ -74,7 +74,7 @@ class DistributedFileLockProviderTest {
 
     @Test
     @SuppressWarnings("java:S2925") // Thread.sleep
-    void sameKeyBlocksOnSecondThread() throws Exception {
+    void sameKeyBlocksOnSecondThread(@TempDir File tempDir) throws Exception {
         DistributedFileLockProvider provider = new DistributedFileLockProvider(tempDir);
         Lock lock = provider.acquire("blockedKey");
 

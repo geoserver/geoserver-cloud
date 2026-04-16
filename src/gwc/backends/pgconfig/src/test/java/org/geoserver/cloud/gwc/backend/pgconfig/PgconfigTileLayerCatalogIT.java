@@ -45,7 +45,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /** @since 1.7 */
 @Testcontainers(disabledWithoutDocker = true)
-@Execution(value = ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.CONCURRENT)
 class PgconfigTileLayerCatalogIT {
 
     @Container

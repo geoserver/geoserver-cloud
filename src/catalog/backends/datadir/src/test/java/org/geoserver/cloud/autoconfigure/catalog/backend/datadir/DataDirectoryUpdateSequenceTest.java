@@ -9,9 +9,13 @@ import java.nio.file.Path;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryUpdateSequence;
 import org.geoserver.config.GeoServer;
+import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.config.UpdateSequenceConformanceTest;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,11 +32,17 @@ import org.springframework.test.context.DynamicPropertySource;
             "geoserver.backend.data-directory.enabled=true",
         })
 @ActiveProfiles("test")
+@Execution(ExecutionMode.SAME_THREAD)
 class DataDirectoryUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     private @Autowired DataDirectoryUpdateSequence updateSequence;
-    private @Autowired GeoServer geoserver;
+    private @Autowired GeoServer geoServer;
     static @TempDir Path datadir;
+
+    @BeforeAll
+    static void beforeAll() {
+        GeoServerExtensionsHelper.init(null);
+    }
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) {
@@ -46,6 +56,6 @@ class DataDirectoryUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     @Override
     public GeoServer getGeoSever() {
-        return geoserver;
+        return geoServer;
     }
 }
