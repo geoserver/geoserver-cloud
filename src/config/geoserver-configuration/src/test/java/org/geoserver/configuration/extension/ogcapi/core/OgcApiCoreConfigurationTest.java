@@ -23,6 +23,7 @@ import org.geoserver.ogcapi.FreemarkerTemplateSupport;
 import org.geoserver.ogcapi.LocalWorkspaceCallback;
 import org.geoserver.ogcapi.OGCAPIXStreamPersisterInitializer;
 import org.geoserver.ows.ClasspathPublisher;
+import org.geoserver.ows.OWSHandlerMapping;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +72,7 @@ class OgcApiCoreConfigurationTest {
                 .hasNotFailed()
                 .hasBean("apiURLMapping")
                 .getBean("apiURLMapping")
-                .hasFieldOrPropertyWithValue("order", -100));
+                .hasFieldOrPropertyWithValue("order", OWSHandlerMapping.DEFAULT_ORDER));
     }
 
     @Test

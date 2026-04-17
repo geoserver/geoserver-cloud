@@ -26,7 +26,7 @@
     <spring-cloud.version>2025.1.1</spring-cloud.version>
     <spring-boot.version>4.0.5</spring-boot.version>
     <!-- match upstream geoserver dependencies -->
-    <spring.version>7.0.6</spring.version>
+    <spring.version>7.0.7</spring.version>
     <spring.security.version>7.0.4</spring.security.version>
     <spring-integration.version>7.0.4</spring-integration.version>
 
@@ -34,7 +34,7 @@
     <gt.version>35-SNAPSHOT</gt.version>
     <wicket.version>10.7.0</wicket.version>
     <acl.version>3.0-RC3</acl.version>
-    <tileverse.version>1.3.3</tileverse.version>
+    <tileverse.version>1.3.4</tileverse.version>
     <jackson.version>3.1.0</jackson.version>
     <jackson2.version>2.21.0</jackson2.version>
 
@@ -59,6 +59,7 @@
     <argLine>--enable-preview --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED  --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow</argLine>
     <surefire.skip>false</surefire.skip>
     <failsafe.skip>false</failsafe.skip>
+    <forkCount>1C</forkCount>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -921,7 +922,7 @@
               </goals>
               <configuration>
                 <skip>${failsafe.skip}</skip>
-                <forkCount>1C</forkCount>
+                <forkCount>${forkCount}</forkCount>
                 <reuseForks>false</reuseForks>
                 <trimStackTrace>false</trimStackTrace>
                 <systemPropertyVariables>
@@ -940,7 +941,7 @@
           <configuration>
             <skip>${surefire.skip}</skip>
             <reuseForks>false</reuseForks>
-            <forkCount>1C</forkCount>
+            <forkCount>${forkCount}</forkCount>
             <argLine>${argLine}</argLine>
             <systemPropertyVariables>
               <!-- remove when it's not necessary anymore for Java 25 -->
@@ -1046,61 +1047,128 @@
       <dependencyManagement>
         <dependencies>
           <dependency>
-            <groupId>com.azure</groupId>
-            <artifactId>azure-core</artifactId>
-            <version>1.57.0</version>
+            <!--
+[ERROR] Dependency convergence error for org.eclipse.angus:angus-activation:jar:2.0.1. Paths to dependency are:
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geotools:gt-imagemosaic:jar:35-SNAPSHOT:compile
+[ERROR]     +-org.glassfish.jaxb:jaxb-runtime:jar:4.0.4:runtime
+[ERROR]       +-org.glassfish.jaxb:jaxb-core:jar:4.0.6:runtime
+[ERROR]         +-org.eclipse.angus:angus-activation:jar:2.0.1:runtime
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver:gs-main:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver:gs-ows:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.eclipse.angus:angus-mail:jar:2.0.5:compile
+[ERROR]         +-org.eclipse.angus:angus-activation:jar:2.0.3:runtime
+-->
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-activation</artifactId>
+            <version>2.0.3</version>
           </dependency>
           <dependency>
+            <!--
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.community:gs-cog-google:jar:3.0.0-SNAPSHOT:compile
+[ERROR]         +-it.geosolutions.imageio-ext:imageio-ext-cog-rangereader-gs:jar:2.1.0:compile
+[ERROR]           +-com.google.cloud:google-cloud-storage:jar:2.63.0:compile
+[ERROR]             +-com.google.protobuf:protobuf-java:jar:4.33.2:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-output-formats:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-tiles:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.extension:gs-vectortiles:jar:3.0.0-SNAPSHOT:compile
+[ERROR]         +-no.ecc.vectortile:java-vector-tile:jar:1.3.9:compile
+[ERROR]           +-com.google.protobuf:protobuf-java:jar:3.9.1:compile
+-->
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.25.8</version>
+            <version>4.33.2</version>
           </dependency>
           <dependency>
-            <groupId>org.glassfish.hk2</groupId>
-            <artifactId>hk2-api</artifactId>
-            <version>4.0.0-M3</version>
-          </dependency>
-          <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.81</version>
-          </dependency>
-          <dependency>
+            <!--
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.community:gs-cog-google:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-it.geosolutions.imageio-ext:imageio-ext-cog-rangereader-gs:jar:2.1.0:compile
+[ERROR]       +-com.google.cloud:google-cloud-storage:jar:2.63.0:compile
+[ERROR]         +-org.checkerframework:checker-qual:jar:3.49.0:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.0-SNAPSHOT:provided
+[ERROR]     +-org.geotools.jdbc:gt-jdbc-postgis:jar:35-SNAPSHOT:provided
+[ERROR]       +-org.postgresql:postgresql:jar:42.7.10:provided
+[ERROR]         +-org.checkerframework:checker-qual:jar:3.52.0:provided
+-->
             <groupId>org.checkerframework</groupId>
             <artifactId>checker-qual</artifactId>
-            <version>3.49.5</version>
+            <version>3.52.0</version>
           </dependency>
           <dependency>
+            <!--
+[ERROR] +-org.geoserver.cloud.apps:gs-cloud-webui:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-starter:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-autoconfigure:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.0.0-SNAPSHOT:compile
+[ERROR]         +-org.geoserver.extension:gs-gwc-s3:jar:3.0.0-SNAPSHOT:compile
+[ERROR]           +-org.geowebcache:gwc-aws-s3:jar:2.0-SNAPSHOT:compile
+[ERROR]             +-com.amazonaws:aws-java-sdk-s3:jar:1.12.797:compile
+[ERROR]               +-com.amazonaws:aws-java-sdk-core:jar:1.12.797:compile
+[ERROR]                 +-joda-time:joda-time:jar:2.8.1:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.apps:gs-cloud-webui:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-spring-cloud-starter:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.springframework.cloud:spring-cloud-starter-bus-amqp:jar:5.0.1:compile
+[ERROR]       +-org.springframework.cloud:spring-cloud-starter-stream-rabbit:jar:5.0.1:compile
+[ERROR]         +-org.springframework.cloud:spring-cloud-stream-binder-rabbit:jar:5.0.1:compile
+[ERROR]           +-org.springframework.cloud:spring-cloud-function-context:jar:5.0.1:compile
+[ERROR]             +-tools.jackson.datatype:jackson-datatype-joda:jar:3.1.0:compile
+[ERROR]               +-joda-time:joda-time:jar:2.12.7:compile
+-->
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.12.7</version>
           </dependency>
           <dependency>
+            <!--
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-security:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-security-auth-key:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.extension:gs-authkey:jar:3.0.0-SNAPSHOT:compile
+[ERROR]         +-net.minidev:json-smart:jar:2.6.0:compile
+[ERROR]           +-net.minidev:accessors-smart:jar:2.6.0:compile
+[ERROR]             +-org.ow2.asm:asm:jar:9.7.1:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-css-styling:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.extension:gs-css:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.geotools:gt-css:jar:35-SNAPSHOT:compile
+[ERROR]         +-org.parboiled:parboiled-java:jar:1.4.1:compile
+[ERROR]           +-org.ow2.asm:asm:jar:9.2:compile
+-->
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
             <version>9.7.1</version>
           </dependency>
           <dependency>
+            <!--
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver:gs-gwc:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver:gs-main:jar:3.0.0-SNAPSHOT:compile
+[ERROR]         +-org.geoserver:gs-ows:jar:3.0.0-SNAPSHOT:compile
+[ERROR]           +-tools.jackson.dataformat:jackson-dataformat-xml:jar:3.1.0:compile
+[ERROR]             +-com.fasterxml.woodstox:woodstox-core:jar:7.1.1:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.community:gs-gwc-gcs-blob:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geowebcache:gwc-gcs-blob:jar:2.0-SNAPSHOT:compile
+[ERROR]       +-com.google.cloud:google-cloud-storage:jar:2.63.0:compile
+[ERROR]         +-com.fasterxml.woodstox:woodstox-core:jar:7.0.0:compile
+-->
             <groupId>com.fasterxml.woodstox</groupId>
             <artifactId>woodstox-core</artifactId>
             <version>7.1.1</version>
-          </dependency>
-          <dependency>
-            <!--
-[ERROR] +-org.geoserver.cloud.catalog:gs-cloud-catalog-plugin:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver:gs-main:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-net.sf.json-lib:json-lib:jar:2.4.2-geoserver:compile
-[ERROR]       +-commons-lang:commons-lang:jar:2.5:compile
-[ERROR] and
-[ERROR] +-org.geoserver.cloud.catalog:gs-cloud-catalog-plugin:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver:gs-main:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-net.sf.json-lib:json-lib:jar:2.4.2-geoserver:compile
-[ERROR]       +-net.sf.ezmorph:ezmorph:jar:1.0.6:compile
-[ERROR]         +-commons-lang:commons-lang:jar:2.3:compile
-          -->
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.3</version>
           </dependency>
           <dependency>
             <!--
@@ -1116,16 +1184,6 @@
 [ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.0.0-SNAPSHOT:compile
 [ERROR]     +-org.geoserver.importer:gs-importer-core:jar:3.0.0-SNAPSHOT:compile
 [ERROR]       +-org.apache.commons:commons-compress:jar:1.26.1:compile
-[ERROR] and
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.importer:gs-importer-web:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.apache.commons:commons-compress:jar:1.26.1:compile
-[ERROR] and
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.importer:gs-importer-rest:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.apache.commons:commons-compress:jar:1.26.1:compile
             -->
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
@@ -1133,7 +1191,6 @@
           </dependency>
           <dependency>
             <!--
-[ERROR] Dependency convergence error for org.jetbrains:annotations:jar:13.0. Paths to dependency are:
 [ERROR] +-org.geoserver.cloud:gs-cloud-spring-cloud-starter:jar:3.0.0-SNAPSHOT
 [ERROR]   +-org.springframework.cloud:spring-cloud-starter-bus-amqp:jar:5.0.1:compile
 [ERROR]     +-org.springframework.cloud:spring-cloud-starter-stream-rabbit:jar:5.0.1:compile
@@ -1155,24 +1212,6 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>23.0.0</version>
-          </dependency>
-          <dependency>
-            <!--
-[ERROR] Dependency convergence error for org.codehaus.jettison:jettison:jar:1.5.4. Paths to dependency are:
-[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver:gs-gwc:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver:gs-main:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.codehaus.jettison:jettison:jar:1.5.4:compile
-[ERROR] and
-[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver:gs-gwc:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geowebcache:gwc-diskquota-jdbc:jar:2.0-SNAPSHOT:compile
-[ERROR]       +-org.geowebcache:gwc-diskquota-core:jar:2.0-SNAPSHOT:compile
-[ERROR]         +-org.codehaus.jettison:jettison:jar:1.5.5:compile
-          -->
-            <groupId>org.codehaus.jettison</groupId>
-            <artifactId>jettison</artifactId>
-            <version>1.5.5</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
@@ -1222,7 +1261,7 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
               <reuseForks>false</reuseForks>
-              <forkCount>1C</forkCount>
+              <forkCount>${forkCount}</forkCount>
               <trimStackTrace>false</trimStackTrace>
               <argLine>${argLine} ${failsafe.jacoco.args}</argLine>
             </configuration>
