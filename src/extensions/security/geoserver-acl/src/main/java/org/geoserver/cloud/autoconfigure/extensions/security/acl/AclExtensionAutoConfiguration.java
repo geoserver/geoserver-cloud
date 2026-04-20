@@ -9,7 +9,6 @@ import jakarta.annotation.PostConstruct;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.acl.authorization.AuthorizationService;
-import org.geoserver.acl.autoconfigure.messaging.bus.AclSpringCloudBusAutoConfiguration;
 import org.geoserver.acl.config.webapi.client.ApiClientProperties;
 import org.geoserver.acl.plugin.accessmanager.AclResourceAccessManager;
 import org.geoserver.acl.plugin.config.accessmanager.AclWebApiAccessManagerConfiguration;
@@ -19,6 +18,7 @@ import org.geoserver.acl.plugin.config.wps.AclWpsIntegrationConfiguration;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWPS;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -73,7 +73,7 @@ import org.springframework.context.annotation.Import;
     AclExtensionAutoConfiguration.AclWebUIAutoConfiguration.class,
     AclExtensionAutoConfiguration.AclCachingAutoConfiguration.class,
     AclExtensionAutoConfiguration.AclWpsAutoConfiguration.class,
-    AclSpringCloudBusAutoConfiguration.class
+    AclExtensionAutoConfiguration.AclSpringCloudBusImportConfiguration.class
 })
 @EnableConfigurationProperties(AclExtensionConfigurationProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.security.acl")
@@ -140,4 +140,17 @@ public class AclExtensionAutoConfiguration {
     @ConditionalOnGeoServerWPS
     @Import(AclWpsIntegrationConfiguration.class)
     static class AclWpsAutoConfiguration {}
+
+    /**
+     * Conditionally imports {@code AclSpringCloudBusAutoConfiguration} only when the AMQP autoconfiguration is on the
+     * classpath. This prevents an {@link org.springframework.beans.factory.BeanDefinitionStoreException} from the
+     * {@code @Import(RabbitAutoConfiguration.class)} annotation on {@code AclSpringCloudBusAutoConfiguration} when
+     * {@code spring-boot-amqp} is not available.
+     *
+     * @since 3.0.0
+     */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(name = "org.springframework.boot.amqp.autoconfigure.RabbitAutoConfiguration")
+    @Import(org.geoserver.acl.autoconfigure.messaging.bus.AclSpringCloudBusAutoConfiguration.class)
+    static class AclSpringCloudBusImportConfiguration {}
 }
