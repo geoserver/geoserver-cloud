@@ -196,7 +196,7 @@ public class PgconfigResourceStore implements ResourceStore {
                     """,
                     queryMapper,
                     path));
-        } catch (EmptyResultDataAccessException empty) {
+        } catch (EmptyResultDataAccessException _) {
             return Optional.empty();
         }
     }

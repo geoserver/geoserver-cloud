@@ -393,13 +393,13 @@ public abstract class BusAmqpIntegrationTests {
                 lgs.getLayers().forEach(this::assertResolved);
                 lgs.getStyles().forEach(this::assertResolved);
                 break;
-            case NamespaceInfo ns:
+            case NamespaceInfo _:
                 break;
-            case WorkspaceInfo ws:
+            case WorkspaceInfo _:
                 break;
-            case ServiceInfo service:
+            case ServiceInfo _:
                 break;
-            case SettingsInfo settings:
+            case SettingsInfo _:
                 break;
             default:
                 throw new IllegalArgumentException(String.valueOf(info));

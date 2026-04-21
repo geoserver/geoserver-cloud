@@ -50,9 +50,8 @@ public class ConnectionParametersDeserializer extends ValueDeserializer<Connecti
             try {
                 // Try to deserialize as a Literal
                 return ctxt.readValue(p, LiteralDto.class);
-            } catch (Exception e) {
-                // If Literal deserialization fails, fall back to basic deserialization
-                // for simple types like Map
+            } catch (Exception _) {
+                // If Literal deserialization fails, fall back to basic deserialization for simple types like Map
                 return ctxt.readValue(p, Object.class);
             }
         }

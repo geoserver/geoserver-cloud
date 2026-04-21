@@ -111,7 +111,9 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
 
                     log.info("Done creating initial GeoServer configuration objects.");
                 } catch (RuntimeException failedUpgrade) {
-                    log.info("Unable to acquire config lock, checking if another instance initialized the config");
+                    log.info(
+                            "Unable to acquire config lock, checking if another instance initialized the config ({})",
+                            failedUpgrade.getMessage());
                     verifyInitialized(geoServer, missingServices);
                 }
             }

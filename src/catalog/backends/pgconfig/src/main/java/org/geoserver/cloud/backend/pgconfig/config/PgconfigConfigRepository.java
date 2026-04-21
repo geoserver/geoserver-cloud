@@ -35,16 +35,16 @@ public class PgconfigConfigRepository implements ConfigRepository {
     protected static final ObjectMapper infoMapper = PgconfigObjectMapper.newObjectMapper();
 
     private static final RowMapper<GeoServerInfo> GeoServerInfoRowMapper =
-            (rs, rn) -> decode(rs.getString("info"), GeoServerInfo.class);
+            (rs, _) -> decode(rs.getString("info"), GeoServerInfo.class);
 
     private static final RowMapper<SettingsInfo> SettingsInfoRowMapper =
-            (rs, rn) -> decode(rs.getString("info"), SettingsInfo.class);
+            (rs, _) -> decode(rs.getString("info"), SettingsInfo.class);
 
     private static final RowMapper<ServiceInfo> ServiceInfoRowMapper =
-            (rs, rn) -> decode(rs.getString("info"), ServiceInfo.class);
+            (rs, _) -> decode(rs.getString("info"), ServiceInfo.class);
 
     private static final RowMapper<LoggingInfo> LoggingInfoRowMapper =
-            (rs, rn) -> decode(rs.getString("info"), LoggingInfo.class);
+            (rs, _) -> decode(rs.getString("info"), LoggingInfo.class);
 
     @Override
     public Optional<GeoServerInfo> getGlobal() {
@@ -59,7 +59,7 @@ public class PgconfigConfigRepository implements ConfigRepository {
         String value = encode(global);
         getGlobal()
                 .ifPresentOrElse(
-                        g -> template.update("UPDATE geoserverinfo SET info = to_json(?::json)", value),
+                        _ -> template.update("UPDATE geoserverinfo SET info = to_json(?::json)", value),
                         () -> template.update("INSERT INTO geoserverinfo(info) VALUES (to_json(?::json))", value));
     }
 
@@ -278,7 +278,7 @@ public class PgconfigConfigRepository implements ConfigRepository {
         try {
             U object = template.queryForObject(query, rowMapper, args);
             return Optional.ofNullable(clazz.isInstance(object) ? clazz.cast(object) : null);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException _) {
             return Optional.empty();
         }
     }

@@ -21,14 +21,12 @@ import org.springframework.context.event.ContextClosedEvent;
  */
 public class GeoServerApplicationLauncher {
 
-    private static Logger log;
-
     private GeoServerApplicationLauncher() {
         // utility
     }
 
     public static void run(Class<?> springBootApplicationClass, String... args) {
-        log = LoggerFactory.getLogger(springBootApplicationClass);
+        Logger log = LoggerFactory.getLogger(springBootApplicationClass);
         try {
             SpringApplication app = new SpringApplication(springBootApplicationClass);
             // Set the startup implementation and buffer capacity, enables the

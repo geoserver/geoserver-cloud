@@ -234,7 +234,7 @@ public class ProxyUtils {
     private Set<Object> newSet(@SuppressWarnings("rawtypes") Class<? extends Set> class1) {
         try {
             return class1.getConstructor().newInstance();
-        } catch (Exception e) {
+        } catch (Exception _) {
             return new HashSet<>();
         }
     }

@@ -127,6 +127,7 @@ class StripingFileLock implements Resource.Lock {
             // if tryLock returns null, the lock is held by another process
             lock = channel.tryLock(position, size, shared);
         } catch (OverlappingFileLockException heldByAnotherThreadOnThisJVM) {
+            finest(heldByAnotherThreadOnThisJVM.getMessage());
             String lockedKey = provider.bucketsHeldForKey.get(bucket);
             if (!lockKey.equals(lockedKey)) {
                 String msg = String.format(
@@ -185,7 +186,7 @@ class StripingFileLock implements Resource.Lock {
     private void sleep(long waitBeforeRetry) {
         try {
             Thread.sleep(waitBeforeRetry);
-        } catch (InterruptedException ie) {
+        } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
         }
     }

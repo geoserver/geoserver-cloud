@@ -347,7 +347,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
                     .filter(clazz::isInstance)
                     .map(clazz::cast)
                     .map(this::resolveOutbound);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException _) {
             return Optional.empty();
         }
     }

@@ -233,7 +233,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             Method getter;
             try {
                 getter = OwsUtils.getter(clazz, property, null);
-            } catch (RuntimeException e) {
+            } catch (RuntimeException _) {
                 return false;
             }
             clazz = getter.getReturnType();

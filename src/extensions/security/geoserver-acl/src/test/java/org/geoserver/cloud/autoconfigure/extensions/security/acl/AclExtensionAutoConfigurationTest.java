@@ -45,6 +45,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.cache.CacheManager;
 import org.springframework.cloud.bus.BusAutoConfiguration;
 import org.springframework.cloud.bus.BusBridge;
 import org.springframework.cloud.bus.ServiceMatcher;
@@ -271,7 +272,7 @@ class AclExtensionAutoConfigurationTest {
         }
 
         private void addCacheManager() {
-            //            runner = runner.withBean(CacheManager.class, () -> mock(CacheManager.class));
+            runner = runner.withBean(CacheManager.class, () -> mock(CacheManager.class));
         }
 
         @Test
