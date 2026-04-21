@@ -34,7 +34,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers(disabledWithoutDocker = true)
 @Slf4j
 @Execution(value = ExecutionMode.CONCURRENT)
-class PgconfigDataSourceAutoConfigurationTest {
+class PgconfigDataSourceAutoConfigurationIT {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();

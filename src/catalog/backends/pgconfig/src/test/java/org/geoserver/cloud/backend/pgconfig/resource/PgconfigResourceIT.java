@@ -59,7 +59,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Slf4j
 @Testcontainers(disabledWithoutDocker = true)
 @Execution(value = ExecutionMode.CONCURRENT)
-class PgconfigResourceTest {
+class PgconfigResourceIT {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();

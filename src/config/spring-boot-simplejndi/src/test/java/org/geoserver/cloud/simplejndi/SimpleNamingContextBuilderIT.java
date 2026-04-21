@@ -35,7 +35,7 @@ import org.testcontainers.ldap.LLdapContainer;
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // Use per-class lifecycle to initialize container once
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class SimpleNamingContextBuilderTest {
+class SimpleNamingContextBuilderIT {
 
     @Container
     private static final LLdapContainer LDAP_CONTAINER = new LLdapContainer("lldap/lldap:v0.6.1-alpine");

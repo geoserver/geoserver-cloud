@@ -34,7 +34,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /** @since 1.4 */
 @Testcontainers(disabledWithoutDocker = true)
 @Execution(value = ExecutionMode.CONCURRENT)
-class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
+class PgconfigCatalogBackendConformanceIT extends CatalogConformanceTest {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();

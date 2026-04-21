@@ -10,11 +10,11 @@
     <appender-ref ref="STDOUT" />
   </root>
 
-  <logger name="org.gwc.tiling.service" level="WARN" />
-  <logger name="org.gwc.tiling.cluster" level="DEBUG" />
   <logger name="org.springframework.test" level="ERROR" />
   <logger name="org.springframework.boot.test" level="ERROR" />
   <logger name="org.springframework.context" level="WARN" />
   <logger name="org.geoserver.platform.GeoServerExtensions" level="ERROR" />
+  <logger name="com.zaxxer.hikari" level="ERROR" />
+  <logger name="org.flywaydb" level="ERROR" />
   <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="ERROR"/>
 </configuration>

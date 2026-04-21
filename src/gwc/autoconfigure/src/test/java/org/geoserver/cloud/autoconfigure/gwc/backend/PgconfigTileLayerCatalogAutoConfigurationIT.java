@@ -46,7 +46,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /** GWC integration test for {@link PgconfigTileLayerCatalogAutoConfiguration} */
 @Testcontainers(disabledWithoutDocker = true)
 @Execution(value = ExecutionMode.SAME_THREAD) // FilteringXmlBeanDefinitionReader has a static HashMap race condition
-class PgconfigTileLayerCatalogAutoConfigurationTest {
+class PgconfigTileLayerCatalogAutoConfigurationIT {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();

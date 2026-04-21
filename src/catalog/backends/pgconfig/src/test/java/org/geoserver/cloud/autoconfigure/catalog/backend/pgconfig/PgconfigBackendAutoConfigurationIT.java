@@ -36,7 +36,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  */
 @Testcontainers(disabledWithoutDocker = true)
 @Execution(value = ExecutionMode.CONCURRENT)
-class PgconfigBackendAutoConfigurationTest {
+class PgconfigBackendAutoConfigurationIT {
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();
