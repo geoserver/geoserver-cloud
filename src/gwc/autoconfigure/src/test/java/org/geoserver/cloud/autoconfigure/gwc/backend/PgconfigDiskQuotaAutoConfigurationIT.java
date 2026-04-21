@@ -36,7 +36,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * behavior is covered separately in {@link PgconfigDiskQuotaBootstrapTest}.
  */
 @Testcontainers(disabledWithoutDocker = true)
-class PgconfigDiskQuotaAutoConfigurationTest {
+class PgconfigDiskQuotaAutoConfigurationIT {
 
     @Container
     static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();

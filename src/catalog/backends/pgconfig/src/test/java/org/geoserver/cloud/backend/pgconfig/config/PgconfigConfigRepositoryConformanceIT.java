@@ -33,7 +33,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  */
 @Testcontainers(disabledWithoutDocker = true)
 @Execution(value = ExecutionMode.CONCURRENT)
-class PgconfigConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
+class PgconfigConfigRepositoryConformanceIT extends GeoServerConfigConformanceTest {
 
     @Container
     static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();

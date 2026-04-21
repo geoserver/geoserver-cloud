@@ -34,7 +34,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // Use per-class lifecycle to initialize container once
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class SimpleNamingContextBuilderTest {
+class SimpleNamingContextBuilderIT {
 
     @Container
     private static final GeorchestraLdapContainer LDAP_CONTAINER = new GeorchestraLdapContainer();
