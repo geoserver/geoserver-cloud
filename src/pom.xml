@@ -49,7 +49,7 @@
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <flyway.version>12.1.0</flyway.version>
-    <cloud-dependencies-bom.version>1.0.1</cloud-dependencies-bom.version>
+    <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
     <testcontainers.version>2.0.4</testcontainers.version>
     <fork.javac>false</fork.javac>
     <maven.compiler.release>${java.version}</maven.compiler.release>
