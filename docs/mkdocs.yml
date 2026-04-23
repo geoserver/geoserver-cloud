@@ -103,7 +103,12 @@ nav:
   - Deployment:
     - Overview: deploy/index.md
     - Docker Compose: deploy/docker-compose/index.md
-    - Helm Charts: deploy/helm/index.md
+    - Kubernetes:
+      - Overview: deploy/kubernetes/index.md
+      - Prerequisites: deploy/kubernetes/prerequisites.md
+      - Helm:
+        - Overview: deploy/kubernetes/helm/index.md
+        - Example — pgconfig: deploy/kubernetes/helm/example-pgconfig.md
   - Configuration:
     - Externalized configuration guide: configuration/index.md
     - Migration 2.28 to 3.0: configuration/migration-2.28-to-3.0.md

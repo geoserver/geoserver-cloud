@@ -1,5 +1,9 @@
 rabbitmq:
   enabled: true
+  # Bitnami's official images are no longer free; use bitnamilegacy mirror.
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/rabbitmq
   resources:
     limits:
       cpu: 2
@@ -16,6 +20,10 @@ rabbitmq:
 
 postgresql:
   enabled: true
+  # Bitnami's official images are no longer free; use bitnamilegacy mirror.
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
   global:
     postgresql:
       auth:
@@ -94,7 +102,7 @@ geoservercloud:
           tls:
             enabled: false
           hosts:
-            - gscloud.local
+            - gscloud.localhost
     services:
       gateway:
         ingress:

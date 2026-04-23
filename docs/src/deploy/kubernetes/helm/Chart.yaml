@@ -6,12 +6,14 @@ version: 0.1.0
 dependencies:
   - name: 'geoservercloud'
     repository: https://camptocamp.github.io/helm-geoserver-cloud
-    version: 2.3.5
+    version: 3.0.0-rc
+  # The official Bitnami chart repository no longer publishes free images;
+  # mirror and bitnamilegacy images are used via GeOrchestra's OCI registry.
   - name: 'rabbitmq'
-    version: 15.0.0
-    repository: 'https://charts.bitnami.com/bitnami'
+    version: 14.4.0
+    repository: 'oci://ghcr.io/georchestra/bitnami-helm-charts'
     condition: rabbitmq.enabled
   - name: 'postgresql'
-    version: 14.0.0
-    repository: 'https://charts.bitnami.com/bitnami'
+    version: 15.5.2
+    repository: 'oci://ghcr.io/georchestra/bitnami-helm-charts'
     condition: postgresql.enabled
