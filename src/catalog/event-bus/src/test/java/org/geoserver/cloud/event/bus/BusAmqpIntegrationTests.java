@@ -79,6 +79,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.MountableFile;
 
 @SpringBootTest(
         webEnvironment = RANDOM_PORT,
@@ -96,7 +97,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract class BusAmqpIntegrationTests {
 
     @Container
-    private static final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:4-management-alpine");
+    private static final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:4-management-alpine")
+            // Permit the deprecated `queue_master_locator` feature so RabbitMQ 4.x
+            // accepts the `x-queue-master-locator` argument that spring-amqp 4.0.0
+            // AnonymousQueue adds to Spring Cloud Bus consumer queues.
+            // TODO: remove once spring-amqp/spring-cloud-bus stops emitting the argument.
+            .withRabbitMQConfig(MountableFile.forClasspathResource("rabbitmq.conf"));
 
     protected static ConfigurableApplicationContext remoteAppContext;
     private @Autowired ConfigurableApplicationContext localAppContext;
