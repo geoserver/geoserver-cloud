@@ -50,9 +50,9 @@ class CachedReferenceCleaner {
      * @param evicted
      */
     public void cascadeEvict(InfoIdKey evicted) {
-        var cache = caffeine.asMap();
-        var initialSize = cache.size();
-        var sw = Stopwatch.createStarted();
+        ConcurrentMap<?, ?> cache = caffeine.asMap();
+        int initialSize = cache.size();
+        Stopwatch sw = Stopwatch.createStarted();
         final AtomicInteger visited = new AtomicInteger();
         int cascadedEvictCount;
         try {
@@ -63,7 +63,7 @@ class CachedReferenceCleaner {
             return;
         }
         sw.stop();
-        var finalSize = cache.size();
+        int finalSize = cache.size();
         if (cascadedEvictCount > 0 || visited.intValue() > 0) {
             log.debug(
                     "cascade evicted {} entries referencing {} in {}. Size pre: {}, after: {}, visited: {}",

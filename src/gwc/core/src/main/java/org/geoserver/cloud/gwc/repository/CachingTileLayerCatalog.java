@@ -146,7 +146,7 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
     @Override
     public GeoServerTileLayerInfo getLayerById(@NonNull String id) {
         try {
-            var tl = idCache.get(id, () -> loadLayerById(id));
+            GeoServerTileLayerInfo tl = idCache.get(id, () -> loadLayerById(id));
             namesById.forcePut(tl.getId(), tl.getName());
             return tl;
         } catch (Cache.ValueRetrievalException e) {
@@ -162,7 +162,7 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
         String id = this.namesById.inverse().get(layerName);
         if (null == id) {
             try {
-                var tl = loadLayerByName(layerName);
+                GeoServerTileLayerInfo tl = loadLayerByName(layerName);
                 namesById.forcePut(tl.getId(), tl.getName());
                 return tl;
             } catch (NoSuchElementException _) {

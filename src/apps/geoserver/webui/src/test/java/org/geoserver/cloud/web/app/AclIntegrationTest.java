@@ -53,7 +53,7 @@ class AclIntegrationTest {
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
-        var gwcdir = datadir.resolve("gwc");
+        Path gwcdir = datadir.resolve("gwc");
         Files.createDirectory(gwcdir);
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
         registry.add("gwc.cache-directory", gwcdir::toAbsolutePath);

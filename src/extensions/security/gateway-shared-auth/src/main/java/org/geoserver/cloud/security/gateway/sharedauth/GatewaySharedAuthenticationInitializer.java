@@ -137,7 +137,7 @@ public class GatewaySharedAuthenticationInitializer implements Ordered {
     }
 
     private Config createFilter() throws SecurityConfigException, IOException {
-        var config = new GatewaySharedAuthenticationFilter.Config();
+        Config config = new GatewaySharedAuthenticationFilter.Config();
         securityManager.saveFilter(config);
         log.info("Created {}", GatewaySharedAuthenticationFilter.class.getSimpleName());
         return config;

@@ -374,8 +374,8 @@ class CachingCatalogFacadeTest {
         facade = new CachingCatalogFacade(subject);
         assertThrows(NullPointerException.class, () -> facade.getLayers((ResourceInfo) null));
 
-        var resource = stub(FeatureTypeInfo.class);
-        var layers = List.of(stub(LayerInfo.class));
+        FeatureTypeInfo resource = stub(FeatureTypeInfo.class);
+        List<LayerInfo> layers = List.of(stub(LayerInfo.class));
 
         when(subject.getLayers(resource)).thenReturn(layers);
 
@@ -388,7 +388,7 @@ class CachingCatalogFacadeTest {
     @Test
     void testGetLayersByResourceEmptyResultNotCached() {
         facade = new CachingCatalogFacade(subject);
-        var resource = stub(FeatureTypeInfo.class);
+        FeatureTypeInfo resource = stub(FeatureTypeInfo.class);
 
         when(subject.getLayers(resource)).thenReturn(List.of());
         facade.getLayers(resource);
@@ -424,7 +424,7 @@ class CachingCatalogFacadeTest {
     @Test
     void testGetLayerGroupByNameAndWorkspace() {
         facade = new CachingCatalogFacade(subject);
-        var ws = stub(WorkspaceInfo.class);
+        WorkspaceInfo ws = stub(WorkspaceInfo.class);
         assertThrows(NullPointerException.class, () -> facade.getLayerGroupByName(null, "name"));
         assertThrows(NullPointerException.class, () -> facade.getLayerGroupByName(ws, null));
 
@@ -453,7 +453,7 @@ class CachingCatalogFacadeTest {
     @Test
     void testGetDefaultNamespace() {
         facade = new CachingCatalogFacade(subject);
-        var info = stub(NamespaceInfo.class);
+        NamespaceInfo info = stub(NamespaceInfo.class);
         when(subject.getDefaultNamespace()).thenReturn(info);
 
         assertSameTimesN(info, facade::getDefaultNamespace, 3);
@@ -494,7 +494,7 @@ class CachingCatalogFacadeTest {
     @Test
     void testGetDefaultWorkspace() {
         facade = new CachingCatalogFacade(subject);
-        var info = stub(WorkspaceInfo.class);
+        WorkspaceInfo info = stub(WorkspaceInfo.class);
         when(subject.getDefaultWorkspace()).thenReturn(info);
 
         assertSameTimesN(info, facade::getDefaultWorkspace, 3);
@@ -512,7 +512,7 @@ class CachingCatalogFacadeTest {
     void testGetWorkspace() {
         facade = new CachingCatalogFacade(subject);
         assertThrows(NullPointerException.class, () -> facade.getWorkspace(null));
-        var info = stub(WorkspaceInfo.class);
+        WorkspaceInfo info = stub(WorkspaceInfo.class);
         String id = info.getId();
         when(subject.getWorkspace(id)).thenReturn(info);
 
@@ -525,7 +525,7 @@ class CachingCatalogFacadeTest {
         facade = new CachingCatalogFacade(subject);
         assertThrows(NullPointerException.class, () -> facade.getWorkspaceByName(null));
 
-        var info = stub(WorkspaceInfo.class);
+        WorkspaceInfo info = stub(WorkspaceInfo.class);
         when(subject.getWorkspaceByName(info.getName())).thenReturn(info);
 
         assertSameTimesN(info, () -> facade.getWorkspaceByName(info.getName()), 3);
@@ -549,7 +549,7 @@ class CachingCatalogFacadeTest {
         facade = new CachingCatalogFacade(subject);
         assertThrows(NullPointerException.class, () -> facade.getStyleByName(null));
 
-        var info = stub(StyleInfo.class);
+        StyleInfo info = stub(StyleInfo.class);
         when(subject.getStyleByName(info.getName())).thenReturn(info);
 
         assertSameTimesN(info, () -> facade.getStyleByName(info.getName()), 3);
@@ -559,11 +559,11 @@ class CachingCatalogFacadeTest {
     @Test
     void testGetStyleByWorkspaceAndName() {
         facade = new CachingCatalogFacade(subject);
-        var ws = stub(WorkspaceInfo.class);
+        WorkspaceInfo ws = stub(WorkspaceInfo.class);
         assertThrows(NullPointerException.class, () -> facade.getStyleByName(null, "name"));
         assertThrows(NullPointerException.class, () -> facade.getStyleByName(ws, null));
 
-        var info = stub(StyleInfo.class);
+        StyleInfo info = stub(StyleInfo.class);
         when(subject.getStyleByName(ws, info.getName())).thenReturn(info);
 
         assertSameTimesN(info, () -> facade.getStyleByName(ws, info.getName()), 3);
@@ -572,7 +572,7 @@ class CachingCatalogFacadeTest {
 
     @Test
     void testGetStyleByWorkspaceAndNameDoesNotCacheNoWorkspace() {
-        var info = stub(StyleInfo.class);
+        StyleInfo info = stub(StyleInfo.class);
         String name = info.getName();
         when(subject.getStyleByName(same(ANY_WORKSPACE), eq(name))).thenReturn(info);
         when(subject.getStyleByName(same(NO_WORKSPACE), eq(name))).thenReturn(info);
@@ -599,7 +599,8 @@ class CachingCatalogFacadeTest {
 
     @Test
     void testOnDefaultDataStoreSet() {
-        var event = DefaultDataStoreSet.createLocal(1_000L, stub(WorkspaceInfo.class), stub(DataStoreInfo.class));
+        DefaultDataStoreSet event =
+                DefaultDataStoreSet.createLocal(1_000L, stub(WorkspaceInfo.class), stub(DataStoreInfo.class));
 
         facade.onDefaultDataStoreSet(event);
         verify(supportMock, once()).evictDefaultDataStore(eq(event.getWorkspaceId()), any());
@@ -607,7 +608,7 @@ class CachingCatalogFacadeTest {
 
     @Test
     void testOnCatalogInfoAdded() {
-        var event = event(CatalogInfoAdded.class, "id", FEATURETYPE);
+        CatalogInfoAdded event = event(CatalogInfoAdded.class, "id", FEATURETYPE);
         when(event.getObjectName()).thenReturn("new");
 
         facade.onCatalogInfoAdded(event);
@@ -622,7 +623,7 @@ class CachingCatalogFacadeTest {
 
     @Test
     void testOnCatalogInfoModified() {
-        var event = event(CatalogInfoModified.class, "id", FEATURETYPE);
+        CatalogInfoModified event = event(CatalogInfoModified.class, "id", FEATURETYPE);
         when(event.getOldName()).thenReturn("old");
         when(event.getObjectName()).thenReturn("new");
 
@@ -639,7 +640,7 @@ class CachingCatalogFacadeTest {
 
     @Test
     void testOnCatalogInfoRemoveEvent() {
-        var event = event(CatalogInfoRemoved.class, "id", FEATURETYPE);
+        CatalogInfoRemoved event = event(CatalogInfoRemoved.class, "id", FEATURETYPE);
         when(event.getObjectName()).thenReturn("new");
 
         facade.onCatalogInfoRemovedEvent(event);

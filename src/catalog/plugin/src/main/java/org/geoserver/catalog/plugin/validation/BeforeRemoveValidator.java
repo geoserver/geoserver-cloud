@@ -93,14 +93,14 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
         Filter isSameWorkspace = equal("workspace.id", workspace.getId());
         Filter globalOrSameWorkspace = or(isGlobal, isSameWorkspace);
 
-        final @Cleanup var groups = query(LayerGroupInfo.class, globalOrSameWorkspace);
+        final @Cleanup Stream<LayerGroupInfo> groups = query(LayerGroupInfo.class, globalOrSameWorkspace);
         groups.forEach(lg -> checkLayerGroupDoesNotContain(lg, layer));
     }
 
     @Override
     public void visit(LayerGroupInfo toDelete) {
         // ensure no references to the layer group, including nested layer groups
-        final @Cleanup var groups = query(LayerGroupInfo.class, acceptAll());
+        final @Cleanup Stream<LayerGroupInfo> groups = query(LayerGroupInfo.class, acceptAll());
         groups.forEach(lg -> checkLayerGroupDoesNotContain(lg, toDelete));
     }
 
@@ -128,7 +128,7 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
     }
 
     private void checkNoLayerGroupReferencesStyle(StyleInfo style) {
-        final @Cleanup var groups = query(LayerGroupInfo.class, acceptAll());
+        final @Cleanup Stream<LayerGroupInfo> groups = query(LayerGroupInfo.class, acceptAll());
         groups.forEach(lg -> checkLayerGroupDoesNotContain(lg, style));
     }
 

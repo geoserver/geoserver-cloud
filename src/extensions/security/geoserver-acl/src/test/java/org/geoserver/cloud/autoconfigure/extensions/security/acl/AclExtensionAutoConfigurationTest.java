@@ -64,7 +64,7 @@ class AclExtensionAutoConfigurationTest {
     @BeforeEach
     void setup() {
         // Create a mock GeoServer instance to satisfy @ConditionalOnGeoServer
-        var mockGeoServer = mock(GeoServer.class);
+        GeoServer mockGeoServer = mock(GeoServer.class);
 
         runner = new ApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(AclExtensionAutoConfiguration.class))

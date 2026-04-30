@@ -105,14 +105,14 @@ public class ComponentScanBeanGenerator {
         classBuilder.addJavadoc("</ul>\n");
 
         classBuilder.addJavadoc("\n<p>Discovered components:\n<ul>\n");
-        for (var entry : includedBeans.entrySet()) {
+        for (Map.Entry<String, String> entry : includedBeans.entrySet()) {
             classBuilder.addJavadoc(" <li>{@code $L} &mdash; {@code $L}</li>\n", entry.getKey(), entry.getValue());
         }
         classBuilder.addJavadoc("</ul>\n");
 
         if (!skippedBeans.isEmpty()) {
             classBuilder.addJavadoc("\n<p>Skipped:\n<ul>\n");
-            for (var entry : skippedBeans.entrySet()) {
+            for (Map.Entry<String, String> entry : skippedBeans.entrySet()) {
                 classBuilder.addJavadoc(" <li>{@code $L} &mdash; $L</li>\n", entry.getKey(), entry.getValue());
             }
             classBuilder.addJavadoc("</ul>\n");

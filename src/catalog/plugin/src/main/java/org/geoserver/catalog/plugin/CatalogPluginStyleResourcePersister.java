@@ -67,7 +67,7 @@ public class CatalogPluginStyleResourcePersister extends GeoServerResourcePersis
     }
 
     private void doRemoveStyle(StyleInfo s) {
-        var dd = new GeoServerDataDirectory(theCatalog.getResourceLoader());
+        GeoServerDataDirectory dd = new GeoServerDataDirectory(theCatalog.getResourceLoader());
         Resource sld = dd.style(s);
         if (Resources.exists(sld) && sld.getType() == Type.RESOURCE) {
             if (this.backupSldFiles) {

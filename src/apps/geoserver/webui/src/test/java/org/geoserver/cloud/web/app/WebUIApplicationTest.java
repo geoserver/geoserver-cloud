@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -173,7 +174,7 @@ class WebUIApplicationTest {
     @Test
     void testServiceConditionalAnnotations() {
         // Access the application context through the app bean
-        var context = app.getApplicationContext();
+        ApplicationContext context = app.getApplicationContext();
 
         // This should exist in WebUI service
         assertThat(context.containsBean("webUiConditionalBean")).isTrue();

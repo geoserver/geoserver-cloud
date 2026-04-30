@@ -240,7 +240,7 @@ class TypeNameResolver {
             Elements elementUtils = context.getProcessingEnvironment().getElementUtils();
             TypeElement classElement = elementUtils.getTypeElement(className);
             if (classElement != null) {
-                var result = classElement.getEnclosedElements().stream()
+                TypeResolutionResult result = classElement.getEnclosedElements().stream()
                         .filter(element -> element.getKind() == javax.lang.model.element.ElementKind.METHOD)
                         .filter(element -> element.getSimpleName().toString().equals(factoryMethod))
                         .filter(element -> element.getModifiers().contains(javax.lang.model.element.Modifier.STATIC))
@@ -401,8 +401,8 @@ class TypeNameResolver {
     private static int findDependencyIndexInConstructor(
             String dependencyName, org.springframework.beans.factory.config.ConstructorArgumentValues constructorArgs) {
         // Check indexed arguments first
-        var indexedArgs = constructorArgs.getIndexedArgumentValues();
-        for (var entry : indexedArgs.entrySet()) {
+        Map<Integer, ConstructorArgumentValues.ValueHolder> indexedArgs = constructorArgs.getIndexedArgumentValues();
+        for (Map.Entry<Integer, ConstructorArgumentValues.ValueHolder> entry : indexedArgs.entrySet()) {
             Object value = entry.getValue().getValue();
             if (value instanceof RuntimeBeanReference beanRef && dependencyName.equals(beanRef.getBeanName())) {
                 return entry.getKey();
@@ -410,7 +410,7 @@ class TypeNameResolver {
         }
 
         // Check generic arguments
-        var genericArgs = constructorArgs.getGenericArgumentValues();
+        List<ConstructorArgumentValues.ValueHolder> genericArgs = constructorArgs.getGenericArgumentValues();
         for (int i = 0; i < genericArgs.size(); i++) {
             Object value = genericArgs.get(i).getValue();
             if (value instanceof RuntimeBeanReference beanRef && dependencyName.equals(beanRef.getBeanName())) {

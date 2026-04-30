@@ -50,7 +50,7 @@ class PgconfigCatalogBackendConformanceIT extends CatalogConformanceTest {
         PgconfigResourceStore resourceStore = new PgconfigResourceStore(
                 cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
 
-        var resourceLoader = new PgconfigGeoServerResourceLoader(resourceStore);
+        PgconfigGeoServerResourceLoader resourceLoader = new PgconfigGeoServerResourceLoader(resourceStore);
         CatalogPlugin catalog = new PgconfigBackendBuilder(db.getDataSource()).createCatalog();
         catalog.setResourceLoader(resourceLoader);
         final boolean backupSldFiles = false;

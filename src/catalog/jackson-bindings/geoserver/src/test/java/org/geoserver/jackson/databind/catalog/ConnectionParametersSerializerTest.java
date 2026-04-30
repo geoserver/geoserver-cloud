@@ -11,9 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Map;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.filter.dto.LiteralDto;
@@ -183,7 +185,7 @@ class ConnectionParametersSerializerTest {
         params.put("count", 42);
 
         // Convert to serializable map
-        var serializableMap = params.toSerializableMap();
+        Map<String, Serializable> serializableMap = params.toSerializableMap();
 
         // Convert back
         ConnectionParameters roundTrip = ConnectionParameters.fromSerializableMap(serializableMap);

@@ -71,8 +71,9 @@ public class DefaultTileLayerCatalogConfiguration {
             GridSetBroker gsb,
             ApplicationEventPublisher eventPublisher) {
 
-        var config = new CloudCatalogConfiguration(catalog, tld, gsb);
-        var eventAwareConfig = new GeoServerTileLayerConfiguration(config, eventPublisher::publishEvent);
+        CloudCatalogConfiguration config = new CloudCatalogConfiguration(catalog, tld, gsb);
+        GeoServerTileLayerConfiguration eventAwareConfig =
+                new GeoServerTileLayerConfiguration(config, eventPublisher::publishEvent);
         // tell GeoServerTileLayerConfiguration to relay TileLayerEvents to
         // CloudCatalogConfiguration, since it's not a spring bean can't listen itself.
         eventAwareConfig.setEventListener(config::onTileLayerEventEvict);

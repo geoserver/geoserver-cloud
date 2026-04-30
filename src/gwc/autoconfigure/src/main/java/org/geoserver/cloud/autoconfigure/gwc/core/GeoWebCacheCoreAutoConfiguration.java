@@ -181,7 +181,7 @@ public class GeoWebCacheCoreAutoConfiguration {
      */
     @Bean(name = AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
     org.geowebcache.locks.LockProvider gwcLockProvider(org.geoserver.platform.resource.LockProvider lockProvider) {
-        var provider = new GeoServerLockProvider();
+        GeoServerLockProvider provider = new GeoServerLockProvider();
         provider.setDelegate(lockProvider);
         return provider;
     }

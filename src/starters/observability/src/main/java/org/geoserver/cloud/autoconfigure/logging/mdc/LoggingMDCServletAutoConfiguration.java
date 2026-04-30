@@ -76,7 +76,7 @@ public class LoggingMDCServletAutoConfiguration {
             AuthenticationMdcConfigProperties config) {
         FilterRegistrationBean<MDCAuthenticationFilter> registration = new FilterRegistrationBean<>();
 
-        var filter = new MDCAuthenticationFilter(config);
+        MDCAuthenticationFilter filter = new MDCAuthenticationFilter(config);
         registration.setMatchAfter(true);
 
         registration.addUrlPatterns("/*");

@@ -28,6 +28,7 @@ import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.platform.GeoServerExtensionsHelper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,10 @@ class EventualConsistencyEnforcerTest {
     static @BeforeAll void oneTimeSetup() {
         // avoid the chatty warning logs due to catalog looking up a bean of type GeoServerConfigurationLock
         GeoServerExtensionsHelper.setIsSpringContext(false);
+    }
+
+    static @AfterAll void afterAll() {
+        GeoServerExtensionsHelper.init(null);
     }
 
     @BeforeEach

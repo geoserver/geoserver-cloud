@@ -193,7 +193,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         if (null == id) {
             return null;
         }
-        var infoCache = cache(clazz);
+        Map<String, C> infoCache = cache(clazz);
         C info = infoCache.get(id);
         if (clazz.isInstance(info)) {
             log.trace("loaded from RowMapper cache: {}", info);

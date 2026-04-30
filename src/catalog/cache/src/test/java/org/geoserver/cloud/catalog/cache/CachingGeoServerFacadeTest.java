@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.geoserver.catalog.Info;
@@ -608,14 +609,14 @@ class CachingGeoServerFacadeTest {
         assertNull(cache.get(globalServicesKey));
 
         // First call should hit the underlying facade
-        var services1 = caching.getServices();
+        Collection<? extends ServiceInfo> services1 = caching.getServices();
         verify(mock, times(1)).getServices();
         assertThat(services1).hasSize(2);
         assertNotNull(cache.get(globalServicesKey));
 
         // Subsequent calls should return cached value
-        var services2 = caching.getServices();
-        var services3 = caching.getServices();
+        Collection<? extends ServiceInfo> services2 = caching.getServices();
+        Collection<? extends ServiceInfo> services3 = caching.getServices();
         verify(mock, times(1)).getServices(); // Still only called once
         assertSame(services1, services2);
         assertSame(services1, services3);
@@ -628,14 +629,14 @@ class CachingGeoServerFacadeTest {
         assertNull(cache.get(wsServicesKey));
 
         // First call should hit the underlying facade
-        var services1 = caching.getServices(workspace);
+        Collection<? extends ServiceInfo> services1 = caching.getServices(workspace);
         verify(mock, times(1)).getServices(workspace);
         assertThat(services1).hasSize(2);
         assertNotNull(cache.get(wsServicesKey));
 
         // Subsequent calls should return cached value
-        var services2 = caching.getServices(workspace);
-        var services3 = caching.getServices(workspace);
+        Collection<? extends ServiceInfo> services2 = caching.getServices(workspace);
+        Collection<? extends ServiceInfo> services3 = caching.getServices(workspace);
         verify(mock, times(1)).getServices(workspace); // Still only called once
         assertSame(services1, services2);
         assertSame(services1, services3);

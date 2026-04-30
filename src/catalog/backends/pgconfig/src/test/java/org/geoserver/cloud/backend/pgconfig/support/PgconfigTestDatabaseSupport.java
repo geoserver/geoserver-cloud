@@ -7,6 +7,8 @@ package org.geoserver.cloud.backend.pgconfig.support;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import java.sql.Connection;
+import java.sql.Statement;
 import javax.sql.DataSource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -82,9 +84,9 @@ public class PgconfigTestDatabaseSupport implements BeforeEachCallback, AfterEac
         }
         // Drop the schema with a direct JDBC connection (avoids pool search_path issues)
         if (schema != null) {
-            try (var conn = java.sql.DriverManager.getConnection(
+            try (Connection conn = java.sql.DriverManager.getConnection(
                             container.getJdbcUrl(), container.getUsername(), container.getPassword());
-                    var stmt = conn.createStatement()) {
+                    Statement stmt = conn.createStatement()) {
                 stmt.execute("DROP SCHEMA IF EXISTS \"" + schema + "\" CASCADE");
             } catch (Exception e) {
                 log.warn("Failed to drop test schema '{}', will be cleaned when container stops", schema, e);

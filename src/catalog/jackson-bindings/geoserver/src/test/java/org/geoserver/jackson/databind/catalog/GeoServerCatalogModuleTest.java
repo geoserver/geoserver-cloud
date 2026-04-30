@@ -766,7 +766,7 @@ public abstract class GeoServerCatalogModuleTest {
         mdm.put("k2", "v2");
         mdm.put("k3", null);
 
-        var decoded = roundTrip(mdm, MetadataMap.class);
+        MetadataMap decoded = roundTrip(mdm, MetadataMap.class);
         assertEquals(mdm, decoded);
         decoded = testFilterLiteral(mdm, Map.class);
         assertEquals(mdm, decoded);

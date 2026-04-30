@@ -68,7 +68,7 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
 
     public static Result evaluate(Filter filter) {
         StringWriter out = new StringWriter();
-        var filterToPreparedStatement = new PgconfigFilterToSQL(out);
+        PgconfigFilterToSQL filterToPreparedStatement = new PgconfigFilterToSQL(out);
         filterToPreparedStatement.setSqlNameEscape("\"");
         filter.accept(filterToPreparedStatement, null);
         out.flush();

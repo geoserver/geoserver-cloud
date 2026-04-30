@@ -76,7 +76,8 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
             @Qualifier("rawCatalog") Catalog catalog,
             GWCConfigPersister defaultsProvider) {
 
-        var config = new PgconfigTileLayerCatalog(repository, gridsetBroker, () -> catalog, defaultsProvider);
+        PgconfigTileLayerCatalog config =
+                new PgconfigTileLayerCatalog(repository, gridsetBroker, () -> catalog, defaultsProvider);
         Consumer<TileLayerEvent> gwcEventPublisher = eventPublisher::publishEvent;
         return new GeoServerTileLayerConfiguration(config, gwcEventPublisher);
     }
@@ -85,7 +86,7 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
     TileLayerInfoRepository pgconfigTileLayerRepository(
             @Qualifier("pgconfigDataSource") DataSource dataSource, Optional<CacheManager> cacheManager) {
 
-        var pgrepo = new PgconfigTileLayerInfoRepository(new JdbcTemplate(dataSource));
+        PgconfigTileLayerInfoRepository pgrepo = new PgconfigTileLayerInfoRepository(new JdbcTemplate(dataSource));
         return cacheManager.map(cm -> cachingTileLayerCatalog(pgrepo, cm)).orElse(pgrepo);
     }
 

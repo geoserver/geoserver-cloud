@@ -32,7 +32,7 @@ class JDBCSecurityWebUIAutoConfigurationTest {
     @BeforeEach
     void setup() {
         // Create a mock GeoServer instance to satisfy @ConditionalOnGeoServer
-        var mockGeoServer = mock(GeoServer.class);
+        GeoServer mockGeoServer = mock(GeoServer.class);
 
         runner = new WebApplicationContextRunner()
                 .withPropertyValues("geoserver.service.webui.enabled=true")

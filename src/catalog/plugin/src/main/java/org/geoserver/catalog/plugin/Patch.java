@@ -337,8 +337,8 @@ public @Data class Patch implements Serializable {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static void applyCollectionValueChange(Object target, final Property change) {
         final String propertyName = change.getName();
-        final var currentValue = (Collection) OwsUtils.get(target, propertyName);
-        final var newValue = (Collection) change.getValue();
+        final Collection currentValue = (Collection) OwsUtils.get(target, propertyName);
+        final Collection newValue = (Collection) change.getValue();
 
         if (newValue == null) {
             if (currentValue != null) {
@@ -372,8 +372,8 @@ public @Data class Patch implements Serializable {
     @SuppressWarnings("unchecked")
     private static void applyMapValueChange(Object target, final Property change) {
         final String propertyName = change.getName();
-        final var currValue = (Map<Object, Object>) OwsUtils.get(target, propertyName);
-        final var newValue = (Map<Object, Object>) change.getValue();
+        final Map<Object, Object> currValue = (Map<Object, Object>) OwsUtils.get(target, propertyName);
+        final Map<Object, Object> newValue = (Map<Object, Object>) change.getValue();
         if (currValue != null) {
             currValue.clear();
             if (newValue != null) {

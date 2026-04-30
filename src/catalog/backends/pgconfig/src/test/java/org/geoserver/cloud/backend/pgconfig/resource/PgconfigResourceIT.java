@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -381,8 +383,8 @@ class PgconfigResourceIT {
                 INSERT INTO resourcestore (parentid, "type", path, content)
                 VALUES (?, ?, ?, ?);
                 """;
-        try (var c = ds.getConnection();
-                var st = c.prepareStatement(sql)) {
+        try (Connection c = ds.getConnection();
+                PreparedStatement st = c.prepareStatement(sql)) {
             st.setLong(1, 0);
             st.setString(2, Resource.Type.DIRECTORY.name());
             st.setString(3, "temp");

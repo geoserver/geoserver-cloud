@@ -30,7 +30,7 @@ class WmsApplicationDataDirectoryTest extends WmsApplicationTest {
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) {
-        var gwcdir = datadir.resolve("gwc");
+        Path gwcdir = datadir.resolve("gwc");
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
         registry.add("gwc.cache-directory", gwcdir::toAbsolutePath);
     }

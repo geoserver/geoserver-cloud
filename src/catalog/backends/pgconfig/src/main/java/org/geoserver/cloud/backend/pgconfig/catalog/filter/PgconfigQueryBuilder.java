@@ -40,7 +40,7 @@ public class PgconfigQueryBuilder {
         Filter filter = replaceCatalogInfoLiterals(origFilter, supportedPropertyNames);
         filter = simplify(filter);
 
-        var splitter = split(filter, supportedPropertyNames);
+        PgconfigCatalogFilterSplitter splitter = split(filter, supportedPropertyNames);
 
         supportedFilter = adaptToSql(splitter.getFilterPre());
 

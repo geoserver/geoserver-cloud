@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.gateway;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Map;
 import org.geoserver.cloud.gateway.filter.GeoServerGatewayFilterFunctions;
 import org.geoserver.cloud.gateway.predicate.GeoServerGatewayRequestPredicates;
 import org.junit.jupiter.api.Test;
@@ -50,7 +51,7 @@ class GatewayApplicationAutoconfigurationTest {
                     SecureHeadersProperties props = context.getBean(SecureHeadersProperties.class);
                     assertThat(props.getFrameOptions()).isEqualTo("SAMEORIGIN");
                     assertThat(props.getXssProtectionHeader()).isEqualTo("0");
-                    var headers = props.resolveHeaders();
+                    Map<String, String> headers = props.resolveHeaders();
                     assertThat(headers).doesNotContainKey(SecureHeadersProperties.CONTENT_SECURITY_POLICY_HEADER);
                     assertThat(headers).containsEntry(SecureHeadersProperties.X_FRAME_OPTIONS_HEADER, "SAMEORIGIN");
                 });

@@ -51,7 +51,7 @@ class CatalogInfoLiteralAdaptor extends DuplicatingFilterVisitor {
     }
 
     public static Filter replaceCatalogInfoLiterals(Filter filter, Set<String> supportedPropertyNames) {
-        var adaptor = new CatalogInfoLiteralAdaptor(supportedPropertyNames);
+        CatalogInfoLiteralAdaptor adaptor = new CatalogInfoLiteralAdaptor(supportedPropertyNames);
         return (Filter) filter.accept(adaptor, null);
     }
 

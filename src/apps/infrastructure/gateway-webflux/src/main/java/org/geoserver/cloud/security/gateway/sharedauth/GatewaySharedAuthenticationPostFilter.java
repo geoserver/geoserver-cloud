@@ -9,6 +9,7 @@ import static org.geoserver.cloud.security.gateway.sharedauth.SharedAuthConfigur
 import static org.geoserver.cloud.security.gateway.sharedauth.SharedAuthConfigurationProperties.X_GSCLOUD_USERNAME;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -87,7 +88,7 @@ public class GatewaySharedAuthenticationPostFilter implements GlobalFilter, Orde
     }
 
     private Mono<Void> updateSession(ServerHttpRequest req, HttpHeaders responseHeaders, WebSession session) {
-        final var responseUser = responseHeaders.getFirst(X_GSCLOUD_USERNAME);
+        final String responseUser = responseHeaders.getFirst(X_GSCLOUD_USERNAME);
         if (null == responseUser) {
             return Mono.empty();
         }
@@ -96,14 +97,14 @@ public class GatewaySharedAuthenticationPostFilter implements GlobalFilter, Orde
         if (isLogout) {
             return Mono.fromRunnable(() -> loggedOut(session, req));
         }
-        var roles = responseHeaders.getOrDefault(X_GSCLOUD_ROLES, List.of());
+        List<String> roles = responseHeaders.getOrDefault(X_GSCLOUD_ROLES, List.of());
         return Mono.fromRunnable(() -> loggedIn(session, responseUser, roles, req));
     }
 
     private void loggedIn(WebSession session, String user, List<String> roles, ServerHttpRequest req) {
-        var attributes = session.getAttributes();
-        var currUser = attributes.get(X_GSCLOUD_USERNAME);
-        var currRoles = attributes.get(X_GSCLOUD_ROLES);
+        Map<String, Object> attributes = session.getAttributes();
+        Object currUser = attributes.get(X_GSCLOUD_USERNAME);
+        Object currRoles = attributes.get(X_GSCLOUD_ROLES);
         if (Objects.equals(user, currUser) && Objects.equals(roles, currRoles)) {
             log.trace(
                     "user {} already present in session[{}], ignoring headers from {} {}",
@@ -128,10 +129,10 @@ public class GatewaySharedAuthenticationPostFilter implements GlobalFilter, Orde
     }
 
     private void loggedOut(WebSession session, ServerHttpRequest req) {
-        var attributes = session.getAttributes();
+        Map<String, Object> attributes = session.getAttributes();
         if (session.isStarted() && attributes.containsKey(X_GSCLOUD_USERNAME)) {
-            var user = attributes.remove(X_GSCLOUD_USERNAME);
-            var roles = attributes.remove(X_GSCLOUD_ROLES);
+            Object user = attributes.remove(X_GSCLOUD_USERNAME);
+            Object roles = attributes.remove(X_GSCLOUD_ROLES);
             log.debug(
                     "removed shared-auth user {} roles {} from session[{}] as returned by {} {}",
                     user,

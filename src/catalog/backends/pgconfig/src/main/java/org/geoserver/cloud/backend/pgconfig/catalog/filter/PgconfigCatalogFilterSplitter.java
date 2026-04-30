@@ -27,7 +27,7 @@ class PgconfigCatalogFilterSplitter extends PostPreProcessFilterSplittingVisitor
     }
 
     public static PgconfigCatalogFilterSplitter split(Filter filter, Set<String> supportedPropertyNames) {
-        var splitter = new PgconfigCatalogFilterSplitter(supportedPropertyNames);
+        PgconfigCatalogFilterSplitter splitter = new PgconfigCatalogFilterSplitter(supportedPropertyNames);
         filter.accept(splitter, null);
         return splitter;
     }

@@ -11,7 +11,7 @@ import org.geoserver.platform.GeoServerResourceLoader;
 class CatalogPluginConformanceTest extends CatalogConformanceTest {
 
     protected @Override CatalogPlugin createCatalog(File tmpFolder) {
-        var catalog = new org.geoserver.catalog.plugin.CatalogPlugin();
+        CatalogPlugin catalog = new CatalogPlugin();
         catalog.setResourceLoader(new GeoServerResourceLoader(tmpFolder));
         catalog.addListener(new CatalogPluginStyleResourcePersister(catalog));
         return catalog;

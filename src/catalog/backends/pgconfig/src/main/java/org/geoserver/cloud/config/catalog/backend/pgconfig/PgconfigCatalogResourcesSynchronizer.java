@@ -7,6 +7,7 @@ package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogException;
+import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -134,7 +135,7 @@ public class PgconfigCatalogResourcesSynchronizer implements CatalogListener, Ex
         final int i = event.getPropertyNames().indexOf("name");
         if (i > -1) {
             String newName = (String) event.getNewValues().get(i);
-            var source = event.getSource();
+            CatalogInfo source = event.getSource();
             if (source instanceof WorkspaceInfo ws) {
                 renameWorkspace(ws, newName);
             } else if (source instanceof StoreInfo s) {

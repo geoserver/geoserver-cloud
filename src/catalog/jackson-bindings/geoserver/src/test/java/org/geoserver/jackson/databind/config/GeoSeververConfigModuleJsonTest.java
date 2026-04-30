@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.ImageProcessingInfo;
 import org.geoserver.config.UserDetailsDisplaySettingsInfo;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ class GeoSeververConfigModuleJsonTest extends GeoServerConfigModuleTest {
 
         // Verify that the old "jai" field was correctly mapped to imageProcessing
         assertEquals("test-id", decoded.getId());
-        var imageProcessing = decoded.getImageProcessing();
+        ImageProcessingInfo imageProcessing = decoded.getImageProcessing();
 
         // Verify the imageProcessing object was deserialized correctly
         assertNotNull(imageProcessing, "imageProcessing should not be null");

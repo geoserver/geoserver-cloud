@@ -1330,7 +1330,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
     private IsInstanceOf findInstanceOf(Filter subFilter) {
         if (subFilter instanceof And and) {
             for (Filter f : and.getChildren()) {
-                var i = findInstanceOf(f);
+                IsInstanceOf i = findInstanceOf(f);
                 if (i != null) {
                     return i;
                 }
@@ -1473,8 +1473,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
         final Filter layerFilter = filters.getOrDefault(LayerInfo.class, filter);
         final Filter lgFilter = filters.getOrDefault(LayerGroupInfo.class, filter);
 
-        var layerQuery = new Query<>(LayerInfo.class, query).setFilter(layerFilter);
-        var lgQuery = new Query<>(LayerGroupInfo.class, query).setFilter(lgFilter);
+        Query<LayerInfo> layerQuery = new Query<>(LayerInfo.class, query).setFilter(layerFilter);
+        Query<LayerGroupInfo> lgQuery = new Query<>(LayerGroupInfo.class, query).setFilter(lgFilter);
 
         if (query.getSortBy().isEmpty()) {
             List<SortBy> sortBy = List.of(Predicates.sortBy("id", true));
@@ -1496,7 +1496,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
             Iterator<PublishedInfo> lgit = groups.map(PublishedInfo.class::cast).iterator();
             Comparator<PublishedInfo> comparator = CatalogInfoLookup.toComparator(query);
 
-            var stream = Streams.stream(Iterators.mergeSorted(List.of(layersit, lgit), comparator));
+            Stream<PublishedInfo> stream = Streams.stream(Iterators.mergeSorted(List.of(layersit, lgit), comparator));
             if (applyOffsetLimit) {
                 if (offset != null) {
                     stream = stream.skip(offset);
@@ -1560,7 +1560,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      */
     <T> Stream<T> closing(Stream<T> stream, Stream<?>... closeables) {
         return stream.onClose(() -> {
-            for (var s : closeables) {
+            for (Stream<?> s : closeables) {
                 s.close();
             }
         });

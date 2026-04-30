@@ -49,9 +49,9 @@ public class GlobalUriFilter implements GlobalFilter, Ordered {
     }
 
     private URI createUri(URI incomingUri, URI balanceUrl) {
-        final var port = balanceUrl.getPort() != -1 ? ":" + balanceUrl.getPort() : "";
-        final var rawPath = balanceUrl.getRawPath() != null ? balanceUrl.getRawPath() : "";
-        final var query = incomingUri.getRawQuery() != null ? "?" + incomingUri.getRawQuery() : "";
+        final String port = balanceUrl.getPort() != -1 ? ":" + balanceUrl.getPort() : "";
+        final String rawPath = balanceUrl.getRawPath() != null ? balanceUrl.getRawPath() : "";
+        final String query = incomingUri.getRawQuery() != null ? "?" + incomingUri.getRawQuery() : "";
         return URI.create(balanceUrl.getScheme() + "://" + balanceUrl.getHost() + port + rawPath + query);
     }
 

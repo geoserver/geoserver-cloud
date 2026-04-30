@@ -58,7 +58,7 @@ class JNDIInitializer implements InitializingBean, DisposableBean {
 
         try (@SuppressWarnings("preview")
                 StructuredTaskScope<Object, Void> scope = StructuredTaskScope.open()) {
-            for (var props : configs.values()) {
+            for (JNDIDatasourceProperties props : configs.values()) {
                 scope.fork(() -> setUpDataSource(initialContext, props));
             }
             scope.join();

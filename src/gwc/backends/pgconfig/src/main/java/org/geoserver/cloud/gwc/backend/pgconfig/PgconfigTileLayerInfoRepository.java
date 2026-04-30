@@ -137,7 +137,7 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
     @Override
     public Set<String> findAllNames() throws DataAccessException {
         String query = "SELECT name FROM \"%s\"".formatted(tileLayersQueryTable);
-        try (var stream = template.queryForStream(query, (rs, _) -> rs.getString(1))) {
+        try (Stream<String> stream = template.queryForStream(query, (rs, _) -> rs.getString(1))) {
             return stream.collect(Collectors.toCollection(TreeSet::new));
         }
     }

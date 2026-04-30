@@ -9,6 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
 import org.geoserver.cloud.catalog.backend.datadir.EventualConsistencyEnforcer;
+import org.geoserver.platform.GeoServerExtensionsHelper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -45,6 +47,11 @@ class RemoteEventDataDirectoryAutoConfigurationTest {
                     "geoserver.backend.dataDirectory.enabled=true",
                     "geoserver.backend.dataDirectory.location=%s".formatted(datadir.toAbsolutePath()),
                     "geoserver.catalog.events.enabled=true");
+
+    @BeforeEach
+    void beforeEach() {
+        GeoServerExtensionsHelper.init(null);
+    }
 
     @Test
     void testEventualConsistencyEnforcerEnabledByDefault() {

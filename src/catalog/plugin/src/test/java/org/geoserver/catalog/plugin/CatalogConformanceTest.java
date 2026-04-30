@@ -3621,7 +3621,8 @@ public abstract class CatalogConformanceTest {
     private List<PublishedInfo> listPublishedInfos(Filter filter, Integer offset, Integer limit) {
         List<PublishedInfo> result;
         SortBy nameOrder = Predicates.sortBy("name", true);
-        try (var it = catalog.list(PublishedInfo.class, filter, offset, limit, nameOrder)) {
+        try (CloseableIterator<PublishedInfo> it =
+                catalog.list(PublishedInfo.class, filter, offset, limit, nameOrder)) {
             result = Lists.newArrayList(it);
         }
         return result;

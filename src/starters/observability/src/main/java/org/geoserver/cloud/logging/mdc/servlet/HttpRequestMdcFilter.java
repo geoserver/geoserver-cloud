@@ -121,7 +121,7 @@ public class HttpRequestMdcFilter extends OncePerRequestFilter {
      */
     Supplier<MultiValueMap<String, String>> parameters(HttpServletRequest req) {
         return () -> {
-            var map = new LinkedMultiValueMap<String, String>();
+            LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
             Map<String, String[]> params = req.getParameterMap();
             params.forEach((k, v) -> map.put(k, v == null ? null : Arrays.asList(v)));
             return map;
@@ -140,7 +140,7 @@ public class HttpRequestMdcFilter extends OncePerRequestFilter {
     private Supplier<MultiValueMap<String, HttpCookie>> cookies(HttpServletRequest req) {
         return () -> {
             Cookie[] cookies = req.getCookies();
-            var map = new LinkedMultiValueMap<String, HttpCookie>();
+            LinkedMultiValueMap<String, HttpCookie> map = new LinkedMultiValueMap<>();
             if (null != cookies && cookies.length > 0) {
                 for (Cookie c : cookies) {
                     map.add(c.getName(), new HttpCookie(c.getName(), c.getValue()));

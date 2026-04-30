@@ -105,7 +105,8 @@ class GsCloudLayerGroupContainmentCacheTest {
         // setup the store
         String nsURI = catalog.getDefaultNamespace().getURI();
 
-        var resolver = new PathMatchingResourcePatternResolver(MockData.class.getClassLoader());
+        PathMatchingResourcePatternResolver resolver =
+                new PathMatchingResourcePatternResolver(MockData.class.getClassLoader());
         Resource[] resources = resolver.getResources("classpath:org/geoserver/data/test/*.properties");
         List<String> propFiles = Stream.of(resources).map(Resource::getFilename).toList();
         propFiles.stream()

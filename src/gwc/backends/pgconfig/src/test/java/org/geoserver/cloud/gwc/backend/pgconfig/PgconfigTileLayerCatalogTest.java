@@ -105,7 +105,8 @@ class PgconfigTileLayerCatalogTest {
     @Test
     void testSetGridSetBroker() {
         GridSetBroker gridsets = support.getGridsets();
-        var expected = assertThrows(UnsupportedOperationException.class, () -> tlCatalog.setGridSetBroker(gridsets));
+        UnsupportedOperationException expected =
+                assertThrows(UnsupportedOperationException.class, () -> tlCatalog.setGridSetBroker(gridsets));
 
         assertThat(expected.getMessage()).contains("use constructor injection instead");
     }
@@ -113,7 +114,7 @@ class PgconfigTileLayerCatalogTest {
     @Test
     void testGetLayerCount() {
         when(repository.count()).thenReturn(10);
-        var actual = tlCatalog.getLayerCount();
+        int actual = tlCatalog.getLayerCount();
         assertThat(actual).isEqualTo(10);
         verify(repository, times(1)).count();
     }
@@ -122,7 +123,7 @@ class PgconfigTileLayerCatalogTest {
     void testGetLayerNames() {
         Set<String> expected = Set.of("L1", "ws1:L1");
         when(repository.findAllNames()).thenReturn(expected);
-        var actual = tlCatalog.getLayerNames();
+        Set<String> actual = tlCatalog.getLayerNames();
         assertThat(actual).isEqualTo(expected);
         verify(repository, times(1)).findAllNames();
     }
@@ -193,7 +194,7 @@ class PgconfigTileLayerCatalogTest {
         TileLayerInfo l1 = support.pgLayerInfo(support.layerInfo());
         TileLayerInfo l2 = support.pgLayerInfo(support.layerGroupInfo((String) null));
         TileLayerInfo l3 = support.pgLayerInfo(support.layerGroupInfo("testWorkspace"));
-        var tileLayerInfos = List.of(l1, l2, l3);
+        List<TileLayerInfo> tileLayerInfos = List.of(l1, l2, l3);
         when(repository.findAll()).thenReturn(tileLayerInfos.stream());
 
         List<GeoServerTileLayer> actual = tlCatalog.getLayers();
@@ -234,7 +235,7 @@ class PgconfigTileLayerCatalogTest {
 
     @Test
     void testAddLayer_transient_GeoSeverTileLayer() {
-        var gstl = mock(GeoServerTileLayer.class);
+        GeoServerTileLayer gstl = mock(GeoServerTileLayer.class);
         when(gstl.isTransientLayer()).thenReturn(true);
         assertThrows(IllegalArgumentException.class, () -> tlCatalog.addLayer(gstl));
     }
@@ -243,7 +244,7 @@ class PgconfigTileLayerCatalogTest {
     void testAddLayer() {
         assertThrows(NullPointerException.class, () -> tlCatalog.addLayer(null));
         GeoServerTileLayer li = support.geoServerTileLayer(support.layerInfo());
-        var expected = tlCatalog.toInfo(li);
+        TileLayerInfo expected = tlCatalog.toInfo(li);
         tlCatalog.addLayer(li);
         verify(repository).add(expected);
     }
@@ -280,7 +281,7 @@ class PgconfigTileLayerCatalogTest {
 
     @Test
     void testModifyLayer_transient_GeoSeverTileLayer() {
-        var gstl = mock(GeoServerTileLayer.class);
+        GeoServerTileLayer gstl = mock(GeoServerTileLayer.class);
         when(gstl.isTransientLayer()).thenReturn(true);
         assertThrows(IllegalArgumentException.class, () -> tlCatalog.modifyLayer(gstl));
     }
@@ -289,11 +290,11 @@ class PgconfigTileLayerCatalogTest {
     void testModifyLayer() {
         assertThrows(NullPointerException.class, () -> tlCatalog.modifyLayer(null));
 
-        var gstl = support.geoServerTileLayer(support.layerGroupInfo("workspace1"));
+        GeoServerTileLayer gstl = support.geoServerTileLayer(support.layerGroupInfo("workspace1"));
         when(repository.save(any())).thenReturn(false);
         assertThrows(NoSuchElementException.class, () -> tlCatalog.modifyLayer(gstl));
 
-        var expected = tlCatalog.toInfo(gstl);
+        TileLayerInfo expected = tlCatalog.toInfo(gstl);
         verify(repository, times(1)).save(expected);
 
         clearInvocations(repository);

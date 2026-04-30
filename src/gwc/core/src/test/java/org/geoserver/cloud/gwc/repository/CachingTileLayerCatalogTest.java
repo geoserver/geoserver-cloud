@@ -106,7 +106,7 @@ class CachingTileLayerCatalogTest {
 
         // do crud ops bypassing the caching decorator, expect the events have the desired effect
         assertThat(caching.idCache.get("tl1")).isNull();
-        var tl1 = add(catalog, "tl1", origName);
+        GeoServerTileLayerInfo tl1 = add(catalog, "tl1", origName);
         assertThat(caching.namesById.get("tl1"))
                 .as("create event should have added the id->name mapping")
                 .isNotNull()
@@ -164,7 +164,7 @@ class CachingTileLayerCatalogTest {
     @Test
     public void save() {
         add(caching, "tl1");
-        var tl = add(caching, "tl2");
+        GeoServerTileLayerInfo tl = add(caching, "tl2");
 
         tl.setEnabled(false);
         tl.setMetaTilingX(9);

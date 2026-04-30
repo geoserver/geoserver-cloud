@@ -10,7 +10,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.TypeSpec;
@@ -33,7 +35,10 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.spring.config.transpiler.context.TranspilationContext;
+import org.geoserver.spring.config.transpiler.generator.ComponentScanBeanGenerator;
 import org.geoserver.spring.config.transpiler.generator.Reflections;
+import org.geoserver.spring.config.transpiler.xml.XmlBeanDefinitionParser;
 import org.junit.Assume;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -2048,13 +2053,13 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
 
     private com.palantir.javapoet.TypeSpec generateComponentScannedBeans(String componentScanXml, String[] excludes) {
 
-        var parsed = org.geoserver.spring.config.transpiler.xml.XmlBeanDefinitionParser.parseXmlContent(
-                BeanMethodGeneratorTestUtils.wrapInBeansRoot(componentScanXml));
+        XmlBeanDefinitionParser.ParsedXmlResult parsed =
+                XmlBeanDefinitionParser.parseXmlContent(BeanMethodGeneratorTestUtils.wrapInBeansRoot(componentScanXml));
 
-        var context = org.geoserver.spring.config.transpiler.context.TranspilationContext.forTesting(
-                "org.geoserver.test.generated", "TestConfig", false, false, excludes);
+        TranspilationContext context =
+                TranspilationContext.forTesting("org.geoserver.test.generated", "TestConfig", false, false, excludes);
 
-        var generator = new org.geoserver.spring.config.transpiler.generator.ComponentScanBeanGenerator();
+        ComponentScanBeanGenerator generator = new ComponentScanBeanGenerator();
         return generator.generateComponentScannedBeans(parsed.getComponentScans(), context);
     }
 
@@ -2079,7 +2084,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
                 """;
 
-        var typeSpec = generateComponentScannedBeans(xml);
+        TypeSpec typeSpec = generateComponentScannedBeans(xml);
         assertThat(typeSpec)
                 .as("Should generate inner class for component-scanned beans")
                 .isNotNull();
@@ -2108,7 +2113,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
                 """;
 
-        var typeSpec = generateComponentScannedBeans(xml);
+        TypeSpec typeSpec = generateComponentScannedBeans(xml);
         assertThat(typeSpec).isNotNull();
 
         MethodSpec method = findMethod(typeSpec, "componentWithDependency");
@@ -2133,7 +2138,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
                 """;
 
-        var typeSpec = generateComponentScannedBeans(xml);
+        TypeSpec typeSpec = generateComponentScannedBeans(xml);
         assertThat(typeSpec).isNotNull();
 
         MethodSpec method = findMethod(typeSpec, "componentWithAutowiredConstructor");
@@ -2159,7 +2164,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
                 """;
 
-        var typeSpec = generateComponentScannedBeans(xml);
+        TypeSpec typeSpec = generateComponentScannedBeans(xml);
         assertThat(typeSpec).isNotNull();
 
         MethodSpec method = findMethod(typeSpec, "packagePrivateConstructorComponent");
@@ -2186,7 +2191,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
                 """;
 
-        var typeSpec = generateComponentScannedBeans(xml);
+        TypeSpec typeSpec = generateComponentScannedBeans(xml);
         assertThat(typeSpec).isNotNull();
 
         List<String> methodNames =
@@ -2218,7 +2223,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 <context:component-scan base-package="org.geoserver.system.status"/>
                 """;
 
-        var typeSpec = generateComponentScannedBeans(xml);
+        TypeSpec typeSpec = generateComponentScannedBeans(xml);
         assertThat(typeSpec)
                 .as("Should generate inner class for org.geoserver.system.status")
                 .isNotNull();
@@ -2245,7 +2250,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 <context:component-scan base-package="com.nonexistent.empty.package"/>
                 """;
 
-        var typeSpec = generateComponentScannedBeans(xml);
+        TypeSpec typeSpec = generateComponentScannedBeans(xml);
         assertThat(typeSpec).as("Should return null when no components found").isNull();
     }
 
@@ -2257,7 +2262,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
                 """;
 
-        var typeSpec = generateComponentScannedBeans(xml);
+        TypeSpec typeSpec = generateComponentScannedBeans(xml);
         assertThat(typeSpec).isNotNull();
 
         // Verify class name
@@ -2267,7 +2272,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
         assertThat(typeSpec.modifiers()).contains(javax.lang.model.element.Modifier.STATIC);
 
         // Verify @Configuration(proxyBeanMethods = false)
-        var configAnnotation = typeSpec.annotations().stream()
+        AnnotationSpec configAnnotation = typeSpec.annotations().stream()
                 .filter(a -> a.type().toString().equals("org.springframework.context.annotation.Configuration"))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Missing @Configuration annotation"));
@@ -2283,7 +2288,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 <context:component-scan base-package="org.geoserver.spring.config.test.components, org.geoserver.system.status"/>
                 """;
 
-        var typeSpec = generateComponentScannedBeans(xml);
+        TypeSpec typeSpec = generateComponentScannedBeans(xml);
         assertThat(typeSpec).isNotNull();
 
         List<String> methodNames =
@@ -2485,8 +2490,8 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
 
             // Compare parameters (type and annotations)
             for (int i = 0; i < expected.getParameters().size(); i++) {
-                var expectedParam = expected.getParameters().get(i);
-                var actualParam = actual.getParameters().get(i);
+                Parameter expectedParam = expected.getParameters().get(i);
+                Parameter actualParam = actual.getParameters().get(i);
 
                 if (!expectedParam.getType().equals(actualParam.getType())) {
                     return false;

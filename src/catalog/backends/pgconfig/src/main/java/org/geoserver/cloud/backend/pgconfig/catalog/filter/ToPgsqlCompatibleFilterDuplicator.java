@@ -47,7 +47,7 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
      * @return
      */
     public static Filter adapt(Filter supportedFilter, Set<String> supportedPropertyNames) {
-        var adaptor = new ToPgsqlCompatibleFilterDuplicator(supportedPropertyNames);
+        ToPgsqlCompatibleFilterDuplicator adaptor = new ToPgsqlCompatibleFilterDuplicator(supportedPropertyNames);
         return (Filter) supportedFilter.accept(adaptor, null);
     }
 

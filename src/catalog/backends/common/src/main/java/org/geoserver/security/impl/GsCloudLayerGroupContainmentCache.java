@@ -6,6 +6,7 @@
 package org.geoserver.security.impl;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import org.geoserver.catalog.event.CatalogPostModifyEvent;
 import org.geoserver.catalog.event.CatalogRemoveEvent;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.LayerGroupStyleListener;
+import org.geoserver.catalog.util.CloseableIterator;
 import org.geotools.api.filter.Filter;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -124,7 +126,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
         /*
          * fix: make a single pass over the groups in a streaming way
          */
-        try (var groups = rawCatalog.list(LayerGroupInfo.class, Filter.INCLUDE)) {
+        try (CloseableIterator<LayerGroupInfo> groups = rawCatalog.list(LayerGroupInfo.class, Filter.INCLUDE)) {
             while (!abort && groups.hasNext()) {
                 LayerGroupInfo group = groups.next();
                 getGroupData(group);
@@ -356,7 +358,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
                 @NonNull LayerGroupSummary groupSummary, List<PublishedInfo> oldLayers, List<PublishedInfo> newLayers) {
 
             // do not rely on PublishedInfo.equals()...
-            var difference = Maps.difference(toIdMap(oldLayers), toIdMap(newLayers));
+            MapDifference<String, PublishedInfo> difference = Maps.difference(toIdMap(oldLayers), toIdMap(newLayers));
 
             Map<String, PublishedInfo> removedLayers = difference.entriesOnlyOnLeft();
             // process layers that are no longer contained

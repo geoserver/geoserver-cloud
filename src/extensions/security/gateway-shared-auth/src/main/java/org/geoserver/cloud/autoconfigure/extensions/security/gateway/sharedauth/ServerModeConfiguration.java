@@ -53,7 +53,7 @@ class ServerModeConfiguration {
 
     @Bean
     GatewaySharedAuthFilterPanelInfo gatewaySharedAuthPanelInfo() {
-        var panelInfo = new GatewaySharedAuthFilterPanelInfo();
+        GatewaySharedAuthFilterPanelInfo panelInfo = new GatewaySharedAuthFilterPanelInfo();
         panelInfo.setId("security.gatewaySharedAuthFilter");
         panelInfo.setShortTitleKey("GatewaySharedAuthFilterPanel.short");
         panelInfo.setTitleKey("GatewaySharedAuthFilterPanel.title");

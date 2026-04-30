@@ -85,8 +85,8 @@ public class GatewaySharedAuthenticationPreFilter implements GlobalFilter, Order
         final String username = session.getAttribute(X_GSCLOUD_USERNAME);
         if (StringUtils.hasText(username)) {
             final List<String> roles = session.getAttributeOrDefault(X_GSCLOUD_ROLES, List.of());
-            final var origRequest = exchange.getRequest();
-            var request = origRequest
+            final ServerHttpRequest origRequest = exchange.getRequest();
+            ServerHttpRequest request = origRequest
                     .mutate()
                     .headers(headers -> {
                         headers.set(X_GSCLOUD_USERNAME, username);
@@ -119,8 +119,8 @@ public class GatewaySharedAuthenticationPreFilter implements GlobalFilter, Order
 
     private ServerWebExchange removeRequestHeaders(ServerWebExchange exchange) {
         if (impersonationAttempt(exchange)) {
-            var origRequest = exchange.getRequest();
-            var request = exchange.getRequest()
+            ServerHttpRequest origRequest = exchange.getRequest();
+            ServerHttpRequest request = exchange.getRequest()
                     .mutate()
                     .headers(headers -> removeRequestHeaders(origRequest, headers))
                     .build();

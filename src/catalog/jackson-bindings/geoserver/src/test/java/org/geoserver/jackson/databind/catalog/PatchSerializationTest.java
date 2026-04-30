@@ -752,8 +752,8 @@ public abstract class PatchSerializationTest {
 
         assertThat(decoded.get("cogSettings"), CoreMatchers.instanceOf(CogSettings.class));
         assertThat(decoded.get("cogSettingsStore"), CoreMatchers.instanceOf(CogSettingsStore.class));
-        var c = (CogSettings) decoded.get("cogSettings");
-        var s = (CogSettingsStore) decoded.get("cogSettingsStore");
+        CogSettings c = (CogSettings) decoded.get("cogSettings");
+        CogSettingsStore s = (CogSettingsStore) decoded.get("cogSettingsStore");
         assertNotNull(c);
         assertNotNull(s);
 

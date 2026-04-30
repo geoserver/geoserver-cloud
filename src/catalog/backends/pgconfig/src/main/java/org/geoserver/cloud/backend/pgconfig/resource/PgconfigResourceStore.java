@@ -343,7 +343,7 @@ public class PgconfigResourceStore implements ResourceStore {
         final List<PgconfigResource> allChildren = findAllChildren(source);
         final String oldParentPath = source.path();
         final String newParentPath = target.path();
-        for (var child : allChildren) {
+        for (PgconfigResource child : allChildren) {
             String oldPath = child.path();
             String relativePath = oldPath.substring(oldParentPath.length());
             String newPath = newParentPath + relativePath;
@@ -430,7 +430,7 @@ public class PgconfigResourceStore implements ResourceStore {
             // for pre 1.8.1 backwards compatibility, ignore resources that are only to be
             // stored in
             // the filesystem (e.g. tmp/, temp/, etc)
-            var resources = s.filter(r -> !fileSystemOnlyPathMatcher.test(r.path()));
+            Stream<PgconfigResource> resources = s.filter(r -> !fileSystemOnlyPathMatcher.test(r.path()));
             list = resources.map(Resource.class::cast).toList();
         }
         cache.updateAll(list);

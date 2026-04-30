@@ -20,9 +20,11 @@ import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBac
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryUpdateSequence;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
+import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.FileSystemResourceStore;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -58,6 +60,11 @@ class DataDirectoryAutoConfigurationTest {
                     "geoserver.backend.dataDirectory.enabled=true", //
                     "geoserver.backend.dataDirectory.location=%s".formatted(datadir.toAbsolutePath()) //
                     );
+
+    @BeforeEach
+    void beforeEach() {
+        GeoServerExtensionsHelper.init(null);
+    }
 
     @Test
     void testProperties() {

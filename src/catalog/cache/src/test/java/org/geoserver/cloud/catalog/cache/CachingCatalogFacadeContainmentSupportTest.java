@@ -223,7 +223,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     private void testEvictEvictsIdAndNameKeys(Class<? extends CatalogInfo> clazz) {
-        var info = stubWithRefs(clazz);
+        CatalogInfo info = stubWithRefs(clazz);
         InfoIdKey idKey = InfoIdKey.valueOf(info);
         InfoNameKey nameKey = InfoNameKey.valueOf(info);
 
@@ -275,7 +275,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     @Test
     @DisplayName("when a StoreInfo is evicted, the keys for StoreInfo and its concrete type are evicted")
     void testEvictStoreInfoEvictsTheGenericAndConcreteTypeKeys() {
-        var store = stubWithRefs(DataStoreInfo.class);
+        DataStoreInfo store = stubWithRefs(DataStoreInfo.class);
         InfoIdKey id = InfoIdKey.valueOf(store);
         InfoIdKey idGeneric = InfoIdKey.valueOf(id.id(), STORE);
         InfoNameKey name = InfoNameKey.valueOf(store);
@@ -295,7 +295,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     @Test
     @DisplayName("when a ResourceInfo is evicted, the keys for ResourceInfo and its concrete type are evicted")
     void testEvictResourceInfoEvictsTheGenericAndConcreteTypeKeys() {
-        var resource = stubWithRefs(FeatureTypeInfo.class);
+        FeatureTypeInfo resource = stubWithRefs(FeatureTypeInfo.class);
         InfoIdKey id = InfoIdKey.valueOf(resource);
         InfoIdKey idGeneric = InfoIdKey.valueOf(id.id(), RESOURCE);
         InfoNameKey name = InfoNameKey.valueOf(resource);
@@ -451,7 +451,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     private void assertNotCached(CatalogInfo... infos) {
-        for (var info : infos) {
+        for (CatalogInfo info : infos) {
             assertNotCached(info);
         }
     }
@@ -468,7 +468,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     private void assertAllCached(CatalogInfo... infos) {
-        for (var info : infos) {
+        for (CatalogInfo info : infos) {
             assertCached(info);
         }
     }
@@ -513,7 +513,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     private void put(CatalogInfo... infos) {
-        for (var info : infos) {
+        for (CatalogInfo info : infos) {
             support.put(() -> info);
         }
     }
@@ -552,25 +552,25 @@ class CachingCatalogFacadeContainmentSupportTest {
     private <C extends CatalogInfo> C stubWithRefs(Class<C> clazz) {
         C info = stub(clazz);
         if (info instanceof StoreInfo s) {
-            var ws = stub(WorkspaceInfo.class);
+            WorkspaceInfo ws = stub(WorkspaceInfo.class);
             when(s.getWorkspace()).thenReturn(ws);
         } else if (info instanceof ResourceInfo r) {
-            var n = stub(NamespaceInfo.class);
+            NamespaceInfo n = stub(NamespaceInfo.class);
             when(r.getNamespace()).thenReturn(n);
         } else if (info instanceof LayerInfo l) {
-            var r = stub(CoverageInfo.class);
-            var n = stub(NamespaceInfo.class);
+            CoverageInfo r = stub(CoverageInfo.class);
+            NamespaceInfo n = stub(NamespaceInfo.class);
             when(r.getNamespace()).thenReturn(n);
             when(l.getResource()).thenReturn(r);
         } else if (info instanceof LayerGroupInfo lg) {
-            var ws = stub(WorkspaceInfo.class);
+            WorkspaceInfo ws = stub(WorkspaceInfo.class);
             when(lg.getWorkspace()).thenReturn(ws);
         }
         return info;
     }
 
     private LayerInfo stubLayer(String name, StyleInfo defaultStyle, Set<StyleInfo> styles) {
-        var layer = stubReal(LayerInfo.class, name + "-id", name);
+        LayerInfo layer = stubReal(LayerInfo.class, name + "-id", name);
         layer.setDefaultStyle(defaultStyle);
         layer.getStyles().addAll(styles);
         return layer;
@@ -578,7 +578,7 @@ class CachingCatalogFacadeContainmentSupportTest {
 
     private LayerGroupInfo stubLayerGroup(String name, List<PublishedInfo> layers, List<StyleInfo> styles) {
 
-        var lg = stubReal(LayerGroupInfo.class, name + "-id", name);
+        LayerGroupInfo lg = stubReal(LayerGroupInfo.class, name + "-id", name);
         lg.getLayers().addAll(layers);
         lg.getStyles().addAll(styles);
         return lg;

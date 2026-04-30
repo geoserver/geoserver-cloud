@@ -60,7 +60,8 @@ class GeoToolsHttpClientAutoConfigurationTest {
 
     @Test
     void testInitializerSetsHttpClientFactorySystemProperty() {
-        final var expected = SpringEnvironmentAwareGeoToolsHttpClientFactory.class;
+        final Class<SpringEnvironmentAwareGeoToolsHttpClientFactory> expected =
+                SpringEnvironmentAwareGeoToolsHttpClientFactory.class;
 
         assertNull(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY));
         runner.run(context ->

@@ -39,7 +39,7 @@ class AuthKeyAutoConfigurationTest {
     @BeforeEach
     void mockBeanDependencies() {
         // Required for @ConditionalOnGeoServer
-        var mockGeoServer = mock(org.geoserver.config.GeoServer.class);
+        org.geoserver.config.GeoServer mockGeoServer = mock(org.geoserver.config.GeoServer.class);
         contextRunner = contextRunner
                 .withBean("geoServer", org.geoserver.config.GeoServer.class, () -> mockGeoServer)
                 .withBean(GeoServerSecurityManager.class, () -> mock(GeoServerSecurityManager.class));

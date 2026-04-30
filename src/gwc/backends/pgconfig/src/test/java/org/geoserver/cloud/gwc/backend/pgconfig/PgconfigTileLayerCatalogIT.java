@@ -78,11 +78,11 @@ class PgconfigTileLayerCatalogIT {
 
     @Test
     void testSimpleLayer() {
-        var layerInfo = support.layerInfo();
+        LayerInfo layerInfo = support.layerInfo();
 
         assertThat(tlCatalog.getLayer(layerInfo.prefixedName())).isEmpty();
 
-        var tl = support.geoServerTileLayer(layerInfo);
+        GeoServerTileLayer tl = support.geoServerTileLayer(layerInfo);
         tlCatalog.addLayer(tl);
         tlCatalog.getLayer(layerInfo.prefixedName());
 

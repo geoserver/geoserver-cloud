@@ -147,7 +147,8 @@ class GeoWebCacheAutoConfigurationTest {
                         assertThat(context).hasNotFailed();
                         assertThat(dir).isDirectory();
 
-                        var gwcConfigProps = context.getBean(GeoWebCacheConfigurationProperties.class);
+                        GeoWebCacheConfigurationProperties gwcConfigProps =
+                                context.getBean(GeoWebCacheConfigurationProperties.class);
                         assertThat(gwcConfigProps.getCacheDirectory()).isEqualTo(dir.toPath());
                     });
         });

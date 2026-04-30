@@ -46,10 +46,11 @@ class InfoEventResolver {
         configInfoResolver = CollectionPropertiesInitializer.<Info>instance()
                 .andThen(ResolvingProxyResolver.<Info>of(rawCatalog).onNotFound(onNotFound))::apply;
 
-        var catalogResolver = CatalogPropertyResolver.<CatalogInfo>of(rawCatalog);
-        var resolvingProxyResolver =
+        UnaryOperator<CatalogInfo> catalogResolver = CatalogPropertyResolver.<CatalogInfo>of(rawCatalog);
+        ResolvingProxyResolver<CatalogInfo> resolvingProxyResolver =
                 ResolvingProxyResolver.<CatalogInfo>of(rawCatalog).onNotFound(onNotFound);
-        var collectionsInitializer = CollectionPropertiesInitializer.<CatalogInfo>instance();
+        CollectionPropertiesInitializer<CatalogInfo> collectionsInitializer =
+                CollectionPropertiesInitializer.<CatalogInfo>instance();
 
         catalogInfoResolver = catalogResolver.andThen(collectionsInitializer).andThen(resolvingProxyResolver)::apply;
     }

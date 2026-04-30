@@ -46,7 +46,8 @@ class StripBasePath implements HandlerFilterFunction<ServerResponse, ServerRespo
             return next.handle(request);
         }
         // Delegate to the built-in stripPrefix before-filter
-        var strippedRequest = BeforeFilterFunctions.stripPrefix(partsToRemove).apply(request);
+        ServerRequest strippedRequest =
+                BeforeFilterFunctions.stripPrefix(partsToRemove).apply(request);
         return next.handle(strippedRequest);
     }
 

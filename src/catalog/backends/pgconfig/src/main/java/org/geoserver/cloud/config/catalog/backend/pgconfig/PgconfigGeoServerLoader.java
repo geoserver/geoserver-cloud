@@ -93,7 +93,7 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
         log.info("loading geoserver config with pgconfig loader");
 
         // to ensure we have a service configuration for every service we know about
-        var missingServices = findMissingServices(geoServer);
+        List<XStreamServiceLoader<? extends ServiceInfo>> missingServices = findMissingServices(geoServer);
 
         configLock.lock(LockType.READ);
         try {
@@ -156,8 +156,8 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
             log.info("initializing geoserver logging config");
             geoServer.setLogging(geoServer.getFactory().createLogging());
         }
-        for (var loader : missingServices) {
-            var serviceClass = loader.getServiceClass();
+        for (XStreamServiceLoader<? extends ServiceInfo> loader : missingServices) {
+            Class<? extends ServiceInfo> serviceClass = loader.getServiceClass();
             ServiceInfo service = geoServer.getService(serviceClass);
             if (service == null) {
                 log.info("creating default service config for {}", serviceClass.getSimpleName());
@@ -173,8 +173,8 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
 
     private List<XStreamServiceLoader<? extends ServiceInfo>> findMissingServices(GeoServer geoServer) {
 
-        var loaders = GeoServerExtensions.extensions(XStreamServiceLoader.class);
-        var missing = new ArrayList<XStreamServiceLoader<? extends ServiceInfo>>();
+        List<XStreamServiceLoader> loaders = GeoServerExtensions.extensions(XStreamServiceLoader.class);
+        ArrayList<XStreamServiceLoader<? extends ServiceInfo>> missing = new ArrayList<>();
         for (XStreamServiceLoader<?> loader : loaders) {
             ServiceInfo service = geoServer.getService(loader.getServiceClass());
             if (service == null) {

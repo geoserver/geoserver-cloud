@@ -133,7 +133,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
 
     private <I extends CatalogInfo> void evictNewName(final I info, final Patch patch) {
         newPrefixedName(info, patch).ifPresent(newPrefixexName -> {
-            var type = ConfigInfoType.valueOf(info);
+            ConfigInfoType type = ConfigInfoType.valueOf(info);
             support.evict(info.getId(), newPrefixexName, type);
         });
     }

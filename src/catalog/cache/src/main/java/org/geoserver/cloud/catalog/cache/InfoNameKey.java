@@ -48,7 +48,7 @@ record InfoNameKey(@NonNull String prefixedName, @NonNull ConfigInfoType type) i
 
     public InfoNameKey withLocalName(String localName) {
         Optional<String> prefix = InfoEvent.prefix(prefixedName());
-        var newPrefixedName = InfoEvent.prefixedName(prefix, localName);
+        String newPrefixedName = InfoEvent.prefixedName(prefix, localName);
         return new InfoNameKey(newPrefixedName, type());
     }
 }

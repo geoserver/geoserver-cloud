@@ -18,7 +18,7 @@ class GeoWebCacheApplicationDatadirTest extends GeoWebCacheApplicationTest {
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
-        var gwcdir = datadir.resolve("gwc");
+        Path gwcdir = datadir.resolve("gwc");
         if (!Files.exists(gwcdir)) {
             Files.createDirectory(gwcdir);
         }

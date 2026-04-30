@@ -67,7 +67,7 @@ class RemoteEventDataDirectoryProcessorTest {
     @BeforeEach
     void setUp() {
         mockFacade = mock(ExtendedCatalogFacade.class);
-        var catalog = mock(CatalogPlugin.class);
+        CatalogPlugin catalog = mock(CatalogPlugin.class);
         when(catalog.getFacade()).thenReturn(mockFacade);
         mockGeoServerFacade = mock(RepositoryGeoServerFacade.class);
         global = new GeoServerInfoImpl();
@@ -84,9 +84,9 @@ class RemoteEventDataDirectoryProcessorTest {
 
         assertThrows(NullPointerException.class, () -> new RemoteEventDataDirectoryProcessor(configFacade, null));
 
-        var catalogFacade = mock(ExtendedCatalogFacade.class);
+        ExtendedCatalogFacade catalogFacade = mock(ExtendedCatalogFacade.class);
         when(rawCatalog.getFacade()).thenReturn(catalogFacade);
-        var p = new RemoteEventDataDirectoryProcessor(configFacade, rawCatalog);
+        RemoteEventDataDirectoryProcessor p = new RemoteEventDataDirectoryProcessor(configFacade, rawCatalog);
         assertSame(catalogFacade, p.catalogFacade());
     }
 
@@ -260,7 +260,7 @@ class RemoteEventDataDirectoryProcessorTest {
         when(mockGeoServerFacade.getGlobal()).thenReturn(ModificationProxy.create(global, GeoServerInfo.class));
 
         global.setFeatureTypeCacheSize(1);
-        var proxied = mockGeoServerFacade.getGlobal();
+        GeoServerInfo proxied = mockGeoServerFacade.getGlobal();
         proxied.setFeatureTypeCacheSize(1000);
         Patch patch = PropertyDiff.valueOf(ModificationProxy.handler(proxied)).toPatch();
 
@@ -283,7 +283,7 @@ class RemoteEventDataDirectoryProcessorTest {
                 .thenReturn(ModificationProxy.create(settings, SettingsInfo.class));
 
         settings.setCharset("ISO-8859-1");
-        var proxied = mockGeoServerFacade.getSettings(settings.getId());
+        SettingsInfo proxied = mockGeoServerFacade.getSettings(settings.getId());
         proxied.setCharset("UTF-8");
         Patch patch = PropertyDiff.valueOf(ModificationProxy.handler(proxied)).toPatch();
 
@@ -304,7 +304,7 @@ class RemoteEventDataDirectoryProcessorTest {
                 .thenReturn(ModificationProxy.create(service, ServiceInfo.class));
 
         service.setTitle("old title");
-        var proxied = mockGeoServerFacade.getService(service.getId(), ServiceInfo.class);
+        ServiceInfo proxied = mockGeoServerFacade.getService(service.getId(), ServiceInfo.class);
         proxied.setTitle("new title");
         Patch patch = PropertyDiff.valueOf(ModificationProxy.handler(proxied)).toPatch();
 

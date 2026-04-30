@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
@@ -148,12 +149,12 @@ public class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
         public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
                 throws IOException, ServletException {
 
-            var pre = SecurityContextHolder.getContext().getAuthentication();
+            Authentication pre = SecurityContextHolder.getContext().getAuthentication();
             try {
                 super.doFilter(request, response, chain);
             } finally {
                 if (log.isDebugEnabled()) {
-                    var post = SecurityContextHolder.getContext().getAuthentication();
+                    Authentication post = SecurityContextHolder.getContext().getAuthentication();
                     HttpServletRequest req = (HttpServletRequest) request;
                     String preUsername = pre == null ? null : pre.getName();
                     String postUsername = post == null ? null : post.getName();
@@ -188,8 +189,8 @@ public class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
         protected Collection<GeoServerRole> getRoles(HttpServletRequest request, String principal) throws IOException {
             GeoServerRoleConverter roleConverter = super.getConverter();
 
-            var rolesHeader = getRolesHeaderAttribute();
-            var rolesEnum = request.getHeaders(rolesHeader);
+            String rolesHeader = getRolesHeaderAttribute();
+            Enumeration<String> rolesEnum = request.getHeaders(rolesHeader);
             return stream(rolesEnum.asIterator())
                     .filter(StringUtils::hasText)
                     .map(role -> roleConverter.convertRoleFromString(role, principal))
