@@ -17,6 +17,10 @@ on:
       - "src/**"
     tags:
       - '*'
+
+permissions:
+  contents: read
+
 # cancel in-progress jobs or runs for the current workflow
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

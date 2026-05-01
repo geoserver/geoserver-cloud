@@ -16,6 +16,9 @@ on:
       - "ci/**"
       - "compose/**"
 
+permissions:
+  contents: read
+
 # cancel in-progress jobs or runs for this workflow for the same pr or branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
