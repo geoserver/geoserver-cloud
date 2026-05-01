@@ -11,7 +11,6 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.geoserver.config.GeoServer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 /**
@@ -44,7 +43,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
  */
 // original idea was conditional on bean but it's a can of worms with all the forced spring initialization during
 // startup
-@ConditionalOnClass(GeoServer.class)
+@ConditionalOnClass(name = "org.geoserver.config.GeoServer")
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Inherited

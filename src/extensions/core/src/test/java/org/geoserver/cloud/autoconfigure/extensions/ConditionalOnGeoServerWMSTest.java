@@ -5,9 +5,11 @@
 
 package org.geoserver.cloud.autoconfigure.extensions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.geoserver.wms.DefaultWebMapService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,13 +26,17 @@ class ConditionalOnGeoServerWMSTest extends AbstractConditionalTest {
                 ConditionalTestComponent.class);
     }
 
+    @Test
+    void testConditionalActivationWithFilteredClassLoader() {
+        createContextRunner()
+                .withClassLoader(new FilteredClassLoader(DefaultWebMapService.class))
+                .withUserConfiguration(WmsTestConfiguration.class)
+                .withPropertyValues("geoserver.service.wms.enabled=true")
+                .run(context -> assertThat(context).doesNotHaveBean(ConditionalTestComponent.class));
+    }
+
     @Configuration
     static class WmsTestConfiguration {
-        @Bean
-        DefaultWebMapService wmsService() {
-            return Mockito.mock(DefaultWebMapService.class);
-        }
-
         @Bean
         @ConditionalOnGeoServerWMS
         ConditionalTestComponent conditionalComponent() {

@@ -5,12 +5,13 @@
 
 package org.geoserver.cloud.autoconfigure.extensions;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.geoserver.wps.DefaultWebProcessingService;
 import org.geoserver.wps.resource.WPSResourceManager;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,13 +30,18 @@ class ConditionalOnGeoServerWPSTest extends AbstractConditionalTest {
                 ConditionalTestComponent.class);
     }
 
+    @Test
+    void testConditionalActivationWithFilteredClassLoader() {
+        createContextRunner()
+                .withBean("wpsResourceManager", WPSResourceManager.class, () -> mock(WPSResourceManager.class))
+                .withClassLoader(new FilteredClassLoader(DefaultWebProcessingService.class))
+                .withUserConfiguration(WpsTestConfiguration.class)
+                .withPropertyValues("geoserver.service.wps.enabled=true")
+                .run(context -> assertThat(context).doesNotHaveBean(ConditionalTestComponent.class));
+    }
+
     @Configuration
     static class WpsTestConfiguration {
-        @Bean
-        DefaultWebProcessingService wpsService() {
-            return Mockito.mock(DefaultWebProcessingService.class);
-        }
-
         @Bean
         @ConditionalOnGeoServerWPS
         ConditionalTestComponent conditionalComponent() {

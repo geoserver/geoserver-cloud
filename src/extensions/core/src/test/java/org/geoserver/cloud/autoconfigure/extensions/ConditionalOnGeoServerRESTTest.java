@@ -5,9 +5,11 @@
 
 package org.geoserver.cloud.autoconfigure.extensions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.geoserver.rest.security.RestConfigXStreamPersister;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,13 +26,17 @@ class ConditionalOnGeoServerRESTTest extends AbstractConditionalTest {
                 ConditionalTestComponent.class);
     }
 
+    @Test
+    void testConditionalActivationWithFilteredClassLoader() {
+        createContextRunner()
+                .withClassLoader(new FilteredClassLoader(RestConfigXStreamPersister.class))
+                .withUserConfiguration(RestTestConfiguration.class)
+                .withPropertyValues("geoserver.service.restconfig.enabled=true")
+                .run(context -> assertThat(context).doesNotHaveBean(ConditionalTestComponent.class));
+    }
+
     @Configuration
     static class RestTestConfiguration {
-        @Bean
-        RestConfigXStreamPersister restConfigXStreamPersister() {
-            return Mockito.mock(RestConfigXStreamPersister.class);
-        }
-
         @Bean
         @ConditionalOnGeoServerREST
         ConditionalTestComponent conditionalComponent() {

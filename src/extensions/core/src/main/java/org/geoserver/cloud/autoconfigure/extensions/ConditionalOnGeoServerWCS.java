@@ -53,6 +53,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnGeoServer
-@ConditionalOnClass(org.geoserver.wcs.responses.CoverageResponseDelegateFinder.class)
+@ConditionalOnClass(name = "org.geoserver.wcs.responses.CoverageResponseDelegateFinder")
 @ConditionalOnProperty(name = "geoserver.service.wcs.enabled", havingValue = "true", matchIfMissing = false)
 public @interface ConditionalOnGeoServerWCS {}

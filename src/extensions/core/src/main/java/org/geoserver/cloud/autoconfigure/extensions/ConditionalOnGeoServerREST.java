@@ -56,6 +56,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnGeoServer
-@ConditionalOnClass(org.geoserver.rest.security.RestConfigXStreamPersister.class)
+@ConditionalOnClass(name = "org.geoserver.rest.security.RestConfigXStreamPersister")
 @ConditionalOnProperty(name = "geoserver.service.restconfig.enabled", havingValue = "true", matchIfMissing = false)
 public @interface ConditionalOnGeoServerREST {}

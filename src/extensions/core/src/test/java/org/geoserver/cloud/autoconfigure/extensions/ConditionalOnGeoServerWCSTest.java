@@ -5,9 +5,11 @@
 
 package org.geoserver.cloud.autoconfigure.extensions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.geoserver.wcs.responses.CoverageResponseDelegateFinder;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,13 +26,17 @@ class ConditionalOnGeoServerWCSTest extends AbstractConditionalTest {
                 ConditionalTestComponent.class);
     }
 
+    @Test
+    void testConditionalActivationWithFilteredClassLoader() {
+        createContextRunner()
+                .withClassLoader(new FilteredClassLoader(CoverageResponseDelegateFinder.class))
+                .withUserConfiguration(WcsTestConfiguration.class)
+                .withPropertyValues("geoserver.service.wcs.enabled=true")
+                .run(context -> assertThat(context).doesNotHaveBean(ConditionalTestComponent.class));
+    }
+
     @Configuration
     static class WcsTestConfiguration {
-        @Bean
-        CoverageResponseDelegateFinder coverageResponseDelegateFinder() {
-            return Mockito.mock(CoverageResponseDelegateFinder.class);
-        }
-
         @Bean
         @ConditionalOnGeoServerWCS
         ConditionalTestComponent conditionalComponent() {

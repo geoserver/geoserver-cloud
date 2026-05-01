@@ -5,9 +5,11 @@
 
 package org.geoserver.cloud.autoconfigure.extensions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.geoserver.wfs.DefaultWebFeatureService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,13 +26,17 @@ class ConditionalOnGeoServerWFSTest extends AbstractConditionalTest {
                 ConditionalTestComponent.class);
     }
 
+    @Test
+    void testConditionalActivationWithFilteredClassLoader() {
+        createContextRunner()
+                .withClassLoader(new FilteredClassLoader(DefaultWebFeatureService.class))
+                .withUserConfiguration(WfsTestConfiguration.class)
+                .withPropertyValues("geoserver.service.wfs.enabled=true")
+                .run(context -> assertThat(context).doesNotHaveBean(ConditionalTestComponent.class));
+    }
+
     @Configuration
     static class WfsTestConfiguration {
-        @Bean
-        DefaultWebFeatureService wfsService() {
-            return Mockito.mock(DefaultWebFeatureService.class);
-        }
-
         @Bean
         @ConditionalOnGeoServerWFS
         ConditionalTestComponent conditionalComponent() {

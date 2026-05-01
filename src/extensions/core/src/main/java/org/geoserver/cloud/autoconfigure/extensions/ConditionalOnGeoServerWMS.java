@@ -53,6 +53,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnGeoServer
-@ConditionalOnClass(org.geoserver.wms.DefaultWebMapService.class)
+@ConditionalOnClass(name = "org.geoserver.wms.DefaultWebMapService")
 @ConditionalOnProperty(name = "geoserver.service.wms.enabled", havingValue = "true", matchIfMissing = false)
 public @interface ConditionalOnGeoServerWMS {}

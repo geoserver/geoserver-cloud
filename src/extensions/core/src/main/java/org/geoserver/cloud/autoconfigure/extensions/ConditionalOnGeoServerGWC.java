@@ -52,6 +52,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnGeoServer
-@ConditionalOnClass(org.geowebcache.GeoWebCache.class)
+@ConditionalOnClass(name = "org.geowebcache.GeoWebCache")
 @ConditionalOnProperty(name = "geoserver.service.gwc.enabled", havingValue = "true", matchIfMissing = false)
 public @interface ConditionalOnGeoServerGWC {}

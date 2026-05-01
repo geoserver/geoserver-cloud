@@ -53,6 +53,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnGeoServer
-@ConditionalOnClass(org.geoserver.wfs.DefaultWebFeatureService.class)
+@ConditionalOnClass(name = "org.geoserver.wfs.DefaultWebFeatureService")
 @ConditionalOnProperty(name = "geoserver.service.wfs.enabled", havingValue = "true", matchIfMissing = false)
 public @interface ConditionalOnGeoServerWFS {}
