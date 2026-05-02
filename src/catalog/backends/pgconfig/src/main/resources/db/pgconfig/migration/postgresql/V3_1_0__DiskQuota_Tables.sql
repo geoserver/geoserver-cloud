@@ -1,0 +1,39 @@
+/*
+ * GeoWebCache JDBC Disk Quota tables.
+ *
+ * Mirrors the DDL in org.geowebcache.diskquota.jdbc.SQLDialect#TABLE_CREATION_MAP
+ * (PostgreSQL flavor) so that JDBCQuotaStore.initialize() finds the tables and
+ * skips its own DDL via the tableExists() check at startup.
+ *
+ * Created in the pgconfig schema (whatever Flyway is configured with), so the
+ * disk quota store shares the pgconfig DataSource and schema. The JDBC quota
+ * store is wired up by PgconfigDiskQuotaAutoConfiguration when both
+ * geoserver.backend.pgconfig.enabled=true and gwc.disk-quota.enabled=true.
+ */
+CREATE TABLE IF NOT EXISTS TILESET (
+  KEY VARCHAR(320) PRIMARY KEY,
+  LAYER_NAME VARCHAR(128),
+  GRIDSET_ID VARCHAR(32),
+  BLOB_FORMAT VARCHAR(64),
+  PARAMETERS_ID VARCHAR(41),
+  BYTES NUMERIC(21) NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS TILESET_LAYER ON TILESET(LAYER_NAME);
+
+CREATE TABLE IF NOT EXISTS TILEPAGE (
+  KEY VARCHAR(320) PRIMARY KEY,
+  TILESET_ID VARCHAR(320) REFERENCES TILESET(KEY) ON UPDATE CASCADE ON DELETE CASCADE, 
+  PAGE_Z SMALLINT,
+  PAGE_X INTEGER,
+  PAGE_Y INTEGER,
+  CREATION_TIME_MINUTES INTEGER,
+  FREQUENCY_OF_USE FLOAT,
+  LAST_ACCESS_TIME_MINUTES INTEGER,
+  FILL_FACTOR FLOAT,
+  NUM_HITS NUMERIC(64)
+);
+
+CREATE INDEX IF NOT EXISTS TILEPAGE_TILESET ON TILEPAGE(TILESET_ID, FILL_FACTOR);
+CREATE INDEX IF NOT EXISTS TILEPAGE_FREQUENCY ON TILEPAGE(FREQUENCY_OF_USE DESC);
+CREATE INDEX IF NOT EXISTS TILEPAGE_LAST_ACCESS ON TILEPAGE(LAST_ACCESS_TIME_MINUTES DESC);

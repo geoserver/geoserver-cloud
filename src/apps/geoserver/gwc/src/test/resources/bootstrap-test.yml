@@ -24,3 +24,37 @@ logging:
     org.geowebcache.config.XMLConfiguration: off
     org.springframework.test: info
     org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader: off
+
+---
+spring.config.activate.on-profile: pgconfig-diskquota
+geoserver:
+  acl.enabled: false
+  security.enabled: true
+  backend:
+    data-directory:
+      enabled: false
+      location: # set by test classes (used as base for the gwc cache directory)
+    pgconfig:
+      enabled: true
+      initialize: true
+      schema: ${pgconfig.schema:pgconfig}
+      create-schema: true
+      datasource:
+        jndi-name: java:comp/env/jdbc/pgconfig
+jndi:
+  datasources:
+    pgconfig:
+      enabled: true
+      schema: ${pgconfig.schema:pgconfig}
+      wait-for-it: true
+      wait-timeout: 10
+      url: jdbc:postgresql://${pgconfig.host}:${pgconfig.port}/${pgconfig.database}
+      username: ${pgconfig.username}
+      password: ${pgconfig.password}
+      maximum-pool-size: 10
+      minimum-idle: 0
+      connection-timeout: 2500
+      idle-timeout: 60000
+gwc:
+  disk-quota:
+    enabled: true

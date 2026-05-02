@@ -29,6 +29,8 @@ import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.gwc.GWC;
+import org.geoserver.gwc.GWCSynchEnv;
 import org.geoserver.gwc.config.GWCConfig;
 import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
@@ -36,6 +38,7 @@ import org.geoserver.ows.LocalWorkspace;
 import org.geowebcache.config.BaseConfiguration;
 import org.geowebcache.grid.GridSetBroker;
 import org.geowebcache.layer.TileLayer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -48,6 +51,7 @@ class PgconfigTileLayerCatalogTest {
     private PgconfigTileLayerCatalog tlCatalog;
     private TileLayerMocking support;
     private GWCConfigPersister defaultsProvider;
+    private GWC gwcMediator;
 
     @BeforeEach
     void setUp() {
@@ -58,6 +62,15 @@ class PgconfigTileLayerCatalogTest {
         when(defaultsProvider.getConfig()).thenReturn(defaults);
         tlCatalog =
                 new PgconfigTileLayerCatalog(repository, support.getGridsets(), support.catalog(), defaultsProvider);
+
+        // Install a mock GWC singleton so removeLayer's bridge to GWC.layerRemoved doesn't NPE
+        gwcMediator = mock(GWC.class);
+        GWC.set(gwcMediator, mock(GWCSynchEnv.class));
+    }
+
+    @AfterEach
+    void tearDown() {
+        GWC.set(null, null);
     }
 
     @Test
@@ -273,6 +286,36 @@ class PgconfigTileLayerCatalogTest {
         } finally {
             LocalWorkspace.remove();
         }
+    }
+
+    @Test
+    void testRemoveLayer_bridges_to_GWC_layerRemoved() {
+        tlCatalog.removeLayer("ws1:layer1");
+        verify(repository, times(1)).delete("ws1", "layer1");
+        verify(gwcMediator, times(1)).layerRemoved("ws1:layer1");
+
+        clearInvocations(repository, gwcMediator);
+        tlCatalog.removeLayer("globalgroup");
+        verify(repository, times(1)).delete(null, "globalgroup");
+        verify(gwcMediator, times(1)).layerRemoved("globalgroup");
+
+        clearInvocations(repository, gwcMediator);
+        WorkspaceInfo localWs = support.workspace("ws3");
+        LocalWorkspace.set(localWs);
+        try {
+            tlCatalog.removeLayer("named");
+            verify(repository, times(1)).delete("ws3", "named");
+            verify(gwcMediator, times(1)).layerRemoved("ws3:named");
+        } finally {
+            LocalWorkspace.remove();
+        }
+    }
+
+    @Test
+    void testRemoveLayer_no_GWC_singleton_is_safe() {
+        GWC.set(null, null);
+        tlCatalog.removeLayer("ws1:layer1");
+        verify(repository, times(1)).delete("ws1", "layer1");
     }
 
     @Test
