@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoServerWebUIEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GoServerWebUIConfigurationProperties;
+import org.geoserver.cloud.autoconfigure.gwc.core.DiskQuotaAutoConfiguration;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.config.GeoServer;
 import org.geoserver.gwc.GWC;
@@ -37,9 +38,8 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.web.gwc")
 public class GeoServerWebUIAutoConfiguration {
 
-    /*
-     * Disable disk-quota by brute force for now. We need to resolve how and where to store the
-     * configuration and database.
+    /**
+     * Exclude disk-quota web components, {@link DiskQuotaAutoConfiguration} handles it.
      */
     static final String EXCLUDED_BEANS = "diskQuotaMenuPage|wmtsServiceDescriptor";
 

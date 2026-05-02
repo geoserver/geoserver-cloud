@@ -20,7 +20,7 @@ target
 webapp
 
 docker-compose_datadir*
-
+hs_err_pid*.log
 node_modules
 package-lock.json
 package.json
