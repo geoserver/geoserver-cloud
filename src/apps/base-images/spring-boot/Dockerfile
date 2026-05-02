@@ -5,6 +5,8 @@ FROM $REPOSITORY/gs-cloud-base-jre:$TAG AS builder
 
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
+WORKDIR /builder
+
 COPY ${JAR_FILE} application.jar
 
 RUN java -Djarmode=layertools -jar application.jar extract
@@ -31,13 +33,13 @@ WORKDIR /opt/app/bin
 EXPOSE 8080
 EXPOSE 8081
 
-COPY --from=builder dependencies/ ./
+COPY --from=builder /builder/dependencies/ ./
 #see https://github.com/moby/moby/issues/37965
 RUN true
-COPY --from=builder snapshot-dependencies/ ./
+COPY --from=builder /builder/snapshot-dependencies/ ./
 #see https://github.com/moby/moby/issues/37965
 RUN true
-COPY --from=builder spring-boot-loader/ ./
+COPY --from=builder /builder/spring-boot-loader/ ./
 
 HEALTHCHECK \
 --interval=10s \
