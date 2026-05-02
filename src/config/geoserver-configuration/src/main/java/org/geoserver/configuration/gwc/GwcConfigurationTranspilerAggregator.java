@@ -57,7 +57,14 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
         locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-diskquota-context.xml",
         targetClass = "GwcDiskQuotaContextConfiguration",
         publicAccess = true,
-        excludes = {"DiskQuotaConfigLoader"})
+        excludes = {
+            // Replaced in DiskQuotaAutoConfiguration: the transpiler picks the wrong constructor.
+            "DiskQuotaConfigLoader",
+            // Replaced in DiskQuotaAutoConfiguration (fallback) and PgconfigDiskQuotaAutoConfiguration
+            // (pgconfig-aware subclass). Excluding lets backends override via standard bean wiring
+            // instead of relying on bean-definition overriding to win against the XML import.
+            "DiskQuotaStoreProvider"
+        })
 @TranspileXmlConfig(
         locations = "jar:gs-gwc-rest-[0-9]+.*!/applicationContext.xml",
         componentScanStrategy = ComponentScanStrategy.GENERATE,
@@ -96,13 +103,20 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
         publicAccess = true,
         excludes = {
             /*
-             * Disable disk-quota by brute force for now. We need to resolve how and where to store the
-             * configuration and database.
+             * diskQuotaMenuPage: excluded here and contributed separately by
+             * GwcDiskQuotaWebUIConfiguration, gated on gwc.disk-quota.enabled by
+             * DiskQuotaAutoConfiguration's DisquotaWebUIAutoConfiguration.
              *
              * wmtsServiceDescriptor: replaced by CloudGWCServiceDescriptionProvider
              */
             "diskQuotaMenuPage"
         })
+@TranspileXmlConfig(
+        locations = "jar:gs-web-gwc-.*!/applicationContext.xml",
+        targetClass = "GwcDiskQuotaWebUIConfiguration",
+        publicAccess = true,
+        // Server -> DiskQuota admin page; imported only when gwc.disk-quota.enabled=true.
+        includes = {"diskQuotaMenuPage"})
 @TranspileXmlConfig(
         locations = "jar:gs-wfs-core-.*!/applicationContext.xml",
         targetClass = "GwcWfsMinimalConfiguration",

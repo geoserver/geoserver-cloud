@@ -25,6 +25,7 @@ import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
 import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
+import org.geoserver.gwc.GWC;
 import org.geoserver.gwc.config.GWCConfig;
 import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
@@ -169,6 +170,34 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
             workspaceName = localWorkspace.getName();
         }
         repository.delete(workspaceName, localName);
+        notifyBlobStoreLayerRemoved(prefixedName(workspaceName, localName));
+    }
+
+    /**
+     * Bridge to {@link GWC#layerRemoved(String)} so the {@link org.geowebcache.storage.StorageBroker} deletes the
+     * on-disk blob store directory and fires {@code BlobStoreListener.layerDeleted} (which lets
+     * {@code DiskQuotaMonitor} drop the layer's quota rows). Vanilla GeoServer's
+     * {@code CatalogConfiguration.removeLayer} does the equivalent call; without it the pgconfig backend leaves orphan
+     * blob directories and stale quota rows.
+     *
+     * <p>{@link GWC#get()} throws {@link NullPointerException} if the static singleton hasn't been initialized yet
+     * (typical in unit tests that don't wire a full Spring context). In that case the bridge is a no-op.
+     */
+    private void notifyBlobStoreLayerRemoved(String prefixedLayerName) {
+        GWC mediator;
+        try {
+            mediator = GWC.get();
+        } catch (NullPointerException npe) {
+            return;
+        }
+        if (mediator == null) {
+            return;
+        }
+        mediator.layerRemoved(prefixedLayerName);
+    }
+
+    private String prefixedName(String workspaceName, String localName) {
+        return workspaceName == null ? localName : workspaceName + ":" + localName;
     }
 
     @Override
