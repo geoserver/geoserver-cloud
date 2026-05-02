@@ -3,6 +3,8 @@ ARG TAG=latest
 FROM $REPOSITORY/gs-cloud-base-jre:$TAG AS builder
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
+WORKDIR /builder
+
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
@@ -44,12 +46,12 @@ RUN mkdir -p /opt/app/data_directory /data/geowebcache \
 && chmod 0777 /opt/app/data_directory /data/geowebcache
 
 WORKDIR /opt/app/bin
-COPY --from=builder dependencies/ ./
-COPY --from=builder snapshot-dependencies/ ./
-COPY --from=builder spring-boot-loader/ ./
+COPY --from=builder /builder/dependencies/ ./
+COPY --from=builder /builder/snapshot-dependencies/ ./
+COPY --from=builder /builder/spring-boot-loader/ ./
 #see https://github.com/moby/moby/issues/37965
 RUN true
-COPY --from=builder application/ ./
+COPY --from=builder /builder/application/ ./
 
 # -----------------------------------------------------
 # Pre-install DuckDB extensions in the base image to create a shared layer for all GeoServer microservices
