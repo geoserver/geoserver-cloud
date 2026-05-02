@@ -6,6 +6,7 @@
 package org.geoserver.cloud.gwc.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.io.IOException;
@@ -93,19 +94,25 @@ class DiskQuotaControllerPgconfigIT {
         assertThat(body).contains("<globalQuota>");
     }
 
+    /**
+     * Note the GET/PUT root-element asymmetry, which is upstream GeoWebCache behavior (reproducible on a vanilla
+     * GeoServer): the PUT body uses the documented {@code gwcQuotaConfiguration} root (the controller parses it with
+     * {@code ConfigLoader}'s aliased XStream), but the GET response serializes the bean by its class name
+     * ({@code org.geowebcache.diskquota.DiskQuotaConfig}) because the GET path doesn't apply that alias.
+     */
     @Test
     void putThenGetRoundTripsCustomConfig() {
         TestRestTemplate authed = restTemplate.withBasicAuth("admin", "geoserver");
 
         String payload =
                 """
-                <org.geowebcache.diskquota.DiskQuotaConfig>
+                <gwcQuotaConfiguration>
                   <enabled>true</enabled>
                   <cacheCleanUpFrequency>5</cacheCleanUpFrequency>
                   <cacheCleanUpUnits>SECONDS</cacheCleanUpUnits>
                   <maxConcurrentCleanUps>4</maxConcurrentCleanUps>
                   <globalExpirationPolicyName>LFU</globalExpirationPolicyName>
-                </org.geowebcache.diskquota.DiskQuotaConfig>
+                </gwcQuotaConfiguration>
                 """;
 
         HttpHeaders headers = new HttpHeaders();
@@ -124,5 +131,58 @@ class DiskQuotaControllerPgconfigIT {
         assertThat(body).contains("<cacheCleanUpUnits>SECONDS</cacheCleanUpUnits>");
         assertThat(body).contains("<maxConcurrentCleanUps>4</maxConcurrentCleanUps>");
         assertThat(body).contains("<globalExpirationPolicyName>LFU</globalExpirationPolicyName>");
+    }
+
+    @Test
+    void putGlobalQuotaRoundTrips() {
+        TestRestTemplate authed = restTemplate.withBasicAuth("admin", "geoserver");
+
+        // The PUT parser reads the Quota as <value>/<units> via the Quota converter; the GET serializes the Quota by
+        // reflection (an <id>/<bytes> pair, no converter), so 750 MiB is read back as 786432000 bytes.
+        String payload =
+                """
+                <gwcQuotaConfiguration>
+                  <globalQuota>
+                    <value>750</value>
+                    <units>MiB</units>
+                  </globalQuota>
+                </gwcQuotaConfiguration>
+                """;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_XML);
+        ResponseEntity<String> putResp = authed.exchange(
+                "/gwc/rest/diskquota", HttpMethod.PUT, new HttpEntity<>(payload, headers), String.class);
+        assertThat(putResp.getStatusCode().is2xxSuccessful())
+                .as("PUT status: %s, body: %s", putResp.getStatusCode(), putResp.getBody())
+                .isTrue();
+
+        ResponseEntity<String> getResp = authed.getForEntity("/gwc/rest/diskquota", String.class);
+        assertThat(getResp.getStatusCode()).isEqualTo(OK);
+        assertThat(getResp.getBody())
+                .as("750 MiB should read back as 786432000 bytes")
+                .contains("<bytes>" + (750L * 1024 * 1024) + "</bytes>");
+    }
+
+    @Test
+    void postIsMethodNotAllowed() {
+        TestRestTemplate authed = restTemplate.withBasicAuth("admin", "geoserver");
+        ResponseEntity<String> resp = authed.postForEntity("/gwc/rest/diskquota", null, String.class);
+        assertThat(resp.getStatusCode()).isEqualTo(METHOD_NOT_ALLOWED);
+    }
+
+    @Test
+    void deleteIsMethodNotAllowed() {
+        TestRestTemplate authed = restTemplate.withBasicAuth("admin", "geoserver");
+        ResponseEntity<String> resp = authed.exchange("/gwc/rest/diskquota", HttpMethod.DELETE, null, String.class);
+        assertThat(resp.getStatusCode()).isEqualTo(METHOD_NOT_ALLOWED);
+    }
+
+    @Test
+    void getWithoutCredentialsIsRejected() {
+        ResponseEntity<String> resp = restTemplate.getForEntity("/gwc/rest/diskquota", String.class);
+        assertThat(resp.getStatusCode().value())
+                .as("unauthenticated status: %s", resp.getStatusCode())
+                .isIn(401, 403);
     }
 }
