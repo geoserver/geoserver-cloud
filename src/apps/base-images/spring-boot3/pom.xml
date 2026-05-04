@@ -15,6 +15,18 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version.annotations}</version>
+      </dependency>
       <!-- Override the parent's Spring Boot version with 3.x -->
       <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -22,6 +34,13 @@
         <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <!-- Override parent pom.xml's slf4j-api 1.7.36 pin (needed for Spring Boot 2.7's logback 1.2.x);
+             this module ships logback 1.5.x which requires slf4j-api 2.x -->
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.16</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
