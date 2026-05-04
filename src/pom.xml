@@ -176,7 +176,7 @@
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
@@ -212,7 +212,7 @@
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
@@ -369,7 +369,7 @@
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
@@ -453,7 +453,7 @@
         <exclusions>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -560,7 +560,7 @@
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
@@ -611,7 +611,7 @@
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
@@ -642,7 +642,7 @@
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
             <!-- exclude transitive from com.microsoft.azure:azure-storage-blob:jar:11.0.0 -->
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -658,7 +658,7 @@
           <exclusion>
             <groupId>org.apache.logging.log4j</groupId>
             <!-- exclude transitive from com.microsoft.azure:azure-storage-blob:jar:11.0.0 -->
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
           </exclusion>
         </exclusions>
       </dependency>

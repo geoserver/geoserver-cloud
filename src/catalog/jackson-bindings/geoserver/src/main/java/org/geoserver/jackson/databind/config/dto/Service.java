@@ -81,6 +81,9 @@ public abstract class Service extends ConfigInfoDto {
      */
     private Map<String, String> internationalAbstract;
 
+    /** @since 2.28.4 */
+    private List<String> disabledVersions;
+
     @Data
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
