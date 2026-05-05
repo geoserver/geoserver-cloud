@@ -98,11 +98,13 @@ jobs:
       pull-requests: read
       actions: read
     steps:
+      # Download the artifact outside the workspace: actions/checkout (below)
+      # would otherwise wipe it via `git clean -ffdx`.
       - name: Download PR artifacts
         uses: actions/download-artifact@v4
         with:
           name: sonar-pr-input
-          path: pr-input
+          path: ${{ runner.temp }}/sonar-pr-input
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -110,12 +112,14 @@ jobs:
       # code. Treat every field as untrusted; reject anything that does not
       # match the expected shape so later steps can rely on a clean baseline.
       - name: Read and validate PR metadata
+        env:
+          ARTIFACT_DIR: ${{ runner.temp }}/sonar-pr-input
         run: |
           set -euo pipefail
-          PR_NUMBER=$(jq -r .pr_number  pr-input/pr-meta.json)
-          PR_HEAD_SHA=$(jq -r .head_sha pr-input/pr-meta.json)
-          PR_HEAD_REF=$(jq -r .head_ref pr-input/pr-meta.json)
-          PR_BASE_REF=$(jq -r .base_ref pr-input/pr-meta.json)
+          PR_NUMBER=$(jq -r .pr_number  "$ARTIFACT_DIR/pr-meta.json")
+          PR_HEAD_SHA=$(jq -r .head_sha "$ARTIFACT_DIR/pr-meta.json")
+          PR_HEAD_REF=$(jq -r .head_ref "$ARTIFACT_DIR/pr-meta.json")
+          PR_BASE_REF=$(jq -r .base_ref "$ARTIFACT_DIR/pr-meta.json")
           # Only branches we actually maintain are valid bases.
           case "$PR_BASE_REF" in
             main|release/*) ;;
@@ -153,9 +157,12 @@ jobs:
       # adds pom.xml to the upload patterns, fail loudly rather than overlay
       # an attacker-controlled build script onto the trusted base checkout.
       - name: Refuse artifact if it carries a pom.xml
+        env:
+          ARTIFACT_DIR: ${{ runner.temp }}/sonar-pr-input
         run: |
           set -euo pipefail
-          if find pr-input -name pom.xml -print -quit | grep -q .; then
+          found=$(find "$ARTIFACT_DIR" -name pom.xml -print -quit)
+          if [ -n "$found" ]; then
             echo "ERROR: PR artifact contains pom.xml — refusing to overlay" >&2
             exit 1
           fi
@@ -163,9 +170,11 @@ jobs:
       # Fork sources are read passively by the analyzer, never executed.
       # Maven still drives analysis from the trusted base pom.xml.
       - name: Overlay fork sources and binaries
+        env:
+          ARTIFACT_DIR: ${{ runner.temp }}/sonar-pr-input
         run: |
           set -euo pipefail
-          cp -a pr-input/src/. src/
+          cp -a "$ARTIFACT_DIR/src/." src/
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -205,5 +214,7 @@ jobs:
         if: always()
         run: |
           rm -rf ~/.m2/repository/org/geoserver/cloud
-          find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} +
+          if [ -d ~/.m2/repository ]; then
+            find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} +
+          fi
 
