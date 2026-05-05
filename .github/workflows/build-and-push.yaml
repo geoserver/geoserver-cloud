@@ -60,7 +60,7 @@ jobs:
         cache: 'maven'
 
     - name: Set version
-      run: echo "VERSION=$(make -s show-version)" >> $GITHUB_ENV
+      run: echo "VERSION=$(make -s show-version)" >> "$GITHUB_ENV"
 
     - name: Package base images
       run: make package-base-images
@@ -122,7 +122,7 @@ jobs:
         java-version: '25'
 
     - name: Set version
-      run: echo "VERSION=$(make -s show-version)" >> $GITHUB_ENV
+      run: echo "VERSION=$(make -s show-version)" >> "$GITHUB_ENV"
 
     - name: Download amd64 digests
       uses: actions/download-artifact@v4
@@ -185,7 +185,7 @@ jobs:
         cache: 'maven'
 
     - name: Set version
-      run: echo "VERSION=$(make -s show-version)" >> $GITHUB_ENV
+      run: echo "VERSION=$(make -s show-version)" >> "$GITHUB_ENV"
 
     - name: Package infrastructure apps
       run: make package-infrastructure-images
@@ -254,7 +254,7 @@ jobs:
         cache: 'maven'
 
     - name: Set version
-      run: echo "VERSION=$(make -s show-version)" >> $GITHUB_ENV
+      run: echo "VERSION=$(make -s show-version)" >> "$GITHUB_ENV"
 
     - name: Package GeoServer app
       run: |
@@ -339,7 +339,7 @@ jobs:
         java-version: '25'
 
     - name: Set version
-      run: echo "VERSION=$(make -s show-version)" >> $GITHUB_ENV
+      run: echo "VERSION=$(make -s show-version)" >> "$GITHUB_ENV"
 
     - name: Create multi-platform manifests
       run: |
