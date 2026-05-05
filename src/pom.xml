@@ -34,7 +34,8 @@
     <gt.version>35-RC</gt.version>
     <wicket.version>10.7.0</wicket.version>
     <acl.version>3.0-RC3</acl.version>
-    <tileverse.version>1.3.4</tileverse.version>
+    <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
+    <tileverse.version>1.4.0</tileverse.version>
     <jackson.version>3.1.0</jackson.version>
     <jackson2.version>2.21.0</jackson2.version>
 
@@ -49,7 +50,6 @@
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <flyway.version>12.1.0</flyway.version>
-    <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
     <testcontainers.version>2.0.4</testcontainers.version>
     <fork.javac>false</fork.javac>
     <maven.compiler.release>${java.version}</maven.compiler.release>
