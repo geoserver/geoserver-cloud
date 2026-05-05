@@ -55,4 +55,4 @@ jobs:
       if: always()
       run: |
         rm -rf ~/.m2/repository/org/geoserver/cloud
-        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+        find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} +

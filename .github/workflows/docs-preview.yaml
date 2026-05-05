@@ -31,12 +31,12 @@ jobs:
         id: check
         run: |
           if [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
-            echo "is_fork=true" >> $GITHUB_OUTPUT
+            echo "is_fork=true" >> "$GITHUB_OUTPUT"
             echo "🔍 Fork PR detected - will run security checks"
           else
-            echo "is_fork=false" >> $GITHUB_OUTPUT
+            echo "is_fork=false" >> "$GITHUB_OUTPUT"
             echo "✅ Same-repo PR - security checks skipped (trusted)"
-            echo "safe=true" >> $GITHUB_OUTPUT
+            echo "safe=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -95,10 +95,10 @@ jobs:
 
           if [ "$SAFE" = "true" ]; then
             echo "✅ All changed files are safe (markdown, images, CSS only)"
-            echo "safe=true" >> $GITHUB_OUTPUT
+            echo "safe=true" >> "$GITHUB_OUTPUT"
           else
             echo "❌ Dangerous files detected - preview deployment skipped for security"
-            echo "safe=false" >> $GITHUB_OUTPUT
+            echo "safe=false" >> "$GITHUB_OUTPUT"
           fi
 
   build-preview:
@@ -151,13 +151,13 @@ jobs:
       id: preview-path
       run: |
         if [ "${{ github.event_name }}" = "pull_request_target" ]; then
-          echo "path=preview/pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-          echo "name=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "path=preview/pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          echo "name=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
         else
           BRANCH_NAME="${{ github.event.inputs.branch_name || github.ref_name }}"
           SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9-]/-/g')
-          echo "path=preview/branch-${SAFE_BRANCH_NAME}" >> $GITHUB_OUTPUT
-          echo "name=branch-${SAFE_BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "path=preview/branch-${SAFE_BRANCH_NAME}" >> "$GITHUB_OUTPUT"
+          echo "name=branch-${SAFE_BRANCH_NAME}" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Deploy to GitHub Pages Preview
