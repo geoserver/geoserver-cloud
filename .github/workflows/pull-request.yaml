@@ -45,15 +45,60 @@ jobs:
     - name: Validate source code formatting
       run: make lint-java
 
-    - name: Test
+    - name: Test with coverage
       run: |
-        make test
+        ./mvnw verify -Dfmt.skip -Dcoverage -ntp -T1C
+
+    # PR fields are routed through env vars and `jq --arg` rather than
+    # interpolated as `${{ }}` directly into the shell script: head.ref is
+    # attacker-controlled and would otherwise allow expression injection.
+    - name: Write PR metadata
+      if: github.event_name == 'pull_request'
+      env:
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+      run: |
+        jq -n \
+          --arg pr_number "$PR_NUMBER" \
+          --arg head_sha  "$PR_HEAD_SHA" \
+          --arg head_ref  "$PR_HEAD_REF" \
+          --arg base_ref  "$PR_BASE_REF" \
+          '{pr_number: $pr_number, head_sha: $head_sha, head_ref: $head_ref, base_ref: $base_ref}' \
+          > pr-meta.json
+
+    # The downstream sonarcloud.yaml workflow refuses to overlay any artifact
+    # that contains pom.xml. Do not add pom.xml to the patterns below: it
+    # would let a fork's build script execute in the privileged context.
+    - name: Upload Sonar input artifact
+      if: github.event_name == 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: sonar-pr-input
+        path: |
+          pr-meta.json
+          src/**/target/classes/**
+          src/**/target/test-classes/**
+          src/**/target/site/jacoco/jacoco.xml
+          src/**/target/surefire-reports/TEST-*.xml
+          src/**/target/failsafe-reports/TEST-*.xml
+          src/**/src/main/**
+          src/**/src/test/**
+          !src/**/target/*-bin.jar
+          !src/**/target/*-sources.jar
+          !src/**/target/*-javadoc.jar
+        if-no-files-found: error
+        retention-days: 1
+        compression-level: 6
 
     - name: Remove project jars from cached repository
       if: always()
       run: |
         rm -rf ~/.m2/repository/org/geoserver/cloud
-        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+        if [ -d ~/.m2/repository ]; then
+          find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} +
+        fi
 
   acceptance:
     name: Acceptance
@@ -137,4 +182,6 @@ jobs:
       if: always()
       run: |
         rm -rf ~/.m2/repository/org/geoserver/cloud
-        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+        if [ -d ~/.m2/repository ]; then
+          find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} +
+        fi

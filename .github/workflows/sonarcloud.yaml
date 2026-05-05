@@ -1,72 +1,225 @@
-# SonarCloud analysis for main branch pushes and PRs from the same repository
-
+# SonarCloud analysis
+#
+# Two execution paths share this file:
+#
+#   1. analyze-trunk: runs on push to main/release branches and on manual
+#      dispatch. The repository is checked out and the full Maven Sonar build
+#      is executed in the trusted base context.
+#
+#   2. analyze-pr: runs after the "Pull Request" workflow completes for a
+#      pull request. The base ref is checked out (never the PR head); the
+#      compiled bytecode, coverage reports and source files produced by that
+#      run are downloaded and overlaid onto the base checkout. Maven runs
+#      against the trusted base pom.xml, never the PR's pom.xml. This avoids
+#      executing arbitrary build plugins from forked pull requests while
+#      still allowing fork PRs to be analyzed and decorated.
 name: SonarCloud QA
+
 on:
-  workflow_dispatch:  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
   push:
     branches:
       - main
       - "release/**"
     paths:
       - ".github/workflows/sonarcloud.yaml"
-      - ".github/workflows/sonarcloud-fork-pr.yaml"
       - "pom.xml"
       - "src/**"
       - "Makefile"
       - "config"
       - "acceptance_tests/**"
       - "ci/**"
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_run:
+    workflows: ["Pull Request"]
+    types: [completed]
 
-# cancel in-progress jobs or runs for this workflow for the same pr or branch
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.workflow_run.id || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build and Analyze
+  analyze-trunk:
+    name: Analyze (trunk)
+    if: github.event_name != 'workflow_run'
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # Only run this workflow for PRs from the same repository, not forks
-    # For forks, the sonarcloud-fork-pr.yaml workflow will handle analysis
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-        submodules: recursive
-        show-progress: 'false'
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '25'
-        cache: 'maven'
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          show-progress: 'false'
 
-    - name: Analyze with Sonar
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-        -Dcoverage \
-        -Dsonar.projectKey=geoserver_geoserver-cloud \
-        -Dsonar.organization=geoserver \
-        -Dsonar.scanner.skipJreProvisioning=true \
-        -Dmaven.javadoc.skip=true \
-        -ntp \
-        -T1C
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'maven'
 
-    - name: Remove project jars from cached repository
-      run: |
-        rm -rf ~/.m2/repository/org/geoserver/cloud
-        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Analyze with Sonar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dcoverage \
+            -Dsonar.projectKey=geoserver_geoserver-cloud \
+            -Dsonar.organization=geoserver \
+            -Dsonar.scanner.skipJreProvisioning=true \
+            -Dmaven.javadoc.skip=true \
+            -ntp \
+            -T1C
+
+      - name: Remove project jars from cached repository
+        if: always()
+        run: |
+          rm -rf ~/.m2/repository/org/geoserver/cloud
+          if [ -d ~/.m2/repository ]; then
+            find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} +
+          fi
+
+  analyze-pr:
+    name: Analyze (PR)
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    steps:
+      # Download the artifact outside the workspace: actions/checkout (below)
+      # would otherwise wipe it via `git clean -ffdx`.
+      - name: Download PR artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sonar-pr-input
+          path: ${{ runner.temp }}/sonar-pr-input
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # The artifact came out of an unprivileged workflow run on the fork's
+      # code. Treat every field as untrusted; reject anything that does not
+      # match the expected shape so later steps can rely on a clean baseline.
+      - name: Read and validate PR metadata
+        env:
+          ARTIFACT_DIR: ${{ runner.temp }}/sonar-pr-input
+        run: |
+          set -euo pipefail
+          PR_NUMBER=$(jq -r .pr_number  "$ARTIFACT_DIR/pr-meta.json")
+          PR_HEAD_SHA=$(jq -r .head_sha "$ARTIFACT_DIR/pr-meta.json")
+          PR_HEAD_REF=$(jq -r .head_ref "$ARTIFACT_DIR/pr-meta.json")
+          PR_BASE_REF=$(jq -r .base_ref "$ARTIFACT_DIR/pr-meta.json")
+          # Only branches we actually maintain are valid bases.
+          case "$PR_BASE_REF" in
+            main|release/*) ;;
+            *) echo "Unexpected base ref: $PR_BASE_REF" >&2; exit 1 ;;
+          esac
+          # PR numbers from GitHub are always numeric.
+          case "$PR_NUMBER" in
+            ''|*[!0-9]*) echo "Invalid PR number: $PR_NUMBER" >&2; exit 1 ;;
+          esac
+          # A commit id is exactly 40 lowercase hex chars.
+          case "$PR_HEAD_SHA" in
+            *[!0-9a-f]*|"") echo "Invalid head SHA: $PR_HEAD_SHA" >&2; exit 1 ;;
+            ?????????????????????????????????????????) echo "Invalid head SHA length" >&2; exit 1 ;;
+            ????????????????????????????????????????) ;;
+            *) echo "Invalid head SHA length" >&2; exit 1 ;;
+          esac
+          {
+            echo "PR_NUMBER=$PR_NUMBER"
+            echo "PR_HEAD_SHA=$PR_HEAD_SHA"
+            echo "PR_HEAD_REF=$PR_HEAD_REF"
+            echo "PR_BASE_REF=$PR_BASE_REF"
+          } >> "$GITHUB_ENV"
+
+      # Always the base ref, never the PR head: checking out the head would
+      # reintroduce the vulnerability this split is designed to avoid.
+      - name: Checkout base ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PR_BASE_REF }}
+          fetch-depth: 0
+          submodules: recursive
+          show-progress: 'false'
+
+      # Defense in depth: if a future change to pull-request.yaml ever
+      # adds pom.xml to the upload patterns, fail loudly rather than overlay
+      # an attacker-controlled build script onto the trusted base checkout.
+      - name: Refuse artifact if it carries a pom.xml
+        env:
+          ARTIFACT_DIR: ${{ runner.temp }}/sonar-pr-input
+        run: |
+          set -euo pipefail
+          found=$(find "$ARTIFACT_DIR" -name pom.xml -print -quit)
+          if [ -n "$found" ]; then
+            echo "ERROR: PR artifact contains pom.xml — refusing to overlay" >&2
+            exit 1
+          fi
+
+      # Fork sources are read passively by the analyzer, never executed.
+      # Maven still drives analysis from the trusted base pom.xml.
+      - name: Overlay fork sources and binaries
+        env:
+          ARTIFACT_DIR: ${{ runner.temp }}/sonar-pr-input
+        run: |
+          set -euo pipefail
+          cp -a "$ARTIFACT_DIR/src/." src/
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'maven'
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      # No `verify` phase here: the bytecode and JaCoCo reports were produced
+      # in the unprivileged build and overlaid above. PR parameters are read
+      # from the validated env vars and shell-quoted to neutralize the
+      # branch-name expression-injection vector.
+      - name: Analyze PR with Sonar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=geoserver_geoserver-cloud \
+            -Dsonar.organization=geoserver \
+            -Dsonar.scanner.skipJreProvisioning=true \
+            -Dsonar.pullrequest.key="$PR_NUMBER" \
+            -Dsonar.pullrequest.branch="$PR_HEAD_REF" \
+            -Dsonar.pullrequest.base="$PR_BASE_REF" \
+            -Dmaven.javadoc.skip=true \
+            -ntp \
+            -T1C
+
+      - name: Remove project jars from cached repository
+        if: always()
+        run: |
+          rm -rf ~/.m2/repository/org/geoserver/cloud
+          if [ -d ~/.m2/repository ]; then
+            find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} +
+          fi
