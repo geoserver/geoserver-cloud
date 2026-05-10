@@ -36,7 +36,7 @@
     <acl.version>3.0-RC3</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
     <tileverse.version>1.4.0</tileverse.version>
-    <jackson.version>3.1.0</jackson.version>
+    <jackson.version>3.1.2</jackson.version>
     <jackson2.version>2.21.0</jackson2.version>
 
     <!-- default target java version, submodules may override -->
