@@ -1,18 +1,9 @@
+.*
 target
 !.mvn/wrapper/maven-wrapper.properties
 .mvn/wrapper
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
 ### IntelliJ IDEA ###
-.idea
 *.iws
 *.iml
 *.ipr
@@ -22,31 +13,14 @@ target
 /nbbuild/
 /dist/
 /nbdist/
-/.nb-gradle/
 /build/
 
 ### artifact created by test runs, under src/main/webapp on some projects
 ### TODO: get rid of them instead by fixing the tests to use in-memory or tmp folder catalogs
 webapp
 
-# https://bugs.openjdk.java.net/browse/JDK-8214300
-.attach_pid*
-
-.flattened-pom.xml
-
 docker-compose_datadir*
-/.metadata/
-
-.vscode
-
-# Yourkit Java Profiler docker compose env file with private token
-.env.yjp
-
 hs_err_pid*.log
-
-.spotless-index
-
-.venv
 node_modules
 package-lock.json
 package.json
