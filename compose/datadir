@@ -6,4 +6,4 @@ GSUID=$(id -u)
 GSGID=$(id -g)
 
 GS_USER="$GSUID:$GSGID" \
-docker compose -f compose.yml -f catalog-datadir.yml $@
+docker compose -f compose.yml -f catalog-datadir.yml "$@"
