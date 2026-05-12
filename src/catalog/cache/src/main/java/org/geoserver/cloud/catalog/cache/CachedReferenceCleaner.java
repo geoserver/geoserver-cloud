@@ -7,6 +7,7 @@ package org.geoserver.cloud.catalog.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.base.Stopwatch;
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
@@ -81,13 +82,47 @@ class CachedReferenceCleaner {
 
         CachedReferenceCleanerVisitor visitor = new CachedReferenceCleanerVisitor(cache, idKey);
 
-        return cache.values().stream()
+        int infoEvictions = cache.values().stream()
                 .filter(CatalogInfo.class::isInstance)
                 .map(CatalogInfo.class::cast)
                 .filter(info -> this.canReference(info, idKey))
                 .peek(i -> visited.incrementAndGet())
                 .map(visitor::cascadeEvict)
                 .reduce(0, (c1, c2) -> c1 + c2);
+
+        return infoEvictions + evictReferencingLayerLists(idKey, cache, visited);
+    }
+
+    /**
+     * Evicts cached {@code List<LayerInfo>} entries (produced by {@code
+     * CachingCatalogFacade.getLayers(ResourceInfo)} and keyed by {@code layers@<resourceId>}) when
+     * any layer in the list references the evicted object. The visitor-based traversal above only
+     * inspects {@link CatalogInfo} cache values, missing these list entries; without this pass, a
+     * workspace or namespace rename leaves the list cached with stale prefixed names embedded in
+     * each layer's resource, which then surfaces through {@code Catalog.getLayerByName(prefixed)}
+     * (which internally calls {@code getResource} then {@code getLayers}).
+     */
+    private int evictReferencingLayerLists(InfoIdKey idKey, ConcurrentMap<?, ?> cache, AtomicInteger visited) {
+        int evicted = 0;
+        for (var entry : cache.entrySet()) {
+            Object value = entry.getValue();
+            if (!(value instanceof List<?> list) || list.isEmpty()) {
+                continue;
+            }
+            if (!(list.get(0) instanceof LayerInfo)) {
+                continue;
+            }
+            visited.incrementAndGet();
+            boolean anyReferences = list.stream()
+                    .filter(LayerInfo.class::isInstance)
+                    .map(LayerInfo.class::cast)
+                    .anyMatch(layer -> canReference(layer, idKey));
+            if (anyReferences && cache.remove(entry.getKey()) != null) {
+                evicted++;
+                log.trace("cascade evicted layer list {} referencing {}", entry.getKey(), idKey.id());
+            }
+        }
+        return evicted;
     }
 
     /**
