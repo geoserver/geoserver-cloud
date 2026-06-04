@@ -97,12 +97,6 @@ If you're looking for instructions to just get *GeoServer Cloud* up and running 
 
 * The Helm Chart repository provides [examples](https://github.com/camptocamp/helm-geoserver-cloud/tree/master/examples) of how to start deploying on Kubernetes.
 
-## Status
-
-`v2.28.3.0` released on top of GeoServer `2.28.3`.
-
-Check out the full [Release Notes](https://github.com/geoserver/geoserver-cloud/releases) for a changelog.
-
 ## Contributing
 
 Please read [the contribution guidelines](CONTRIBUTING.md) before contributing pull requests to the GeoServer Cloud project.

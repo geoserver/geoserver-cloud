@@ -1,12 +1,12 @@
 # Releasing GeoServer Cloud
 
-This document describes the stable release process for GeoServer Cloud, using `v2.28.3.0` as the reference example.
+This document describes the stable release process for GeoServer Cloud, using `v2.28.4.0` as the reference example.
 
 ## Overview
 
 Stable releases are prepared on a dedicated branch named like:
 
-- `r2.28.3.0`
+- `r2.28.4.0`
 
 That branch contains:
 
@@ -17,7 +17,7 @@ That branch contains:
 
 The actual release is created by tagging that branch:
 
-- `v2.28.3.0`
+- `v2.28.4.0`
 
 Pushing the tag triggers the GitHub Actions workflow that builds, publishes, and signs the Docker images.
 
@@ -34,9 +34,9 @@ Before releasing, verify:
 - the target tag does not already exist
 - the local checkout is clean
 
-For `v2.28.3.0`, the prepared branch is:
+For `v2.28.4.0`, the prepared branch is:
 
-- `r2.28.3.0`
+- `r2.28.4.0`
 
 ## Release Branch Contents
 
@@ -48,12 +48,12 @@ A release-prepared branch is expected to contain these kinds of changes:
 - `compose/.env`: default image tag set to the release version
 - `README.md` and docs updated to reference the released version
 
-For `v2.28.3.0`, that means:
+For `v2.28.4.0`, that means:
 
-- `revision=2.28.3.0`
-- `gs.version=2.28.3.0`
+- `revision=2.28.4.0`
+- `gs.version=2.28.4.0`
 - `gt.version=34.3`
-- `TAG=2.28.3.0`
+- `TAG=2.28.4.0`
 
 ## Tag the Release
 
@@ -61,14 +61,14 @@ Fetch the latest refs and switch to the prepared release branch:
 
 ```bash
 git fetch origin --tags
-git switch r2.28.3.0
+git switch r2.28.4.0
 ```
 
 Create and push the tag:
 
 ```bash
-git tag -a v2.28.3.0 -m "GeoServer Cloud 2.28.3.0"
-git push origin v2.28.3.0
+git tag -a v2.28.4.0 -m "GeoServer Cloud 2.28.4.0"
+git push origin v2.28.4.0
 ```
 
 This should trigger the `Build and Push Docker images` workflow, that will prepare and publish the docker images for this version.
@@ -83,7 +83,7 @@ Fast-forward `release/2.28.x` to the release line:
 
 ```bash
 git switch release/2.28.x
-git merge --ff-only r2.28.3.0
+git merge --ff-only r2.28.4.0
 ```
 
 ## Revert the Release Version Stamp
@@ -143,8 +143,8 @@ Create the GitHub Release only after the Docker images have been successfully pu
 
 Use:
 
-- tag: `v2.28.3.0`
-- target: the tagged commit on `r2.28.3.0`
+- tag: `v2.28.4.0`
+- target: the tagged commit on `r2.28.4.0`
 
 Include at least:
 
