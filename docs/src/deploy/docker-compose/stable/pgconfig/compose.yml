@@ -83,6 +83,9 @@ x-gs-dependencies: &gs-dependencies
     condition: service_healthy
   acl:
     condition: service_healthy
+  init-volumes:
+    condition: service_completed_successfully
+    required: true
 
 volumes:
   geowebcache_data: # Stores GeoWebCache tile data
@@ -228,6 +231,14 @@ services:
         limits:
           cpus: '2.0'
           memory: 1G
+
+  # Initializes shared volume ownership so GeoServer services (running as 1000:1000) can write to them
+  init-volumes:
+    image: alpine:3.24.0
+    user: root
+    command: chown 1000:1000 /data/geowebcache
+    volumes:
+      - geowebcache_data:/data/geowebcache
 
   # GeoServer microservices
   wfs:
