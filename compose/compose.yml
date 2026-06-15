@@ -29,7 +29,7 @@ x-gs-dependencies: &gs-dependencies
 
 services:
   init-test-data:
-    image: alpine:3.18.4
+    image: alpine:3.24.0
     user: root
     volumes:
       - geoserver_data:/opt/geoserver_data

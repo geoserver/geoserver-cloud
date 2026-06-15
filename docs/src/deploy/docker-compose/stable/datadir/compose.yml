@@ -15,6 +15,9 @@ x-gs-dependencies: &gs-dependencies
   config:
     condition: service_healthy
     required: true
+  init-volumes:
+    condition: service_completed_successfully
+    required: true
 
 volumes:
   shared_data_directory:
@@ -92,6 +95,15 @@ services:
         limits:
           cpus: '4.0'
           memory: 1G
+
+  # Initializes shared volume ownership so GeoServer services (running as 1000:1000) can write to them
+  init-volumes:
+    image: alpine:3.24.0
+    user: root
+    command: chown 1000:1000 /opt/app/data_directory /data/geowebcache
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
+      - geowebcache_data:/data/geowebcache
 
   # GeoServer template service configuration
   geoserver_template:
