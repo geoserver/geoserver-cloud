@@ -33,7 +33,7 @@
     <gs.version>3.0.0-RC</gs.version>
     <gt.version>35-RC</gt.version>
     <wicket.version>10.7.0</wicket.version>
-    <acl.version>3.0-RC3</acl.version>
+    <acl.version>3.0.0</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
     <tileverse.version>1.4.0</tileverse.version>
     <jackson.version>3.1.2</jackson.version>
