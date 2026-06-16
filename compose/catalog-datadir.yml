@@ -8,15 +8,14 @@ name: gscloud_dev_datadir
 
 volumes:
   geowebcache_data:
-  data_directory:
-    driver_opts:
-      type: none
-      o: bind
-      device: ${CATALOG_DATADIR_PATH:-$PWD/catalog-datadir}
 
 # Append the shared data directory to the geoserver_volumes anchor
 x-volume-mounts: &geoserver_volumes
-  - data_directory:/opt/app/data_directory:z
+  - type: bind
+    source: ${CATALOG_DATADIR_PATH:-$PWD/catalog-datadir}
+    target: /opt/app/data_directory
+    bind:
+      selinux: z
 
 x-gs-dependencies: &gs-dependencies
   init-datadir:
@@ -31,7 +30,9 @@ services:
     user: root
     command: sh -c "cd /opt/app/data_directory; if [ ! -f global.xml ]; then tar xvzf /tmp/datadir.tgz; fi; chown -R ${GS_USER} /opt/app/data_directory"
     volumes:
-      - data_directory:/opt/app/data_directory
+      - type: bind
+        source: ${CATALOG_DATADIR_PATH:-$PWD/catalog-datadir}
+        target: /opt/app/data_directory
       - ./catalog-datadir.tgz:/tmp/datadir.tgz
   wfs:
     environment: *geoserver_environment
