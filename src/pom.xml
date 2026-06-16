@@ -23,17 +23,20 @@
     <!-- ================================ -->
     <!-- Project version management       -->
     <!-- ================================ -->
-    <spring-cloud.version>2025.1.1</spring-cloud.version>
-    <spring-boot.version>4.0.6</spring-boot.version>
+    <spring-cloud.version>2025.1.2</spring-cloud.version>
+    <spring-boot.version>4.0.7</spring-boot.version>
     <!-- match upstream geoserver dependencies -->
-    <spring.version>7.0.7</spring.version>
-    <spring.security.version>7.0.4</spring.security.version>
-    <spring-integration.version>7.0.4</spring-integration.version>
+    <spring.version>7.0.8</spring.version>
+    <spring.security.version>7.1.0</spring.security.version>
+    <spring-integration.version>7.1.0</spring-integration.version>
+    <!-- spring-integration 7.1.0 requires spring-amqp 4.1.x (MessageListenerContainer moved to the core
+         package); keep it aligned instead of letting spring-boot-dependencies pin the older 4.0.x -->
+    <spring-amqp.version>4.1.0</spring-amqp.version>
 
-    <gs.version>3.0.0-RC</gs.version>
-    <gt.version>35-RC</gt.version>
-    <wicket.version>10.7.0</wicket.version>
-    <acl.version>3.0-RC3</acl.version>
+    <gs.version>3.0.0-CLOUD-SNAPSHOT</gs.version>
+    <gt.version>35-SNAPSHOT</gt.version>
+    <wicket.version>10.9.1</wicket.version>
+    <acl.version>3.0.0</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
     <tileverse.version>1.4.0</tileverse.version>
     <jackson.version>3.1.2</jackson.version>
@@ -147,6 +150,14 @@
         <groupId>org.springframework.integration</groupId>
         <artifactId>spring-integration-bom</artifactId>
         <version>${spring-integration.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- before spring-boot-dependencies so it overrides boot's older spring-amqp, matching spring-integration -->
+      <dependency>
+        <groupId>org.springframework.amqp</groupId>
+        <artifactId>spring-amqp-bom</artifactId>
+        <version>${spring-amqp.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -1048,25 +1059,6 @@
         <dependencies>
           <dependency>
             <!--
-[ERROR] Dependency convergence error for org.eclipse.angus:angus-activation:jar:2.0.1. Paths to dependency are:
-[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geotools:gt-imagemosaic:jar:35-SNAPSHOT:compile
-[ERROR]     +-org.glassfish.jaxb:jaxb-runtime:jar:4.0.4:runtime
-[ERROR]       +-org.glassfish.jaxb:jaxb-core:jar:4.0.6:runtime
-[ERROR]         +-org.eclipse.angus:angus-activation:jar:2.0.1:runtime
-[ERROR] and
-[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver:gs-main:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver:gs-ows:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.eclipse.angus:angus-mail:jar:2.0.5:compile
-[ERROR]         +-org.eclipse.angus:angus-activation:jar:2.0.3:runtime
--->
-            <groupId>org.eclipse.angus</groupId>
-            <artifactId>angus-activation</artifactId>
-            <version>2.0.3</version>
-          </dependency>
-          <dependency>
-            <!--
 [ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
 [ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.0-SNAPSHOT:compile
 [ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT:compile
@@ -1088,41 +1080,27 @@
           </dependency>
           <dependency>
             <!--
-[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.community:gs-cog-google:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-it.geosolutions.imageio-ext:imageio-ext-cog-rangereader-gs:jar:2.1.0:compile
-[ERROR]       +-com.google.cloud:google-cloud-storage:jar:2.63.0:compile
-[ERROR]         +-org.checkerframework:checker-qual:jar:3.49.0:compile
+[ERROR] +-org.geoserver.cloud.apps:gs-cloud-webui:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-joda-time:joda-time:jar:2.8.1:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.0-SNAPSHOT:provided
-[ERROR]     +-org.geotools.jdbc:gt-jdbc-postgis:jar:35-SNAPSHOT:provided
-[ERROR]       +-org.postgresql:postgresql:jar:42.7.10:provided
-[ERROR]         +-org.checkerframework:checker-qual:jar:3.52.0:provided
--->
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
-            <version>3.52.0</version>
-          </dependency>
-          <dependency>
-            <!--
 [ERROR] +-org.geoserver.cloud.apps:gs-cloud-webui:jar:3.0.0-SNAPSHOT
 [ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-starter:jar:3.0.0-SNAPSHOT:compile
 [ERROR]     +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-autoconfigure:jar:3.0.0-SNAPSHOT:compile
 [ERROR]       +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.0.0-SNAPSHOT:compile
-[ERROR]         +-org.geoserver.extension:gs-gwc-s3:jar:3.0.0-SNAPSHOT:compile
+[ERROR]         +-org.geoserver.extension:gs-gwc-s3:jar:3.0.0-CLOUD-SNAPSHOT:compile
 [ERROR]           +-org.geowebcache:gwc-aws-s3:jar:2.0-SNAPSHOT:compile
 [ERROR]             +-com.amazonaws:aws-java-sdk-s3:jar:1.12.797:compile
 [ERROR]               +-com.amazonaws:aws-java-sdk-core:jar:1.12.797:compile
-[ERROR]                 +-joda-time:joda-time:jar:2.8.1:compile
+[ERROR]                 +-joda-time:joda-time:jar:2.12.7:compile
 [ERROR] and
 [ERROR] +-org.geoserver.cloud.apps:gs-cloud-webui:jar:3.0.0-SNAPSHOT
 [ERROR]   +-org.geoserver.cloud:gs-cloud-spring-cloud-starter:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.springframework.cloud:spring-cloud-starter-bus-amqp:jar:5.0.1:compile
-[ERROR]       +-org.springframework.cloud:spring-cloud-starter-stream-rabbit:jar:5.0.1:compile
-[ERROR]         +-org.springframework.cloud:spring-cloud-stream-binder-rabbit:jar:5.0.1:compile
-[ERROR]           +-org.springframework.cloud:spring-cloud-function-context:jar:5.0.1:compile
-[ERROR]             +-tools.jackson.datatype:jackson-datatype-joda:jar:3.1.0:compile
+[ERROR]     +-org.springframework.cloud:spring-cloud-starter-bus-amqp:jar:5.0.2:compile
+[ERROR]       +-org.springframework.cloud:spring-cloud-starter-stream-rabbit:jar:5.0.2:compile
+[ERROR]         +-org.springframework.cloud:spring-cloud-stream-binder-rabbit:jar:5.0.2:compile
+[ERROR]           +-org.springframework.cloud:spring-cloud-function-context:jar:5.0.3:compile
+[ERROR]             +-tools.jackson.datatype:jackson-datatype-joda:jar:3.1.2:compile
 [ERROR]               +-joda-time:joda-time:jar:2.12.7:compile
 -->
             <groupId>joda-time</groupId>
@@ -1134,14 +1112,14 @@
 [ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
 [ERROR]   +-org.geoserver.cloud:gs-cloud-starter-security:jar:3.0.0-SNAPSHOT:compile
 [ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-security-auth-key:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.geoserver.extension:gs-authkey:jar:3.0.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.extension:gs-authkey:jar:3.0.0-CLOUD-SNAPSHOT:compile
 [ERROR]         +-net.minidev:json-smart:jar:2.6.0:compile
 [ERROR]           +-net.minidev:accessors-smart:jar:2.6.0:compile
 [ERROR]             +-org.ow2.asm:asm:jar:9.7.1:compile
 [ERROR] and
 [ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
 [ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-css-styling:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.extension:gs-css:jar:3.0.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.extension:gs-css:jar:3.0.0-CLOUD-SNAPSHOT:compile
 [ERROR]       +-org.geotools:gt-css:jar:35-SNAPSHOT:compile
 [ERROR]         +-org.parboiled:parboiled-java:jar:1.4.1:compile
 [ERROR]           +-org.ow2.asm:asm:jar:9.2:compile
@@ -1191,27 +1169,20 @@
           </dependency>
           <dependency>
             <!--
-[ERROR] +-org.geoserver.cloud:gs-cloud-spring-cloud-starter:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.springframework.cloud:spring-cloud-starter-bus-amqp:jar:5.0.1:compile
-[ERROR]     +-org.springframework.cloud:spring-cloud-starter-stream-rabbit:jar:5.0.1:compile
-[ERROR]       +-org.springframework.cloud:spring-cloud-stream-binder-rabbit:jar:5.0.1:compile
-[ERROR]         +-org.springframework.cloud:spring-cloud-stream:jar:5.0.1:compile
-[ERROR]           +-org.jetbrains.kotlin:kotlin-reflect:jar:2.2.21:runtime
-[ERROR]             +-org.jetbrains.kotlin:kotlin-stdlib:jar:2.2.21:runtime
-[ERROR]               +-org.jetbrains:annotations:jar:13.0:runtime
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.0-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.wicketstuff:wicketstuff-select2:jar:10.9.2:provided
+[ERROR]       +-de.agilecoders.wicket.webjars:wicket-webjars:jar:4.0.14:provided
+[ERROR]         +-org.apache.wicket:wicket-core:jar:10.8.0:provided
 [ERROR] and
-[ERROR] +-org.geoserver.cloud:gs-cloud-spring-cloud-starter:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.springframework.cloud:spring-cloud-starter-bus-amqp:jar:5.0.1:compile
-[ERROR]     +-org.springframework.cloud:spring-cloud-starter-stream-rabbit:jar:5.0.1:compile
-[ERROR]       +-org.springframework.cloud:spring-cloud-stream-binder-rabbit:jar:5.0.1:compile
-[ERROR]         +-org.springframework.cloud:spring-cloud-stream:jar:5.0.1:compile
-[ERROR]           +-org.jetbrains.kotlinx:kotlinx-coroutines-reactor:jar:1.10.2:runtime
-[ERROR]             +-org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:jar:1.10.2:runtime
-[ERROR]               +-org.jetbrains:annotations:jar:23.0.0:runtime
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.0-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.wicketstuff:wicketstuff-select2:jar:10.9.2:provided
+[ERROR]       +-org.apache.wicket:wicket-core:jar:10.9.1:provided
 -->
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>23.0.0</version>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-core</artifactId>
+            <version>${wicket.version}</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
