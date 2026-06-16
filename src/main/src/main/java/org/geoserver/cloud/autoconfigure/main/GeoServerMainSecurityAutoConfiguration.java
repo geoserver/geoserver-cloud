@@ -18,8 +18,10 @@ import org.geoserver.configuration.core.main.GeoServerMainSecurityConfiguration;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.security.CloudGeoServerSecurityManager;
 import org.geoserver.security.GeoServerSecurityManager;
+import org.geoserver.security.filter.DisabledSecurityFilter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
@@ -85,5 +87,35 @@ public class GeoServerMainSecurityAutoConfiguration {
 
         return new CloudGeoServerSecurityManager(
                 lock, dataDir, publisher, updateSequenceIncrementor, additionalAuthenticationProviders);
+    }
+
+    /**
+     * Provides the {@code disabledFilter} bean excluded from {@link GeoServerMainSecurityConfiguration}'s transpiled
+     * configuration.
+     *
+     * <p>{@code gs-main}'s {@code applicationSecurityContext.xml} declares a {@link DisabledSecurityFilter} named
+     * {@code disabledFilter}. GeoServer's security subsystem injects it into a request filter chain that has lost its
+     * last authentication filter, as a fail-closed stand-in that denies access with {@code 403}. The bean must remain
+     * available for GeoServer's internal filter lookup, but it must not act as a top-level servlet filter; see
+     * {@link #disabledSecurityFilterRegistration(DisabledSecurityFilter)}.
+     */
+    @Bean(name = "disabledFilter")
+    DisabledSecurityFilter disabledFilter() {
+        return new DisabledSecurityFilter();
+    }
+
+    /**
+     * Keeps the {@link #disabledFilter()} bean out of the servlet filter chain.
+     *
+     * <p>In a servlet container GeoServer wires only {@code filterChainProxy} as a servlet filter, but Spring Boot
+     * registers every {@link jakarta.servlet.Filter} bean as a servlet filter mapped to {@code /*}. Without this
+     * disabled registration the fail-closed {@link DisabledSecurityFilter} would deny every request with {@code 403}.
+     */
+    @Bean
+    FilterRegistrationBean<DisabledSecurityFilter> disabledSecurityFilterRegistration(
+            DisabledSecurityFilter disabledFilter) {
+        FilterRegistrationBean<DisabledSecurityFilter> registration = new FilterRegistrationBean<>(disabledFilter);
+        registration.setEnabled(false);
+        return registration;
     }
 }

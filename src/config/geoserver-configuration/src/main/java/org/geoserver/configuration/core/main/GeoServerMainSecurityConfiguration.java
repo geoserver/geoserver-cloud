@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Import;
 @Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-main-.*!/applicationSecurityContext.xml",
-        excludes = {"authenticationManager"})
+        excludes = {"authenticationManager", "disabledFilter"})
 @Import(GeoServerMainSecurityConfiguration_Generated.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.security")
 public class GeoServerMainSecurityConfiguration {
