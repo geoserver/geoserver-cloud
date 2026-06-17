@@ -146,7 +146,7 @@ services:
           memory: 2G
        
   rabbitmq:
-    image: rabbitmq:3.13.3-alpine
+    image: rabbitmq:4-management-alpine
     user: "1000:1000"
     restart: unless-stopped
     tmpfs:
