@@ -11,7 +11,7 @@
     <module>src</module>
   </modules>
   <properties>
-    <revision>3.0.0</revision>
+    <revision>3.0.1-SNAPSHOT</revision>
     <fmt.skip>false</fmt.skip>
     <sortpom.skip>${fmt.skip}</sortpom.skip>
     <sortpom.action>sort</sortpom.action>
