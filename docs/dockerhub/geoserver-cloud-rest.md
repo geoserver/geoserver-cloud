@@ -44,7 +44,7 @@ Standalone smoke test (no config server, no catalog, no data):
 docker run --rm -p 9105:9105 \
   -e SPRING_PROFILES_ACTIVE=standalone,datadir \
   -e GEOSERVER_DATA_DIR=/tmp/datadir \
-  geoservercloud/geoserver-cloud-rest:3.0.0-SNAPSHOT
+  geoservercloud/geoserver-cloud-rest:3.0.0
 ```
 
 Exercise the API:

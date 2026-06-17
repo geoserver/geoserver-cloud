@@ -36,7 +36,7 @@ Serve the baked-in default configuration:
 
 ```bash
 docker run --rm -p 8888:8888 \
-  geoservercloud/geoserver-cloud-config:3.0.0-SNAPSHOT
+  geoservercloud/geoserver-cloud-config:3.0.0
 ```
 
 Serve configuration from a Git repository:
@@ -46,7 +46,7 @@ docker run --rm -p 8888:8888 \
   -e SPRING_PROFILES_ACTIVE=git \
   -e CONFIG_GIT_URI=https://github.com/your-org/geoserver-cloud-config.git \
   -e SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL=main \
-  geoservercloud/geoserver-cloud-config:3.0.0-SNAPSHOT
+  geoservercloud/geoserver-cloud-config:3.0.0
 ```
 
 Fetch a config file to verify:

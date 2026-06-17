@@ -78,8 +78,8 @@ Example output:
 
 ```
 REPOSITORY                                     TAG              IMAGE ID       SIZE      SHARED SIZE   UNIQUE SIZE
-geoservercloud/geoserver-cloud-wfs             3.0.0-SNAPSHOT   12cee949a17d   916MB     907.8MB       8.163MB
-geoservercloud/geoserver-cloud-wms             3.0.0-SNAPSHOT   919b96914846   923MB     907.8MB       14.78MB
+geoservercloud/geoserver-cloud-wfs             3.1.0-SNAPSHOT   12cee949a17d   916MB     907.8MB       8.163MB
+geoservercloud/geoserver-cloud-wms             3.1.0-SNAPSHOT   919b96914846   923MB     907.8MB       14.78MB
 ...
 ```
 
@@ -88,7 +88,7 @@ geoservercloud/geoserver-cloud-wms             3.0.0-SNAPSHOT   919b96914846   9
 To see which layers are shared across images:
 
 ```bash
-for img in geoservercloud/geoserver-cloud-{wms,wfs,wcs,wps,gwc,webui,rest}:3.0.0-SNAPSHOT; do
+for img in geoservercloud/geoserver-cloud-{wms,wfs,wcs,wps,gwc,webui,rest}:3.1.0-SNAPSHOT; do
   echo "=== $img ==="
   docker inspect "$img" --format='{{range .RootFS.Layers}}{{.}}{{"\n"}}{{end}}'
 done | sort | uniq -c | sort -rn
@@ -100,7 +100,7 @@ Layers appearing 7 times are shared across all services (the base image layers).
 
 ```bash
 # Dump all layers
-for img in $(docker images --format '{{.Repository}}:{{.Tag}}' | grep 3.0.0-SNAPSHOT); do
+for img in $(docker images --format '{{.Repository}}:{{.Tag}}' | grep 3.1.0-SNAPSHOT); do
   docker inspect "$img" --format='{{range .RootFS.Layers}}{{.}}{{"\n"}}{{end}}'
 done > /tmp/all-layers.txt
 

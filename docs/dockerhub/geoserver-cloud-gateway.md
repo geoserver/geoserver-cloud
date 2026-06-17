@@ -45,7 +45,7 @@ A minimal standalone run (no config server, no service discovery):
 ```bash
 docker run --rm -p 9090:9090 \
   -e SPRING_PROFILES_ACTIVE=standalone \
-  geoservercloud/geoserver-cloud-gateway:3.0.0-SNAPSHOT
+  geoservercloud/geoserver-cloud-gateway:3.0.0
 ```
 
 Visit `http://localhost:9090` — without backends behind it the routes will return 503, which is expected.

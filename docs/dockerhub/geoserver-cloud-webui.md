@@ -44,7 +44,7 @@ Standalone smoke test (no config server, no catalog, no data):
 docker run --rm -p 9106:9106 \
   -e SPRING_PROFILES_ACTIVE=standalone,datadir \
   -e GEOSERVER_DATA_DIR=/tmp/datadir \
-  geoservercloud/geoserver-cloud-webui:3.0.0-SNAPSHOT
+  geoservercloud/geoserver-cloud-webui:3.0.0
 ```
 
 Then open `http://localhost:9106/` (default credentials: `admin` / `geoserver`).

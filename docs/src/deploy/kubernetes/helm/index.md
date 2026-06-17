@@ -11,7 +11,7 @@ apiVersion: v2
 name: my-geoserver-cloud
 description: My GeoServer Cloud deployment
 version: 0.1.0
-appVersion: '3.0.0-RC'
+appVersion: '3.0.0'
 dependencies:
   - name: geoservercloud
     version: 3.0.0-rc
