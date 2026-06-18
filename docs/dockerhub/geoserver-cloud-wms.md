@@ -43,7 +43,7 @@ Standalone smoke test (no config server, no catalog, no data):
 docker run --rm -p 9102:9102 \
   -e SPRING_PROFILES_ACTIVE=standalone,datadir \
   -e GEOSERVER_DATA_DIR=/tmp/datadir \
-  geoservercloud/geoserver-cloud-wms:3.0.0-SNAPSHOT
+  geoservercloud/geoserver-cloud-wms:3.0.0
 ```
 
 Check it's up:
