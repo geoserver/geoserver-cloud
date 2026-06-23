@@ -14,8 +14,18 @@ This is a major version upgrade with significant changes:
 | Spring Cloud | 2022.0.x | 2025.1.x |
 | GeoServer | 2.28.x | 3.0.x |
 | Java (minimum) | 11 | 25+ |
+| RabbitMQ (broker) | 3.x | 4.x |
 
 ## Breaking Changes
+
+### Message Broker: RabbitMQ 4.x Required
+
+> **Important**: GeoServer Cloud 3.0.0 requires **RabbitMQ 4.x**. It does not work with RabbitMQ 3.x.
+
+GeoServer Cloud uses RabbitMQ for the Spring Cloud Bus that propagates catalog and configuration changes between services. As of the Spring Boot 4 upgrade, the bus declares its queues with an argument (`x-queue-leader-locator`) that RabbitMQ 3.x rejects with a `406 PRECONDITION_FAILED` error, which prevents the services from starting against a 3.x broker.
+
+- Deploy **RabbitMQ 4.x** before or together with the 3.0.0 services. The provided Docker Compose examples use `rabbitmq:4-management-alpine`.
+- No broker data migration is required: the bus uses transient, auto-deleted queues that are recreated on startup. Point the services at the 4.x broker and start them.
 
 ### Docker Compose and Service Discovery
 
