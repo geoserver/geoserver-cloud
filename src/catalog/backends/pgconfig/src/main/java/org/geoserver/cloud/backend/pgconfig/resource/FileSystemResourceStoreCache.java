@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
+import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -31,9 +32,12 @@ public class FileSystemResourceStoreCache implements DisposableBean {
     private final Path base;
     private final boolean disposable;
     private final @Getter FileSystemResourceStore localOnlyStore;
+    private final Predicate<String> noClobber;
 
-    private FileSystemResourceStoreCache(@NonNull Path cacheDirectory, boolean disposable) {
+    private FileSystemResourceStoreCache(
+            @NonNull Path cacheDirectory, boolean disposable, @NonNull Predicate<String> noClobber) {
         this.disposable = disposable;
+        this.noClobber = noClobber;
         Preconditions.checkArgument(
                 Files.isDirectory(cacheDirectory),
                 "Cache directory is not a directory: %s",
@@ -47,16 +51,21 @@ public class FileSystemResourceStoreCache implements DisposableBean {
     }
 
     @SneakyThrows
-    public static @NonNull FileSystemResourceStoreCache newTempDirInstance() {
+    public static @NonNull FileSystemResourceStoreCache newTempDirInstance(@NonNull Predicate<String> noClobber) {
         boolean disposable = true;
         Path tempDirectory = Files.createTempDirectory("pgconfig_resourcestore_cache");
-        return new FileSystemResourceStoreCache(tempDirectory, disposable);
+        return new FileSystemResourceStoreCache(tempDirectory, disposable, noClobber);
     }
 
     @VisibleForTesting
-    public static @NonNull FileSystemResourceStoreCache ofProvidedDirectory(@NonNull Path cacheDirectory) {
+    public static @NonNull FileSystemResourceStoreCache ofProvidedDirectory(
+            @NonNull Path cacheDirectory, @NonNull Predicate<String> noClobber) {
         boolean disposable = false;
-        return new FileSystemResourceStoreCache(cacheDirectory, disposable);
+        return new FileSystemResourceStoreCache(cacheDirectory, disposable, noClobber);
+    }
+
+    public Path localPath(@NonNull String resourcePath) {
+        return base.resolve(resourcePath);
     }
 
     @Override
@@ -74,13 +83,43 @@ public class FileSystemResourceStoreCache implements DisposableBean {
 
     @SneakyThrows
     public File getFile(PgconfigResource resource) {
+        return dumpIfNeeded(resource).toFile();
+    }
+
+    /**
+     * Ensures the local cache file for a resource exists and holds current content, dumping it from the database row
+     * when needed.
+     *
+     * <p>A file with no local cache copy yet is always dumped: there is no risk of overwriting unsynced local work
+     * because there was no local file to begin with. {@link #ensureFileExists(PgconfigResource)} would otherwise create
+     * an empty placeholder stamped with the current time, which the no-clobber check below would then mistake for a
+     * file newer than the database row, permanently leaving it empty.
+     *
+     * @return the path to the up to date local cache file
+     */
+    private Path dumpIfNeeded(PgconfigResource resource) throws IOException {
+        final boolean existedLocally = Files.exists(toPath(resource));
         final Path path = ensureFileExists(resource);
-        final long fileMtime = getLastmodified(path);
-        final long resourceMtime = resource.lastmodified();
-        if (fileMtime != resourceMtime) {
+        if (!existedLocally || needsDump(resource.path(), getLastmodified(path), resource.lastmodified())) {
             dump(resource);
         }
-        return path.toFile();
+        return path;
+    }
+
+    /**
+     * Decides whether an already cached local file must be refreshed from the database row.
+     *
+     * <p>For paths matching the no-clobber predicate, a local file newer than the database row is preserved:
+     * gt-imagemosaic and similar consumers write directly to the cached file with raw file I/O, bypassing the
+     * {@link Resource} API. A locally newer file therefore reflects work that the database does not know about yet. For
+     * all other paths, any mismatch between the local file's modification time and the database row's triggers a
+     * re-dump.
+     */
+    private boolean needsDump(String resourcePath, long fileMtime, long resourceMtime) {
+        if (noClobber.test(resourcePath)) {
+            return resourceMtime > fileMtime;
+        }
+        return fileMtime != resourceMtime;
     }
 
     private long getLastmodified(final Path path) throws IOException {
@@ -133,19 +172,42 @@ public class FileSystemResourceStoreCache implements DisposableBean {
     }
 
     public void updateAll(List<Resource> list) {
-        list.stream()
-                .map(PgconfigResource.class::cast)
-                .filter(PgconfigResource::isDirectory)
-                .forEach(this::ensureDirectory);
+        List<PgconfigResource> resources =
+                list.stream().map(PgconfigResource.class::cast).toList();
+        materialize(resources);
+    }
 
-        list.stream()
-                .map(PgconfigResource.class::cast)
-                .filter(PgconfigResource::isFile)
-                .forEach(this::dump);
+    /**
+     * Dumps files and creates directories for the given resources, honoring the no-clobber rule for locally newer
+     * whitelisted files. Used to materialize DB-backed children of a directory.
+     */
+    @SneakyThrows
+    public void materialize(List<PgconfigResource> resources) {
+        for (PgconfigResource resource : resources) {
+            if (resource.isDirectory()) {
+                ensureDirectory(resource);
+            } else if (resource.isFile()) {
+                dumpIfNeeded(resource);
+            }
+        }
     }
 
     private Path toPath(PgconfigResource resource) {
-        return base.resolve(resource.path());
+        return localPath(resource.path());
+    }
+
+    /**
+     * Removes the local cache copy (file or directory tree) of a deleted resource. Consumers like gt-imagemosaic read
+     * the cache with raw file I/O; a stale copy left behind would keep resolving configuration the database no longer
+     * holds, e.g. a coverage store re-created at the path of a deleted one picking up the old store's config files.
+     */
+    public void deleted(@NonNull String resourcePath) {
+        Path path = localPath(resourcePath);
+        try {
+            FileSystemUtils.deleteRecursively(path);
+        } catch (IOException e) {
+            log.warn("Error deleting local cache copy of removed resource {}", resourcePath, e);
+        }
     }
 
     @SneakyThrows
