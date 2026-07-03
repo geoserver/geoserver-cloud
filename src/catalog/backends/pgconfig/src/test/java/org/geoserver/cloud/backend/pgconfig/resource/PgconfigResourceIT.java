@@ -38,6 +38,7 @@ import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
+import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendProperties;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
@@ -100,9 +101,15 @@ class PgconfigResourceIT {
         JdbcTemplate template = db.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
         cacheDirectory = newFolder(tmpDir, "junit");
-        FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
+        FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(
+                cacheDirectory.toPath(),
+                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
         store = new PgconfigResourceStore(
-                cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
+                cache,
+                template,
+                lockProvider,
+                PgconfigResourceStore.defaultIgnoredResources(),
+                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
         setupTestData(template);
     }
 
