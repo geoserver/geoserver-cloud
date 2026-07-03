@@ -25,6 +25,7 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.ResourceStoreFactory;
 import org.geoserver.security.impl.GsCloudLayerGroupContainmentCache;
 import org.geoserver.security.impl.LayerGroupContainmentCache;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -78,10 +79,12 @@ public class CoreBackendConfiguration {
     @ConditionalOnMissingBean(CatalogPlugin.class)
     CatalogPlugin rawCatalog(
             @Qualifier("resourceLoader") GeoServerResourceLoader resourceLoader,
-            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade) {
+            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade,
+            ObjectProvider<RawCatalogCustomizer> customizers) {
 
         CatalogPlugin rawCatalog = new CatalogPlugin(catalogFacade);
         rawCatalog.setResourceLoader(resourceLoader);
+        customizers.orderedStream().forEach(customizer -> customizer.customize(rawCatalog));
         return rawCatalog;
     }
 

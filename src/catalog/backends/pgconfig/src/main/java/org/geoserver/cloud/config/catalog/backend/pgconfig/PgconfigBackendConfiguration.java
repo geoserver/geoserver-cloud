@@ -16,15 +16,19 @@ import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigConfigRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigUpdateSequence;
+import org.geoserver.cloud.backend.pgconfig.coverage.MosaicSyncingResourcePool;
+import org.geoserver.cloud.backend.pgconfig.resource.DbBackedFileSynchronizer;
 import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
+import org.geoserver.cloud.config.catalog.backend.core.RawCatalogCustomizer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.DatabaseMigrationConfiguration.Migrations;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.resource.LockProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -115,6 +119,7 @@ import org.springframework.util.StringUtils;
  * @see JdbcLockRegistry
  */
 @Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(PgconfigBackendProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgconfig")
 public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer {
 
@@ -191,17 +196,47 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     PgconfigResourceStore resourceStoreImpl(
             @Qualifier("pgconfigLockProvider") LockProvider lockProvider,
             FileSystemResourceStoreCache resourceStoreCache,
-            @Qualifier("pcconfigJdbcTemplate") JdbcTemplate template) {
+            @Qualifier("pcconfigJdbcTemplate") JdbcTemplate template,
+            PgconfigBackendProperties configProperties) {
 
         log.debug("Creating ResourceStore {}", PgconfigResourceStore.class.getSimpleName());
         Predicate<String> localOnlyFilter = PgconfigResourceStore.defaultIgnoredResources();
+        Predicate<String> dbBackedFilePatterns =
+                PgconfigResourceStore.antPathMatcher(configProperties.getDbBackedFilePatterns());
         return new PgconfigResourceStore(
-                resourceStoreCache, template, (PgconfigLockProvider) lockProvider, localOnlyFilter);
+                resourceStoreCache,
+                template,
+                (PgconfigLockProvider) lockProvider,
+                localOnlyFilter,
+                dbBackedFilePatterns);
     }
 
     @Bean
-    FileSystemResourceStoreCache pgconfigFileSystemResourceStoreCache() {
-        return FileSystemResourceStoreCache.newTempDirInstance();
+    FileSystemResourceStoreCache pgconfigFileSystemResourceStoreCache(PgconfigBackendProperties configProperties) {
+        Predicate<String> noClobber = PgconfigResourceStore.antPathMatcher(configProperties.getDbBackedFilePatterns());
+        return FileSystemResourceStoreCache.newTempDirInstance(noClobber);
+    }
+
+    /**
+     * Keeps db-backed files written with raw file I/O (e.g. ImageMosaic config files rewritten by gt-imagemosaic)
+     * consistent between each pod's local resource cache and the resource store, making them visible to every pod.
+     *
+     * @see MosaicSyncingResourcePool
+     */
+    @Bean
+    DbBackedFileSynchronizer pgconfigDbBackedFileSynchronizer(
+            @Qualifier("resourceStoreImpl") PgconfigResourceStore resourceStore,
+            FileSystemResourceStoreCache resourceStoreCache) {
+        return new DbBackedFileSynchronizer(resourceStore, resourceStoreCache);
+    }
+
+    /**
+     * Installs {@link MosaicSyncingResourcePool} on the raw catalog, making REST-created ImageMosaics work across pods
+     * on the pgconfig backend.
+     */
+    @Bean
+    RawCatalogCustomizer pgconfigMosaicSyncCustomizer(DbBackedFileSynchronizer synchronizer) {
+        return rawCatalog -> rawCatalog.setResourcePool(new MosaicSyncingResourcePool(rawCatalog, synchronizer));
     }
 
     /**

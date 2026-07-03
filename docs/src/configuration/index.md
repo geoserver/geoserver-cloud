@@ -25,6 +25,31 @@ jndi:
 
 On Kubernetes, you can for example mount it as a config map in all the services.
 
+## PgConfig backend: database-backed configuration files
+
+The `pgconfig` catalog backend stores GeoServer's catalog and configuration in PostgreSQL, but treats a handful of directories, `data/`, `tmp/`, `logs/`, `temp/`, and `legendsamples/`, as pod-local by default: files under them are read and written directly on each pod's own filesystem instead of going through the database. This keeps large or transient files, such as uploaded rasters, temporary output, and logs, out of the catalog database. It also means a file written under one of these directories on one pod is invisible to every other pod, since there is no shared filesystem between them.
+
+The `geoserver.backend.pgconfig.db-backed-file-patterns` property lists Ant-style path patterns, evaluated against the resource store path (for example `data/workspace/store/file.properties`), for files that are stored in the database even though they live under one of these otherwise pod-local directories. The default value targets ImageMosaic configuration files:
+
+```yaml
+geoserver:
+  backend:
+    pgconfig:
+      db-backed-file-patterns:
+        - "data/**/*.properties"
+        - "data/**/sample_image.dat"
+```
+
+### ImageMosaic stores across pods
+
+These defaults cover the configuration files gt-imagemosaic writes alongside a coverage store: `indexer.properties`, `datastore.properties`, the generated `<coverage>.properties`, and `sample_image.dat`. Because these files propagate through the database, an ImageMosaic coverage store created through the REST API, with its granule index backed by PostGIS instead of a shapefile index, works on every pod: each pod materializes the store's directory locally from the database before opening the reader, whether the store was just created, or a granule was just added or removed. Deletions propagate too: removing a coverage or deleting the store removes the database copies of its config files, and a store later created at the same path starts clean instead of inheriting the deleted store's configuration.
+
+This is what makes it possible to create a mosaic store with `PUT .../coveragestores/{store}/file.imagemosaic?configure=none`, add granules with `POST .../coveragestores/{store}/remote.imagemosaic`, and render the resulting layer from a `wms` pod that never handled any of the REST calls, without a shared filesystem.
+
+**Limitation:** inline granule uploads remain pod-local. `POST .../coveragestores/{store}/file.imagemosaic` with a raster zip, and `PUT .../coveragestores/{store}/file.geotiff`, write the granule's raster data directly to the pod's local filesystem, which `db-backed-file-patterns` does not propagate; only the small configuration files are covered by the defaults. Reference granules by URL instead: `remote.imagemosaic` for `http(s)://` and `s3://` locations, such as Cloud Optimized GeoTIFFs on object storage, or `external.imagemosaic` for a path on a filesystem shared across every pod.
+
+A complete worked example, including incremental REST-driven adds and an externally managed PostGIS index populated outside GeoServer, is available at [`examples/cog-imagemosaic-pgconfig/`](https://github.com/geoserver/geoserver-cloud/tree/main/examples/cog-imagemosaic-pgconfig).
+
 ## GeoServer configuration properties
 
 ## HTTP proxy for cascaded OWS (WMS/WMTS/WFS) Stores
