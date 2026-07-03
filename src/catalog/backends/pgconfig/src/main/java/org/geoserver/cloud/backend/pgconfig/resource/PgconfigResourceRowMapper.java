@@ -7,6 +7,8 @@ package org.geoserver.cloud.backend.pgconfig.resource;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.TimeZone;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.geoserver.platform.resource.Resource;
@@ -15,6 +17,8 @@ import org.springframework.jdbc.core.RowMapper;
 /** @since 1.4 */
 @RequiredArgsConstructor
 public class PgconfigResourceRowMapper implements RowMapper<PgconfigResource> {
+
+    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 
     private final @NonNull PgconfigResourceStore store;
 
@@ -35,7 +39,11 @@ public class PgconfigResourceRowMapper implements RowMapper<PgconfigResource> {
         long parentId = rs.getLong("parentid");
         Resource.Type type = Resource.Type.valueOf(rs.getString("type"));
         String path = rs.getString("path");
-        long mtime = rs.getTimestamp("mtime").getTime();
+        // the mtime column is a timestamp without time zone holding UTC wall-clock values
+        // (written as timezone('UTC', now())); without an explicit UTC calendar here, the
+        // driver would interpret those UTC values as being in the JVM's default time zone,
+        // shifting the resulting epoch millis by the JVM's UTC offset
+        long mtime = rs.getTimestamp("mtime", Calendar.getInstance(UTC)).getTime();
         return new PgconfigResource(store, id, parentId, type, path, mtime);
     }
 

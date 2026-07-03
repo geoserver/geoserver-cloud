@@ -375,6 +375,62 @@ class PgconfigResourceIT {
     }
 
     @Test
+    void testMoveStampsMtimeInUtc() throws Exception {
+        store.get("workspaces").dir();
+        store.get("workspaces/tzcheck").dir();
+        try (OutputStream out = store.get("workspaces/tzcheck/f.xml").out()) {
+            out.write("<a/>".getBytes(StandardCharsets.UTF_8));
+        }
+
+        // move() updates parentid and path but leaves mtime for the
+        // resourcestore_update_mtime() trigger to stamp
+        store.move("workspaces/tzcheck/f.xml", "workspaces/tzcheck/moved.xml");
+
+        long mtime = store.get("workspaces/tzcheck/moved.xml").lastmodified();
+        long driftMillis = Math.abs(System.currentTimeMillis() - mtime);
+        long fiveMinutesMillis = 5 * 60 * 1000;
+        // resourcestore_update_mtime() must stamp mtime in UTC, matching how it's read back. On a
+        // JVM running outside UTC, a regression to a plain now() (session-local time) would shift
+        // mtime by the JVM's UTC offset, far past this tolerance. On a UTC host this assertion is
+        // a no-op sanity check, since there would be no drift to catch either way.
+        assertTrue(driftMillis < fiveMinutesMillis, "mtime drifted by " + driftMillis + "ms from wall clock time");
+    }
+
+    @Test
+    void testMoveUpdatesParentDirectoryMtimes() throws Exception {
+        store.get("workspaces").dir();
+        store.get("workspaces/mvsrc").dir();
+        store.get("workspaces/mvdst").dir();
+        store.get("workspaces/mvsrc/a.xml").file();
+        store.get("workspaces/mvdst/keep.xml").file();
+
+        long srcDirMtimeBefore = store.get("workspaces/mvsrc").lastmodified();
+        long dstDirMtimeBefore = store.get("workspaces/mvdst").lastmodified();
+        long keepMtimeBefore = store.get("workspaces/mvdst/keep.xml").lastmodified();
+
+        store.move("workspaces/mvsrc/a.xml", "workspaces/mvdst/a.xml");
+
+        long srcDirMtimeAfter = store.get("workspaces/mvsrc").lastmodified();
+        long dstDirMtimeAfter = store.get("workspaces/mvdst").lastmodified();
+        long keepMtimeAfter = store.get("workspaces/mvdst/keep.xml").lastmodified();
+
+        assertTrue(srcDirMtimeAfter > srcDirMtimeBefore, "source directory mtime should be bumped on move");
+        assertTrue(dstDirMtimeAfter > dstDirMtimeBefore, "destination directory mtime should be bumped on move");
+        assertEquals(keepMtimeBefore, keepMtimeAfter, "sibling file mtime must not change on an unrelated move");
+
+        long fiveMinutesMillis = 5 * 60 * 1000;
+        // Piggybacks a UTC sanity check on both directory mtimes: on a non-UTC JVM, a regression
+        // to plain now() in the trigger would drift these far past this tolerance; on a UTC host
+        // this part of the assertion is a no-op, since there would be no drift to catch either way.
+        assertTrue(
+                Math.abs(System.currentTimeMillis() - srcDirMtimeAfter) < fiveMinutesMillis,
+                "source directory mtime drifted from wall clock time");
+        assertTrue(
+                Math.abs(System.currentTimeMillis() - dstDirMtimeAfter) < fiveMinutesMillis,
+                "destination directory mtime drifted from wall clock time");
+    }
+
+    @Test
     void testIgnoresFileSystemOnlyResourcesInDb() throws SQLException {
         // for pre 1.8.1 backwards compatibility, ignore fs-only resources already in the db
         DataSource ds = db.getDataSource();
