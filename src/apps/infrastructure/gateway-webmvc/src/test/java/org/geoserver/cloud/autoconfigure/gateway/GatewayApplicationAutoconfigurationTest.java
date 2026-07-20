@@ -58,6 +58,20 @@ class GatewayApplicationAutoconfigurationTest {
     }
 
     @Test
+    void basePathNormalized_rootBecomesEmpty() {
+        runner.withPropertyValues("geoserver.base-path=/", "basepath=${geoserver.base-path}")
+                .run(context -> assertThat(context.getEnvironment().getProperty("basepath"))
+                        .isEmpty());
+    }
+
+    @Test
+    void basePathNormalized_trailingSlashStripped() {
+        runner.withPropertyValues("geoserver.base-path=/geoserver/", "basepath=${geoserver.base-path}")
+                .run(context -> assertThat(context.getEnvironment().getProperty("basepath"))
+                        .isEqualTo("/geoserver"));
+    }
+
+    @Test
     void gatewaySharedAuth_enabledByDefault() {
         runner.run(context -> {
             assertThat(context).hasNotFailed();

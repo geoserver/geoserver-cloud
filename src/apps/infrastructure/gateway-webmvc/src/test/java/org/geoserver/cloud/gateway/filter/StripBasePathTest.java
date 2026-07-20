@@ -41,6 +41,22 @@ class StripBasePathTest {
     }
 
     @Test
+    void rootPrefix_passesThrough() throws Exception {
+        assertThat(filterPath("/", "/wms")).isEqualTo("/wms");
+    }
+
+    @Test
+    void zeroArgShortcut_passesThrough() throws Exception {
+        HandlerFilterFunction<ServerResponse, ServerResponse> filter = GeoServerGatewayFilterFunctions.stripBasePath();
+        assertThat(applyFilter(filter, "/wms")).isEqualTo("/wms");
+    }
+
+    @Test
+    void rootPrefix_rootRequest_passesThrough() throws Exception {
+        assertThat(filterPath("/", "/")).isEqualTo("/");
+    }
+
+    @Test
     void singleSegment_strips() throws Exception {
         assertThat(filterPath("/geoserver", "/geoserver/ows")).isEqualTo("/ows");
     }
@@ -66,8 +82,11 @@ class StripBasePathTest {
     }
 
     private String filterPath(String prefix, String requestPath) throws Exception {
-        HandlerFilterFunction<ServerResponse, ServerResponse> filter =
-                GeoServerGatewayFilterFunctions.stripBasePath(prefix);
+        return applyFilter(GeoServerGatewayFilterFunctions.stripBasePath(prefix), requestPath);
+    }
+
+    private String applyFilter(HandlerFilterFunction<ServerResponse, ServerResponse> filter, String requestPath)
+            throws Exception {
         MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", requestPath);
         ServerRequest request = ServerRequest.create(mockRequest, List.of());
         AtomicReference<String> captured = new AtomicReference<>();

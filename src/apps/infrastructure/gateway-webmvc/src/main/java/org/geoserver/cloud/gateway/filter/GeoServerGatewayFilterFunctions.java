@@ -36,6 +36,19 @@ public interface GeoServerGatewayFilterFunctions {
     }
 
     /**
+     * No-op overload matched when the base path is empty. The shipped gateway config declares
+     * {@code StripBasePath=${basepath}} on every route; with an empty base path the shortcut expands to
+     * {@code StripBasePath=} with no arguments, and Spring Cloud Gateway Server MVC resolves shortcuts by matching
+     * methods with the same argument count. There is no prefix to strip, requests pass through unchanged.
+     *
+     * @see StripBasePath
+     */
+    @Shortcut
+    static HandlerFilterFunction<ServerResponse, ServerResponse> stripBasePath() {
+        return (request, next) -> next.handle(request);
+    }
+
+    /**
      * Enables a route only if a given Spring profile is active.
      *
      * <p>YAML: {@code filters: - RouteProfile=dev,403}
