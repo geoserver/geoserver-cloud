@@ -109,6 +109,8 @@ nav:
       - Helm:
         - Overview: deploy/kubernetes/helm/index.md
         - Example — pgconfig: deploy/kubernetes/helm/example-pgconfig.md
+  - User Guide:
+    - ImageMosaics through the REST API: user-guide/imagemosaic-rest-api.md
   - Configuration:
     - Externalized configuration guide: configuration/index.md
     - Migration 2.28 to 3.0: configuration/migration-2.28-to-3.0.md
