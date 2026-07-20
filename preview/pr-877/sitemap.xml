@@ -96,4 +96,8 @@
          <loc>https://geoserver.org/geoserver-cloud/preview/pr-877/developer-guide/services/restconfig-v1-service/</loc>
          <lastmod>2026-07-20</lastmod>
     </url>
+    <url>
+         <loc>https://geoserver.org/geoserver-cloud/preview/pr-877/user-guide/imagemosaic-rest-api/</loc>
+         <lastmod>2026-07-20</lastmod>
+    </url>
 </urlset>
