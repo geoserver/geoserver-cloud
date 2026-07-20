@@ -8,11 +8,13 @@ package org.geoserver.cloud.autoconfigure.gateway;
 import org.geoserver.cloud.gateway.filter.GeoServerGatewayFilterFunctions;
 import org.geoserver.cloud.gateway.filter.ProxyExceptionFilter;
 import org.geoserver.cloud.gateway.predicate.GeoServerGatewayRequestPredicates;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.gateway.server.mvc.filter.FilterSupplier;
 import org.springframework.cloud.gateway.server.mvc.predicate.PredicateSupplier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
@@ -25,6 +27,19 @@ import org.springframework.web.filter.CorsFilter;
 })
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class GatewayApplicationAutoconfiguration {
+
+    /**
+     * Normalizes the {@code basepath} property before gateway route definitions bind it: {@code /}, trailing slashes
+     * and a missing leading slash all reduce to the canonical form (empty for the root path). Registered as a
+     * {@link BeanFactoryPostProcessor} to run after every property source is in place (including remote config from
+     * consul or the config server) and before route properties bind.
+     *
+     * @see NormalizedBasePathPropertySource
+     */
+    @Bean
+    static BeanFactoryPostProcessor gatewayBasePathNormalizer(ConfigurableEnvironment environment) {
+        return beanFactory -> NormalizedBasePathPropertySource.register(environment);
+    }
 
     /**
      * CORS filter driven by {@link GlobalCorsProperties}. SCG Server MVC does not support the WebFlux

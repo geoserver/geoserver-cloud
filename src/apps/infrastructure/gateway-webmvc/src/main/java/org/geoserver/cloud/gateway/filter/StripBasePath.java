@@ -52,7 +52,8 @@ class StripBasePath implements HandlerFilterFunction<ServerResponse, ServerRespo
     }
 
     private static int resolvePartsToStrip(String basePath, String requestPath) {
-        if (basePath == null || basePath.isEmpty() || !requestPath.startsWith(basePath)) {
+        boolean emptyPrefix = basePath == null || basePath.isEmpty() || "/".equals(basePath);
+        if (emptyPrefix || !requestPath.startsWith(basePath)) {
             return 0;
         }
         int basePathSteps = StringUtils.countOccurrencesOf(basePath, "/");

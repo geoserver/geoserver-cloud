@@ -107,6 +107,10 @@ Set `geoserver.base-path` (or the environment variable `GEOSERVER_BASE_PATH`) to
 under a sub-path. Default: empty (served at root). The `StripBasePath` filter removes this prefix
 before forwarding requests to backend services.
 
+The gateway normalizes the value before routes consume it: `/` is equivalent to empty (served at
+root), trailing slashes are dropped (`/geoserver/` means `/geoserver`), and a missing leading slash
+is added (`geoserver` means `/geoserver`).
+
 ```yaml
 geoserver:
   base-path: /geoserver/cloud
