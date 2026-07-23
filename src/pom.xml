@@ -1059,6 +1059,26 @@
         <dependencies>
           <dependency>
             <!--
+[ERROR] Dependency convergence error for org.checkerframework:checker-qual:jar:3.55.1. Paths to dependency are:
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud:gs-cloud-starter-catalog-backend:jar:3.1.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.cloud.catalog.backend:gs-cloud-catalog-backend-pgconfig:jar:3.1.0-SNAPSHOT:compile
+[ERROR]         +-org.postgresql:postgresql:jar:42.7.13:compile
+[ERROR]           +-org.checkerframework:checker-qual:jar:3.55.1:runtime
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.community:gs-gwc-gcs-blob:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-org.geowebcache:gwc-gcs-blob:jar:2.1-SNAPSHOT:compile
+[ERROR]       +-com.google.cloud:google-cloud-storage:jar:2.67.0:compile
+[ERROR]         +-org.checkerframework:checker-qual:jar:3.49.0:compile
+          -->
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>3.49.0</version>
+          </dependency>
+          <dependency>
+            <!--
 [ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
 [ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.0-SNAPSHOT:compile
 [ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT:compile
