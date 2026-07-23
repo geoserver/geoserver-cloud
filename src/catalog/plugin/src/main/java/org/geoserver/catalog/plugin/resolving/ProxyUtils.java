@@ -246,6 +246,12 @@ public class ProxyUtils {
      * configuration, and processes nested references via type-specific methods. Returns null if unresolved and
      * {@link #failOnMissingReference(boolean)} is false; otherwise, throws an exception.
      *
+     * <p>Resolved references are returned as raw implementations, never wrapped in {@link ModificationProxy}: they get
+     * stored into materialized object graphs that may be shared across threads (e.g. by the catalog caching facade),
+     * and a live proxy inside such a graph is both mutated by reader threads and Java-serialized along with its
+     * unsynchronized state maps by {@code ModificationProxyCloner}, corrupting the stream under concurrency. This
+     * matches upstream {@code org.geoserver.catalog.impl.ResolvingProxyResolver}, which unwraps likewise.
+     *
      * @param <T> The type of {@link Info}.
      * @param unresolved The {@link Info} object to resolve; may be null.
      * @return The resolved {@link Info}, or {@code unresolved} if unresolved and not failing.
@@ -258,15 +264,20 @@ public class ProxyUtils {
         }
 
         T resolved = ModificationProxy.unwrap(unresolved);
-        if (isResolvingProxy(unresolved)) {
-            resolved = resolveResolvingProxy(resolved);
+        final boolean wasResolvingProxy = isResolvingProxy(unresolved);
+        if (wasResolvingProxy) {
+            resolved = ModificationProxy.unwrap(resolveResolvingProxy(resolved));
         }
 
         if (failOnNotFound && (resolved == null || isResolvingProxy(resolved))) {
             throw new IllegalArgumentException("Reference to %s not found".formatted(unresolved.getId()));
         }
 
-        if (resolved != null && !Proxy.isProxyClass(resolved.getClass())) {
+        /*
+         * A reference resolved through the catalog comes back fully materialized; re-traversing it with
+         * resolveInternal would mutate collections of an object other threads may already share
+         */
+        if (resolved != null && !wasResolvingProxy && !Proxy.isProxyClass(resolved.getClass())) {
             resolved = (T) resolveInternal(resolved);
         }
         return resolved;
