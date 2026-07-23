@@ -26,7 +26,6 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.springframework.jdbc.core.RowMapper;
@@ -274,7 +273,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         if (null != workspace) {
             String wsid = workspace.getId();
             WorkspaceInfo ws = mapWorkspace(wsid, rs);
-            style.setWorkspace(ModificationProxy.create(ws, WorkspaceInfo.class));
+            style.setWorkspace(ws);
         }
         return style;
     }
@@ -307,7 +306,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         if (null != store) {
             String wsid = store.getWorkspace().getId();
             WorkspaceInfo ws = mapWorkspace(wsid, rs);
-            store.setWorkspace(ModificationProxy.create(ws, WorkspaceInfo.class));
+            store.setWorkspace(ws);
         }
         return store;
     }
@@ -342,9 +341,13 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         if (resource instanceof FeatureTypeInfo ft) {
             List<AttributeTypeInfo> attributes = ft.getAttributes();
             if (attributes != null && !attributes.isEmpty()) {
-                FeatureTypeInfo mproxy = ModificationProxy.create(ft, FeatureTypeInfo.class);
+                /*
+                 * Raw back-reference, never a ModificationProxy: materialized graphs may be shared across threads by
+                 * the caching facade, and a proxy in the graph gets its unsynchronized state maps Java-serialized by
+                 * ModificationProxyCloner when attributes are deep-cloned, corrupting the stream under concurrency
+                 */
                 for (AttributeTypeInfo att : attributes) {
-                    att.setFeatureType(mproxy);
+                    att.setFeatureType(ft);
                 }
             }
         }
@@ -354,16 +357,13 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
     protected void setStore(ResourceInfo resource, ResultSet rs) {
         String storeId = resource.getStore().getId();
         StoreInfo store = mapStore(storeId, rs);
-        @SuppressWarnings("unchecked")
-        Class<? extends StoreInfo> storeType = (Class<? extends StoreInfo>)
-                ClassMappings.fromImpl(store.getClass()).getInterface();
-        resource.setStore(ModificationProxy.create(store, storeType));
+        resource.setStore(store);
     }
 
     protected void setNamespace(ResultSet rs, ResourceInfo resource) {
         String nsid = resource.getNamespace().getId();
         NamespaceInfo ns = mapNamespace(nsid, rs);
-        resource.setNamespace(ModificationProxy.create(ns, NamespaceInfo.class));
+        resource.setNamespace(ns);
     }
 
     /**
@@ -428,7 +428,6 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         List<StyleInfo> styles = li.getStyles().stream()
                 .map(StyleInfo::getId)
                 .map(this::loadStyle)
-                .map(s -> ModificationProxy.create(s, StyleInfo.class))
                 .toList();
         li.setStyles(new HashSet<>(styles));
     }
@@ -455,7 +454,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
             if (null != workspace) {
                 String wsid = workspace.getId();
                 WorkspaceInfo ws = mapWorkspace(wsid, rs);
-                layergroup.setWorkspace(ModificationProxy.create(ws, WorkspaceInfo.class));
+                layergroup.setWorkspace(ws);
             }
         }
         return layergroup;
@@ -476,7 +475,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         // resolving a layerinfo. In the later,
         // the relationship is 1:1 so caching them would be vane
         ResourceInfo resource = mapResource(rs);
-        layer.setResource(ModificationProxy.create(resource, ResourceInfo.class));
+        layer.setResource(resource);
     }
 
     private void setDefaultStyle(LayerInfo layer, ResultSet rs) {
@@ -484,11 +483,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         if (null != defaultStyle) {
             String styleId = defaultStyle.getId();
             defaultStyle = mapStyle(styleId, "defaultStyle", rs);
-            if (null == defaultStyle) {
-                layer.setDefaultStyle(null);
-            } else {
-                layer.setDefaultStyle(ModificationProxy.create(defaultStyle, StyleInfo.class));
-            }
+            layer.setDefaultStyle(defaultStyle);
         }
     }
 
