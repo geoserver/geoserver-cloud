@@ -254,9 +254,9 @@ public abstract class PatchSerializationTest {
         final Patch resolved = testPatch(patch);
         Set<StyleInfo> styles = resolved.get("styles").orElseThrow().value();
         StyleInfo defaultStyle = resolved.get("defaultStyle").orElseThrow().value();
-        assertModificationProxy(defaultStyle);
+        assertNotAProxy(defaultStyle);
         assertCatalogSet(defaultStyle);
-        styles.forEach(this::assertModificationProxy);
+        styles.forEach(this::assertNotAProxy);
         styles.forEach(this::assertCatalogSet);
 
         final Patch unresolved = roundtrip(patch);
@@ -314,7 +314,7 @@ public abstract class PatchSerializationTest {
     void settingsInfo_workspace() throws Exception {
         Patch resolved = testPatch("settings", data.faker().settingsInfo(data.workspaceA));
         SettingsInfo setting = resolved.get("settings").orElseThrow().value();
-        assertModificationProxy(setting.getWorkspace());
+        assertResolvedTo(data.workspaceA, setting.getWorkspace());
     }
 
     @Test
@@ -507,7 +507,7 @@ public abstract class PatchSerializationTest {
         final Patch sent = patch("settings", settingsProxy);
         final SettingsInfo received =
                 testPatchNoEquals(sent).get("settings").orElseThrow().value();
-        assertModificationProxy(workspaceProxy, received.getWorkspace());
+        assertResolvedTo(workspaceProxy, received.getWorkspace());
         ContactInfo contact = received.getContact();
         assertNotAProxy(contact);
         assertEquals(contactInfo, contact);
@@ -556,7 +556,7 @@ public abstract class PatchSerializationTest {
                 roundTrippedAndResolved.get("attributes").orElseThrow().value();
 
         for (AttributeTypeInfo att : rtripAtts) {
-            assertModificationProxy(ft, att.getFeatureType());
+            assertResolvedTo(ft, att.getFeatureType());
         }
     }
 
@@ -787,9 +787,8 @@ public abstract class PatchSerializationTest {
         boolean encodeByReference = ProxyUtils.encodeByReference(patchValue);
         if (encodeByReference) {
             Info decodedValue = resolved.getPatches().get(0).value();
-            Info decodedUnwrapped = assertModificationProxy(decodedValue);
-            Info orig = ModificationProxy.unwrap(patch.getPatches().get(0).value());
-            assertThat(decodedUnwrapped).isSameAs(orig);
+            Info orig = patch.getPatches().get(0).value();
+            assertResolvedTo(orig, decodedValue);
         }
 
         return resolved;
@@ -873,21 +872,16 @@ public abstract class PatchSerializationTest {
         }
     }
 
-    protected <I extends Info> I assertModificationProxy(I info) {
-        assertThat(ProxyUtils.isModificationProxy(info))
-                .as(() -> "%s should be a ModificationProxy, got %s".formatted(info.getId(), typeName(info)))
-                .isTrue();
-
-        I real = ModificationProxy.unwrap(info);
-        assertNotNull(real);
-        return real;
-    }
-
-    protected <I extends Info> I assertModificationProxy(I expected, I actual) {
-        I actualUnwrapped = assertModificationProxy(actual);
+    /**
+     * Asserts that a resolved reference is the raw catalog object itself: {@code ProxyUtils.resolve} returns raw
+     * implementations, never {@code ModificationProxy} wrappers, because resolved references get stored into object
+     * graphs that may be shared across threads.
+     */
+    protected <I extends Info> I assertResolvedTo(I expected, I actual) {
+        assertNotAProxy(actual);
         I expectedUnwrapped = ModificationProxy.unwrap(expected);
-        assertSame(expectedUnwrapped, actualUnwrapped);
-        return actualUnwrapped;
+        assertSame(expectedUnwrapped, actual);
+        return actual;
     }
 
     protected void assertResolvingProxy(Info info) {
