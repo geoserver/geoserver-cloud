@@ -429,7 +429,46 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public void save(LayerInfo layer) {
+        saveDelegatedResourceProperties(layer);
         doSave(layer);
+    }
+
+    /**
+     * {@code LayerInfo.enabled} and {@code LayerInfo.advertised} are delegated properties: {@code LayerInfoImpl} reads
+     * and writes both through the layer's {@link ResourceInfo} (upstream keeps them there until the resource/publish
+     * split is complete). A dirty {@code enabled} or {@code advertised} on the layer proxy is therefore a modification
+     * of the resource object, and is routed here as a resource save of its own so it goes through the regular
+     * validation, event, and cache consistency path. This must happen before {@link #doSave doSave(layer)} commits the
+     * layer proxy onto the underlying object, after which the pending change is no longer distinguishable from the
+     * resource's current state.
+     */
+    private void saveDelegatedResourceProperties(LayerInfo layer) {
+        ModificationProxy proxy = ProxyUtils.handler(layer, ModificationProxy.class);
+        if (null == proxy) {
+            return;
+        }
+        List<String> dirtyProperties = proxy.getPropertyNames();
+        boolean enabledChanged = dirtyProperties.contains("enabled");
+        boolean advertisedChanged = dirtyProperties.contains("advertised");
+        if (!enabledChanged && !advertisedChanged) {
+            return;
+        }
+        ResourceInfo resource = layer.getResource();
+        if (null == resource || null == ProxyUtils.handler(resource, ModificationProxy.class)) {
+            return;
+        }
+        boolean resourceNeedsUpdate = false;
+        if (enabledChanged && resource.isEnabled() != layer.isEnabled()) {
+            resource.setEnabled(layer.isEnabled());
+            resourceNeedsUpdate = true;
+        }
+        if (advertisedChanged && resource.isAdvertised() != layer.isAdvertised()) {
+            resource.setAdvertised(layer.isAdvertised());
+            resourceNeedsUpdate = true;
+        }
+        if (resourceNeedsUpdate) {
+            doSave(resource);
+        }
     }
 
     public static LayerInfo getLayerByName(Catalog catalog, String workspace, String resourceName) {
