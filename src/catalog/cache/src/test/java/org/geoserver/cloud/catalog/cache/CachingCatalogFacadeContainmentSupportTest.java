@@ -12,6 +12,7 @@ import static org.geoserver.cloud.catalog.cache.CachingCatalogFacadeTest.once;
 import static org.geoserver.cloud.event.info.ConfigInfoType.RESOURCE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.STORE;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -142,6 +143,47 @@ class CachingCatalogFacadeContainmentSupportTest {
 
         assertThat(support.get(nameKey, loader)).isSameAs(ws);
         assertCached(nameKey, ws);
+    }
+
+    @Test
+    @DisplayName("getByName() caches when the requested key is the object's canonical name key")
+    void testGetByNameCanonicalKeyIsCached() throws Exception {
+        LayerInfo layer = stubReal(LayerInfo.class, "l1", "roads");
+        InfoNameKey canonicalKey = InfoNameKey.valueOf(layer);
+
+        Callable<LayerInfo> loader = loader();
+        when(loader.call()).thenReturn(layer);
+
+        assertThat(support.getByName(canonicalKey, loader)).isSameAs(layer);
+        assertCached(canonicalKey, layer);
+
+        assertThat(support.getByName(canonicalKey, loader)).isSameAs(layer);
+        verify(loader, once()).call();
+    }
+
+    @Test
+    @DisplayName("getByName() does not cache when the requested key differs from the object's canonical name key")
+    void testGetByNameNonCanonicalKeyIsNotCached() throws Exception {
+        LayerInfo layer = stubReal(LayerInfo.class, "l1", "roads");
+        InfoNameKey localNameKey = InfoNameKey.valueOf("roads", ConfigInfoType.LAYER);
+
+        Callable<LayerInfo> loader = loader();
+        when(loader.call()).thenReturn(layer);
+
+        assertThat(support.getByName(localNameKey, loader)).isSameAs(layer);
+        assertNotCached(localNameKey);
+
+        assertThat(support.getByName(localNameKey, loader)).isSameAs(layer);
+        verify(loader, times(2)).call();
+    }
+
+    @Test
+    void testGetByNameDoesNotCacheNullValues() throws Exception {
+        InfoNameKey key = InfoNameKey.valueOf("roads", ConfigInfoType.LAYER);
+        Callable<LayerInfo> loader = loader();
+
+        assertThat(support.getByName(key, loader)).isNull();
+        assertNotCached(key);
     }
 
     @Test

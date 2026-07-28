@@ -194,9 +194,14 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
         return support.get(id(id, STYLE), () -> super.getStyle(id));
     }
 
+    /**
+     * An unqualified lookup can fall back to a workspace style when no global style has the requested name;
+     * {@link CachingCatalogFacadeContainmentSupport#getByName getByName} only caches the result when the requested name
+     * is the style's canonical prefixed name.
+     */
     @Override
     public StyleInfo getStyleByName(@NonNull String name) {
-        return support.get(name(name, STYLE), () -> super.getStyleByName(name));
+        return support.getByName(name(name, STYLE), () -> super.getStyleByName(name));
     }
 
     @Override
@@ -213,9 +218,14 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
         return support.get(id(id, LAYER), () -> super.getLayer(id));
     }
 
+    /**
+     * The requested name may be unqualified while layers always cache under their namespace-prefixed name;
+     * {@link CachingCatalogFacadeContainmentSupport#getByName getByName} only caches the result when the requested name
+     * is the layer's canonical prefixed name.
+     */
     @Override
     public LayerInfo getLayerByName(@NonNull String name) {
-        return support.get(name(name, LAYER), () -> super.getLayerByName(name));
+        return support.getByName(name(name, LAYER), () -> super.getLayerByName(name));
     }
 
     @Override
@@ -230,7 +240,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
 
     @Override
     public LayerGroupInfo getLayerGroupByName(@NonNull String name) {
-        return support.get(name(name, LAYERGROUP), () -> super.getLayerGroupByName(name));
+        return support.getByName(name(name, LAYERGROUP), () -> super.getLayerGroupByName(name));
     }
 
     @Override
