@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -62,6 +63,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.verification.VerificationModeFactory;
+import org.mockito.stubbing.LenientStubber;
 import org.mockito.verification.VerificationMode;
 
 class CachingCatalogFacadeTest {
@@ -356,11 +358,56 @@ class CachingCatalogFacadeTest {
         facade = new CachingCatalogFacade(subject);
         assertThrows(NullPointerException.class, () -> facade.getLayerByName(null));
 
-        LayerInfo info = stub(LayerInfo.class);
-        when(subject.getLayerByName(info.getName())).thenReturn(info);
+        LayerInfo info = stubLayer("topp", "roads");
+        when(subject.getLayerByName("topp:roads")).thenReturn(info);
 
-        assertSameTimesN(info, () -> facade.getLayerByName(info.getName()), 3);
-        verify(subject, once()).getLayerByName(info.getName());
+        assertSameTimesN(info, () -> facade.getLayerByName("topp:roads"), 3);
+        verify(subject, once()).getLayerByName("topp:roads");
+    }
+
+    @Test
+    void testGetLayerByNameUnqualifiedNameNotCached() {
+        facade = new CachingCatalogFacade(subject);
+
+        LayerInfo info = stubLayer("topp", "roads");
+        when(subject.getLayerByName("roads")).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getLayerByName("roads"), 3);
+        verify(subject, times(3)).getLayerByName("roads");
+    }
+
+    @Test
+    void testGetLayerByNameSameLocalNameInMultipleWorkspaces() {
+        facade = new CachingCatalogFacade(subject);
+
+        LayerInfo draftRoads = stubLayer("draft", "roads");
+        LayerInfo publicRoads = stubLayer("public", "roads");
+        when(subject.getLayerByName("draft:roads")).thenReturn(draftRoads);
+        when(subject.getLayerByName("public:roads")).thenReturn(publicRoads);
+        when(subject.getLayerByName("roads")).thenReturn(draftRoads);
+
+        assertSame(draftRoads, facade.getLayerByName("roads"));
+        assertSame(publicRoads, facade.getLayerByName("public:roads"));
+        assertSame(draftRoads, facade.getLayerByName("draft:roads"));
+
+        // the ambiguous unqualified lookup must not pin its first result: when the backend
+        // resolves it differently (e.g. the draft layer was removed), the cache must not
+        // keep answering with the previously returned layer
+        when(subject.getLayerByName("roads")).thenReturn(publicRoads);
+        assertSame(publicRoads, facade.getLayerByName("roads"));
+    }
+
+    private LayerInfo stubLayer(String nsPrefix, String localName) {
+        LayerInfo layer = mock(LayerInfo.class);
+        ResourceInfo resource = mock(ResourceInfo.class);
+        NamespaceInfo namespace = mock(NamespaceInfo.class);
+        LenientStubber lenient = lenient();
+        lenient.when(layer.getId()).thenReturn(nsPrefix + ":" + localName + "-id");
+        lenient.when(layer.getName()).thenReturn(localName);
+        lenient.when(layer.getResource()).thenReturn(resource);
+        lenient.when(resource.getNamespace()).thenReturn(namespace);
+        lenient.when(namespace.getPrefix()).thenReturn(nsPrefix);
+        return layer;
     }
 
     @Test
@@ -413,6 +460,19 @@ class CachingCatalogFacadeTest {
 
         assertSameTimesN(info, () -> facade.getLayerGroupByName(info.getName()), 3);
         verify(subject, once()).getLayerGroupByName(info.getName());
+    }
+
+    @Test
+    void testGetLayerGroupByNameWorkspaceGroupNotCached() {
+        facade = new CachingCatalogFacade(subject);
+
+        WorkspaceInfo ws = stub(WorkspaceInfo.class);
+        LayerGroupInfo info = stub(LayerGroupInfo.class);
+        lenient().when(info.getWorkspace()).thenReturn(ws);
+        when(subject.getLayerGroupByName(info.getName())).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getLayerGroupByName(info.getName()), 3);
+        verify(subject, times(3)).getLayerGroupByName(info.getName());
     }
 
     @Test
@@ -548,6 +608,19 @@ class CachingCatalogFacadeTest {
 
         assertSameTimesN(info, () -> facade.getStyleByName(info.getName()), 3);
         verify(subject, once()).getStyleByName(info.getName());
+    }
+
+    @Test
+    void testGetStyleByNameWorkspaceStyleNotCached() {
+        facade = new CachingCatalogFacade(subject);
+
+        WorkspaceInfo ws = stub(WorkspaceInfo.class);
+        StyleInfo info = stub(StyleInfo.class);
+        lenient().when(info.getWorkspace()).thenReturn(ws);
+        when(subject.getStyleByName(info.getName())).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getStyleByName(info.getName()), 3);
+        verify(subject, times(3)).getStyleByName(info.getName());
     }
 
     @Test
