@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
+import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -51,6 +52,22 @@ class PgconfigAmbiguousNameLookupIT {
     }
 
     @Test
+    void getLayerByNameReturnsFirstMatchWhenNameIsAmbiguous() {
+        LayerInfo layerA = addLayer("wsa", "roads");
+        LayerInfo layerB = addLayer("wsb", "roads");
+
+        LayerInfo found = catalog.getLayerByName("roads");
+        assertThat(found)
+                .as("an unqualified layer name present in >1 workspace must resolve to the first match, not throw")
+                .isNotNull();
+
+        // findOneByName resolves with "ORDER BY id", so the lowest id wins, repeatably.
+        String expected = layerA.getId().compareTo(layerB.getId()) <= 0 ? layerA.getId() : layerB.getId();
+        assertThat(found.getId()).isEqualTo(expected);
+        assertThat(catalog.getLayerByName("roads").getId()).isEqualTo(expected);
+    }
+
+    @Test
     void getFeatureTypeByNameReturnsFirstMatchWhenNameIsAmbiguous() {
         FeatureTypeInfo ft = catalog.getFeatureTypeByName("roads");
         assertThat(ft)
@@ -81,6 +98,15 @@ class PgconfigAmbiguousNameLookupIT {
                 .isNotNull();
         assertThat(ft.getName()).isEqualTo("lakes");
         assertThat(ft.getNamespace().getPrefix()).isEqualTo("wsa");
+    }
+
+    private LayerInfo addLayer(String workspaceName, String featureType) {
+        NamespaceInfo ns = catalog.getNamespaceByPrefix(workspaceName);
+        FeatureTypeInfo ft = catalog.getResourceByName(ns, featureType, FeatureTypeInfo.class);
+        LayerInfo layer = catalog.getFactory().createLayer();
+        layer.setResource(ft);
+        catalog.add(layer);
+        return catalog.getLayerByName("%s:%s".formatted(workspaceName, featureType));
     }
 
     private void createWorkspaceWithFeatureType(String workspaceName, String featureType) {
