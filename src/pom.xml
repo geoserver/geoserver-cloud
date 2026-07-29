@@ -33,7 +33,7 @@
     <jackson.version.annotations>2.21</jackson.version.annotations>
     <gs.version>2.28.4-SNAPSHOT</gs.version>
     <gt.version>34-SNAPSHOT</gt.version>
-    <wicket.version>9.21.0</wicket.version>
+    <wicket.version>9.23.0</wicket.version>
     <acl.version>2.4.0</acl.version>
     <postgresql.version>42.7.7</postgresql.version>
     <lombok.version>1.18.42</lombok.version>
