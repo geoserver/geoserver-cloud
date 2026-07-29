@@ -25,6 +25,7 @@ import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.util.FileSystemUtils;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -71,6 +72,11 @@ class PgconfigDbBackedPatternsIT {
         DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
         // override default table prefix "INT" by "RESOURCE_" (matching table RESOURCE_LOCK in flyway ddl scripts)
         lockRepository.setPrefix("RESOURCE_");
+        // initialize like the pgconfigLockRepository bean in PgconfigBackendConfiguration does, the
+        // transaction templates are required to acquire locks
+        lockRepository.setTransactionManager(new DataSourceTransactionManager(dataSource));
+        lockRepository.afterPropertiesSet();
+        lockRepository.afterSingletonsInstantiated();
         return lockRepository;
     }
 

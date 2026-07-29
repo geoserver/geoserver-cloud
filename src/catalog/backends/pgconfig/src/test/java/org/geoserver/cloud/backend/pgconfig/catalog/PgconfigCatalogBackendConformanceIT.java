@@ -29,6 +29,7 @@ import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -75,6 +76,11 @@ class PgconfigCatalogBackendConformanceIT extends CatalogConformanceTest {
         // override default table prefix "INT" by "RESOURCE_" (matching table definition
         // RESOURCE_LOCK in init.XXX.sql
         lockRepository.setPrefix("RESOURCE_");
+        // initialize like the pgconfigLockRepository bean in PgconfigBackendConfiguration does, the
+        // transaction templates are required to acquire locks
+        lockRepository.setTransactionManager(new DataSourceTransactionManager(dataSource));
+        lockRepository.afterPropertiesSet();
+        lockRepository.afterSingletonsInstantiated();
         return lockRepository;
     }
 
