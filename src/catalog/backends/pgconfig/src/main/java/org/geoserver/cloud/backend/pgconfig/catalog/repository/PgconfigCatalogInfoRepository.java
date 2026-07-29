@@ -31,7 +31,6 @@ import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgconfigQueryBuilder;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import tools.jackson.databind.ObjectMapper;
@@ -338,17 +337,20 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
         return findOne(query, clazz, newRowMapper(), args);
     }
 
+    /**
+     * Returns the first row matching {@code query} that is an instance of {@code clazz}, or empty if none matches.
+     *
+     * <p>Never throws when the query matches multiple rows, mirroring the first-match semantics of upstream GeoServer's
+     * {@code DefaultCatalogFacade} for ambiguous lookups (e.g. an unqualified name present in several workspaces).
+     * Queries that can legitimately match several rows must include an {@code ORDER BY} clause; without it the returned
+     * row depends on the database's execution plan.
+     */
     protected <U extends T> Optional<U> findOne(
             @NonNull String query, Class<U> clazz, RowMapper<T> rowMapper, Object... args) {
-
-        try {
-            T object = template.queryForObject(query, rowMapper, args);
-            return Optional.ofNullable(object)
-                    .filter(clazz::isInstance)
-                    .map(clazz::cast)
-                    .map(this::resolveOutbound);
-        } catch (EmptyResultDataAccessException _) {
-            return Optional.empty();
+        try (Stream<U> stream = template.queryForStream(query, rowMapper, args)
+                .filter(clazz::isInstance)
+                .map(clazz::cast)) {
+            return stream.findFirst().map(this::resolveOutbound);
         }
     }
 
