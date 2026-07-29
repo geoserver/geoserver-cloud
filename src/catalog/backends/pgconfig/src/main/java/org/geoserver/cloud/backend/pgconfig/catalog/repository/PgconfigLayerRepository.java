@@ -46,7 +46,7 @@ public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<Lay
                 """
                 SELECT "@type", publishedinfo, resource, store, workspace, namespace, "defaultStyle" \
                 FROM %s \
-                WHERE "@type" = 'LayerInfo' AND "%s" = ?
+                WHERE "@type" = 'LayerInfo' AND "%s" = ? ORDER BY id
                 """;
         if (possiblyPrefixedName.contains(":")) {
             // two options here, it's either a prefixed name like in <workspace>:<name>, or the

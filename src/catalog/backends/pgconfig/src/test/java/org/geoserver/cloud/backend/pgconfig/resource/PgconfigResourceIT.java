@@ -14,17 +14,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -32,97 +33,88 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
+import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendProperties;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
-import org.geoserver.platform.resource.ResourceTheoryTest;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * Note by inheriting from {@link ResourceTheoryTest}, this is a Junit 4 test class and must be
- * {@code public}
- */
 @Slf4j
-@RunWith(Theories.class)
-public class PgconfigResourceTest extends ResourceTheoryTest {
+@Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.CONCURRENT)
+class PgconfigResourceIT {
 
-    @ClassRule
-    public static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @Container
+    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
+
+    @TempDir
+    File tmpDir;
 
     private PgconfigResourceStore store;
     private File cacheDirectory;
 
-    @DataPoints
-    public static String[] testPaths() {
-        return new String[] {
-            "FileA",
-            "FileB",
-            "DirC",
-            "DirC/FileD",
-            "DirC/DirC1",
-            "DirC/DirC1/DirC2",
-            "DirC/DirC1/DirC2/FileC2",
-            "DirC/DirC1/DirC2/FileC3",
-            "DirE",
-            "UndefF",
-            "DirC/UndefF",
-            "DirE/UndefF",
-            "DirE/UndefD/UndefF"
-        };
+    static Stream<String> testPaths() {
+        return Stream.of(
+                "FileA",
+                "FileB",
+                "DirC",
+                "DirC/FileD",
+                "DirC/DirC1",
+                "DirC/DirC1/DirC2",
+                "DirC/DirC1/DirC2/FileC2",
+                "DirC/DirC1/DirC2/FileC3",
+                "DirE",
+                "UndefF",
+                "DirC/UndefF",
+                "DirE/UndefF",
+                "DirE/UndefD/UndefF");
     }
 
-    @BeforeClass
-    public static void onetimeSetUp() {
-        container.setUp();
+    static String[] testPathsArray() {
+        return testPaths().toArray(String[]::new);
     }
 
-    @AfterClass
-    public static void oneTimeTeardown() {
-        container.tearDown();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        JdbcTemplate template = container.getTemplate();
+    @BeforeEach
+    void setUp() throws Exception {
+        JdbcTemplate template = db.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
-        cacheDirectory = tmpDir.newFolder();
-        FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
+        cacheDirectory = newFolder(tmpDir, "junit");
+        FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(
+                cacheDirectory.toPath(),
+                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
         store = new PgconfigResourceStore(
-                cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
+                cache,
+                template,
+                lockProvider,
+                PgconfigResourceStore.defaultIgnoredResources(),
+                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
         setupTestData(template);
     }
 
-    @After
-    public void cleanDb() throws Exception {
-        DataSource dataSource = container.getDataSource();
-        new JdbcTemplate(dataSource).update("DELETE FROM resourcestore WHERE parentid IS NOT NULL");
-    }
-
     private void setupTestData(JdbcTemplate template) throws Exception {
-        for (String path : testPaths()) {
+        for (String path : testPathsArray()) {
             boolean undef = Paths.name(path).contains("Undef");
             if (undef) {
                 continue;
@@ -156,7 +148,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     LockRepository pgconfigLockRepository() {
-        DataSource dataSource = container.getDataSource();
+        DataSource dataSource = db.getDataSource();
         DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
         // override default table prefix "INT" by "RESOURCE_" (matching table RESOURCE_LOCK in flyway ddl scripts)
         lockRepository.setPrefix("RESOURCE_");
@@ -165,9 +157,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         return lockRepository;
     }
 
-    @Override
     protected Resource getDirectory() {
-        return Arrays.stream(testPaths())
+        return Arrays.stream(testPathsArray())
                 .filter(path -> Paths.name(path).contains("Dir"))
                 .map(store::get)
                 .map(PgconfigResource.class::cast)
@@ -176,9 +167,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 .orElseThrow();
     }
 
-    @Override
     protected Resource getResource() {
-        return Arrays.stream(testPaths())
+        return Arrays.stream(testPathsArray())
                 .filter(path -> Paths.name(path).contains("File"))
                 .map(store::get)
                 .map(PgconfigResource.class::cast)
@@ -187,9 +177,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 .orElseThrow();
     }
 
-    @Override
     protected Resource getUndefined() {
-        return Arrays.stream(testPaths())
+        return Arrays.stream(testPathsArray())
                 .filter(path -> Paths.name(path).contains("UndefF"))
                 .map(store::get)
                 .map(PgconfigResource.class::cast)
@@ -198,27 +187,15 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 .orElseThrow();
     }
 
-    @Override
     protected Resource getResource(String path) {
         return store.get(path);
     }
 
-    @Override
-    @Ignore("This behaviour is specific to the file based implementation")
-    public void theoryAlteringFileAltersResource(String path) throws Exception {
-        // disabled
-    }
-
-    @Override
-    @Ignore("This behaviour is specific to the file based implementation")
-    public void theoryAddingFileToDirectoryAddsResource(String path) {
-        // disabled
-    }
-
-    @Theory
-    public void theoryRenamedDirectoryRenamesChildren(String path) {
+    @ParameterizedTest
+    @MethodSource("testPaths")
+    void theoryRenamedDirectoryRenamesChildren(String path) {
         final Resource res = getResource(path);
-        assumeThat(res, is(directory()));
+        assumeTrue(res.getType() == Type.DIRECTORY, "Resource is not a directory");
 
         final String newpath = "new/path/to" + path;
 
@@ -408,9 +385,65 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void testIgnoresFileSystemOnlyResourcesInDb() throws SQLException {
+    void testMoveStampsMtimeInUtc() throws Exception {
+        store.get("workspaces").dir();
+        store.get("workspaces/tzcheck").dir();
+        try (OutputStream out = store.get("workspaces/tzcheck/f.xml").out()) {
+            out.write("<a/>".getBytes(StandardCharsets.UTF_8));
+        }
+
+        // move() updates parentid and path but leaves mtime for the
+        // resourcestore_update_mtime() trigger to stamp
+        store.move("workspaces/tzcheck/f.xml", "workspaces/tzcheck/moved.xml");
+
+        long mtime = store.get("workspaces/tzcheck/moved.xml").lastmodified();
+        long driftMillis = Math.abs(System.currentTimeMillis() - mtime);
+        long fiveMinutesMillis = 5 * 60 * 1000;
+        // resourcestore_update_mtime() must stamp mtime in UTC, matching how it's read back. On a
+        // JVM running outside UTC, a regression to a plain now() (session-local time) would shift
+        // mtime by the JVM's UTC offset, far past this tolerance. On a UTC host this assertion is
+        // a no-op sanity check, since there would be no drift to catch either way.
+        assertTrue(driftMillis < fiveMinutesMillis, "mtime drifted by " + driftMillis + "ms from wall clock time");
+    }
+
+    @Test
+    void testMoveUpdatesParentDirectoryMtimes() throws Exception {
+        store.get("workspaces").dir();
+        store.get("workspaces/mvsrc").dir();
+        store.get("workspaces/mvdst").dir();
+        store.get("workspaces/mvsrc/a.xml").file();
+        store.get("workspaces/mvdst/keep.xml").file();
+
+        long srcDirMtimeBefore = store.get("workspaces/mvsrc").lastmodified();
+        long dstDirMtimeBefore = store.get("workspaces/mvdst").lastmodified();
+        long keepMtimeBefore = store.get("workspaces/mvdst/keep.xml").lastmodified();
+
+        store.move("workspaces/mvsrc/a.xml", "workspaces/mvdst/a.xml");
+
+        long srcDirMtimeAfter = store.get("workspaces/mvsrc").lastmodified();
+        long dstDirMtimeAfter = store.get("workspaces/mvdst").lastmodified();
+        long keepMtimeAfter = store.get("workspaces/mvdst/keep.xml").lastmodified();
+
+        assertTrue(srcDirMtimeAfter > srcDirMtimeBefore, "source directory mtime should be bumped on move");
+        assertTrue(dstDirMtimeAfter > dstDirMtimeBefore, "destination directory mtime should be bumped on move");
+        assertEquals(keepMtimeBefore, keepMtimeAfter, "sibling file mtime must not change on an unrelated move");
+
+        long fiveMinutesMillis = 5 * 60 * 1000;
+        // Piggybacks a UTC sanity check on both directory mtimes: on a non-UTC JVM, a regression
+        // to plain now() in the trigger would drift these far past this tolerance; on a UTC host
+        // this part of the assertion is a no-op, since there would be no drift to catch either way.
+        assertTrue(
+                Math.abs(System.currentTimeMillis() - srcDirMtimeAfter) < fiveMinutesMillis,
+                "source directory mtime drifted from wall clock time");
+        assertTrue(
+                Math.abs(System.currentTimeMillis() - dstDirMtimeAfter) < fiveMinutesMillis,
+                "destination directory mtime drifted from wall clock time");
+    }
+
+    @Test
+    void testIgnoresFileSystemOnlyResourcesInDb() throws SQLException {
         // for pre 1.8.1 backwards compatibility, ignore fs-only resources already in the db
-        DataSource ds = container.getDataSource();
+        DataSource ds = db.getDataSource();
         String sql =
                 """
                 INSERT INTO resourcestore (parentid, "type", path, content)
@@ -487,7 +520,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         assertTrue(resourceId > 0);
 
         // Delete the resource from the database directly
-        JdbcTemplate template = container.getTemplate();
+        JdbcTemplate template = db.getTemplate();
         template.update("DELETE FROM resourcestore WHERE path = ?", path);
 
         // Initial access to resource should still return the cached state
@@ -541,7 +574,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         Thread.sleep(10);
 
         // Update the resource content in the database directly
-        JdbcTemplate template = container.getTemplate();
+        JdbcTemplate template = db.getTemplate();
         byte[] updatedContent = "updated=content".getBytes();
         // Use PostgreSQL's now() to ensure timestamp is in UTC like our save() method
         template.update(
@@ -557,8 +590,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         // Check lastmodified() which should trigger updateState()
         long updatedLastModified = resource.lastmodified();
         assertTrue(
-                "Last modified timestamp should be updated: " + initialLastModified + " vs " + updatedLastModified,
-                updatedLastModified > initialLastModified);
+                updatedLastModified > initialLastModified,
+                "Last modified timestamp should be updated: " + initialLastModified + " vs " + updatedLastModified);
 
         // Verify the content was updated
         try (InputStream in = resource.in()) {
@@ -596,7 +629,16 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         File file = resource.file();
         assertTrue(file.exists());
         assertTrue(file.isFile());
-        String fileContent = new String(java.nio.file.Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+        String fileContent = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
         assertEquals("test password", fileContent);
+    }
+
+    private static File newFolder(File root, String... subDirs) throws IOException {
+        String subFolder = String.join("/", subDirs);
+        File result = new File(root, subFolder);
+        if (!result.mkdirs()) {
+            throw new IOException("Couldn't create folders " + root);
+        }
+        return result;
     }
 }

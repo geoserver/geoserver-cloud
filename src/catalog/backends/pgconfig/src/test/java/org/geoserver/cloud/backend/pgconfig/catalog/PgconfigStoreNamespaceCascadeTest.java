@@ -20,24 +20,23 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
-import org.junit.jupiter.api.AfterEach;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Verifies that moving a {@code StoreInfo} from one workspace to another correctly cascades the
- * namespace change to every {@code ResourceInfo} belonging to that store. Unlike the standard
- * conformance tests, these checks read the {@code resourceinfo} table directly via JDBC so they
- * catch inconsistencies between the JSON {@code info} column and the denormalized {@code namespace}
- * FK column.
+ * Verifies that moving a {@code StoreInfo} from one workspace to another correctly cascades the namespace change to
+ * every {@code ResourceInfo} belonging to that store. Unlike the standard conformance tests, these checks read the
+ * {@code resourceinfo} table directly via JDBC so they catch inconsistencies between the JSON {@code info} column and
+ * the denormalized {@code namespace} FK column.
  *
- * <p>Background: in production users reported that after moving a data store between workspaces,
- * the resources kept their old namespace. The catalog-level read path was returning the resources
- * via a JOIN through the FK column, masking partial cascade failures. These tests query the
- * underlying table so any cascade gap surfaces immediately.
+ * <p>Background: in production users reported that after moving a data store between workspaces, the resources kept
+ * their old namespace. The catalog-level read path was returning the resources via a JOIN through the FK column,
+ * masking partial cascade failures. These tests query the underlying table so any cascade gap surfaces immediately.
  */
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigStoreNamespaceCascadeTest {
@@ -45,19 +44,16 @@ class PgconfigStoreNamespaceCascadeTest {
     @Container
     static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
+
     private CatalogPlugin catalog;
     private JdbcTemplate jdbc;
 
     @BeforeEach
     void setUp() {
-        container.setUp();
-        jdbc = container.getTemplate();
-        catalog = new PgconfigBackendBuilder(container.getDataSource()).createCatalog();
-    }
-
-    @AfterEach
-    void tearDown() {
-        container.tearDown();
+        jdbc = db.getTemplate();
+        catalog = new PgconfigBackendBuilder(db.getDataSource()).createCatalog();
     }
 
     @Test

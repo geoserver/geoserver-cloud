@@ -33,6 +33,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 
 /**
@@ -167,6 +168,39 @@ class CachingCatalogFacadeContainmentSupport {
             cache.evict(key);
         }
         return value;
+    }
+
+    /**
+     * Cache-through lookup for by-name queries that may be issued with a name that is not the canonical
+     * {@link InfoEvent#prefixedName(org.geoserver.catalog.Info) prefixed name} of the object they resolve to.
+     *
+     * <p>{@code getLayerByName("roads")} can resolve to the layer {@code topp:roads}, and
+     * {@code getStyleByName("roads")} can fall back to a workspace style when there's no global style named
+     * {@code roads}. Caching such results under the requested key is unsafe: {@link #put put} and {@link #evict evict}
+     * always use the canonical prefixed name, hence the entry would never be evicted, and would keep answering with an
+     * arbitrary object when several workspaces have objects with the same local name.
+     *
+     * <p>The loaded value is hence cached only when {@code key} is its canonical name key, and returned without caching
+     * otherwise.
+     */
+    public <T extends CatalogInfo> T getByName(InfoNameKey key, Callable<T> loader) {
+        ValueWrapper cached = cache.get(key);
+        Object cachedValue = cached == null ? null : cached.get();
+        if (cachedValue != null) {
+            @SuppressWarnings("unchecked")
+            T value = (T) cachedValue;
+            return value;
+        }
+        T value = load(loader);
+        if (value != null && key.equals(InfoNameKey.valueOf(value))) {
+            put(key, value);
+        }
+        return value;
+    }
+
+    @SneakyThrows
+    private static <T> T load(Callable<T> loader) {
+        return loader.call();
     }
 
     public List<LayerInfo> getLayersByResource(String resourceInfoId, Callable<List<LayerInfo>> loader) {

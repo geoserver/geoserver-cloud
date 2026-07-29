@@ -20,33 +20,36 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.catalog.cache.CachingCatalogFacade;
 import org.geotools.api.filter.Filter;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.cache.Cache;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Verifies that renaming a workspace (or its paired namespace) does not leave {@code
- * CachingCatalogFacade} returning stale prefixed names through any of the catalog-level read paths.
+ * Verifies that renaming a workspace (or its paired namespace) does not leave {@code CachingCatalogFacade} returning
+ * stale prefixed names through any of the catalog-level read paths.
  *
- * <p>Background: production users hit this when {@code geoserver.catalog.caching.enabled=true} - after
- * renaming a workspace in the Wicket UI, the {@code NewCachedLayerPage} ("Tile Layers -> Add a new
- * cached layer") kept showing the old prefixed layer names until the user clicked
- * "Server Status -> Resource Cache -> Clear". The page exercises {@code Catalog.getLayerByName},
- * which internally calls {@code getResourceByName} then {@code getLayers(resource)} - the second
- * call hits the {@code "layers@<resourceId>"} {@code List<LayerInfo>} cache that the cascade-evict
- * pass did not visit (it only iterated {@link org.geoserver.catalog.CatalogInfo} cache values).
+ * <p>Background: production users hit this when {@code geoserver.catalog.caching.enabled=true} - after renaming a
+ * workspace in the Wicket UI, the {@code NewCachedLayerPage} ("Tile Layers -> Add a new cached layer") kept showing the
+ * old prefixed layer names until the user clicked "Server Status -> Resource Cache -> Clear". The page exercises
+ * {@code Catalog.getLayerByName}, which internally calls {@code getResourceByName} then {@code getLayers(resource)} -
+ * the second call hits the {@code "layers@<resourceId>"} {@code List<LayerInfo>} cache that the cascade-evict pass did
+ * not visit (it only iterated {@link org.geoserver.catalog.CatalogInfo} cache values).
  */
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigCachingWorkspaceRenameTest {
 
     @Container
     static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
 
     private static final String CACHE_NAME = "gs-catalog";
 
@@ -55,13 +58,7 @@ class PgconfigCachingWorkspaceRenameTest {
 
     @BeforeEach
     void setUp() {
-        container.setUp();
         catalog = newCachingCatalog();
-    }
-
-    @AfterEach
-    void tearDown() {
-        container.tearDown();
     }
 
     @Test
@@ -156,7 +153,7 @@ class PgconfigCachingWorkspaceRenameTest {
     private CatalogPlugin newCachingCatalog() {
         CatalogPlugin plugin = new CatalogPlugin();
         PgconfigCatalogFacade pgconfigFacade =
-                (PgconfigCatalogFacade) new PgconfigBackendBuilder(container.getDataSource()).createCatalogFacade();
+                (PgconfigCatalogFacade) new PgconfigBackendBuilder(db.getDataSource()).createCatalogFacade();
         cachingFacade = new CachingCatalogFacade(pgconfigFacade, newCache());
         plugin.setFacade(cachingFacade);
         new NamespaceWorkspaceConsistencyListener(plugin);

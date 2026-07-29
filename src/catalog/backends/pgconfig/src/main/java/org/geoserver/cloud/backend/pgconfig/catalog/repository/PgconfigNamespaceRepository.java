@@ -62,7 +62,7 @@ public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<N
 
     @Override
     public Optional<NamespaceInfo> findOneByURI(@NonNull String uri) {
-        return findOne(select("WHERE uri = ?"), uri);
+        return findOne(select("WHERE uri = ? ORDER BY id"), uri);
     }
 
     @Override

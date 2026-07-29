@@ -11,17 +11,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.faker.CatalogFaker;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.gwc.GWC;
 import org.geoserver.gwc.GWCSynchEnv;
@@ -30,46 +28,52 @@ import org.geoserver.gwc.config.GWCConfigPersister;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Verifies the full pgconfig-catalog rename propagation chain ends with a {@link GWC#layerRenamed}
- * (and {@link GWC#layerRemoved}) call against a mocked GWC mediator, without standing up the full
- * GWC stack. The catalog and SQL triggers are real (Postgres testcontainer), so this covers the
- * order-of-operations between the in-process event firing and the database-side {@code
- * publishedinfos_mat} refresh that broke upstream's path.
+ * Verifies the full pgconfig-catalog rename propagation chain ends with a {@link GWC#layerRenamed} (and
+ * {@link GWC#layerRemoved}) call against a mocked GWC mediator, without standing up the full GWC stack. The catalog and
+ * SQL triggers are real (Postgres testcontainer), so this covers the order-of-operations between the in-process event
+ * firing and the database-side {@code publishedinfos_mat} refresh that broke upstream's path.
  *
- * @since 2.28.3.1
+ * <p>Runs single-threaded because {@link GWC#set(GWC, GWCSynchEnv)} installs a process-wide singleton.
  */
 @Testcontainers(disabledWithoutDocker = true)
+@Execution(value = ExecutionMode.SAME_THREAD)
 class PgconfigGwcCatalogRenameListenerIT {
 
     @Container
     static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
+    @RegisterExtension
+    PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
+
     private CatalogPlugin catalog;
     private CatalogFaker faker;
     private PgconfigGwcCatalogRenameListener listener;
     private PgconfigTileLayerCatalog tlCatalog;
+    private TileLayerMocking support;
     private GWC mediator;
 
     @BeforeEach
     void setUp() {
-        container.setUp();
-        PgconfigBackendBuilder backendBuilder = new PgconfigBackendBuilder(container.getDataSource());
+        PgconfigBackendBuilder backendBuilder = new PgconfigBackendBuilder(db.getDataSource());
         catalog = backendBuilder.createCatalog();
         GeoServerImpl geoServer = backendBuilder.createGeoServer(catalog);
-        faker = new CatalogFaker(catalog, geoServer);
+        support = new TileLayerMocking(catalog, geoServer);
+        faker = support.getFaker();
 
         listener = new PgconfigGwcCatalogRenameListener(catalog);
         listener.register();
 
         GWCConfigPersister defaultsProvider = mock(GWCConfigPersister.class);
         when(defaultsProvider.getConfig()).thenReturn(new GWCConfig());
-        TileLayerMocking support = new TileLayerMocking(catalog, geoServer);
         tlCatalog = new PgconfigTileLayerCatalog(
-                container.getDataSource(), support.getGridsets(), () -> catalog, defaultsProvider);
+                db.getDataSource(), support.getGridsets(), () -> catalog, defaultsProvider);
 
         mediator = mock(GWC.class);
         GWC.set(mediator, mock(GWCSynchEnv.class));
@@ -81,15 +85,14 @@ class PgconfigGwcCatalogRenameListenerIT {
             listener.unregister();
         } finally {
             GWC.set(null, null);
-            container.tearDown();
         }
     }
 
     @Test
     void workspaceRename_firesLayerRenamedForEachLayerInWorkspace() {
-        WorkspaceInfo ws = addWorkspace("oldWs");
-        LayerInfo layer1 = addLayer(ws, "states");
-        LayerInfo layer2 = addLayer(ws, "roads");
+        WorkspaceInfo ws = support.workspace("oldWs");
+        LayerInfo layer1 = support.layerInfo(ws, "states");
+        LayerInfo layer2 = support.layerInfo(ws, "roads");
 
         assertThat(layer1.prefixedName()).isEqualTo("oldWs:states");
         assertThat(layer2.prefixedName()).isEqualTo("oldWs:roads");
@@ -102,8 +105,8 @@ class PgconfigGwcCatalogRenameListenerIT {
 
     @Test
     void workspaceRename_firesLayerRenamedForLayerGroups() {
-        WorkspaceInfo ws = addWorkspace("oldWs");
-        LayerInfo layer = addLayer(ws, "states");
+        WorkspaceInfo ws = support.workspace("oldWs");
+        LayerInfo layer = support.layerInfo(ws, "states");
         LayerGroupInfo group = addLayerGroup(ws, "grp", layer);
 
         assertThat(group.prefixedName()).isEqualTo("oldWs:grp");
@@ -115,10 +118,10 @@ class PgconfigGwcCatalogRenameListenerIT {
 
     @Test
     void resourceRename_firesLayerRenamed() {
-        WorkspaceInfo ws = addWorkspace("topp");
-        LayerInfo layer = addLayer(ws, "states");
+        WorkspaceInfo ws = support.workspace("topp");
+        LayerInfo layer = support.layerInfo(ws, "states");
 
-        FeatureTypeInfo resource = (FeatureTypeInfo) layer.getResource();
+        FeatureTypeInfo resource = catalog.getResource(layer.getResource().getId(), FeatureTypeInfo.class);
         resource.setName("roads");
         catalog.save(resource);
 
@@ -127,8 +130,8 @@ class PgconfigGwcCatalogRenameListenerIT {
 
     @Test
     void layerGroupRename_firesLayerRenamed() {
-        WorkspaceInfo ws = addWorkspace("topp");
-        LayerInfo layer = addLayer(ws, "states");
+        WorkspaceInfo ws = support.workspace("topp");
+        LayerInfo layer = support.layerInfo(ws, "states");
         LayerGroupInfo group = addLayerGroup(ws, "groupOld", layer);
 
         group = catalog.getLayerGroup(group.getId());
@@ -140,10 +143,9 @@ class PgconfigGwcCatalogRenameListenerIT {
 
     @Test
     void unrelatedModify_doesNotFire() {
-        WorkspaceInfo ws = addWorkspace("topp");
-        addLayer(ws, "states");
+        WorkspaceInfo ws = support.workspace("topp");
+        support.layerInfo(ws, "states");
 
-        // bump the workspace's "isolated" attribute (a non-name change)
         ws = catalog.getWorkspace(ws.getId());
         ws.setIsolated(!ws.isIsolated());
         catalog.save(ws);
@@ -154,36 +156,13 @@ class PgconfigGwcCatalogRenameListenerIT {
 
     @Test
     void removeLayer_firesLayerRemoved() {
-        WorkspaceInfo ws = addWorkspace("topp");
-        LayerInfo layer = addLayer(ws, "states");
-        tlCatalog.addLayer(new TileLayerMocking(catalog, mock(GeoServerImpl.class)).geoServerTileLayer(layer));
+        WorkspaceInfo ws = support.workspace("topp");
+        LayerInfo layer = support.layerInfo(ws, "states");
+        tlCatalog.addLayer(support.geoServerTileLayer(layer));
 
         tlCatalog.removeLayer(layer.prefixedName());
 
         verify(mediator).layerRemoved("topp:states");
-    }
-
-    private WorkspaceInfo addWorkspace(String name) {
-        WorkspaceInfo ws = faker.workspaceInfo(name);
-        NamespaceInfo ns = faker.namespace(name);
-        catalog.add(ws);
-        catalog.add(ns);
-        return catalog.getWorkspaceByName(name);
-    }
-
-    private LayerInfo addLayer(WorkspaceInfo ws, String layerName) {
-        DataStoreInfo ds = faker.dataStoreInfo(ws);
-        catalog.add(ds);
-
-        StyleInfo style = faker.styleInfo();
-        catalog.add(style);
-
-        FeatureTypeInfo featureType = faker.featureTypeInfo(ds, layerName);
-        catalog.add(featureType);
-
-        LayerInfo layer = faker.layerInfo(featureType, style);
-        catalog.add(layer);
-        return catalog.getLayer(layer.getId());
     }
 
     private LayerGroupInfo addLayerGroup(WorkspaceInfo ws, String name, LayerInfo... layers) {

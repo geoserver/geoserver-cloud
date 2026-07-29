@@ -1771,6 +1771,26 @@ public abstract class CatalogConformanceTest {
         assertFalse(l2.getResource().isEnabled());
     }
 
+    /**
+     * {@code LayerInfo.advertised} is delegated to the resource just like {@code enabled}; saving the layer must
+     * persist the flag on the resource
+     */
+    @Test
+    void testAdvertiseLayer() {
+        addLayer();
+
+        LayerInfo l2 = catalog.getLayerByName(data.layerFeatureTypeA.getName());
+        assertTrue(l2.isAdvertised());
+        assertTrue(l2.getResource().isAdvertised());
+
+        l2.setAdvertised(false);
+        catalog.save(l2);
+
+        l2 = catalog.getLayerByName(l2.getName());
+        assertFalse(l2.isAdvertised());
+        assertFalse(l2.getResource().isAdvertised());
+    }
+
     @Test
     void testLayerEvents() {
         addFeatureType();

@@ -17,6 +17,8 @@ import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PconfigDataSourceConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
@@ -31,7 +33,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  */
 @Testcontainers(disabledWithoutDocker = true)
 @Slf4j
-class PgconfigDataSourceAutoConfigurationTest {
+@Execution(value = ExecutionMode.CONCURRENT)
+class PgconfigDataSourceAutoConfigurationIT {
 
     @Container
     static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();

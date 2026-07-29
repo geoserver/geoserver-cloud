@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
+import java.util.List;
 import lombok.Data;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,6 +23,17 @@ public class PgconfigBackendProperties {
     private String schema = "public";
     private boolean initialize = true;
     private boolean createSchema = true;
+
+    /**
+     * Ant-style path patterns of files that are stored in the database even when located under a directory the resource
+     * store otherwise treats as pod-local (e.g. {@code data/}). Defaults target ImageMosaic configuration files,
+     * allowing REST-created mosaics to work across pods.
+     */
+    private List<String> dbBackedFilePatterns = defaultDbBackedFilePatterns();
+
+    public static List<String> defaultDbBackedFilePatterns() {
+        return List.of("data/**/*.properties", "data/**/sample_image.dat");
+    }
 
     public String schema() {
         return StringUtils.hasLength(schema) ? schema : "public";

@@ -15,10 +15,13 @@ import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigConfigRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigUpdateSequence;
+import org.geoserver.cloud.backend.pgconfig.coverage.MosaicSyncingResourcePool;
+import org.geoserver.cloud.backend.pgconfig.resource.DbBackedFileSynchronizer;
 import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
+import org.geoserver.cloud.config.catalog.backend.core.RawCatalogCustomizer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.DatabaseMigrationConfiguration.Migrations;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -27,6 +30,7 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
@@ -40,11 +44,13 @@ import org.springframework.util.StringUtils;
  * @since 1.4
  */
 @Configuration(proxyBeanMethods = true)
+@EnableConfigurationProperties(PgconfigBackendProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgconfig")
 public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
 
     private String instanceId;
     private DataSource dataSource;
+    private PgconfigBackendProperties configProperties;
 
     /**
      * @param instanceId used as client-id for the {@link #pgconfigLockRepository() LockRepository}
@@ -57,9 +63,11 @@ public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
     PgconfigBackendConfiguration(
             @Value("${info.instance-id:}") String instanceId,
             @Qualifier("pgconfigDataSource") DataSource dataSource,
+            PgconfigBackendProperties configProperties,
             Migrations migrations) {
         this.instanceId = instanceId;
         this.dataSource = dataSource;
+        this.configProperties = configProperties;
         log.info(
                 "Loading geoserver config backend with {}. {}",
                 PgconfigBackendConfiguration.class.getSimpleName(),
@@ -110,18 +118,44 @@ public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
 
     @Bean
     @Override
-    protected ResourceStore resourceStoreImpl() {
+    protected PgconfigResourceStore resourceStoreImpl() {
         log.debug("Creating ResourceStore {}", PgconfigResourceStore.class.getSimpleName());
         FileSystemResourceStoreCache resourceStoreCache = pgconfigFileSystemResourceStoreCache();
         JdbcTemplate template = template();
         PgconfigLockProvider lockProvider = pgconfigLockProvider();
         Predicate<String> localOnlyFilter = PgconfigResourceStore.defaultIgnoredResources();
-        return new PgconfigResourceStore(resourceStoreCache, template, lockProvider, localOnlyFilter);
+        Predicate<String> dbBackedFilePatterns =
+                PgconfigResourceStore.antPathMatcher(configProperties.getDbBackedFilePatterns());
+        return new PgconfigResourceStore(
+                resourceStoreCache, template, lockProvider, localOnlyFilter, dbBackedFilePatterns);
     }
 
     @Bean
     FileSystemResourceStoreCache pgconfigFileSystemResourceStoreCache() {
-        return FileSystemResourceStoreCache.newTempDirInstance();
+        Predicate<String> noClobber = PgconfigResourceStore.antPathMatcher(configProperties.getDbBackedFilePatterns());
+        return FileSystemResourceStoreCache.newTempDirInstance(noClobber);
+    }
+
+    /**
+     * Keeps db-backed files written with raw file I/O (e.g. ImageMosaic config files rewritten by gt-imagemosaic)
+     * consistent between each pod's local resource cache and the resource store, making them visible to every pod.
+     *
+     * @see MosaicSyncingResourcePool
+     */
+    @Bean
+    DbBackedFileSynchronizer pgconfigDbBackedFileSynchronizer() {
+        PgconfigResourceStore resourceStore = resourceStoreImpl();
+        return new DbBackedFileSynchronizer(resourceStore, pgconfigFileSystemResourceStoreCache());
+    }
+
+    /**
+     * Installs {@link MosaicSyncingResourcePool} on the raw catalog, making REST-created ImageMosaics work across pods
+     * on the pgconfig backend.
+     */
+    @Bean
+    RawCatalogCustomizer pgconfigMosaicSyncCustomizer() {
+        DbBackedFileSynchronizer synchronizer = pgconfigDbBackedFileSynchronizer();
+        return rawCatalog -> rawCatalog.setResourcePool(new MosaicSyncingResourcePool(rawCatalog, synchronizer));
     }
 
     @Bean

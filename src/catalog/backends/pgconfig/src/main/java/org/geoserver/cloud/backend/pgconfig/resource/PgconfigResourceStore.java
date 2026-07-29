@@ -36,6 +36,7 @@ import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.AntPathMatcher;
 
 /**
  * @since 1.4
@@ -56,18 +57,26 @@ public class PgconfigResourceStore implements ResourceStore {
 
     private final Predicate<String> fileSystemOnlyPathMatcher;
 
+    private final Predicate<String> dbBackedFilePatterns;
+
     public PgconfigResourceStore(
             @NonNull FileSystemResourceStoreCache cache,
             @NonNull JdbcTemplate template,
             @NonNull PgconfigLockProvider lockProvider,
-            @NonNull Predicate<String> fileSystemOnlyPathMatcher) {
+            @NonNull Predicate<String> fileSystemOnlyPathMatcher,
+            @NonNull Predicate<String> dbBackedFilePatterns) {
         this.template = new LoggingTemplate(template).setLog(log);
         this.lockProvider = lockProvider;
         this.queryMapper = new PgconfigResourceRowMapper(this);
         this.cache = cache;
         final String root = "";
         Predicate<String> notRoot = path -> !root.equals(path);
-        this.fileSystemOnlyPathMatcher = notRoot.and(fileSystemOnlyPathMatcher);
+        this.dbBackedFilePatterns = dbBackedFilePatterns;
+        this.fileSystemOnlyPathMatcher = notRoot.and(fileSystemOnlyPathMatcher.and(dbBackedFilePatterns.negate()));
+    }
+
+    public Predicate<String> dbBackedFilePatterns() {
+        return dbBackedFilePatterns;
     }
 
     /**
@@ -105,6 +114,13 @@ public class PgconfigResourceStore implements ResourceStore {
         return matcher;
     }
 
+    /** Predicate matching resource paths against Ant-style patterns (e.g. {@code data/**&#47;*.properties}). */
+    public static Predicate<String> antPathMatcher(@NonNull List<String> patterns) {
+        final List<String> defensiveCopy = List.copyOf(patterns);
+        final AntPathMatcher matcher = new AntPathMatcher();
+        return path -> defensiveCopy.stream().anyMatch(pattern -> matcher.match(pattern, path));
+    }
+
     @Override
     public Resource get(@NonNull String path) {
         final String validPath = normalize(path);
@@ -117,7 +133,18 @@ public class PgconfigResourceStore implements ResourceStore {
 
     @RequiredArgsConstructor
     static class FileSystemResourceAdaptor implements Resource {
-        @Delegate
+
+        private interface Overrides {
+            Resource parent();
+
+            Resource get(String resourcePath);
+
+            List<Resource> list();
+
+            File dir();
+        }
+
+        @Delegate(excludes = Overrides.class)
         @NonNull
         private final Resource delegate;
 
@@ -127,6 +154,26 @@ public class PgconfigResourceStore implements ResourceStore {
         public Resource parent() {
             String parentPath = Paths.parent(this.path());
             return store.get(parentPath);
+        }
+
+        @Override
+        public Resource get(String resourcePath) {
+            if ("".equals(resourcePath)) {
+                return this;
+            }
+            return store.get(Paths.path(path(), resourcePath));
+        }
+
+        @Override
+        public List<Resource> list() {
+            store.dumpDbBackedChildren(path());
+            return delegate.list();
+        }
+
+        @Override
+        public File dir() {
+            store.dumpDbBackedChildren(path());
+            return delegate.dir();
         }
 
         @Override
@@ -148,9 +195,21 @@ public class PgconfigResourceStore implements ResourceStore {
 
         String validPath = normalize(path);
         if (fileSystemOnlyPathMatcher.test(validPath)) {
-            return cache.getLocalOnlyStore().remove(validPath);
+            boolean removedLocally = cache.getLocalOnlyStore().remove(validPath);
+            boolean removedDbRows = removeDbBackedSubtree(validPath);
+            return removedLocally || removedDbRows;
         }
         return findByPath(validPath).map(PgconfigResource::delete).orElse(false);
+    }
+
+    /**
+     * Deletes the database rows living under a local-only path. A local-only directory may be hybrid: a mosaic store
+     * directory under {@code data/} whose whitelisted config files live as database rows. Rows left behind would
+     * re-materialize the deleted store's configuration into every pod's cache when a store is later created at the same
+     * path. Deleting the directory row cascades to its children.
+     */
+    private boolean removeDbBackedSubtree(String validPath) {
+        return findByPath(validPath).map(this::delete).orElse(false);
     }
 
     @Override
@@ -170,6 +229,21 @@ public class PgconfigResourceStore implements ResourceStore {
             throw new UnsupportedOperationException(
                     "target resource targets database but source resource matches the ignored resources predicate. Source: %s, target: %s"
                             .formatted(path, target));
+        }
+        return moveLocalOnly(path, target);
+    }
+
+    /**
+     * Moves a local-only path, relocating any database rows living under it. A local-only directory may be hybrid: a
+     * mosaic store directory under {@code data/} whose whitelisted config files live as database rows. Moving only the
+     * local files would leave the configuration rows orphaned at the old path and absent at the new one. The database
+     * move relocates the local files too, through {@link FileSystemResourceStoreCache#moved}.
+     */
+    private boolean moveLocalOnly(String path, String target) {
+        Optional<PgconfigResource> dbBacked = findByPath(normalize(path));
+        if (dbBacked.isPresent()) {
+            PgconfigResource pgTarget = findByPathOrUndefined(normalize(target));
+            return move(dbBacked.get(), pgTarget);
         }
         return cache.getLocalOnlyStore().move(path, target);
     }
@@ -198,6 +272,18 @@ public class PgconfigResourceStore implements ResourceStore {
         } catch (EmptyResultDataAccessException empty) {
             return Optional.empty();
         }
+    }
+
+    /**
+     * Looks up the database row for a path directly, without routing through the local-only/db-backed predicate.
+     *
+     * <p>A whitelisted db-backed file may live under a directory that otherwise matches the local-only routing
+     * predicate (e.g. {@code data/ws/store} for {@code data/ws/store/indexer.properties}). The database still keeps its
+     * own directory hierarchy for such a file's ancestors; parent resolution and directory bookkeeping for it must
+     * therefore bypass that routing rather than go through {@link #get(String)}.
+     */
+    private PgconfigResource findByPathOrUndefined(String path) {
+        return findByPath(path).orElseGet(() -> queryMapper.undefined(path));
     }
 
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
@@ -256,7 +342,7 @@ public class PgconfigResourceStore implements ResourceStore {
         template.update(sql, parentId, type, path, contents);
 
         // Refresh resource with current database state
-        PgconfigResource updated = (PgconfigResource) get(resource.path);
+        PgconfigResource updated = findByPathOrUndefined(path);
         resource.id = updated.getId();
         resource.lastmodified = updated.lastmodified();
         resource.parentId = updated.getParentId();
@@ -362,12 +448,36 @@ public class PgconfigResourceStore implements ResourceStore {
         source.id = UNDEFINED_ID;
         source.parentId = UNDEFINED_ID;
 
-        // Update target resource with the moved state
-        PgconfigResource moved = (PgconfigResource) get(target.path());
+        // Update target resource with the moved state; look the row up directly, since get() on a hybrid
+        // directory path (a mosaic store dir under data/) routes to the local-only adaptor
+        PgconfigResource moved = findByPathOrUndefined(target.path());
         target.reset(moved);
 
         cache.moved(source, target);
         return true;
+    }
+
+    /**
+     * Materializes into the local cache any database-backed files living under the given local-only directory path
+     * (e.g. mosaic config files under {@code data/<ws>/<store>}), never overwriting locally newer files. No-op when the
+     * directory has no database-backed children.
+     */
+    void dumpDbBackedChildren(String path) {
+        findByPath(path)
+                .filter(PgconfigResource::isDirectory)
+                .ifPresent(dbDir -> cache.materialize(findAllChildren(dbDir)));
+    }
+
+    /**
+     * Paths of the database-backed file rows under the given directory path, whether or not their local cache copies
+     * exist. Empty when the path has no database row.
+     */
+    public List<String> dbBackedFilePaths(@NonNull String path) {
+        return findByPath(normalize(path)).map(this::findAllChildren).orElseGet(List::of).stream()
+                .filter(PgconfigResource::isFile)
+                .map(PgconfigResource::path)
+                .filter(dbBackedFilePatterns)
+                .toList();
     }
 
     List<PgconfigResource> findAllChildren(PgconfigResource resource) {
@@ -419,6 +529,7 @@ public class PgconfigResourceStore implements ResourceStore {
         boolean deleted = 0 < template.update(sql, resource.getId());
         if (deleted) {
             resource.type = Type.UNDEFINED;
+            cache.deleted(resource.path());
         }
         return deleted;
     }
@@ -469,6 +580,11 @@ public class PgconfigResourceStore implements ResourceStore {
             resource.type = Type.DIRECTORY;
             PgconfigResourceStore.this.save(resource);
         }
+        // skip the root: PgconfigGeoServerResourceLoader calls get("").dir() at startup, and
+        // materializing its children would dump the entire resourcestore table to disk
+        if (!resource.path().isEmpty()) {
+            cache.materialize(findAllChildren(resource));
+        }
         return cache.getDirectory(resource);
     }
 
@@ -490,7 +606,7 @@ public class PgconfigResourceStore implements ResourceStore {
         resource.parentId = parent.getId();
         resource.type = Type.DIRECTORY;
         PgconfigResourceStore.this.save(resource);
-        PgconfigResource saved = (PgconfigResource) get(resource.path());
+        PgconfigResource saved = findByPathOrUndefined(resource.path());
         resource.reset(saved);
         return resource;
     }
@@ -517,6 +633,6 @@ public class PgconfigResourceStore implements ResourceStore {
             return null;
         }
         String parentPath = resource.parentPath();
-        return (PgconfigResource) get(parentPath);
+        return findByPathOrUndefined(parentPath);
     }
 }

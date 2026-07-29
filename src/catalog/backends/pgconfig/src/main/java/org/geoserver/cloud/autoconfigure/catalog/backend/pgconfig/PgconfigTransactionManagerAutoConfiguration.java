@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @AutoConfiguration(after = PgconfigDataSourceAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnPgconfigBackendEnabled
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true)
 public class PgconfigTransactionManagerAutoConfiguration {
 
     @Bean
