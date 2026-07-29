@@ -644,6 +644,8 @@ public abstract class PatchSerializationTest {
         CoverageAccessInfo coverageInfo = new CoverageAccessInfoImpl();
         coverageInfo.setCorePoolSize(10);
         coverageInfo.setQueueType(QueueType.UNBOUNDED);
+        coverageInfo.setGranuleCacheMaxSizeMB(128);
+        coverageInfo.setGranuleCacheThresholdKB(512);
 
         testPatch("coverageInfo", coverageInfo);
     }
