@@ -21,4 +21,6 @@ public class CoverageAccess {
     private int maxPoolSize;
     private QueueType queueType;
     private long imageIOCacheThreshold;
+    private int granuleCacheMaxSizeMB;
+    private int granuleCacheThresholdKB;
 }
