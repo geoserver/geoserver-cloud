@@ -91,6 +91,9 @@ class DbBackedFileSynchronizerIT {
         DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
         // override default table prefix "INT" by "RESOURCE_" (matching table RESOURCE_LOCK in flyway ddl scripts)
         lockRepository.setPrefix("RESOURCE_");
+        // initialize like the pgconfigLockRepository bean in PgconfigBackendConfiguration does, the
+        // transaction templates created by afterPropertiesSet() are required to acquire locks
+        lockRepository.afterPropertiesSet();
         return lockRepository;
     }
 
