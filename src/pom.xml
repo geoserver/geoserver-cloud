@@ -38,7 +38,6 @@
     <wicket.version>10.9.1</wicket.version>
     <acl.version>3.0.0</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
-    <tileverse.version>1.4.0</tileverse.version>
     <jackson.version>3.1.2</jackson.version>
     <jackson2.version>2.21.0</jackson2.version>
 
@@ -93,13 +92,6 @@
         <groupId>io.tileverse</groupId>
         <artifactId>cloud-dependencies-bom</artifactId>
         <version>${cloud-dependencies-bom.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.tileverse</groupId>
-        <artifactId>tileverse-bom</artifactId>
-        <version>${tileverse.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -1059,6 +1051,23 @@
         <dependencies>
           <dependency>
             <!--
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver:gs-gwc:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-org.geoserver:gs-main:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-org.codehaus.jettison:jettison:jar:1.5.7:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver:gs-gwc:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-org.geowebcache:gwc-diskquota-jdbc:jar:2.1-SNAPSHOT:compile
+[ERROR]       +-org.geowebcache:gwc-diskquota-core:jar:2.1-SNAPSHOT:compile
+[ERROR]         +-org.codehaus.jettison:jettison:jar:1.5.5:compile
+          -->
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
+            <version>1.5.7</version>
+          </dependency>
+          <dependency>
+            <!--
 [ERROR] Dependency convergence error for org.checkerframework:checker-qual:jar:3.55.1. Paths to dependency are:
 [ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.1.0-SNAPSHOT
 [ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.1.0-SNAPSHOT:compile
@@ -1075,25 +1084,25 @@
           -->
             <groupId>org.checkerframework</groupId>
             <artifactId>checker-qual</artifactId>
-            <version>3.49.0</version>
+            <version>3.55.1</version>
           </dependency>
           <dependency>
             <!--
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.geoserver.community:gs-cog-google:jar:3.0.0-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.1.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.community:gs-cog-google:jar:3.1.0-CLOUD-SNAPSHOT:compile
 [ERROR]         +-it.geosolutions.imageio-ext:imageio-ext-cog-rangereader-gs:jar:2.1.0:compile
-[ERROR]           +-com.google.cloud:google-cloud-storage:jar:2.63.0:compile
+[ERROR]           +-com.google.cloud:google-cloud-storage:jar:2.67.0:compile
 [ERROR]             +-com.google.protobuf:protobuf-java:jar:4.33.2:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-output-formats:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-tiles:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.geoserver.extension:gs-vectortiles:jar:3.0.0-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-output-formats:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-tiles:jar:3.1.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.extension:gs-vectortiles:jar:3.1.0-CLOUD-SNAPSHOT:compile
 [ERROR]         +-no.ecc.vectortile:java-vector-tile:jar:1.3.9:compile
 [ERROR]           +-com.google.protobuf:protobuf-java:jar:3.9.1:compile
--->
+            -->
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>4.33.2</version>
