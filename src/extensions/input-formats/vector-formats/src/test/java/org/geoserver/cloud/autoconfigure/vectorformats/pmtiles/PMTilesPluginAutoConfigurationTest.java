@@ -134,14 +134,14 @@ class PMTilesPluginAutoConfigurationTest {
             contextRunner.run(context -> assertThat(context)
                     .hasNotFailed()
                     .doesNotHaveBean(PMTilesWmsIntegrationConfiguration.class)
-                    .doesNotHaveBean("pmTilesScaleSetter"));
+                    .doesNotHaveBean("vectorTilesScaleSetter"));
 
             contextRunner
                     .withPropertyValues("geoserver.service.wms.enabled=true")
                     .run(context -> assertThat(context)
                             .hasNotFailed()
                             .hasSingleBean(PMTilesWmsIntegrationConfiguration.class)
-                            .hasBean("pmTilesScaleSetter"));
+                            .hasBean("vectorTilesScaleSetter"));
         }
     }
 }
