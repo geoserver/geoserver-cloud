@@ -154,6 +154,9 @@ class PgconfigResourceIT {
         lockRepository.setPrefix("RESOURCE_");
         // time in ms to expire dead locks (10k is the default)
         lockRepository.setTimeToLive(300_000);
+        // initialize like the pgconfigLockRepository bean in PgconfigBackendConfiguration does, the
+        // transaction templates created by afterPropertiesSet() are required to acquire locks
+        lockRepository.afterPropertiesSet();
         return lockRepository;
     }
 
