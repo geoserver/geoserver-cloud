@@ -1,0 +1,268 @@
+{
+  "annotations": {"list": []},
+  "description": "Per-rule control-flow throttling: saturation against configured limits, blocking episodes, queue detail.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {"type": "prometheus"},
+      "description": "Requests currently admitted past control-flow across the selected services.",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus"},
+          "expr": "sum(geoserver_controlflow_requests_running{application=~\"$application\"})",
+          "legendFormat": "running",
+          "refId": "A"
+        }
+      ],
+      "title": "Running Requests",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus"},
+      "description": "Requests currently blocked inside control-flow acquisition. Non-zero means throttling is happening right now.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus"},
+          "expr": "sum(geoserver_controlflow_requests_blocked{application=~\"$application\"})",
+          "legendFormat": "blocked",
+          "refId": "A"
+        }
+      ],
+      "title": "Blocked Requests",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus"},
+      "description": "Per-service blocking episodes over time: Blocked while any request is held inside control-flow acquisition.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "custom": {"fillOpacity": 70, "lineWidth": 0},
+          "mappings": [
+            {"options": {"0": {"color": "green", "index": 0, "text": "OK"}, "1": {"color": "red", "index": 1, "text": "Blocked"}}, "type": "value"}
+          ],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 5, "w": 12, "x": 12, "y": 0},
+      "id": 3,
+      "options": {
+        "alignValue": "left",
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "never",
+        "tooltip": {"mode": "single"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus"},
+          "expr": "max by (application) (geoserver_controlflow_requests_blocked{application=~\"$application\"} > bool 0)",
+          "legendFormat": "{{application}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Blocking Episodes",
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {"type": "prometheus"},
+      "description": "Requests admitted under each rule as a percentage of its configured limit. A series pinned near 100% is the rule doing the throttling.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never"},
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 70}, {"color": "red", "value": 90}]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 9, "w": 24, "x": 0, "y": 5},
+      "id": 4,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus"},
+          "expr": "100 * geoserver_controlflow_rule_running{application=~\"$application\", rule=~\"$rule\"} / geoserver_controlflow_rule_limit{application=~\"$application\", rule=~\"$rule\"}",
+          "legendFormat": "{{application}} {{rule}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Rule Saturation (running / limit)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus"},
+      "description": "Configured rules with their live state. A rule change shows up here on the scrape after the configuration reloads.",
+      "fieldConfig": {"defaults": {"custom": {"align": "auto", "cellOptions": {"type": "auto"}}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 24, "x": 0, "y": 14},
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {"countRows": false, "fields": "", "reducer": ["sum"], "show": false},
+        "showHeader": true,
+        "sortBy": [{"desc": false, "displayName": "rule"}]
+      },
+      "targets": [
+        {"datasource": {"type": "prometheus"}, "expr": "geoserver_controlflow_rule_limit{application=~\"$application\", rule=~\"$rule\"}", "format": "table", "instant": true, "refId": "A"},
+        {"datasource": {"type": "prometheus"}, "expr": "geoserver_controlflow_rule_running{application=~\"$application\", rule=~\"$rule\"}", "format": "table", "instant": true, "refId": "B"},
+        {"datasource": {"type": "prometheus"}, "expr": "geoserver_controlflow_rule_waiting{application=~\"$application\", rule=~\"$rule\"}", "format": "table", "instant": true, "refId": "C"},
+        {"datasource": {"type": "prometheus"}, "expr": "geoserver_controlflow_rule_queues_active{application=~\"$application\", rule=~\"$rule\"}", "format": "table", "instant": true, "refId": "D"}
+      ],
+      "title": "Configured Rules",
+      "transformations": [
+        {"id": "merge", "options": {}},
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {"Time": true, "__name__": true, "exported_instance_id": true, "instance": true, "instance_id": true, "job": true, "node": true, "service": true},
+            "renameByName": {
+              "Value #A": "limit",
+              "Value #B": "running",
+              "Value #C": "waiting",
+              "Value #D": "active queues",
+              "application": "service"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {"type": "prometheus"},
+      "description": "Live per-user and per-IP queues tracked by user/ip rules.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never"},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 23},
+      "id": 6,
+      "options": {
+        "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus"},
+          "expr": "geoserver_controlflow_rule_queues_active{application=~\"$application\", rule=~\"$rule\"}",
+          "legendFormat": "{{application}} {{rule}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Active Per-User / Per-IP Queues",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus"},
+      "description": "Requests parked in priority-blocker waiting queues (only rules with a priority provider report this).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never"},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 23},
+      "id": 7,
+      "options": {
+        "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus"},
+          "expr": "geoserver_controlflow_rule_waiting{application=~\"$application\", rule=~\"$rule\"}",
+          "legendFormat": "{{application}} {{rule}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Waiting in Priority Queue",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "tags": ["geoserver", "control-flow"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "datasource": {"type": "prometheus"},
+        "definition": "label_values(geoserver_controlflow_requests_running, application)",
+        "includeAll": true,
+        "multi": true,
+        "name": "application",
+        "options": [],
+        "query": "label_values(geoserver_controlflow_requests_running, application)",
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {"type": "prometheus"},
+        "definition": "label_values(geoserver_controlflow_rule_limit{application=~\"$application\"}, rule)",
+        "includeAll": true,
+        "multi": true,
+        "name": "rule",
+        "options": [],
+        "query": "label_values(geoserver_controlflow_rule_limit{application=~\"$application\"}, rule)",
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-30m", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "GeoServer Control-Flow",
+  "uid": "geoserver-controlflow",
+  "version": 1,
+  "weekStart": ""
+}
