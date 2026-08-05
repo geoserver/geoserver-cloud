@@ -15,6 +15,14 @@ scrape_configs:
       - server: 'consul:8500'
         refresh_interval: 30s
     relabel_configs:
+      # Spring Cloud Consul registers an extra <service>-management service for
+      # the separate management port. The main registration (rewritten to 8081
+      # below) already scrapes the same pod's actuator, making those targets
+      # duplicates that show up as <service>-management in every dashboard.
+      # Consul's own self-registration is scraped by the 'discovery' job.
+      - source_labels: [__meta_consul_service]
+        regex: '.*-management|consul'
+        action: drop
       # Consul returns port 8080 (app port), but actuator is on 8081
       # So we need to replace the port in the address
       - source_labels: [__address__]

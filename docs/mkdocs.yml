@@ -110,7 +110,10 @@ nav:
         - Overview: deploy/kubernetes/helm/index.md
         - Example — pgconfig: deploy/kubernetes/helm/example-pgconfig.md
   - User Guide:
+    - Overview: user-guide/index.md
     - ImageMosaics through the REST API: user-guide/imagemosaic-rest-api.md
+    - Monitoring control-flow: user-guide/controlflow-monitoring.md
+    - Control-flow metrics reference: user-guide/controlflow-metrics-reference.md
   - Configuration:
     - Externalized configuration guide: configuration/index.md
     - Migration 2.28 to 3.0: configuration/migration-2.28-to-3.0.md

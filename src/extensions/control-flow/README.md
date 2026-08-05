@@ -28,9 +28,8 @@ geoserver:
       use-properties-file: false  # Use externalized config (default: false)
       properties:
         '[timeout]': 10  # Request timeout in seconds
-        '[ows.global]': "${cpu.cores} * 2"  # Global OWS request limit
-        '[ows.wms]': "${cpu.cores} * 4"  # WMS service limit
-        '[ows.wms.getmap]': "${cpu.cores} * 2"  # GetMap request limit
+        '[ows.wms]': "${cpu.cores} * 8"  # WMS service limit
+        '[ows.wms.getmap]': "${cpu.cores} * 4"  # GetMap request limit
 ```
 
 The default configuration is provided in `config/geoserver_control_flow.yml`.
@@ -157,3 +156,25 @@ This works through the property placeholder: `${control-flow:true}`
 
 - [GeoServer Control Flow User Guide](https://docs.geoserver.org/main/en/user/extensions/controlflow/index.html)
 - Default configuration: `config/geoserver_control_flow.yml`
+
+## Metrics
+
+When a Micrometer `MeterRegistry` is available and `geoserver.metrics.enabled` is not
+`false`, the extension registers gauges on the actuator metrics endpoints:
+
+- `geoserver.controlflow.requests.running` / `geoserver.controlflow.requests.blocked`:
+  the global figures the module logs per request.
+- `geoserver.controlflow.rule.limit`, `.rule.running`, `.rule.waiting`,
+  `.rule.queues.active`, `.rule.rate.limit`: per-rule gauges, tagged `rule` (the
+  configuration key) and `controller` (the implementing class).
+
+All meters are tagged `instance-id` when `geoserver.metrics.instance-id` is set. Rule
+changes show up on the scrape after the configuration reloads. With
+`use-properties-file=true` every per-rule gauge works except `rule.running` on rules
+backed by a priority blocker (upstream keeps that count private).
+
+The user guide's
+[control-flow metrics reference](https://geoserver.org/geoserver-cloud/user-guide/controlflow-metrics-reference/)
+documents the Prometheus metric names, example queries, and dashboard recipes;
+`compose/monitoring/MONITORING.md` covers the dev compose monitoring stack that ships
+the Grafana dashboards.
