@@ -104,6 +104,10 @@ nav:
     - Overview: deploy/index.md
     - Docker Compose: deploy/docker-compose/index.md
     - Helm Charts: deploy/helm/index.md
+  - User Guide:
+    - Overview: user-guide/index.md
+    - Monitoring control-flow: user-guide/controlflow-monitoring.md
+    - Control-flow metrics reference: user-guide/controlflow-metrics-reference.md
   - Configuration:
     - Externalized configuration guide: configuration/index.md
     - Migration 2.26 to 2.27: configuration/migration-2.26-to-2.27.md

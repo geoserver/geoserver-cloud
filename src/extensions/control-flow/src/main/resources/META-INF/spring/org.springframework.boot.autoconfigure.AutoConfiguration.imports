@@ -1,1 +1,2 @@
 org.geoserver.cloud.autoconfigure.extensions.controlflow.ControlFlowAutoConfiguration
+org.geoserver.cloud.autoconfigure.extensions.controlflow.ControlFlowMetricsAutoConfiguration

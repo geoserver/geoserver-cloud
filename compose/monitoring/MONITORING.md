@@ -253,6 +253,18 @@ Count of healthy replicas per service:
 count by (service) (up{job="geoserver-cloud-services"} == 1)
 ```
 
+## Control-Flow Metrics
+
+Services running the control-flow extension export throttling gauges on `/actuator/prometheus`
+when `geoserver.metrics.enabled` is not `false`: the global running/blocked request counts and
+per-rule limit/running/waiting/queue gauges. The **GeoServer Control-Flow** dashboard
+(`geoserver-controlflow`) visualizes them; the overview dashboard shows the two global gauges.
+
+The full metric inventory, example PromQL queries, and the Grafana recipes the dashboard is
+built from are documented in the
+[control-flow metrics reference](https://geoserver.org/geoserver-cloud/user-guide/controlflow-metrics-reference/)
+of the user guide.
+
 ## Configuration
 
 ### Prometheus Configuration
