@@ -23,7 +23,6 @@ import org.geoserver.flow.controller.IpKeyGenerator;
 import org.geoserver.flow.controller.KeyGenerator;
 import org.geoserver.flow.controller.OWSRequestMatcher;
 import org.geoserver.flow.controller.PriorityProvider;
-import org.geoserver.flow.controller.PriorityThreadBlocker;
 import org.geoserver.flow.controller.RateFlowController;
 import org.geoserver.flow.controller.SimpleThreadBlocker;
 import org.geoserver.flow.controller.SingleIpFlowController;
@@ -252,13 +251,13 @@ class PropertiesControlFlowConfigurator implements ControlFlowConfigurator {
      * Builds a {@link ThreadBlocker} based on a queue size and a prority provider
      *
      * @param queueSize The count of concurrent requests allowed to run
-     * @param priorityProvider The priority provider (if not null, a
-     *     {@link org.geoserver.flow.controller.PriorityThreadBlocker} will be built
+     * @param priorityProvider The priority provider (if not null, a {@link MonitoredPriorityThreadBlocker} will be
+     *     built
      * @return a {@link ThreadBlocker}
      */
     private ThreadBlocker buildBlocker(int queueSize, PriorityProvider priorityProvider) {
         if (priorityProvider != null) {
-            return new PriorityThreadBlocker(queueSize, priorityProvider);
+            return new MonitoredPriorityThreadBlocker(queueSize, priorityProvider);
         } else {
             return new SimpleThreadBlocker(queueSize);
         }
