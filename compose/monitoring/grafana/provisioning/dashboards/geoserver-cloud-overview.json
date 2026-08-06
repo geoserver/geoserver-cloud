@@ -703,6 +703,68 @@
       ],
       "title": "JVM Threads",
       "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus"},
+      "description": "Requests currently admitted past control-flow, per service. Empty when the control-flow extension is disabled.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never"},
+          "links": [
+            {"title": "Control-Flow dashboard", "url": "/d/geoserver-controlflow/geoserver-control-flow?var-application=${__field.labels.application}"}
+          ],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+      "id": 100,
+      "options": {
+        "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus"},
+          "expr": "sum by (application) (geoserver_controlflow_requests_running)",
+          "legendFormat": "{{application}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Control-Flow Running Requests",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus"},
+      "description": "Requests currently blocked inside control-flow acquisition, per service. Sustained non-zero values mean requests are being throttled.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "showPoints": "never"},
+          "links": [
+            {"title": "Control-Flow dashboard", "url": "/d/geoserver-controlflow/geoserver-control-flow?var-application=${__field.labels.application}"}
+          ],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+      "id": 101,
+      "options": {
+        "legend": {"calcs": [], "displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus"},
+          "expr": "sum by (application) (geoserver_controlflow_requests_blocked)",
+          "legendFormat": "{{application}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Control-Flow Blocked Requests",
+      "type": "timeseries"
     }
   ],
   "refresh": "10s",

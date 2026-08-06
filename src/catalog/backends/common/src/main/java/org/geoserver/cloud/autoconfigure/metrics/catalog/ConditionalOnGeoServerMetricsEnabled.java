@@ -14,6 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.micrometer.metrics.autoconfigure.MetricsAutoConfiguration;
 
 /**
@@ -22,6 +23,7 @@ import org.springframework.boot.micrometer.metrics.autoconfigure.MetricsAutoConf
  * <ul>
  *   <li>Both spring-boot-actuator and micrometer shall be available;
  *   <li>A {@link MeterRegistry} bean shall be available as per {@link MetricsAutoConfiguration}
+ *   <li>{@literal geoserver.metrics.enabled} is unset or {@code true}
  * </ul>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -29,4 +31,5 @@ import org.springframework.boot.micrometer.metrics.autoconfigure.MetricsAutoConf
 @Documented
 @ConditionalOnClass({MeterRegistry.class, Timed.class})
 @ConditionalOnBean(MeterRegistry.class)
+@ConditionalOnProperty(name = "geoserver.metrics.enabled", havingValue = "true", matchIfMissing = true)
 public @interface ConditionalOnGeoServerMetricsEnabled {}
