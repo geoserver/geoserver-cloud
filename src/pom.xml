@@ -38,6 +38,8 @@
     <wicket.version>10.9.1</wicket.version>
     <acl.version>3.0.0</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
+    <parquetry.version>1.0-SNAPSHOT</parquetry.version>
+    <parquetry-geoserver.version>1.0-SNAPSHOT</parquetry-geoserver.version>
     <jackson.version>3.1.2</jackson.version>
     <jackson2.version>2.21.0</jackson2.version>
 
@@ -92,6 +94,14 @@
         <groupId>io.tileverse</groupId>
         <artifactId>cloud-dependencies-bom</artifactId>
         <version>${cloud-dependencies-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Parquetry: from-scratch Parquet implementation providing the GeoParquet datastores -->
+      <dependency>
+        <groupId>io.tileverse.parquetry</groupId>
+        <artifactId>parquetry-bom</artifactId>
+        <version>${parquetry.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -642,6 +652,11 @@
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-pmtiles-store</artifactId>
         <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.tileverse.parquetry.geoserver</groupId>
+        <artifactId>parquetry-geoserver-plugin</artifactId>
+        <version>${parquetry-geoserver.version}</version>
       </dependency>
       <!-- GeoServer Cloud Extensions -->
       <!-- GeoServer Cloud Starters -->
