@@ -112,6 +112,7 @@ nav:
   - User Guide:
     - Overview: user-guide/index.md
     - ImageMosaics through the REST API: user-guide/imagemosaic-rest-api.md
+    - GeoParquet through the REST API: user-guide/geoparquet-rest-api.md
     - Monitoring control-flow: user-guide/controlflow-monitoring.md
     - Control-flow metrics reference: user-guide/controlflow-metrics-reference.md
   - Configuration:
