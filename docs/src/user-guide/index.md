@@ -8,6 +8,9 @@ Available guides:
 - [ImageMosaics through the REST API](imagemosaic-rest-api.md): publish an
   ImageMosaic of Cloud Optimized GeoTIFFs stored on object storage, using the
   same REST API calls that work against vanilla GeoServer.
+- [GeoParquet through the REST API](geoparquet-rest-api.md): publish
+  GeoParquet files from a local volume or object storage as vector layers,
+  creating the datastores and layers through the REST API.
 - [Monitoring control-flow](controlflow-monitoring.md): run the dev compose
   stack with Prometheus and Grafana, generate load, and watch request
   throttling live on the control-flow dashboard.
