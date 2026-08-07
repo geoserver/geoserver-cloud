@@ -36,7 +36,7 @@
     <gs.version>3.1.0-CLOUD-SNAPSHOT</gs.version>
     <gt.version>36-SNAPSHOT</gt.version>
     <wicket.version>10.9.1</wicket.version>
-    <acl.version>3.0.0</acl.version>
+    <acl.version>3.0.1</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
     <jackson.version>3.1.2</jackson.version>
     <jackson2.version>2.21.0</jackson2.version>
