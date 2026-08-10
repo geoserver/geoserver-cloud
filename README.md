@@ -27,6 +27,8 @@ A **supporter** is anyone who contributes to the project in any way, through cod
 
 ### Organizations
 
+[![camptocamp.com](docs/src/assets/images/supporters/logo-camptocamp-readme.png)](https://www.camptocamp.com/)
+
 [![Multivers.io](docs/src/assets/images/supporters/logo-multiversio-readme.png)](https://www.multivers.io/)
 
 ### Individuals
