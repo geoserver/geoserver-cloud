@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Import;
  * <p>For the sake of simplicity, this configuration automatically imports {@link GwcWfsMinimalConfiguration} with the
  * set of WFS dependency beans for the minimal {@code WebMapService} bean.
  *
- * @see WMSCoreMinimalConfiguration_Generated
+ * @see GwcWMSMinimalConfiguration_Generated
  * @see GwcWfsMinimalConfiguration
  * @since 2.28.0, previously implemented separately (and duplicated) in {@code gwc-cloud-core} and
  *     {@code gs-cloud-webui}

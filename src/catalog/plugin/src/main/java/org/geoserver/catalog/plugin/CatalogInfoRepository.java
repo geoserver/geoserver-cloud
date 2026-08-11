@@ -8,8 +8,11 @@ package org.geoserver.catalog.plugin;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.NonNull;
+import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.DataStoreInfo;
+import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
@@ -21,6 +24,7 @@ import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -75,16 +79,11 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
     /**
      * Adds a new catalog object to the repository.
      *
-     * <p>The object is persisted to the underlying storage, and its state may be updated (e.g., with a
-     * generated ID). The added object remains unchanged in memory unless explicitly reassigned.
+     * <p>The object is persisted to the underlying storage, and its state may be updated (e.g., with a generated ID).
+     * The added object remains unchanged in memory unless explicitly reassigned.
      *
      * @param value The catalog object to add; must not be null.
      * @throws NullPointerException if {@code value} is null.
-     * @example Adding a workspace:
-     *          <pre>
-     *          WorkspaceInfo ws = new WorkspaceInfoImpl();
-     *          ws.setName("myWorkspace");
-     *          repository.add(ws);
      */
     void add(@NonNull T value);
 
@@ -96,11 +95,6 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      *
      * @param value The catalog object to remove; must not be null.
      * @throws NullPointerException if {@code value} is null.
-     * @example Removing a layer:
-     *     <pre>
-     *          LayerInfo layer = ...; // existing layer
-     *          repository.remove(layer);
-     *          </pre>
      */
     void remove(@NonNull T value);
 
@@ -119,12 +113,6 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * @return The updated catalog object reflecting the applied patch.
      * @throws NullPointerException if {@code value} or {@code patch} is null.
      * @throws IllegalArgumentException if {@code value} is not found in the repository.
-     * @example Updating a layer’s title:
-     *     <pre>
-     *          LayerInfo layer = ...; // existing layer
-     *          Patch patch = new Patch().with("title", "New Title");
-     *          LayerInfo updated = repository.update(layer, patch);
-     *          </pre>
      */
     <I extends T> I update(@NonNull I value, @NonNull Patch patch);
 
@@ -144,12 +132,6 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * closed after use to release resources.
      *
      * @return A {@link Stream} of all catalog objects managed by this repository; never null.
-     * @example Listing all resources:
-     *     <pre>
-     *          try (Stream<ResourceInfo> resources = repository.findAll()) {
-     *              resources.forEach(r -> System.out.println(r.getName()));
-     *          }
-     *          </pre>
      */
     default Stream<T> findAll() {
         return findAll(Query.all(getContentType()));
@@ -161,17 +143,19 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * <p>This method returns a stream of objects that satisfy the {@link Query}’s type, filter, sorting, and pagination
      * constraints. The stream must be closed after use to release resources, ideally via a try-with-resources block.
      *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Query<LayerInfo> query = Query.valueOf(LayerInfo.class, nameFilter);
+     * try (Stream<LayerInfo> layers = repository.findAll(query)) {
+     *     layers.forEach(l -> System.out.println(l.getName()));
+     * }
+     * }</pre>
+     *
      * @param <U> The specific type of {@link CatalogInfo} being queried.
      * @param query The query defining the criteria; must not be null.
      * @return A {@link Stream} of matching catalog objects; never null.
      * @throws NullPointerException if {@code query} is null.
-     * @example Querying layers by name:
-     *     <pre>
-     *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, nameFilter);
-     *          try (Stream<LayerInfo> layers = repository.findAll(query)) {
-     *              layers.forEach(l -> System.out.println(l.getName()));
-     *          }
-     *          </pre>
      */
     <U extends T> Stream<U> findAll(Query<U> query);
 
@@ -183,11 +167,6 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * @param filter The filter to apply; must not be null.
      * @return The number of matching objects.
      * @throws NullPointerException if {@code of} or {@code filter} is null.
-     * @example Counting layers in a namespace:
-     *     <pre>
-     *          Filter nsFilter = ...; // filter by namespace
-     *          long count = repository.count(LayerInfo.class, nsFilter);
-     *          </pre>
      */
     <U extends T> long count(Class<U> of, Filter filter);
 
@@ -202,11 +181,6 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * @param clazz The type of object to find, or null for any subtype of {@code T}.
      * @return An {@link Optional} containing the found object, or empty if not found.
      * @throws NullPointerException if {@code id} is null.
-     * @example Finding a layer by ID:
-     *     <pre>
-     *          Optional<LayerInfo> layer = repository.findById("layer1", LayerInfo.class);
-     *          layer.ifPresent(l -> System.out.println(l.getName()));
-     *          </pre>
      */
     <U extends T> Optional<U> findById(@NonNull String id, @Nullable Class<U> clazz);
 
@@ -221,10 +195,6 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * @param clazz The type of object to find; must not be null.
      * @return An {@link Optional} containing the first matching object, or empty if not found.
      * @throws NullPointerException if {@code name} or {@code clazz} is null.
-     * @example Finding a style by name:
-     *     <pre>
-     *          Optional<StyleInfo> style = repository.findFirstByName("point", StyleInfo.class);
-     *          </pre>
      */
     <U extends T> Optional<U> findFirstByName(@NonNull String name, Class<U> clazz);
 
@@ -253,12 +223,6 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      *
      * @param target The target repository to sync to; must not be null.
      * @throws NullPointerException if {@code target} is null.
-     * @example Syncing to another repository:
-     *     <pre>
-     *          CatalogInfoRepository<LayerInfo> source = ...;
-     *          CatalogInfoRepository<LayerInfo> target = ...;
-     *          source.syncTo(target);
-     *          </pre>
      */
     void syncTo(@NonNull CatalogInfoRepository<T> target);
 

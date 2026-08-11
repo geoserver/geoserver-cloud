@@ -66,8 +66,6 @@ import org.jspecify.annotations.Nullable;
  * Alternative to {@link org.geoserver.catalog.impl.CatalogImpl} to improve separation of concerns between levels of
  * abstractions and favor plug-ability of the underlying object store.
  *
- * <p>
- *
  * <ul>
  *   <li>Allows decorating the {@link CatalogFacade} with an {@link IsolatedCatalogFacade} when {@link #setFacade} is
  *       called, instead of only in the default constructor

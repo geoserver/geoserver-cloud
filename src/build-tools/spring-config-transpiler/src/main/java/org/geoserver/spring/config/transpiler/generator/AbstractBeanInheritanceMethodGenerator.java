@@ -39,7 +39,7 @@ import org.springframework.core.ResolvableType;
 /**
  * Generator for generating {@code @Bean} methods from Spring XML bean definitions that use abstract bean inheritance.
  *
- * <h3>Problem Solved</h3>
+ * <h2>Problem Solved</h2>
  *
  * <p>Spring XML supports a powerful inheritance mechanism where child beans can inherit configuration from abstract
  * parent beans using the {@code parent} attribute. This pattern is commonly used in complex applications like GeoServer
@@ -62,7 +62,7 @@ import org.springframework.core.ResolvableType;
  * </bean>
  * }</pre>
  *
- * <h3>Spring's Inheritance Behavior</h3>
+ * <h2>Spring's Inheritance Behavior</h2>
  *
  * <p>In the above example, Spring merges the child bean's configuration with its parent:
  *
@@ -76,7 +76,7 @@ import org.springframework.core.ResolvableType;
  * <p>The effective constructor call becomes: {@code new WfsXmlReader("GetCapabilities", xmlConfiguration-1.0,
  * geoServer)}
  *
- * <h3>Generated Java Output</h3>
+ * <h2>Generated Java Output</h2>
  *
  * <p>This generator generates equivalent Java {@code @Bean} methods that replicate Spring's inheritance behavior:
  *
@@ -89,7 +89,7 @@ import org.springframework.core.ResolvableType;
  * }
  * }</pre>
  *
- * <h3>Implementation Details</h3>
+ * <h2>Implementation Details</h2>
  *
  * <p>This generator handles the complex inheritance merging process:
  *
@@ -104,14 +104,14 @@ import org.springframework.core.ResolvableType;
  *       property setters
  * </ol>
  *
- * <h3>Generator Priority</h3>
+ * <h2>Generator Priority</h2>
  *
  * <p>This generator operates at <strong>priority 50</strong> (higher than {@link ConstructorBasedBeanMethodGenerator}
  * at 100) to ensure beans with inheritance are handled before falling back to standard constructor injection patterns.
  * Only processes beans that have a {@code parent} attribute - abstract parent beans themselves are skipped since they
  * are not meant to be instantiated.
  *
- * <h3>Error Handling</h3>
+ * <h2>Error Handling</h2>
  *
  * <p>The generator performs validation to ensure:
  *

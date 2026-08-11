@@ -7,6 +7,14 @@ package org.geoserver.catalog.plugin.forwarding;
 
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.MapInfo;
+import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
+import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
@@ -16,6 +24,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
+import org.geoserver.catalog.plugin.CatalogInfoRepositoryHolder;
 import org.geoserver.catalog.plugin.RepositoryCatalogFacade;
 
 /**
@@ -163,10 +172,6 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
      *
      * @return The configured {@link NamespaceRepository}; never null.
      * @throws IllegalStateException if no namespace repository has been set in the underlying facade.
-     * @example Accessing the namespace repository:
-     *     <pre>
-     *          NamespaceRepository nsRepo = facade.getNamespaceRepository();
-     *          </pre>
      */
     @Override
     public NamespaceRepository getNamespaceRepository() {
@@ -287,10 +292,6 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
      * @return The repository managing objects of type {@code T}; never null.
      * @throws NullPointerException if {@code of} is null.
      * @throws IllegalArgumentException if no repository is configured for the specified type in the underlying facade.
-     * @example Retrieving a layer repository:
-     *     <pre>
-     *          LayerRepository layerRepo = facade.repository(LayerInfo.class);
-     *          </pre>
      */
     @Override
     public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(Class<T> of) {
@@ -308,11 +309,6 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
      * @return The repository managing objects of the same type as {@code info}; never null.
      * @throws NullPointerException if {@code info} is null.
      * @throws IllegalArgumentException if no repository is configured for the object’s type in the underlying facade.
-     * @example Retrieving a repository for a specific style:
-     *     <pre>
-     *          StyleInfo style = ...; // existing style
-     *          StyleRepository styleRepo = facade.repositoryFor(style);
-     *          </pre>
      */
     @Override
     public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(T info) {

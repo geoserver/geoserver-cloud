@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
  * "https://docs.geoserver.org/latest/en/user/configuration/tools/resource/browser.html">Resource Browser</a> extension
  * in the Web UI.
  *
- * @see WebToolsAutoConfiguration
+ * @see "org.geoserver.cloud.autoconfigure.web.tools.WebToolsAutoConfiguration"
  */
 @Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(locations = "jar:gs-web-resource-.*!/applicationContext.xml")

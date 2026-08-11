@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Import;
  * <ul>
  *   <li>Avoid component scanning for GeoServer REST controllers, replaced by transpiled bean methods in
  *       {@link RestConfigConfiguration_Generated.ComponentScannedBeans}
- *   <li>Registering specialized filters like {@link RestRequestPathInfoFilter} and {@link NpeAwareSuffixStripFilter} to
+ *   <li>Registering specialized filters like {@link RestRequestPathInfoFilter} and {@code NpeAwareSuffixStripFilter} to
  *       ensure the REST API receives requests in the expected format (servlet path and path info).
  *   <li>Exclude component scanning of controllers in {@code gs-restconfig-wcs}, {@code gs-restconfig-wfs},
  *       {@code gs-restconfig-wms}, and {@code gs-restconfig-wmts}. Those modules have no {@code applicationContext.xml}
@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Import;
  * </ul>
  *
  * @see RestConfigConfiguration_Generated
- * @see RestConfigConfiguration_Generated.ComponentScans
+ * @see RestConfigConfiguration_Generated.ComponentScannedBeans
  * @see RestconfigWcsConfiguration
  * @see RestconfigWfsConfiguration
  * @see RestconfigWmsConfiguration

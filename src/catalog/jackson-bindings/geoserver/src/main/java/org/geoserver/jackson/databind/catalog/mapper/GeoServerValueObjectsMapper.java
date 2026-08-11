@@ -28,7 +28,6 @@ import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
 import org.geoserver.catalog.plugin.Query;
-import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.jackson.databind.catalog.dto.AttributeTypeInfoDto;
 import org.geoserver.jackson.databind.catalog.dto.AuthorityURLInfoDto;
 import org.geoserver.jackson.databind.catalog.dto.CoverageDimensionInfoDto;
@@ -87,7 +86,7 @@ public interface GeoServerValueObjectsMapper {
 
     List<SortByDto> sortByDtoListToSortByList(List<SortBy> sortBy);
 
-    /** @see XStreamPersister#GridGeometry2DConverter */
+    /** @see "XStreamPersister.GridGeometry2DConverter" */
     default GridGeometry dtoToGridGeometry2D(GridGeometryDto value) {
         if (value == null) {
             return null;

@@ -6,6 +6,7 @@
 package org.geoserver.catalog.plugin.resolving;
 
 import java.util.function.UnaryOperator;
+import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.ows.util.OwsUtils;
@@ -29,11 +30,11 @@ import org.geoserver.ows.util.OwsUtils;
  *
  * <p>Example usage:
  *
- * <pre>
+ * <pre>{@code
  * ResolvingCatalogFacadeDecorator facade = ...;
  * UnaryOperator<Object> resolver = CollectionPropertiesInitializer.instance();
  * facade.setOutboundResolver(resolver);
- * </pre>
+ * }</pre>
  *
  * @param <T> The type of object to process (typically {@link CatalogInfo} or other {@link ModificationProxy}-compatible
  *     types).
@@ -67,12 +68,6 @@ public class CollectionPropertiesInitializer<T> implements UnaryOperator<T> {
      *
      * @param <T> The type of object to process.
      * @return The singleton {@link CollectionPropertiesInitializer}; never null.
-     * @example Using the singleton instance:
-     *     <pre>
-     *          UnaryOperator<Object> resolver = CollectionPropertiesInitializer.instance();
-     *          Object obj = ...;
-     *          Object resolved = resolver.apply(obj);
-     *          </pre>
      */
     @SuppressWarnings("unchecked")
     public static <T> CollectionPropertiesInitializer<T> instance() {

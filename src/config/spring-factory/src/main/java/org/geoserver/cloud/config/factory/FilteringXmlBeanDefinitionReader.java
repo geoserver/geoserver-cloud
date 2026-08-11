@@ -98,8 +98,6 @@ import org.xml.sax.InputSource;
  * @see XmlBeanDefinitionReader
  * @see FilteringXmlBeanDefinitionReaderAutoConfiguration
  * @see FilteringXmlBeanDefinitionReader#clearCaches()
- * @see FilteringXmlBeanDefinitionReader#reader()
- * @see FilteringXmlBeanDefinitionReader#locations()
  * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
  * @since 1.0
  */

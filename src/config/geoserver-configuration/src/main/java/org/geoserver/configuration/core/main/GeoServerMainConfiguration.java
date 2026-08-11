@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
  * Configuration for GeoServer's main module
  *
  * <p>Loads bean definitions from {@code jar:gs-main-.*!/applicationContext.xml}, excluding the ones that shall be
- * provided by the enabled {@link GeoServerBackendConfigurer}, as defined in {@code gs-cloud-catalog-backend-starter}.
+ * provided by the enabled {@code GeoServerBackendConfigurer}, as defined in {@code gs-cloud-catalog-backend-starter}.
  *
  * @see GeoServerMainConfiguration_Generated
  * @see GeoServerMainConfiguration_Generated.ComponentScannedBeans
