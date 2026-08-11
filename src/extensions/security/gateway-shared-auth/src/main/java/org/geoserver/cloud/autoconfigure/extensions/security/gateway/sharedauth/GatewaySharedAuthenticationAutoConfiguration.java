@@ -40,8 +40,8 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
  * <p>At the same time, the gateway will take care of removing the webui response headers from the responses sent to the
  * clients, and from incoming client requests.
  *
- * @see ServerConfiguration
- * @see ClientConfiguration
+ * @see ServerModeConfiguration
+ * @see ClientModeConfiguration
  * @since 1.9
  */
 // run before GeoServerSecurityAutoConfiguration so the provider is available when

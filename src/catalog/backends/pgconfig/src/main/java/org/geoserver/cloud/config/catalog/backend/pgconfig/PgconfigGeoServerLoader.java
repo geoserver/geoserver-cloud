@@ -42,8 +42,7 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
 
     /**
      * @param resourceLoader
-     * @param knownServiceTypes know {@link ServiceInfo} types used to initialize a default service config when starting
-     *     off an empty config
+     * @param configLock cluster-aware lock to serialize configuration changes
      */
     public PgconfigGeoServerLoader(
             @NonNull PgconfigGeoServerResourceLoader resourceLoader, @NonNull GeoServerConfigurationLock configLock) {

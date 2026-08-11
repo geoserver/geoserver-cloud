@@ -32,7 +32,7 @@ import org.springframework.beans.factory.support.ManagedList;
  *   <li><strong>target/targetName:</strong> Reference to the actual object being proxied
  * </ul>
  *
- * <h3>Spring XML Pattern</h3>
+ * <h2>Spring XML Pattern</h2>
  *
  * <pre>{@code
  * <bean id="wcs100Service" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -49,7 +49,7 @@ import org.springframework.beans.factory.support.ManagedList;
  * </bean>
  * }</pre>
  *
- * <h3>Generated Java Output</h3>
+ * <h2>Generated Java Output</h2>
  *
  * <pre>{@code
  * @Bean
@@ -61,7 +61,7 @@ import org.springframework.beans.factory.support.ManagedList;
  * }
  * }</pre>
  *
- * <h3>AOP Proxy Concepts</h3>
+ * <h2>AOP Proxy Concepts</h2>
  *
  * <p>The {@code ProxyFactoryBean} creates dynamic proxies that wrap target objects with:
  *

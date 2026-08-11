@@ -27,8 +27,6 @@ import reactor.core.publisher.Mono;
  * <p>This configuration ensures that both MDC propagation and access logging are properly configured and registered as
  * global filters in the gateway.
  *
- * <p>
- *
  * <h2>Why Both WebFilter and GlobalFilter?</h2>
  *
  * While WebFilters like MDCWebFilter and AccessLogWebfluxFilter will automatically run in Spring WebFlux applications,

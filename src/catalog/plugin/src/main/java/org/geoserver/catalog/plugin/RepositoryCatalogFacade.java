@@ -6,6 +6,9 @@
 package org.geoserver.catalog.plugin;
 
 import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 
 /**
  * A {@link CatalogFacade} extension that integrates repository-based catalog management by combining

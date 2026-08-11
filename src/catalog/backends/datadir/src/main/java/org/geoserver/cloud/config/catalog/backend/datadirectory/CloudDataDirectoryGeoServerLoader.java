@@ -37,7 +37,7 @@ import org.geoserver.security.GeoServerSecurityManager;
  * </ul>
  *
  * @since 1.0
- * @see DataDirectoryGeoServerLoader
+ * @see org.geoserver.config.datadir.DataDirectoryGeoServerLoader
  */
 public class CloudDataDirectoryGeoServerLoader extends org.geoserver.config.datadir.DataDirectoryGeoServerLoader {
 

@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * Transpiles {@literal gs-wcs2_0.jar!/applicationContext.xml} to {@link WCS2_0Configuration_Generated}
+ * Transpiles {@literal gs-wcs2_0.jar!/applicationContext.xml} to {@link WCS20Configuration_Generated}
  *
- * @see WCS2_0Configuration_Generated
+ * @see WCS20Configuration_Generated
  */
 @Configuration(proxyBeanMethods = false)
 @Import(WCS20Configuration_Generated.class)

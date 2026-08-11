@@ -46,12 +46,12 @@ import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
  *
  * <p>Example usage:
  *
- * <pre>
+ * <pre>{@code
  * Catalog catalog = ...;
  * ResolvingCatalogFacadeDecorator facade = ...;
  * UnaryOperator<CatalogInfo> resolver = CatalogPropertyResolver.of(catalog);
  * facade.setOutboundResolver(resolver);
- * </pre>
+ * }</pre>
  *
  * @since 1.0
  * @see ResolvingCatalogFacadeDecorator

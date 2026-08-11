@@ -63,11 +63,6 @@ public @Data class Patch implements Serializable {
          * @param <V> The expected type of the value.
          * @return The property value cast to type {@code V}.
          * @throws ClassCastException if the value cannot be cast to the requested type.
-         * @example Accessing a string value:
-         *     <pre>
-         *          Property prop = new Property("title", "New Title");
-         *          String title = prop.value();
-         *          </pre>
          */
         @SuppressWarnings("unchecked")
         public <V> V value() {
@@ -160,12 +155,6 @@ public @Data class Patch implements Serializable {
      * changes initially.
      *
      * @param patches The initial list of property changes to include. May be null or empty.
-     * @example Creating a patch to update a layer's title:
-     *     <pre>
-     *          List<Property> props = new ArrayList<>();
-     *          props.add(new Property("title", "New Title"));
-     *          Patch patch = new Patch(props);
-     *          </pre>
      */
     public Patch(List<Property> patches) {
         patches.forEach(this::add);
@@ -213,11 +202,6 @@ public @Data class Patch implements Serializable {
      * @param value The new value for the property.
      * @return The created {@link Property} instance.
      * @throws NullPointerException if the name is null.
-     * @example Adding a property:
-     *     <pre>
-     *          Patch patch = new Patch();
-     *          patch.add("enabled", true);
-     *          </pre>
      */
     public Property add(String name, Object value) {
         Objects.requireNonNull(name, "name");
@@ -421,7 +405,6 @@ public @Data class Patch implements Serializable {
      * <p>Provides a concise summary of all property changes in the format "Patch[name: value, ...]".
      *
      * @return A string summarizing the patch’s contents.
-     * @example Output: "Patch[title: New Title, enabled: true]"
      */
     @Override
     public String toString() {

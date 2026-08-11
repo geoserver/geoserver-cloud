@@ -116,8 +116,8 @@ public class HttpRequestMdcConfigProperties {
     /**
      * Adds HTTP headers to the MDC if enabled by configuration.
      *
-     * <p>This method extracts headers from the supplied HttpHeaders and adds them to the MDC if {@link #isHeaders()} is
-     * true. Only headers matching the {@link #getHeadersPattern()} will be included.
+     * <p>This method extracts headers from the supplied HttpHeaders and adds them to the MDC if {@code isHeaders()} is
+     * true. Only headers matching the {@code getHeadersPattern()} will be included.
      *
      * @param headers a supplier that provides the HTTP headers
      * @return this instance for method chaining
@@ -133,7 +133,7 @@ public class HttpRequestMdcConfigProperties {
     /**
      * Adds HTTP cookies to the MDC if enabled by configuration.
      *
-     * <p>This method extracts cookies from the supplied MultiValueMap and adds them to the MDC if {@link #isCookies()}
+     * <p>This method extracts cookies from the supplied MultiValueMap and adds them to the MDC if {@code isCookies()}
      * is true. Each cookie is added with the key format {@code http.request.cookie.[name]}.
      *
      * @param cookies a supplier that provides the HTTP cookies

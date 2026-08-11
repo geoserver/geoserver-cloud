@@ -18,7 +18,7 @@ import org.springframework.cloud.bus.ConditionalOnBusEnabled;
  * GeoServer remote events enablement checks base on {@link ConditionalOnBusEnabled @ConditionalOnBusEnabled}
  * (spring-cloud-bus enabled) and configuration property {@code geoserver.bus.enabled=true} (defaults to {@code true}).
  *
- * <p>An extra {@snippet @ConditionalOnClass(name="org.springframework.cloud.bus.BusBridge")} is added because the
+ * <p>An extra {@code @ConditionalOnClass(name = "org.springframework.cloud.bus.BusBridge")} is added because the
  * dependency on {@code org.springframework.cloud:spring-cloud-bus} is optional.
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -100,7 +100,7 @@ public abstract class AbstractBeanMethodGenerator implements BeanMethodGenerator
         return beanAnnotationBuilder.build();
     }
 
-    /** Add {@cod @DependsOn} annotation if bean has depends-on attribute */
+    /** Add {@code @DependsOn} annotation if bean has depends-on attribute */
     protected void addDependsOnAnnotation(MethodSpec.Builder methodBuilder, @Nullable String[] dependsOn) {
         if (dependsOn != null && dependsOn.length > 0) {
             AnnotationSpec.Builder dependsOnBuilder = AnnotationSpec.builder(DependsOn.class);
@@ -898,7 +898,7 @@ public abstract class AbstractBeanMethodGenerator implements BeanMethodGenerator
     }
 
     /**
-     * Check if a property expects a Map<Class<?>, Class<?>> by analyzing the property type. This is needed for
+     * Check if a property expects a {@code Map<Class<?>, Class<?>>} by analyzing the property type. This is needed for
      * properties like CustomEditorConfigurer.customEditors.
      */
     protected boolean isClassToClassMap(String propertyName, String beanClassName) {

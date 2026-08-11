@@ -45,8 +45,6 @@ import org.springframework.web.context.WebApplicationContext;
 /**
  * Alternative to {@link LayerGroupContainmentCache}
  *
- * <p>
- *
  * <ul>
  *   <li>Avoids building the cache twice during startup, once at the class constructor and again at
  *       {@link #onApplicationEvent(ContextRefreshedEvent)}

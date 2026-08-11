@@ -58,12 +58,12 @@ import org.springframework.util.StringUtils;
  *
  * <p>Example usage:
  *
- * <pre>
+ * <pre>{@code
  * Catalog catalog = ...;
  * ResolvingProxyResolver<CatalogInfo> resolver = ResolvingProxyResolver.of(catalog);
  * ResolvingCatalogFacadeDecorator facade = ...;
  * facade.setOutboundResolver(resolver);
- * </pre>
+ * }</pre>
  *
  * <p>When resolving object references from a stream of objects, it’s convenient to use the {@link #memoizing()}
  * supplier, which will keep a local cache during the lifetime of the stream to avoid querying the catalog over repeated

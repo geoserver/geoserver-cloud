@@ -29,7 +29,7 @@ import org.springframework.beans.factory.InitializingBean;
  * requires.
  *
  * <p>This {@link GeoServerReinitializer} is hence in charge of notifying
- * {@link ConfigurableBlobStore#setChanged(org.geoserver.gwc.config.GWCConfig, boolean)}
+ * {@code ConfigurableBlobStore#setChanged(GWCConfig, boolean)}
  *
  * @since 1.8
  */
