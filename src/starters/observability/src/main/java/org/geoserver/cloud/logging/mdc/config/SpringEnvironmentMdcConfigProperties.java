@@ -47,7 +47,6 @@ import org.springframework.util.StringUtils;
  * configuration.
  *
  * @see org.geoserver.cloud.logging.mdc.servlet.SpringEnvironmentMdcFilter
- * @see org.geoserver.cloud.logging.mdc.webflux.MDCWebFilter
  */
 @Data
 @ConfigurationProperties(prefix = "logging.mdc.include.application")

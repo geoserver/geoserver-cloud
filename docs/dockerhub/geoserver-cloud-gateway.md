@@ -23,7 +23,7 @@ Key features:
 - CORS configuration via `globalcors`
 - Prometheus metrics and Spring Boot Actuator health endpoints
 
-Starting with GeoServer Cloud 3.0.0 this replaces the previous reactive gateway, still available as [`geoservercloud/geoserver-cloud-gateway-webflux`](https://hub.docker.com/r/geoservercloud/geoserver-cloud-gateway-webflux) and scheduled for removal in 3.1.0.
+Starting with GeoServer Cloud 3.0.0 this replaces the previous reactive (WebFlux) gateway. The [`geoservercloud/geoserver-cloud-gateway-webflux`](https://hub.docker.com/r/geoservercloud/geoserver-cloud-gateway-webflux) image was published for 3.0.0 only and was removed in 3.1.0.
 
 ## Tags
 

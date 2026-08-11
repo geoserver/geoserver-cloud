@@ -7,7 +7,7 @@ using service discovery and client-side load balancing.
 Starting with GeoServer Cloud 3.0.0, the gateway is built on
 [Spring Cloud Gateway Server MVC](https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway-server-webmvc.html)
 (servlet-based with virtual threads).
-The previous WebFlux-based gateway is deprecated and will be removed in 3.1.0.
+The previous WebFlux-based gateway was available for 3.0.x only and was removed in 3.1.0.
 
 **Docker image**: `geoservercloud/geoserver-cloud-gateway`
 

@@ -134,7 +134,7 @@ geoservercloud/geoserver-cloud-gateway-webflux:3.0.0
 
 Its default configuration is embedded in the Docker image at `/etc/geoserver/gateway-webflux.yml`.
 
-> **Warning**: The WebFlux gateway will not be continued for 3.1.0. Migrate to the WebMVC gateway before upgrading to 3.1.0.
+> **Warning**: The WebFlux gateway was removed in 3.1.0. Migrate to the WebMVC gateway before upgrading beyond 3.0.x.
 
 To use the deprecated WebFlux gateway, replace the gateway service image in your Docker Compose:
 
