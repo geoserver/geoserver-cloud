@@ -7,6 +7,7 @@ package org.geoserver.catalog.plugin;
 
 import java.util.List;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
@@ -70,7 +71,7 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
      * Retrieves the repository for a specific {@link CatalogInfo} type from the internal registry.
      *
      * <p>This method uses the {@link CatalogInfoTypeRegistry} to map the provided type to its corresponding repository
-     * (e.g., {@link LayerInfo.class} to {@link LayerRepository}). It ensures type safety through generics, suppressing
+     * (e.g., {@code LayerInfo.class} to {@link LayerRepository}). It ensures type safety through generics, suppressing
      * unchecked warnings due to the registry’s type erasure handling.
      *
      * @param <T> The type of {@link CatalogInfo} to query (e.g., {@link WorkspaceInfo}).
@@ -79,10 +80,6 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
      * @return The repository managing objects of type {@code T}; never null.
      * @throws NullPointerException if {@code of} is null.
      * @throws IllegalArgumentException if no repository is configured for the specified type.
-     * @example Retrieving a layer repository:
-     *     <pre>
-     *          LayerRepository layerRepo = holder.repository(LayerInfo.class);
-     *          </pre>
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -103,11 +100,6 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
      * @return The repository managing objects of the same type as {@code info}; never null.
      * @throws NullPointerException if {@code info} is null.
      * @throws IllegalArgumentException if no repository is configured for the object’s type.
-     * @example Retrieving a repository for a specific style:
-     *     <pre>
-     *          StyleInfo style = new StyleInfoImpl();
-     *          StyleRepository styleRepo = holder.repositoryFor(style);
-     *          </pre>
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -138,11 +130,6 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
      *
      * @param namespaces The {@link NamespaceRepository} to set; must not be null.
      * @throws NullPointerException if {@code namespaces} is null.
-     * @example Setting a namespace repository:
-     *     <pre>
-     *          NamespaceRepository nsRepo = new DefaultNamespaceRepository();
-     *          holder.setNamespaceRepository(nsRepo);
-     *          </pre>
      */
     @Override
     public void setNamespaceRepository(NamespaceRepository namespaces) {

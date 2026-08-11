@@ -112,11 +112,6 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
      *
      * @param catalog The catalog to set; may be null to unset.
      * @throws IllegalArgumentException if {@code catalog} is non-null and not a {@link CatalogPlugin}.
-     * @example Setting a catalog:
-     *     <pre>
-     *          CatalogPlugin catalog = new CatalogPlugin(facade);
-     *          adapter.setCatalog(catalog);
-     *          </pre>
      */
     @Override
     public void setCatalog(Catalog catalog) {
@@ -148,12 +143,6 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
      * @return The updated {@link CatalogInfo} object after applying the patch.
      * @throws NullPointerException if {@code info} or {@code patch} is null.
      * @throws IllegalArgumentException if the object type is not supported by the bridge.
-     * @example Updating a layer’s title:
-     *     <pre>
-     *          LayerInfo layer = ...; // fetched from catalog
-     *          Patch patch = new Patch().with("title", "New Title");
-     *          LayerInfo updated = adapter.update(layer, patch);
-     *          </pre>
      */
     @Override
     public <I extends CatalogInfo> I update(final I info, final Patch patch) {
@@ -190,13 +179,6 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
      * @param query The query defining type, filter, sorting, and pagination; must not be null.
      * @return A {@link Stream} of matching catalog objects; never null.
      * @throws NullPointerException if {@code query} is null.
-     * @example Querying layers:
-     *     <pre>
-     *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, Filter.INCLUDE);
-     *          try (Stream<LayerInfo> layers = adapter.query(query)) {
-     *              layers.forEach(l -> System.out.println(l.getName()));
-     *          }
-     *          </pre>
      */
     @Override
     public <T extends CatalogInfo> Stream<T> query(Query<T> query) {

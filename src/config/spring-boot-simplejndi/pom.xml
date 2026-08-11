@@ -82,6 +82,16 @@
           </annotationProcessorPaths>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <!-- this module compiles with preview features enabled (see maven-compiler-plugin above) -->
+          <additionalJOptions>
+            <additionalJOption>--enable-preview</additionalJOption>
+          </additionalJOptions>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>

@@ -28,8 +28,8 @@ public class PgconfigObjectMapper {
      * @return a Jackson {@link ObjectMapper} configured for the PostgreSQL JSONB encoding of catalog and config info
      *     objects.
      * @see ObjectMapperUtil#newObjectMapper()
-     * @see {@code populate_table_columns_from_jsonb()} in
-     *     {@literal src/main/resources/db/pgconfig/migration/postgresql/V1_0__Catalog_Tables.sql}
+     * @see "populate_table_columns_from_jsonb() in
+     *     src/main/resources/db/pgconfig/migration/postgresql/V1_0__Catalog_Tables.sql"
      */
     public static ObjectMapper newObjectMapper() {
         // encode nulls as nulls, default from ObjectMapperUtil.newObjectMapper() is

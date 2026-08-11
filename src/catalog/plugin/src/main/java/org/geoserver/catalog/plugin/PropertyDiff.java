@@ -72,12 +72,6 @@ public @Data class PropertyDiff implements Serializable {
      *
      * @param <T> The type of catalog object ({@link Info}) being diffed.
      * @return A new {@link PropertyDiffBuilder} instance.
-     * @example Basic builder usage:
-     *     <pre>
-     *          PropertyDiff diff = PropertyDiff.builder()
-     *              .with("title", "Old Title", "New Title")
-     *              .build();
-     *          </pre>
      */
     public static <T extends Info> PropertyDiffBuilder<T> builder() {
         return new PropertyDiffBuilder<>();
@@ -90,13 +84,6 @@ public @Data class PropertyDiff implements Serializable {
      * @param oldValueHolder The original catalog object to use as a baseline for diffs.
      * @return A new {@link PropertyDiffBuilder} instance initialized with the old state.
      * @throws NullPointerException if {@code oldValueHolder} is null.
-     * @example Builder with existing object:
-     *     <pre>
-     *          LayerInfo layer = ...; // existing layer
-     *          PropertyDiff diff = PropertyDiff.builder(layer)
-     *              .with("title", "New Title")
-     *              .build();
-     *          </pre>
      */
     public static <T extends Info> PropertyDiffBuilder<T> builder(T oldValueHolder) {
         return new PropertyDiffBuilder<>(oldValueHolder);
@@ -144,11 +131,6 @@ public @Data class PropertyDiff implements Serializable {
      * <p>The resulting patch can be applied to update a catalog object, discarding old value information from the diff.
      *
      * @return A new {@link Patch} instance with properties derived from this diff’s new values.
-     * @example Converting to a patch:
-     *     <pre>
-     *          PropertyDiff diff = ...;
-     *          Patch patch = diff.toPatch();
-     *          </pre>
      */
     public Patch toPatch() {
         Patch patch = new Patch();
@@ -225,11 +207,6 @@ public @Data class PropertyDiff implements Serializable {
      * This is useful for optimizing updates by excluding redundant modifications.
      *
      * @return A new {@code PropertyDiff} containing only meaningful changes.
-     * @example Cleaning a diff:
-     *     <pre>
-     *          PropertyDiff diff = ...; // contains some no-op changes
-     *          PropertyDiff cleanDiff = diff.clean();
-     *          </pre>
      */
     public PropertyDiff clean() {
         return new PropertyDiff(changes.stream().filter(Change::isNotEmpty).toList());

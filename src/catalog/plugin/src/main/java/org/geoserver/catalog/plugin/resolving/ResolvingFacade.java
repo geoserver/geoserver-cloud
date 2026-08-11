@@ -34,8 +34,8 @@ import org.geoserver.catalog.impl.ResolvingProxy;
  *       tailored to specific needs.
  * </ul>
  *
- * <p>Implementations (e.g., catalog facades) must apply {@link #resolveOutbound(T)} to every object returned and
- * {@link #resolveInbound(T)} to every object received, ensuring consistent transformation across all operations.
+ * <p>Implementations (e.g., catalog facades) must apply {@link #resolveOutbound} to every object returned and
+ * {@link #resolveInbound} to every object received, ensuring consistent transformation across all operations.
  *
  * <p>Example usage for a catalog facade:
  *
@@ -82,12 +82,6 @@ public interface ResolvingFacade<T> {
      * @param resolvingFunction The {@link UnaryOperator} to apply to outbound objects; must not be null and must handle
      *     null inputs.
      * @throws NullPointerException if {@code resolvingFunction} is null.
-     * @example Setting an outbound resolver:
-     *     <pre>
-     *          ResolvingFacade<CatalogInfo> facade = ...;
-     *          UnaryOperator<CatalogInfo> resolver = ModificationProxyDecorator.wrap();
-     *          facade.setOutboundResolver(resolver);
-     *          </pre>
      */
     void setOutboundResolver(UnaryOperator<T> resolvingFunction);
 
@@ -97,12 +91,6 @@ public interface ResolvingFacade<T> {
      * <p>This function is applied to all objects of type {@code T} before they are returned by the facade’s methods.
      *
      * @return The current outbound {@link UnaryOperator}; never null, defaults to {@link UnaryOperator#identity()}.
-     * @example Chaining an additional resolver:
-     *     <pre>
-     *          ResolvingFacade<CatalogInfo> facade = ...;
-     *          UnaryOperator<CatalogInfo> current = facade.getOutboundResolver();
-     *          facade.setOutboundResolver(current.andThen(myCustomFilter));
-     *          </pre>
      */
     UnaryOperator<T> getOutboundResolver();
 
@@ -115,12 +103,6 @@ public interface ResolvingFacade<T> {
      * @param resolvingFunction The {@link UnaryOperator} to apply to inbound objects; must not be null and must handle
      *     null inputs.
      * @throws NullPointerException if {@code resolvingFunction} is null.
-     * @example Setting an inbound resolver:
-     *     <pre>
-     *          ResolvingFacade<CatalogInfo> facade = ...;
-     *          UnaryOperator<CatalogInfo> resolver = ModificationProxyDecorator.unwrap();
-     *          facade.setInboundResolver(resolver);
-     *          </pre>
      */
     void setInboundResolver(UnaryOperator<T> resolvingFunction);
 
@@ -131,12 +113,6 @@ public interface ResolvingFacade<T> {
      * methods.
      *
      * @return The current inbound {@link UnaryOperator}; never null, defaults to {@link UnaryOperator#identity()}.
-     * @example Chaining an additional inbound resolver:
-     *     <pre>
-     *          ResolvingFacade<CatalogInfo> facade = ...;
-     *          UnaryOperator<CatalogInfo> current = facade.getInboundResolver();
-     *          facade.setInboundResolver(current.andThen(myCustomValidator));
-     *          </pre>
      */
     UnaryOperator<T> getInboundResolver();
 

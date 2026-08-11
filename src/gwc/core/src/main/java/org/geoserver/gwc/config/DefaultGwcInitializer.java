@@ -18,8 +18,6 @@ import org.slf4j.Logger;
  * <p>Using package {@code org.geoserver.gwc.config} to be able of accessing the package-private method
  * {@link GWCConfigPersister#findConfigFile()}
  *
- * <p>
- *
  * <ul>
  *   <li>We don't need to upgrade from very old configuration settings
  *   <li>{@code GWCInitializer} depends on {@link TileLayerCatalog}, assuming {@link CatalogConfiguration} is the only

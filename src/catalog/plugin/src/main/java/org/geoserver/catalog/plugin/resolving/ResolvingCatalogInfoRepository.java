@@ -35,11 +35,11 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository;
  *
  * <p>Example usage:
  *
- * <pre>
+ * <pre>{@code
  * ResolvingCatalogInfoRepository<StoreInfo> repo = ...;
  * repo.setOutboundResolver(CatalogPropertyResolver.of(catalog));
  * StoreInfo store = repo.findById("id", StoreInfo.class); // Returns resolved object
- * </pre>
+ * }</pre>
  *
  * @param <T> The specific type of {@link CatalogInfo} this repository manages.
  * @since 1.4

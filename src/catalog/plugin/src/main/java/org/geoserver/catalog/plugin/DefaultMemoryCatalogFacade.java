@@ -112,12 +112,6 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl impl
      * (e.g., layer-to-resource, store-to-workspace) by calling type-specific resolve methods. Ensures that all
      * {@link CatalogInfo} objects are fully resolved and consistent, replacing proxies with actual instances where
      * possible.
-     *
-     * @example Resolving catalog state:
-     *     <pre>
-     *          DefaultMemoryCatalogFacade facade = new DefaultMemoryCatalogFacade(catalog);
-     *          facade.resolve();
-     *          </pre>
      */
     @Override
     public void resolve() {

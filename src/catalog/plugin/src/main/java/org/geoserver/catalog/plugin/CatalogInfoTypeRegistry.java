@@ -40,7 +40,7 @@ import org.geoserver.catalog.impl.ClassMappings;
  *
  * <p>This utility allows to register those elements and avoid that kind of code.
  *
- * @param R the type of resource to be accessed on a class basis for {@link CatalogInfo} subtypes
+ * @param <R> the type of resource to be accessed on a class basis for {@link CatalogInfo} subtypes
  */
 public class CatalogInfoTypeRegistry<R> {
 

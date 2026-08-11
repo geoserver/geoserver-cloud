@@ -55,8 +55,6 @@ import org.springframework.context.ApplicationEvent;
  * them to the local {@link ApplicationContext}, so other components interested in these kind of events don't need to
  * register themselves to the {@link Catalog} and {@link GeoServer} as listeners.
  *
- * <p>
- *
  * @see InfoEvent LocalInfoEvent's class hierarchy
  */
 @RequiredArgsConstructor

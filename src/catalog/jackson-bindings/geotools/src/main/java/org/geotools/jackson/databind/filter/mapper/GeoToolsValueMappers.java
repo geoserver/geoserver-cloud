@@ -98,8 +98,8 @@ public abstract class GeoToolsValueMappers {
      * This implementation supports the syntaxes "{@code java.util.Map.Entry[]}", "{@code java.util.Map$Entry[]}",
      * "{@code [Ljava.util.Map.Entry;}", and "{@code [Ljava.util.Map$Entry;}".
      *
-     * @param className the class name
-     * @return the class represented by {@code className} using the current thread's context class loader
+     * @param value the class name
+     * @return the class represented by {@code value} using the current thread's context class loader
      * @throws IllegalArgumentException if the class is not found
      */
     @SuppressWarnings("unchecked")

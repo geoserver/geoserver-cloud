@@ -6,6 +6,14 @@
 package org.geoserver.catalog.plugin;
 
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.MapInfo;
+import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
+import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
@@ -47,7 +55,7 @@ public interface CatalogInfoRepositoryHolder {
      * Retrieves the repository responsible for managing objects of the specified {@link CatalogInfo} type.
      *
      * <p>This generic method returns a type-specific repository based on the provided class (e.g.,
-     * {@link WorkspaceInfo.class} returns a {@link WorkspaceRepository}). It enables dynamic access to repositories
+     * {@code WorkspaceInfo.class} returns a {@link WorkspaceRepository}). It enables dynamic access to repositories
      * without requiring explicit casting in most cases.
      *
      * @param <T> The type of {@link CatalogInfo} to query (e.g., {@link LayerInfo}).
@@ -56,10 +64,6 @@ public interface CatalogInfoRepositoryHolder {
      * @return The repository managing objects of type {@code T}; never null.
      * @throws NullPointerException if {@code of} is null.
      * @throws IllegalArgumentException if no repository is configured for the specified type.
-     * @example Retrieving a layer repository:
-     *     <pre>
-     *          LayerRepository layerRepo = holder.repository(LayerInfo.class);
-     *          </pre>
      */
     <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(Class<T> of);
 
@@ -76,11 +80,6 @@ public interface CatalogInfoRepositoryHolder {
      * @return The repository managing objects of the same type as {@code info}; never null.
      * @throws NullPointerException if {@code info} is null.
      * @throws IllegalArgumentException if no repository is configured for the object’s type.
-     * @example Retrieving a repository for a specific style:
-     *     <pre>
-     *          StyleInfo style = ...; // existing style
-     *          StyleRepository styleRepo = holder.repositoryFor(style);
-     *          </pre>
      */
     <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(T info);
 
@@ -89,11 +88,6 @@ public interface CatalogInfoRepositoryHolder {
      *
      * @param namespaces The {@link NamespaceRepository} to set; must not be null.
      * @throws NullPointerException if {@code namespaces} is null.
-     * @example Setting a namespace repository:
-     *     <pre>
-     *          NamespaceRepository nsRepo = new DefaultNamespaceRepository();
-     *          holder.setNamespaceRepository(nsRepo);
-     *          </pre>
      */
     void setNamespaceRepository(NamespaceRepository namespaces);
 
