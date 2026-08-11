@@ -35,7 +35,7 @@
 
     <gs.version>3.0.0-CLOUD-SNAPSHOT</gs.version>
     <gt.version>35-SNAPSHOT</gt.version>
-    <wicket.version>10.9.1</wicket.version>
+    <wicket.version>10.10.0</wicket.version>
     <acl.version>3.0.1</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
     <parquetry-geoserver.version>1.0-SNAPSHOT</parquetry-geoserver.version>
