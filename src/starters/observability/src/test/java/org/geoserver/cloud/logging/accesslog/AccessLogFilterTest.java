@@ -18,21 +18,8 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
-/**
- * Tests for the access log filters.
- *
- * <p>This test class covers both the Servlet-based {@link AccessLogServletFilter} and the WebFlux-based
- * {@link AccessLogWebfluxFilter}.
- */
+/** Tests for the Servlet-based {@link AccessLogServletFilter}. */
 class AccessLogFilterTest {
 
     private AccessLogFilterConfig config;
@@ -120,61 +107,5 @@ class AccessLogFilterTest {
 
         // Verify filter chain was called
         verify(servletChain).doFilter(servletRequest, servletResponse);
-    }
-
-    @Test
-    void testWebfluxFilterWithMatchingUri() {
-        // Configure access log to log all paths at info level
-        config.getInfo().add(Pattern.compile(".*"));
-
-        // Mock request and response
-        ServerWebExchange exchange1 = mock(ServerWebExchange.class);
-        ServerHttpRequest request1 = mock(ServerHttpRequest.class);
-        ServerHttpResponse response1 = mock(ServerHttpResponse.class);
-
-        // Configure exchange
-        when(exchange1.getRequest()).thenReturn(request1);
-        when(exchange1.getResponse()).thenReturn(response1);
-        when(request1.getURI()).thenReturn(java.net.URI.create("http://localhost/api/data"));
-        when(request1.getMethod()).thenReturn(HttpMethod.GET);
-        when(response1.getStatusCode()).thenReturn(HttpStatusCode.valueOf(200));
-
-        // Configure chain
-        WebFilterChain chain1 = _ -> Mono.empty();
-
-        // Create filter and execute
-        AccessLogWebfluxFilter filter = new AccessLogWebfluxFilter(config);
-        Mono<Void> result = filter.filter(exchange1, chain1);
-
-        // Verify filter executes without errors
-        StepVerifier.create(result).verifyComplete();
-    }
-
-    @Test
-    void testWebfluxFilterWithErrorStatus() {
-        // Configure access log to log all paths at info level
-        config.getInfo().add(Pattern.compile(".*"));
-
-        // Mock request and response
-        ServerWebExchange exchange2 = mock(ServerWebExchange.class);
-        ServerHttpRequest request2 = mock(ServerHttpRequest.class);
-        ServerHttpResponse response2 = mock(ServerHttpResponse.class);
-
-        // Configure exchange with error status
-        when(exchange2.getRequest()).thenReturn(request2);
-        when(exchange2.getResponse()).thenReturn(response2);
-        when(request2.getURI()).thenReturn(java.net.URI.create("http://localhost/api/data"));
-        when(request2.getMethod()).thenReturn(HttpMethod.GET);
-        when(response2.getStatusCode()).thenReturn(HttpStatusCode.valueOf(500));
-
-        // Configure chain
-        WebFilterChain chain2 = _ -> Mono.empty();
-
-        // Create filter and execute
-        AccessLogWebfluxFilter filter = new AccessLogWebfluxFilter(config);
-        Mono<Void> result = filter.filter(exchange2, chain2);
-
-        // Verify filter executes without errors
-        StepVerifier.create(result).verifyComplete();
     }
 }

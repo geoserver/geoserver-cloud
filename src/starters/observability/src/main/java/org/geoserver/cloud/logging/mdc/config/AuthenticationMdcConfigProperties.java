@@ -30,7 +30,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </pre>
  *
  * @see org.geoserver.cloud.logging.mdc.servlet.MDCAuthenticationFilter
- * @see org.geoserver.cloud.logging.mdc.webflux.MDCWebFilter
  */
 @Data
 @ConfigurationProperties(prefix = "logging.mdc.include.user")

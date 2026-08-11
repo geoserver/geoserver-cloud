@@ -47,11 +47,9 @@ import org.springframework.util.MultiValueMap;
  *         headers-pattern: "(?i)x-.*|correlation-.*"
  * </pre>
  *
- * <p>This class provides methods to extract and add HTTP request properties to the MDC based on the configuration. It
- * supports both Servlet and WebFlux environments through its flexible API.
+ * <p>This class provides methods to extract and add HTTP request properties to the MDC based on the configuration.
  *
  * @see org.geoserver.cloud.logging.mdc.servlet.HttpRequestMdcFilter
- * @see org.geoserver.cloud.logging.mdc.webflux.MDCWebFilter
  */
 @Data
 @ConfigurationProperties(prefix = "logging.mdc.include.http")

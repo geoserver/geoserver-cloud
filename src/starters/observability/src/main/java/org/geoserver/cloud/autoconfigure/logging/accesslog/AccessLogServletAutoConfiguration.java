@@ -5,7 +5,6 @@
 
 package org.geoserver.cloud.autoconfigure.logging.accesslog;
 
-import org.geoserver.cloud.autoconfigure.logging.accesslog.webflux.AccessLogWebFluxAutoConfiguration;
 import org.geoserver.cloud.logging.accesslog.AccessLogFilterConfig;
 import org.geoserver.cloud.logging.accesslog.AccessLogServletFilter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -31,10 +30,6 @@ import org.springframework.context.annotation.Bean;
  *
  * <p>Access log properties are controlled through the {@link AccessLogFilterConfig} class, which allows defining
  * patterns for requests to be logged at different levels (info, debug, trace).
- *
- * <p>This auto-configuration is compatible with and complements the WebFlux-based
- * {@link AccessLogWebFluxAutoConfiguration}. Both can be present in an application that supports either servlet or
- * reactive web models, but only one will be active based on the web application type.
  *
  * @see AccessLogServletFilter
  * @see AccessLogFilterConfig

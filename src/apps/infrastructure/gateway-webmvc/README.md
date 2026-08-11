@@ -26,16 +26,11 @@ Replaces the previous WebFlux-based (reactive) gateway starting with GeoServer C
 
 Externalized configuration is loaded from `config/gateway.yml` (or `/etc/geoserver/gateway.yml` inside Docker containers).
 
-See the [Gateway Service developer guide](../../../docs/src/developer-guide/services/gateway-service.md) for full configuration details.
+See the [Gateway Service developer guide](../../../../docs/src/developer-guide/services/gateway-service.md) for full configuration details.
 
 ## Differences from WebFlux Gateway
 
-The deprecated WebFlux gateway (`geoservercloud/geoserver-cloud-gateway-webflux`) will be available for 3.0.0 only and removed in 3.1.0.
-
-| Aspect | WebMVC (new default) | WebFlux (deprecated) |
-|--------|---------------------|---------------------|
-| Runtime model | Servlet + virtual threads | Reactive (Netty) |
-| WebSocket routing | Not supported | Supported |
-| `default-filters` | Not supported; filters must be listed per route | Supported |
-| Config namespace | `spring.cloud.gateway.server.webmvc` | `spring.cloud.gateway.server.webflux` |
-| Docker image | `geoservercloud/geoserver-cloud-gateway` | `geoservercloud/geoserver-cloud-gateway-webflux` |
+The deprecated WebFlux gateway (`geoservercloud/geoserver-cloud-gateway-webflux`) was published for
+3.0.0 only and removed in 3.1.0. See the
+[2.28 to 3.0 migration guide](../../../../docs/src/configuration/migration-2.28-to-3.0.md)
+for the differences between the two implementations.
