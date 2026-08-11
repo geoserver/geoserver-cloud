@@ -48,6 +48,12 @@ abstract class RestConfigApplicationTest {
     protected @Autowired Catalog catalog;
 
     @Test
+    void testDoesNotLoadGwcRuntime() {
+        assertThat(context.containsBean("gwc")).isFalse();
+        assertThat(context.containsBean("gwcCatalogConfiguration")).isFalse();
+    }
+
+    @Test
     void testAnnonymousForbidden() {
         ResponseEntity<String> response = restTemplate.getForEntity("/rest", String.class);
         assertThat(response.getStatusCode()).isEqualTo(FORBIDDEN);

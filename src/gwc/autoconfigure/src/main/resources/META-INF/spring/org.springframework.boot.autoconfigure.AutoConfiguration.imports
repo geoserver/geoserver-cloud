@@ -2,6 +2,7 @@ org.geoserver.cloud.autoconfigure.gwc.core.GeoWebCacheAutoConfiguration
 org.geoserver.cloud.autoconfigure.gwc.core.CacheSeedingWebMapServiceAutoConfiguration
 
 org.geoserver.cloud.autoconfigure.gwc.integration.GeoWebCacheRemoteEventsAutoConfiguration
+org.geoserver.cloud.autoconfigure.gwc.integration.CatalogEventTileLayerAutoConfiguration
 org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration
 org.geoserver.cloud.autoconfigure.gwc.integration.WMTSIntegrationAutoConfiguration
 

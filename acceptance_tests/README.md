@@ -52,6 +52,9 @@ cd ../compose
 
 # Run specific tests inside the container
 ./acceptance_datadir exec acceptance pytest --pyargs geoserver_acceptance_tests.tests.test_cog -v --color=yes
+
+# Run repository-owned cross-service system tests
+./acceptance_datadir exec acceptance pytest /acceptance_tests/system_tests -v --color=yes
 ```
 
 #### Run tests from host machine (full functionality)

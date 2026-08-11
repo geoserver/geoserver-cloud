@@ -153,7 +153,7 @@ start-acceptance-tests-datadir:
 
 .PHONY: run-acceptance-tests-datadir
 run-acceptance-tests-datadir:
-	(cd compose/ && TAG=$(TAG) ./acceptance_datadir run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && COLUMNS=120 pytest -v --color=yes --pyargs geoserver_acceptance_tests.tests  -k "not test_i18n_layers_default_locale"')
+	(cd compose/ && TAG=$(TAG) ./acceptance_datadir run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && COLUMNS=120 pytest -v --color=yes --pyargs geoserver_acceptance_tests.tests -k "not test_i18n_layers_default_locale" && COLUMNS=120 pytest -v --color=yes /acceptance_tests/system_tests')
 
 .PHONY: clean-acceptance-tests-datadir
 clean-acceptance-tests-datadir:
@@ -168,7 +168,7 @@ start-acceptance-tests-pgconfig:
 
 .PHONY: run-acceptance-tests-pgconfig
 run-acceptance-tests-pgconfig:
-	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && COLUMNS=120 pytest -v --color=yes --pyargs geoserver_acceptance_tests.tests  -k "not test_i18n_layers_default_locale"')
+	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && COLUMNS=120 pytest -v --color=yes --pyargs geoserver_acceptance_tests.tests -k "not test_i18n_layers_default_locale" && COLUMNS=120 pytest -v --color=yes /acceptance_tests/system_tests')
 
 .PHONY: clean-acceptance-tests-pgconfig
 clean-acceptance-tests-pgconfig:

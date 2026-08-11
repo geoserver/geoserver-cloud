@@ -15,6 +15,7 @@
     <module>backends</module>
     <module>blobstores</module>
     <module>integration-bus</module>
+    <module>integration-catalog-events</module>
     <module>autoconfigure</module>
     <module>starter</module>
   </modules>
