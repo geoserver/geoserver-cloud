@@ -23,8 +23,7 @@ import org.springframework.core.annotation.Order;
 /**
  * Listens to local catalog and configuration change {@link InfoEvent}s produced by this service instance and broadcasts
  * them to the cluster as {@link RemoteGeoServerEvent}, and conversely, listens to incoming
- * {@link RemoteGeoServerEvent}s and publishes their {@link RemoteGeoServerEvent#getEvent() event} payload as local
- * events
+ * {@link RemoteGeoServerEvent}s and publishes their {@code event} payload as local events
  *
  * @see #publishRemoteEvent(GeoServerEvent)
  * @see #publishLocalEvent(RemoteGeoServerEvent)

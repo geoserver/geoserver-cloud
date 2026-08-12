@@ -9,6 +9,8 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 
 /**
  * A utility implementation of {@link ResolvingFacade} for managing inbound and outbound resolution of generic objects.
@@ -29,13 +31,11 @@ import java.util.function.UnaryOperator;
  *
  * <p>Example usage:
  *
- * <pre>
- * <code>
+ * <pre>{@code
  * ResolvingFacadeSupport<CatalogInfo> support = new ResolvingFacadeSupport<>();
- * support.setOutboundResolver(info -> { &lt;custom logic&gt;... return info; });
+ * support.setOutboundResolver(info -> customResolve(info));
  * CatalogInfo resolved = support.resolveOutbound(info);
- * </code>
- * </pre>
+ * }</pre>
  *
  * @param <T> The type of objects to resolve (e.g., {@link CatalogInfo}).
  * @since 1.0

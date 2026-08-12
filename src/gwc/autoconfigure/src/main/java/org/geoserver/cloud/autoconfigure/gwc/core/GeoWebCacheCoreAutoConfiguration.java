@@ -58,7 +58,7 @@ import org.springframework.core.env.Environment;
  * This auto-configuration only integrates the minimal components to have gwc integrated with GeoServer, while allowing
  * to disable certain components through {@link GeoWebCacheConfigurationProperties configuration properties}.
  *
- * @see GwcCoreConfiguration
+ * @see GwcCoreContextConfiguration
  * @see DiskQuotaAutoConfiguration
  * @since 1.0
  */

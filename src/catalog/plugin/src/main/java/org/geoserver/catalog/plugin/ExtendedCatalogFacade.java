@@ -50,7 +50,7 @@ import org.jspecify.annotations.Nullable;
  * </ul>
  *
  * <p>All methods are default implementations, delegating to the underlying {@link CatalogFacade} where applicable,
- * allowing implementers to override them for optimized behavior. Deprecated methods like {@link #save(CatalogInfo)} are
+ * allowing implementers to override them for optimized behavior. Deprecated methods like {@code save(CatalogInfo)} are
  * replaced by {@link #update(CatalogInfo, Patch)}, and {@link #list} is superseded by {@link #query(Query)} for modern
  * stream-based access.
  *
@@ -71,11 +71,6 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @param id The unique identifier of the catalog object; must not be null.
      * @return An {@link Optional} containing the found {@link CatalogInfo}, or empty if not found.
      * @throws NullPointerException if {@code id} is null.
-     * @example Retrieving an object by ID:
-     *     <pre>
-     *          Optional<CatalogInfo> info = facade.get("ws1");
-     *          info.ifPresent(i -> System.out.println("Found: " + i.getClass().getSimpleName()));
-     *          </pre>
      */
     default Optional<CatalogInfo> get(@NonNull String id) {
         CatalogInfo found = getWorkspace(id);
@@ -110,16 +105,11 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      *
      * @param <T> The expected type of {@link CatalogInfo}.
      * @param id The unique identifier of the catalog object; must not be null.
-     * @param type The interface type to retrieve (e.g., {@link LayerInfo.class}); must not be null.
+     * @param type The interface type to retrieve (e.g., {@code LayerInfo.class}); must not be null.
      * @return An {@link Optional} containing the found object cast to type {@code T}, or empty if not found.
      * @throws NullPointerException if {@code id} or {@code type} is null.
      * @throws IllegalArgumentException if {@code type} is not an interface or is an unknown {@link CatalogInfo}
      *     subtype.
-     * @example Retrieving a typed object:
-     *     <pre>
-     *          Optional<LayerInfo> layer = facade.get("layer1", LayerInfo.class);
-     *          layer.ifPresent(l -> System.out.println("Layer name: " + l.getName()));
-     *          </pre>
      */
     default <T extends CatalogInfo> Optional<T> get(@NonNull String id, @NonNull Class<T> type) {
         if (!type.isInterface()) {
@@ -160,11 +150,6 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @param id The unique identifier of the published object; must not be null.
      * @return The found {@link PublishedInfo} (either a layer or layer group), or null if not found.
      * @throws NullPointerException if {@code id} is null.
-     * @example Retrieving a published object:
-     *     <pre>
-     *          PublishedInfo pub = facade.getPublished("layer1");
-     *          if (pub != null) System.out.println("Published name: " + pub.getName());
-     *          </pre>
      */
     default PublishedInfo getPublished(@NonNull String id) {
         return get(id, LayerInfo.class)
@@ -185,13 +170,6 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @return The added object, cast to type {@code T}.
      * @throws NullPointerException if {@code info} is null.
      * @throws IllegalArgumentException if {@code info} is an unrecognized {@link CatalogInfo} subtype.
-     * @example Adding a workspace:
-     *     <pre>
-     *          WorkspaceInfo ws = new WorkspaceInfoImpl();
-     *          ws.setName("newWorkspace");
-     *          WorkspaceInfo added = facade.add(ws);
-     *          System.out.println("Added ID: " + added.getId());
-     *          </pre>
      */
     @SuppressWarnings("unchecked")
     default <T extends CatalogInfo> T add(@NonNull T info) {
@@ -217,12 +195,6 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @param info The catalog object to remove; must not be null.
      * @throws NullPointerException if {@code info} is null.
      * @throws IllegalArgumentException if {@code info} is an unrecognized {@link CatalogInfo} subtype.
-     * @example Removing a layer:
-     *     <pre>
-     *          LayerInfo layer = facade.get("layer1", LayerInfo.class).get();
-     *          facade.remove(layer);
-     *          System.out.println("Layer removed");
-     *          </pre>
      */
     default void remove(@NonNull CatalogInfo info) {
         switch (info) {
@@ -246,19 +218,19 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * {@code save} methods, this approach allows precise, incremental updates without requiring a full object
      * replacement, supporting efficient storage operations.
      *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Patch patch = new Patch().with("title", "Updated Title");
+     * LayerInfo updated = facade.update(layer, patch);
+     * }</pre>
+     *
      * @param <I> The type of {@link CatalogInfo} to update.
      * @param info The catalog object to update; must not be null.
      * @param patch The patch containing property changes to apply; must not be null.
      * @return The updated {@link CatalogInfo} object after applying the patch.
      * @throws NullPointerException if {@code info} or {@code patch} is null.
      * @throws IllegalArgumentException if {@code info} is not found in the catalog or the patch is invalid.
-     * @example Updating a layer’s title:
-     *     <pre>
-     *          LayerInfo layer = facade.get("layer1", LayerInfo.class).get();
-     *          Patch patch = new Patch().with("title", "Updated Title");
-     *          LayerInfo updated = facade.update(layer, patch);
-     *          System.out.println("New title: " + updated.getTitle());
-     *          </pre>
      */
     <I extends CatalogInfo> I update(I info, Patch patch);
 
@@ -270,17 +242,19 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * using a try-with-resources block since {@link Stream} implements {@link AutoCloseable}. This replaces the
      * deprecated {@link #list} method for modern, stream-based access.
      *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * Query<LayerInfo> query = Query.valueOf(LayerInfo.class, filter);
+     * try (Stream<LayerInfo> layers = facade.query(query)) {
+     *     layers.forEach(l -> System.out.println(l.getName()));
+     * }
+     * }</pre>
+     *
      * @param <T> The type of {@link CatalogInfo} to query.
      * @param query The query defining the criteria (type, filter, sorting, pagination); must not be null.
      * @return A {@link Stream} of matching catalog objects; never null.
      * @throws NullPointerException if {@code query} is null.
-     * @example Querying layers with a filter:
-     *     <pre>
-     *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, someFilter);
-     *          try (Stream<LayerInfo> layers = facade.query(query)) {
-     *              layers.forEach(l -> System.out.println(l.getName()));
-     *          }
-     *          </pre>
      */
     <T extends CatalogInfo> Stream<T> query(Query<T> query);
 
@@ -300,13 +274,6 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @return A {@link CloseableIterator} over the matching catalog objects.
      * @throws NullPointerException if {@code of} or {@code filter} is null.
      * @deprecated since 1.0, for removal; use {@link #query(Query)} instead.
-     * @example Legacy listing of layers:
-     *     <pre>
-     *          CloseableIterator<LayerInfo> it = facade.list(LayerInfo.class, Filter.INCLUDE, 0, 10);
-     *          try (it) {
-     *              while (it.hasNext()) System.out.println(it.next().getName());
-     *          }
-     *          </pre>
      */
     @Deprecated(since = "1.0", forRemoval = true)
     @Override

@@ -36,7 +36,7 @@ import org.springframework.cloud.gateway.server.mvc.config.GatewayMvcProperties;
  *       referrer-policy: no-referrer
  * }</pre>
  *
- * @see org.springframework.cloud.gateway.filter.factory.SecureHeadersProperties
+ * @see "org.springframework.cloud.gateway.filter.factory.SecureHeadersProperties"
  * @since 3.0.0
  */
 @ConfigurationProperties(GatewayMvcProperties.PREFIX + ".filter.secure-headers")

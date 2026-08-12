@@ -198,12 +198,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      * @return The persisted {@link StoreInfo}.
      * @throws NullPointerException if {@code store} is null.
      * @throws IllegalArgumentException if {@code store} is a proxy or lacks an ID.
-     * @example Adding a data store:
-     *     <pre>
-     *          DataStoreInfo store = new DataStoreInfoImpl(catalog);
-     *          store.setId("ds1");
-     *          facade.add(store);
-     *          </pre>
      */
     @Override
     public StoreInfo add(StoreInfo store) {
@@ -1187,12 +1181,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      *
      * @param to The target {@link CatalogFacade} to sync to; must not be null.
      * @throws NullPointerException if {@code to} is null.
-     * @example Syncing to another facade:
-     *     <pre>
-     *          RepositoryCatalogFacadeImpl source = ...;
-     *          CatalogFacade target = new DefaultCatalogFacade();
-     *          source.syncTo(target);
-     *          </pre>
      */
     @Override
     public void syncTo(CatalogFacade to) {
@@ -1423,13 +1411,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      * @throws NullPointerException if {@code query} is null.
      * @throws CatalogException if querying fails due to repository errors.
      * @throws IllegalArgumentException if sort order is unsupported.
-     * @example Querying layers:
-     *     <pre>
-     *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, someFilter);
-     *          try (Stream<LayerInfo> layers = facade.query(query)) {
-     *              layers.forEach(l -> System.out.println(l.getName()));
-     *          }
-     *          </pre>
      */
     @Override
     public <T extends CatalogInfo> Stream<T> query(Query<T> query) {

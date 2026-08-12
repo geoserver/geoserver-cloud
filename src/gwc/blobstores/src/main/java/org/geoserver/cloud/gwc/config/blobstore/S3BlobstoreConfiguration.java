@@ -12,8 +12,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Original:
  *
- * <pre>
- * {@code
+ * <pre>{@code
  *   <bean id="S3BlobStoreConfigProvider" class=
  * "org.geowebcache.s3.S3BlobStoreConfigProvider" depends-on="geoWebCacheExtensions">
  *     <description>
@@ -29,6 +28,7 @@ import org.springframework.context.annotation.Configuration;
  *     <property name="available" value="true"/>
  *     <property name="enabled" value="true"/>
  *   </bean>
+ * }</pre>
  *
  * @since 1.0
  */

@@ -86,10 +86,6 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      * @param clazz The class of the store to retrieve; must not be null.
      * @return The matching {@link StoreInfo} if visible, or null if not found or isolated.
      * @throws NullPointerException if {@code id} or {@code clazz} is null.
-     * @example Retrieving a store:
-     *     <pre>
-     *          DataStoreInfo store = facade.getStore("store1", DataStoreInfo.class);
-     *          </pre>
      */
     @Override
     public <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
@@ -516,13 +512,6 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      * @param query The query specifying criteria; must not be null.
      * @return A {@link Stream} of visible objects; never null.
      * @throws NullPointerException if {@code query} is null.
-     * @example Querying visible layers:
-     *     <pre>
-     *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, someFilter);
-     *          try (Stream<LayerInfo> layers = facade.query(query)) {
-     *              layers.forEach(l -> System.out.println(l.getName()));
-     *          }
-     *          </pre>
      */
     @Override
     public <T extends CatalogInfo> Stream<T> query(Query<T> query) {

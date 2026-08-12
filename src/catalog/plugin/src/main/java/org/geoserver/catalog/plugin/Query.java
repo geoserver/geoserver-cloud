@@ -61,11 +61,6 @@ public @Data class Query<T extends Info> {
      * @param type The new type of {@link Info} to query.
      * @param query The existing query to copy parameters from.
      * @throws NullPointerException if {@code type} or {@code query} is null.
-     * @example Retyping a query:
-     *     <pre>
-     *          Query<Info> genericQuery = Query.valueOf(Info.class, someFilter);
-     *          Query<LayerInfo> layerQuery = new Query<>(LayerInfo.class, genericQuery);
-     *          </pre>
      */
     public Query(@NonNull Class<T> type, @NonNull Query<?> query) {
         this.type = type;
@@ -84,11 +79,6 @@ public @Data class Query<T extends Info> {
      *
      * @param query The query to copy.
      * @throws NullPointerException if {@code query} is null.
-     * @example Copying a query:
-     *     <pre>
-     *          Query<LayerInfo> original = Query.valueOf(LayerInfo.class, someFilter);
-     *          Query<LayerInfo> copy = new Query<>(original);
-     *          </pre>
      */
     public Query(@NonNull Query<T> query) {
         this.type = query.getType();
@@ -117,11 +107,6 @@ public @Data class Query<T extends Info> {
      * {@link OptionalInt} is returned, indicating no limit.
      *
      * @return An {@link OptionalInt} containing the count if set, or empty if not.
-     * @example Checking count:
-     *     <pre>
-     *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, Filter.INCLUDE, null, 10);
-     *          OptionalInt count = query.count(); // returns OptionalInt.of(10)
-     *          </pre>
      */
     public OptionalInt count() {
         return count == null ? OptionalInt.empty() : OptionalInt.of(count.intValue());
@@ -134,11 +119,6 @@ public @Data class Query<T extends Info> {
      * empty {@link OptionalInt} is returned, indicating the query starts from the beginning.
      *
      * @return An {@link OptionalInt} containing the offset if set, or empty if not.
-     * @example Checking offset:
-     *     <pre>
-     *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, Filter.INCLUDE, 5, null);
-     *          OptionalInt offset = query.offset(); // returns OptionalInt.of(5)
-     *          </pre>
      */
     public OptionalInt offset() {
         return offset == null ? OptionalInt.empty() : OptionalInt.of(offset.intValue());
@@ -154,10 +134,6 @@ public @Data class Query<T extends Info> {
      * @param type The class of catalog objects to retrieve.
      * @return A new {@code Query} instance for all objects of the specified type.
      * @throws NullPointerException if {@code type} is null.
-     * @example Querying all layers:
-     *     <pre>
-     *          Query<LayerInfo> allLayers = Query.all(LayerInfo.class);
-     *          </pre>
      */
     public static <C extends Info> Query<C> all(Class<? extends Info> type) {
         return valueOf(type, Filter.INCLUDE, null, null);
@@ -174,11 +150,6 @@ public @Data class Query<T extends Info> {
      * @param filter The filter to apply to the query (e.g., to match specific properties).
      * @return A new {@code Query} instance with the specified type and filter.
      * @throws NullPointerException if {@code type} or {@code filter} is null.
-     * @example Querying layers by name:
-     *     <pre>
-     *          Filter nameFilter = ...; // e.g., filter by name "roads"
-     *          Query<LayerInfo> layerQuery = Query.valueOf(LayerInfo.class, nameFilter);
-     *          </pre>
      */
     public static <T extends CatalogInfo> Query<T> valueOf(Class<T> type, Filter filter) {
         return valueOf(type, filter, null, null);
@@ -199,11 +170,6 @@ public @Data class Query<T extends Info> {
      * @param sortOrder Variable number of {@link SortBy} directives for ordering results (nulls ignored).
      * @return A new {@code Query} instance with the specified parameters.
      * @throws NullPointerException if {@code type} is null.
-     * @example Querying sorted and paginated layers:
-     *     <pre>
-     *          SortBy sortByName = ...; // e.g., sort by "name" ascending
-     *          Query<LayerInfo> query = Query.valueOf(LayerInfo.class, Filter.INCLUDE, 10, 5, sortByName);
-     *          </pre>
      */
     @SuppressWarnings("unchecked")
     public static <T extends Info> Query<T> valueOf(
@@ -230,12 +196,6 @@ public @Data class Query<T extends Info> {
      * @param filter The new filter to apply.
      * @return This {@code Query} instance if the filter is unchanged, or a new instance with the new filter.
      * @throws NullPointerException if {@code filter} is null.
-     * @example Updating a filter:
-     *     <pre>
-     *          Query<LayerInfo> query = Query.all(LayerInfo.class);
-     *          Filter newFilter = ...; // e.g., filter by workspace
-     *          Query<LayerInfo> filteredQuery = query.withFilter(newFilter);
-     *          </pre>
      */
     public Query<T> withFilter(Filter filter) {
         return filter.equals(this.filter) ? this : new Query<>(this).setFilter(filter);

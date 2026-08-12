@@ -59,12 +59,6 @@ public class ModificationProxyDecorator {
      *
      * @param <T> The type of object to wrap (typically a {@link CatalogInfo} subtype).
      * @return A {@link UnaryOperator} for wrapping objects; never null.
-     * @example Using the wrap operator:
-     *     <pre>
-     *          UnaryOperator<CatalogInfo> wrapper = ModificationProxyDecorator.wrap();
-     *          CatalogInfo info = ...;
-     *          CatalogInfo proxied = wrapper.apply(info);
-     *          </pre>
      */
     public static <T> UnaryOperator<T> wrap() {
         return ModificationProxyDecorator::wrap;
@@ -78,12 +72,6 @@ public class ModificationProxyDecorator {
      *
      * @param <T> The type of object to unwrap (typically a {@link CatalogInfo} subtype).
      * @return A {@link UnaryOperator} for unwrapping objects; never null.
-     * @example Using the unwrap operator:
-     *     <pre>
-     *          UnaryOperator<CatalogInfo> unwrapper = ModificationProxyDecorator.unwrap();
-     *          CatalogInfo proxied = ...;
-     *          CatalogInfo raw = unwrapper.apply(proxied);
-     *          </pre>
      */
     public static <T> UnaryOperator<T> unwrap() {
         return ModificationProxyDecorator::unwrap;

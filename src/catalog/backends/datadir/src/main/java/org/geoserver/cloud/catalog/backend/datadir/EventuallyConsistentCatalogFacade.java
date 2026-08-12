@@ -84,7 +84,6 @@ import org.springframework.web.context.request.RequestContextHolder;
  *
  * @since 1.9
  * @see EventualConsistencyEnforcer
- * @see RemoteEventDataDirectoryProcessor
  * @see org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties.EventualConsistencyConfig
  */
 @Slf4j(topic = "org.geoserver.cloud.catalog.backend.datadir")

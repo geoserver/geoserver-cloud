@@ -110,7 +110,7 @@ public interface ConfigRepository {
      * Looks up a service by name and type, specific to the specified workspace.
      *
      * @param name The name of the service.
-     * @param workspaceId The workspace the service is specific to.
+     * @param workspace The workspace the service is specific to.
      * @param clazz The type of the service.
      * @return The service with the specified name or {@code Optional.empty()} if no such service could be found.
      */

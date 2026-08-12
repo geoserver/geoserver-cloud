@@ -61,8 +61,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * </ul>
  *
  * @since 1.0
- * @see org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration
- * @see org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendConfiguration
  */
 public interface GeoServerBackendConfigurer {
     // Marker class - no methods required

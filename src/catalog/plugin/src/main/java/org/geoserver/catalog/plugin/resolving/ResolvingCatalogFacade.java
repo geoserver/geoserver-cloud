@@ -6,6 +6,7 @@
 package org.geoserver.catalog.plugin.resolving;
 
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -27,10 +28,10 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
  * <p>This interface combines the advanced catalog operations of {@link ExtendedCatalogFacade} with the resolving
  * framework of {@link ResolvingFacade}, allowing implementations to transform {@link CatalogInfo} objects both when
  * received (inbound) and before they are returned (outbound). The outbound resolver, configurable via
- * {@link #setOutboundResolver(Function)}, applies a transformation function to each object before it leaves the facade,
- * while the inbound resolver, set via {@link #setInboundResolver(Function)}, processes incoming objects before they are
- * handled by the underlying facade. By default, both resolvers use the {@link Function#identity() identity} function,
- * meaning no transformation occurs unless explicitly configured.
+ * {@link #setOutboundResolver(UnaryOperator)}, applies a transformation function to each object before it leaves the
+ * facade, while the inbound resolver, set via {@link #setInboundResolver(UnaryOperator)}, processes incoming objects
+ * before they are handled by the underlying facade. By default, both resolvers use the {@link Function#identity()
+ * identity} function, meaning no transformation occurs unless explicitly configured.
  *
  * <p>Key features:
  *
@@ -45,9 +46,9 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
  *       such as stream-based querying and patch updates.
  * </ul>
  *
- * <p>Implementations must apply {@link #resolveOutbound(CatalogInfo)} to all returned objects and
- * {@link #resolveInbound(CatalogInfo)} to all received objects, ensuring consistent transformation across operations
- * like {@link #add(CatalogInfo)}, {@link #get(String)}, and {@link #query(Query)}.
+ * <p>Implementations must apply {@link #resolveOutbound} to all returned objects and {@link #resolveInbound} to all
+ * received objects, ensuring consistent transformation across operations like {@link #add(CatalogInfo)},
+ * {@link #get(String)}, and {@link #query(Query)}.
  *
  * <p>Example usage:
  *
@@ -74,8 +75,8 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
  *   <li>The resolver functions must handle {@code null} inputs, allowing implementations to decide whether to propagate
  *       or transform nulls.
  *   <li>Callers are responsible for ensuring resolver functions use the correct {@link Catalog} instance if required,
- *       as {@link #setOutboundResolver(Function)} and {@link #setInboundResolver(Function)} are agnostic to such
- *       dependencies.
+ *       as {@link #setOutboundResolver(UnaryOperator)} and {@link #setInboundResolver(UnaryOperator)} are agnostic to
+ *       such dependencies.
  * </ul>
  *
  * @since 1.0

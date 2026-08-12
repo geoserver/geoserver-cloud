@@ -32,7 +32,7 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
  * <p>The adapter creates caches on-demand using Tileverse's cache builders, then registers them with Spring's
  * {@link CaffeineCacheManager} for unified management.
  *
- * @see PMTilesPluginAutoConfiguration#setUpCacheManager()
+ * @see "PMTilesPluginAutoConfiguration#setUpCacheManager()"
  */
 public class SpringCaffeineCacheManagerAdapter implements io.tileverse.cache.CacheManager {
 

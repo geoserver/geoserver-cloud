@@ -104,12 +104,6 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * @param resolvingFunction The {@link UnaryOperator} to apply to outbound objects; must not be null and must accept
      *     null arguments.
      * @throws NullPointerException if {@code resolvingFunction} is null.
-     * @example Setting an outbound resolver:
-     *     <pre>
-     *          ResolvingCatalogFacadeDecorator facade = new ResolvingCatalogFacadeDecorator(rawFacade);
-     *          UnaryOperator<CatalogInfo> resolver = ModificationProxyDecorator.wrap();
-     *          facade.setOutboundResolver(resolver);
-     *          </pre>
      */
     @Override
     public void setOutboundResolver(UnaryOperator<CatalogInfo> resolvingFunction) {
@@ -136,12 +130,6 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * @param resolvingFunction The {@link UnaryOperator} to apply to inbound objects; must not be null and must accept
      *     null arguments.
      * @throws NullPointerException if {@code resolvingFunction} is null.
-     * @example Setting an inbound resolver:
-     *     <pre>
-     *          ResolvingCatalogFacadeDecorator facade = new ResolvingCatalogFacadeDecorator(rawFacade);
-     *          UnaryOperator<CatalogInfo> resolver = ModificationProxyDecorator.unwrap();
-     *          facade.setInboundResolver(resolver);
-     *          </pre>
      */
     @Override
     public void setInboundResolver(UnaryOperator<CatalogInfo> resolvingFunction) {
@@ -216,12 +204,6 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * @param info The {@link CatalogInfo} object to add; must not be null.
      * @return The added {@link CatalogInfo} object after outbound resolution.
      * @throws NullPointerException if {@code info} is null.
-     * @example Adding a resolved workspace:
-     *     <pre>
-     *          WorkspaceInfo ws = new WorkspaceInfoImpl();
-     *          ws.setName("test");
-     *          WorkspaceInfo added = facade.add(ws);
-     *          </pre>
      */
     @Override
     public <T extends CatalogInfo> T add(@NonNull T info) {

@@ -39,8 +39,6 @@ import org.jspecify.annotations.Nullable;
 /**
  * Default implementation of {@link GeoServerFacade} backed by a pluggable {@link ConfigRepository}
  *
- * <p>
- *
  * @see MemoryConfigRepository
  */
 public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade {
