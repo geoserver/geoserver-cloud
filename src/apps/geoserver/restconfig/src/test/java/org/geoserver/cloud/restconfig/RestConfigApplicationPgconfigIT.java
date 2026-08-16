@@ -5,7 +5,9 @@
 
 package org.geoserver.cloud.restconfig;
 
+import java.nio.file.Path;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
@@ -34,8 +36,11 @@ class RestConfigApplicationPgconfigIT extends RestConfigApplicationTest {
      *   <li>pgconfig.password
      * </ul>
      */
+    static @TempDir Path gwcCacheDir;
+
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) {
         container.setupDynamicPropertySource(registry);
+        registry.add("gwc.cache-directory", gwcCacheDir::toAbsolutePath);
     }
 }
