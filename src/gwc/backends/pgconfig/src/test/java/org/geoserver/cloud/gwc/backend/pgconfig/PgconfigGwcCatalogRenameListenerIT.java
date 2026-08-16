@@ -11,6 +11,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -20,6 +22,7 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
+import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.gwc.GWC;
 import org.geoserver.gwc.GWCSynchEnv;
@@ -55,6 +58,7 @@ class PgconfigGwcCatalogRenameListenerIT {
     private CatalogPlugin catalog;
     private CatalogFaker faker;
     private PgconfigGwcCatalogRenameListener listener;
+    private List<TileLayerEvent> events;
     private PgconfigTileLayerCatalog tlCatalog;
     private TileLayerMocking support;
     private GWC mediator;
@@ -67,7 +71,8 @@ class PgconfigGwcCatalogRenameListenerIT {
         support = new TileLayerMocking(catalog, geoServer);
         faker = support.getFaker();
 
-        listener = new PgconfigGwcCatalogRenameListener(catalog);
+        events = new ArrayList<>();
+        listener = new PgconfigGwcCatalogRenameListener(catalog, events::add);
         listener.register();
 
         GWCConfigPersister defaultsProvider = mock(GWCConfigPersister.class);
