@@ -10,7 +10,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.cache.LoadingCache;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -38,10 +40,13 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
 
     private LoadingCache<String, GeoServerTileLayer> spiedLayerCache;
 
+    private final TileLayerCatalog tileLayerCatalog;
+
     @SuppressWarnings("unchecked")
     public CloudCatalogConfiguration(Catalog catalog, TileLayerCatalog tileLayerCatalog, GridSetBroker gridSetBroker) {
 
         super(catalog, tileLayerCatalog, gridSetBroker);
+        this.tileLayerCatalog = tileLayerCatalog;
 
         try {
             spiedLayerCache = (LoadingCache<String, GeoServerTileLayer>) FieldUtils.readField(this, "layerCache", true);
@@ -64,9 +69,67 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
         spiedLayerCache.getIfPresent(publishedId);
     }
 
+    /**
+     * In a cluster, a tile layer configuration can be visible through the shared storage or a {@link TileLayerEvent}
+     * before this node's catalog replicated the {@link PublishedInfo} it refers to. Upstream assumes both are updated
+     * atomically and {@link GeoServerTileLayer#getPublishedInfo()} throws {@link IllegalStateException}, which would
+     * break whole responses like WMTS GetCapabilities. Hide such tile layers until the local catalog catches up.
+     */
+    @Override
+    public Optional<TileLayer> getLayer(final String layerName) {
+        return super.getLayer(layerName).filter(this::publishedInfoResolves);
+    }
+
+    /** Keeps the name listing consistent with {@link #getLayer}, excluding hidden tile layers. */
+    @Override
+    public Set<String> getLayerNames() {
+        return super.getLayerNames().stream()
+                .filter(name -> getLayer(name).isPresent())
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    /** Keeps the count consistent with {@link #getLayerNames}, excluding hidden tile layers. */
+    @Override
+    public int getLayerCount() {
+        return getLayerNames().size();
+    }
+
+    /** Keeps the containment check consistent with {@link #getLayer}, excluding hidden tile layers. */
+    @Override
+    public boolean containsLayer(String layerName) {
+        return getLayer(layerName).isPresent();
+    }
+
+    private boolean publishedInfoResolves(TileLayer tileLayer) {
+        if (tileLayer instanceof GeoServerTileLayer geoserverTileLayer) {
+            try {
+                return null != geoserverTileLayer.getPublishedInfo();
+            } catch (IllegalStateException catalogNotYetInSync) {
+                log.debug(
+                        "tile layer {} does not resolve against the local catalog yet, hiding it until the catalog catches up ({})",
+                        tileLayer.getName(),
+                        catalogNotYetInSync.getMessage());
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public synchronized void addLayer(final @NonNull TileLayer tl) {
         GeoServerTileLayer tileLayer = checkAddPreconditions(tl);
+        // In a cluster the configuration may already be stored when an add arrives: automatic tile layer
+        // creation on another service, or a client told the layer does not exist while this node was
+        // catching up (catalog replication, a configuration reload in progress). Honor the add as a save,
+        // inheriting whatever the request leaves unset from the stored configuration, instead of failing
+        // the upstream already-exists precondition.
+        GeoServerTileLayerInfo stored =
+                tileLayerCatalog.getLayerById(tileLayer.getInfo().getId());
+        if (stored != null) {
+            setMissingConfig(tileLayer.getInfo(), stored);
+            super.modifyLayer(tl);
+            return;
+        }
         completeWithDefaults(tileLayer);
         super.addLayer(tl);
     }

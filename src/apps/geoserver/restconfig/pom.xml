@@ -39,6 +39,11 @@
       <artifactId>gs-restconfig-wmts</artifactId>
     </dependency>
     <dependency>
+      <!-- runs the GWC catalog listeners here so tile layers follow REST catalog changes -->
+      <groupId>org.geoserver.cloud.gwc</groupId>
+      <artifactId>gwc-cloud-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud.catalog.backend</groupId>
       <artifactId>gs-cloud-catalog-backend-pgconfig</artifactId>
       <version>${project.version}</version>

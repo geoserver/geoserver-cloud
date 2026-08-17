@@ -9,9 +9,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import java.nio.file.Path;
 import java.util.List;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -70,9 +72,12 @@ class ParquetryRestApiIT {
                     "/data/" + BUCKET + "/populated_places.parquet")
             .waitingFor(Wait.forListeningPort());
 
+    static @TempDir Path gwcCacheDir;
+
     @DynamicPropertySource
     static void setUpPgConfig(DynamicPropertyRegistry registry) {
         pgconfig.setupDynamicPropertySource(registry);
+        registry.add("gwc.cache-directory", gwcCacheDir::toAbsolutePath);
     }
 
     @Autowired
