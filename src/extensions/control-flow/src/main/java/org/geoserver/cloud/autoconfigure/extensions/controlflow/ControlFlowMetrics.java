@@ -10,6 +10,7 @@ import io.micrometer.core.instrument.MultiGauge;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.MeterBinder;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.ToDoubleFunction;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ class ControlFlowMetrics implements MeterBinder {
     private MultiGauge ruleActiveQueues;
     private MultiGauge ruleRateLimit;
 
-    private volatile List<FlowController> lastSeenControllers;
+    private final AtomicReference<List<FlowController>> lastSeenControllers = new AtomicReference<>();
     private volatile boolean lastRefreshFailed;
 
     @Override
@@ -147,15 +148,15 @@ class ControlFlowMetrics implements MeterBinder {
             }
             return;
         }
-        if (current == lastSeenControllers) {
+        if (current == lastSeenControllers.get()) {
             return;
         }
         synchronized (this) {
-            if (current == lastSeenControllers) {
+            if (current == lastSeenControllers.get()) {
                 return;
             }
             registerRuleRows(ControlFlowRuleRows.resolve(current));
-            lastSeenControllers = current;
+            lastSeenControllers.set(current);
         }
     }
 

@@ -40,7 +40,7 @@ public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<Names
     protected void setAsDefaultIfThereWasNoDefaultNamespace(CatalogOpContext<NamespaceInfo> context) {
         if (context.isSuccess()) {
             Boolean needsSetDefault = context.getContextOption(SET_DEFAULT);
-            if (needsSetDefault.booleanValue()) {
+            if (Boolean.TRUE.equals(needsSetDefault)) {
                 context.getCatalog().setDefaultNamespace(context.getObject());
             }
         }

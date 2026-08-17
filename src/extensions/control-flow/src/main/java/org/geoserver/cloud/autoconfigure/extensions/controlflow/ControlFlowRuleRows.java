@@ -4,11 +4,11 @@
  */
 package org.geoserver.cloud.autoconfigure.extensions.controlflow;
 
-import com.google.common.base.Predicate;
 import io.micrometer.core.instrument.MultiGauge;
 import io.micrometer.core.instrument.Tags;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.flow.FlowController;
@@ -97,8 +97,8 @@ class ControlFlowRuleRows {
             running.add(row(tags, monitored, MonitoredPriorityThreadBlocker::getAdmittedCount));
             waiting.add(row(tags, monitored, PriorityThreadBlocker::getRunningRequestsCount));
         } else if (blocker instanceof PriorityThreadBlocker priority) {
-            // upstream getRunningRequestsCount() reports the waiting queue here;
-            // the running count is private state with no accessor
+            // upstream's running-requests accessor reports the waiting queue on this
+            // blocker type, and the actual running count is private with no accessor
             waiting.add(row(tags, priority, PriorityThreadBlocker::getRunningRequestsCount));
         } else if (blocker instanceof SimpleThreadBlocker simple) {
             running.add(row(tags, simple, SimpleThreadBlocker::getRunningRequestsCount));
@@ -106,7 +106,7 @@ class ControlFlowRuleRows {
     }
 
     private String singleQueueRuleKey(SingleQueueFlowController controller) {
-        // guava's Predicate, which upstream's OWSRequestMatcher and IpRequestMatcher implement
+        // upstream's matchers implement guava's Predicate, a subtype of java.util.function.Predicate
         Predicate<?> matcher = controller.getMatcher();
         if (matcher instanceof IpRequestMatcher ipMatcher) {
             return "ip." + ipMatcher.getIp();

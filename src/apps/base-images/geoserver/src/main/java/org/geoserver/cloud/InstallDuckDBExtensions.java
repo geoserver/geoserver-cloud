@@ -30,7 +30,7 @@ public class InstallDuckDBExtensions {
      *
      * @param args Command line arguments (not used)
      */
-    @SuppressWarnings({"java:S4507", "java:S106"}) // printStackTrace() and System.out.println() are ok in this class
+    @SuppressWarnings({"java:S4507", "java:S106"}) // stack traces and stdout are fine in this build-time installer
     void main() {
         try {
             Class.forName("org.duckdb.DuckDBDriver");

@@ -178,7 +178,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
-    void testGetByNameDoesNotCacheNullValues() throws Exception {
+    void testGetByNameDoesNotCacheNullValues() {
         InfoNameKey key = InfoNameKey.valueOf("roads", ConfigInfoType.LAYER);
         Callable<LayerInfo> loader = loader();
 

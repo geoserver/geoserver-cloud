@@ -104,21 +104,16 @@ class CachedReferenceCleaner {
     private int evictReferencingLayerLists(InfoIdKey idKey, ConcurrentMap<?, ?> cache, AtomicInteger visited) {
         int evicted = 0;
         for (var entry : cache.entrySet()) {
-            Object value = entry.getValue();
-            if (!(value instanceof List<?> list) || list.isEmpty()) {
-                continue;
-            }
-            if (!(list.get(0) instanceof LayerInfo)) {
-                continue;
-            }
-            visited.incrementAndGet();
-            boolean anyReferences = list.stream()
-                    .filter(LayerInfo.class::isInstance)
-                    .map(LayerInfo.class::cast)
-                    .anyMatch(layer -> canReference(layer, idKey));
-            if (anyReferences && cache.remove(entry.getKey()) != null) {
-                evicted++;
-                log.trace("cascade evicted layer list {} referencing {}", entry.getKey(), idKey.id());
+            if (entry.getValue() instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof LayerInfo) {
+                visited.incrementAndGet();
+                boolean anyReferences = list.stream()
+                        .filter(LayerInfo.class::isInstance)
+                        .map(LayerInfo.class::cast)
+                        .anyMatch(layer -> canReference(layer, idKey));
+                if (anyReferences && cache.remove(entry.getKey()) != null) {
+                    evicted++;
+                    log.trace("cascade evicted layer list {} referencing {}", entry.getKey(), idKey.id());
+                }
             }
         }
         return evicted;
