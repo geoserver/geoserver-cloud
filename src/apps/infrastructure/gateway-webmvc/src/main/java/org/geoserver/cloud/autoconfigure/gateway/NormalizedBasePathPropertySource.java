@@ -27,7 +27,7 @@ import org.springframework.core.env.PropertySource;
  */
 class NormalizedBasePathPropertySource extends PropertySource<Object> {
 
-    static final String NAME = "geoserverNormalizedBasePath";
+    static final String SOURCE_NAME = "geoserverNormalizedBasePath";
 
     static final String BASE_PATH_PROPERTY = "basepath";
 
@@ -45,14 +45,14 @@ class NormalizedBasePathPropertySource extends PropertySource<Object> {
     private final ConfigurableEnvironment environment;
 
     private NormalizedBasePathPropertySource(ConfigurableEnvironment environment) {
-        super(NAME);
+        super(SOURCE_NAME);
         this.environment = environment;
     }
 
     /** Puts a normalizing source at the top of the environment's property sources; a no-op if already registered. */
     static void register(ConfigurableEnvironment environment) {
         MutablePropertySources sources = environment.getPropertySources();
-        if (!sources.contains(NAME)) {
+        if (!sources.contains(SOURCE_NAME)) {
             sources.addFirst(new NormalizedBasePathPropertySource(environment));
         }
     }
@@ -66,7 +66,7 @@ class NormalizedBasePathPropertySource extends PropertySource<Object> {
         try {
             return resolveNormalizedBasePath();
         } finally {
-            resolving.set(Boolean.FALSE);
+            resolving.remove();
         }
     }
 
@@ -113,5 +113,19 @@ class NormalizedBasePathPropertySource extends PropertySource<Object> {
             value = "/" + value;
         }
         return value;
+    }
+
+    /**
+     * Property sources are identified by name alone, per the {@link PropertySource} equality contract; the environment
+     * and reentrancy guard are collaborators, not identity.
+     */
+    @Override
+    public boolean equals(Object other) {
+        return super.equals(other);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }
