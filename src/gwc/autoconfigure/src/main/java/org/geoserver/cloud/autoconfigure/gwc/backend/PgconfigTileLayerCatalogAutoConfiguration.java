@@ -76,8 +76,9 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
      * (lookup by old prefixed name returns empty after the SQL trigger refreshes the materialized view).
      */
     @Bean
-    PgconfigGwcCatalogRenameListener pgconfigGwcCatalogRenameListener(@Qualifier("rawCatalog") Catalog catalog) {
-        return new PgconfigGwcCatalogRenameListener(catalog);
+    PgconfigGwcCatalogRenameListener pgconfigGwcCatalogRenameListener(
+            @Qualifier("rawCatalog") Catalog catalog, ApplicationEventPublisher eventPublisher) {
+        return new PgconfigGwcCatalogRenameListener(catalog, eventPublisher::publishEvent);
     }
 
     @Bean(name = "gwcCatalogConfiguration")
