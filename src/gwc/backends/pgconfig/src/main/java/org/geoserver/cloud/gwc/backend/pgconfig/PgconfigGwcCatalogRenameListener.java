@@ -7,6 +7,7 @@ package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import lombok.NonNull;
@@ -15,9 +16,12 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.catalog.event.CatalogListener;
@@ -25,25 +29,25 @@ import org.geoserver.catalog.event.CatalogModifyEvent;
 import org.geoserver.catalog.event.CatalogPostModifyEvent;
 import org.geoserver.catalog.event.CatalogRemoveEvent;
 import org.geoserver.catalog.util.CloseableIterator;
+import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.GWC;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Catalog listener that propagates name changes affecting a tile-layer's prefixed name to the
- * GeoWebCache storage broker, so the file blob store directory and disk-quota tables follow.
+ * Catalog listener that propagates name changes affecting a tile-layer's prefixed name to the GeoWebCache storage
+ * broker, so the file blob store directory and disk-quota tables follow.
  *
- * <p>Pgconfig derives tile-layer names from the underlying {@code PublishedInfo} on every lookup,
- * so by the time upstream's {@link org.geoserver.gwc.layer.CatalogLayerEventListener
- * CatalogLayerEventListener} runs in post-modify, the SQL trigger has already refreshed {@code
- * publishedinfos_mat} and a lookup by old prefixed name returns empty. Upstream catches the
- * resulting {@code IllegalArgumentException} and silently skips the rename, leaving stale
+ * <p>Pgconfig derives tile-layer names from the underlying {@code PublishedInfo} on every lookup, so by the time
+ * upstream's {@link org.geoserver.gwc.layer.CatalogLayerEventListener CatalogLayerEventListener} runs in post-modify,
+ * the SQL trigger has already refreshed {@code publishedinfos_mat} and a lookup by old prefixed name returns empty.
+ * Upstream catches the resulting {@code IllegalArgumentException} and silently skips the rename, leaving stale
  * directories under {@code /geowebcache_data/} and stale rows in {@code pgconfig.tileset}.
  *
- * <p>This listener bridges that gap: in {@link #handleModifyEvent(CatalogModifyEvent) pre-modify}
- * it captures {@link NamePair (old, new)} prefixed-name pairs while the OLD names are still
- * queryable, and in {@link #handlePostModifyEvent(CatalogPostModifyEvent) post-modify} it replays
- * them through {@link GWC#layerRenamed(String, String)} - which calls {@code
- * storageBroker.rename(...)} directly without going through {@code TileLayerDispatcher.rename}, so
- * the broken old-name lookup is bypassed entirely.
+ * <p>This listener bridges that gap: in {@link #handleModifyEvent(CatalogModifyEvent) pre-modify} it captures
+ * {@link TileLayerRename (old, new)} prefixed-name pairs while the OLD names are still queryable, and in
+ * {@link #handlePostModifyEvent(CatalogPostModifyEvent) post-modify} it replays them through
+ * {@link GWC#layerRenamed(String, String)} - which calls {@code storageBroker.rename(...)} directly without going
+ * through {@code TileLayerDispatcher.rename}, so the broken old-name lookup is bypassed entirely.
  *
  * <p>Handled cases:
  *
@@ -51,21 +55,26 @@ import org.geoserver.gwc.GWC;
  *   <li>{@link WorkspaceInfo} {@code name} change - all layers and layer-groups in the workspace.
  *   <li>{@link ResourceInfo} {@code name} or {@code namespace} change - the single layer.
  *   <li>{@link LayerGroupInfo} {@code name} change - the single layer-group.
+ *   <li>{@link StoreInfo} {@code workspace} change - all the store's layers, whose namespaces follow the new workspace.
  * </ul>
- * @since 2.28.3.1
  */
 @Slf4j(topic = "org.geoserver.cloud.gwc.backend.pgconfig")
 public class PgconfigGwcCatalogRenameListener implements CatalogListener {
 
-    private record NamePair(String oldPrefixed, String newPrefixed) {}
+    private record TileLayerRename(@Nullable String publishedId, String oldPrefixed, String newPrefixed) {}
 
-    private static final ThreadLocal<List<NamePair>> PENDING_RENAMES = new ThreadLocal<>();
+    private static final ThreadLocal<List<TileLayerRename>> PENDING_RENAMES = new ThreadLocal<>();
 
     @NonNull
     private final Catalog catalog;
 
-    public PgconfigGwcCatalogRenameListener(@NonNull Catalog catalog) {
+    @NonNull
+    private final Consumer<TileLayerEvent> eventPublisher;
+
+    public PgconfigGwcCatalogRenameListener(
+            @NonNull Catalog catalog, @NonNull Consumer<TileLayerEvent> eventPublisher) {
         this.catalog = catalog;
+        this.eventPublisher = eventPublisher;
     }
 
     @PostConstruct
@@ -83,9 +92,20 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
         // no-op, only renames matter
     }
 
+    /**
+     * Publishes the deleted {@link TileLayerEvent} when a layer or layer-group is removed.
+     *
+     * <p>On pgconfig the tile layer is stored on the same row as its {@code PublishedInfo}: by the time
+     * {@code GWC#removeTileLayers} runs, the row is gone, the tile-layer lookup returns empty and
+     * {@code GeoServerTileLayerConfiguration} publishes no deleted event. Publishing it here, from the removed object's
+     * in-memory state, evicts the name from every node's tile-layer cache. Blob and quota removal on tile-layer delete
+     * is handled by {@code PgconfigTileLayerCatalog}.
+     */
     @Override
     public void handleRemoveEvent(CatalogRemoveEvent event) throws CatalogException {
-        // no-op, blob/quota removal on tile-layer delete is handled by PgconfigTileLayerCatalog
+        if (event.getSource() instanceof PublishedInfo published) {
+            eventPublisher.accept(TileLayerEvent.deleted(this, published.getId(), published.prefixedName()));
+        }
     }
 
     @Override
@@ -95,7 +115,7 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
 
     @Override
     public void handleModifyEvent(CatalogModifyEvent event) throws CatalogException {
-        List<NamePair> pairs = collectRenames(event);
+        List<TileLayerRename> pairs = collectRenames(event);
         if (!pairs.isEmpty()) {
             PENDING_RENAMES.set(pairs);
         }
@@ -103,7 +123,7 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
 
     @Override
     public void handlePostModifyEvent(CatalogPostModifyEvent event) throws CatalogException {
-        List<NamePair> pairs = PENDING_RENAMES.get();
+        List<TileLayerRename> pairs = PENDING_RENAMES.get();
         if (pairs == null) {
             return;
         }
@@ -114,7 +134,7 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
         }
     }
 
-    private List<NamePair> collectRenames(CatalogModifyEvent event) {
+    private List<TileLayerRename> collectRenames(CatalogModifyEvent event) {
         CatalogInfo source = event.getSource();
         List<String> changedProperties = event.getPropertyNames();
         if (source instanceof WorkspaceInfo && changedProperties.contains("name")) {
@@ -127,50 +147,96 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
         if (source instanceof LayerGroupInfo group && changedProperties.contains("name")) {
             return collectLayerGroupRename(group, event);
         }
+        if (source instanceof StoreInfo store && changedProperties.contains("workspace")) {
+            return collectStoreMove(store, event);
+        }
         return List.of();
     }
 
-    private List<NamePair> collectWorkspaceRenames(CatalogModifyEvent event) {
+    /**
+     * A store moved to another workspace renames all its layers: the resources' namespaces follow the new workspace
+     * (see {@code CatalogPlugin#save(StoreInfo)}), but the modify events fired for those resources already expose the
+     * new namespace as both the old and the new value, leaving no usable old name. The store's own modify event does
+     * provide the old workspace: collect the renames here, while the resources still expose the old namespace.
+     */
+    private List<TileLayerRename> collectStoreMove(StoreInfo store, CatalogModifyEvent event) {
+        int workspaceIndex = event.getPropertyNames().indexOf("workspace");
+        WorkspaceInfo oldWorkspace = (WorkspaceInfo) event.getOldValues().get(workspaceIndex);
+        WorkspaceInfo newWorkspace = (WorkspaceInfo) event.getNewValues().get(workspaceIndex);
+        if (oldWorkspace == null
+                || newWorkspace == null
+                || oldWorkspace.getName().equals(newWorkspace.getName())) {
+            return List.of();
+        }
+        String newPrefix = newWorkspace.getName();
+        List<TileLayerRename> pairs = new ArrayList<>();
+        for (ResourceInfo resource : catalog.getResourcesByStore(store, ResourceInfo.class)) {
+            NamespaceInfo oldNamespace = resource.getNamespace();
+            if (oldNamespace == null) {
+                continue;
+            }
+            String oldPrefixed = prefixed(oldNamespace.getPrefix(), resource.getName());
+            String newPrefixed = prefixed(newPrefix, resource.getName());
+            if (oldPrefixed.equals(newPrefixed)) {
+                continue;
+            }
+            String layerId = catalog.getLayers(resource).stream()
+                    .map(LayerInfo::getId)
+                    .findFirst()
+                    .orElse(null);
+            pairs.add(new TileLayerRename(layerId, oldPrefixed, newPrefixed));
+        }
+        return pairs;
+    }
+
+    private List<TileLayerRename> collectWorkspaceRenames(CatalogModifyEvent event) {
         String oldWsName = stringPropertyOldValue(event, "name");
         String newWsName = stringPropertyNewValue(event, "name");
         if (oldWsName == null || newWsName == null || oldWsName.equals(newWsName)) {
             return List.of();
         }
-        List<NamePair> pairs = new ArrayList<>();
+        List<TileLayerRename> pairs = new ArrayList<>();
         addLayerRenamesForWorkspace(oldWsName, newWsName, pairs);
         addLayerGroupRenamesForWorkspace(oldWsName, newWsName, pairs);
         return pairs;
     }
 
-    private void addLayerRenamesForWorkspace(String oldWsName, String newWsName, List<NamePair> pairs) {
-        try (CloseableIterator<org.geoserver.catalog.LayerInfo> layers = catalog.list(
-                org.geoserver.catalog.LayerInfo.class, Predicates.equal("resource.store.workspace.name", oldWsName))) {
+    private void addLayerRenamesForWorkspace(String oldWsName, String newWsName, List<TileLayerRename> pairs) {
+        try (CloseableIterator<org.geoserver.catalog.LayerInfo> layers =
+                catalog.list(LayerInfo.class, Predicates.equal("resource.store.workspace.name", oldWsName))) {
             while (layers.hasNext()) {
-                String localName = layers.next().getName();
-                pairs.add(new NamePair(prefixed(oldWsName, localName), prefixed(newWsName, localName)));
+                LayerInfo layer = layers.next();
+                String localName = layer.getName();
+                pairs.add(new TileLayerRename(
+                        layer.getId(), prefixed(oldWsName, localName), prefixed(newWsName, localName)));
             }
         }
     }
 
-    private void addLayerGroupRenamesForWorkspace(String oldWsName, String newWsName, List<NamePair> pairs) {
+    private void addLayerGroupRenamesForWorkspace(String oldWsName, String newWsName, List<TileLayerRename> pairs) {
         try (CloseableIterator<LayerGroupInfo> groups =
                 catalog.list(LayerGroupInfo.class, Predicates.equal("workspace.name", oldWsName))) {
             while (groups.hasNext()) {
-                String localName = groups.next().getName();
-                pairs.add(new NamePair(prefixed(oldWsName, localName), prefixed(newWsName, localName)));
+                LayerGroupInfo group = groups.next();
+                String localName = group.getName();
+                pairs.add(new TileLayerRename(
+                        group.getId(), prefixed(oldWsName, localName), prefixed(newWsName, localName)));
             }
         }
     }
 
-    private List<NamePair> collectResourceRename(ResourceInfo resource, CatalogModifyEvent event) {
+    private List<TileLayerRename> collectResourceRename(ResourceInfo resource, CatalogModifyEvent event) {
         List<String> changedProperties = event.getPropertyNames();
         int nameIndex = changedProperties.indexOf("name");
         int namespaceIndex = changedProperties.indexOf("namespace");
 
-        NamespaceInfo currentNamespace = resource.getNamespace();
-        NamespaceInfo oldNamespace =
-                namespaceIndex > -1 ? (NamespaceInfo) event.getOldValues().get(namespaceIndex) : currentNamespace;
-        if (oldNamespace == null || currentNamespace == null) {
+        NamespaceInfo oldNamespace = namespaceIndex > -1
+                ? (NamespaceInfo) event.getOldValues().get(namespaceIndex)
+                : resource.getNamespace();
+        NamespaceInfo newNamespace = namespaceIndex > -1
+                ? (NamespaceInfo) event.getNewValues().get(namespaceIndex)
+                : resource.getNamespace();
+        if (oldNamespace == null || newNamespace == null) {
             return List.of();
         }
 
@@ -178,14 +244,18 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
         String newLocalName = nameIndex > -1 ? (String) event.getNewValues().get(nameIndex) : resource.getName();
 
         String oldPrefixed = prefixed(oldNamespace.getPrefix(), oldLocalName);
-        String newPrefixed = prefixed(currentNamespace.getPrefix(), newLocalName);
+        String newPrefixed = prefixed(newNamespace.getPrefix(), newLocalName);
         if (oldPrefixed.equals(newPrefixed)) {
             return List.of();
         }
-        return List.of(new NamePair(oldPrefixed, newPrefixed));
+        String layerId = catalog.getLayers(resource).stream()
+                .map(LayerInfo::getId)
+                .findFirst()
+                .orElse(null);
+        return List.of(new TileLayerRename(layerId, oldPrefixed, newPrefixed));
     }
 
-    private List<NamePair> collectLayerGroupRename(LayerGroupInfo group, CatalogModifyEvent event) {
+    private List<TileLayerRename> collectLayerGroupRename(LayerGroupInfo group, CatalogModifyEvent event) {
         String oldName = stringPropertyOldValue(event, "name");
         String newName = stringPropertyNewValue(event, "name");
         if (oldName == null || newName == null || oldName.equals(newName)) {
@@ -193,10 +263,11 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
         }
         WorkspaceInfo workspace = group.getWorkspace();
         String prefix = workspace == null ? null : workspace.getName();
-        return List.of(new NamePair(prefixed(prefix, oldName), prefixed(prefix, newName)));
+        return List.of(new TileLayerRename(group.getId(), prefixed(prefix, oldName), prefixed(prefix, newName)));
     }
 
-    private void replayRenames(List<NamePair> pairs) {
+    private void replayRenames(List<TileLayerRename> pairs) {
+        publishTileLayerEvents(pairs);
         GWC mediator;
         try {
             mediator = GWC.get();
@@ -208,11 +279,28 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
             log.debug("Skipping {} tile layer rename(s); GWC singleton not available", pairs.size());
             return;
         }
-        for (NamePair pair : pairs) {
+        for (TileLayerRename pair : pairs) {
             try {
                 mediator.layerRenamed(pair.oldPrefixed(), pair.newPrefixed());
             } catch (RuntimeException e) {
                 log.warn("Failed to rename tile layer cache '{}' -> '{}'", pair.oldPrefixed(), pair.newPrefixed(), e);
+            }
+        }
+    }
+
+    /**
+     * Notifies every service of the rename through {@link TileLayerEvent}s, keyed by the old prefixed name.
+     *
+     * <p>Upstream {@code CatalogLayerEventListener} only publishes its rename when the old prefixed name still
+     * resolves, which on pgconfig depends on the caching tile-layer repository holding a warm entry at the service
+     * handling the rename. These events make cache eviction independent of that: each node's
+     * {@link CachingTileLayerInfoRepository} drops the old-name entry and the name listing memo.
+     */
+    private void publishTileLayerEvents(List<TileLayerRename> pairs) {
+        for (TileLayerRename pair : pairs) {
+            if (pair.publishedId() != null) {
+                eventPublisher.accept(
+                        TileLayerEvent.modified(this, pair.publishedId(), pair.newPrefixed(), pair.oldPrefixed()));
             }
         }
     }

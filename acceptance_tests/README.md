@@ -3,18 +3,8 @@
 ## Requirements
 
 - Python 3.8+
-- [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer) (recommended)
-- Or a Python virtual environment
 
 ## Installation
-
-### Option 1: Using Poetry (recommended)
-
-```shell
-poetry install
-```
-
-### Option 2: Using Python virtual environment
 
 ```shell
 # Create virtual environment
@@ -27,7 +17,7 @@ source .venv/bin/activate
 .venv\Scripts\activate
 
 # Install dependencies
-pip install -e .
+pip install -r requirements.txt
 ```
 
 ## Running the tests
@@ -46,22 +36,27 @@ make acceptance-tests-pgconfig
 
 #### Run tests inside Docker container (recommended for all tests)
 
+The configuration for the tests will be read from the file `config.yaml`.
+
 ```shell
 # Start GeoServer services  
 cd ../compose
 ./acceptance_datadir up -d  # or ./acceptance_pgconfig up -d
+./acceptance_datadir scale acceptance=1
 
 # Optional: Start webui service if needed (not started by default in acceptance composition)
 ./acceptance_datadir scale webui=1
 
 # Run all tests inside the container
-./acceptance_datadir exec acceptance pytest . -vvv --color=yes
+./acceptance_datadir exec acceptance pytest --pyargs geoserver_acceptance_tests.tests -v --color=yes
 
 # Run specific tests inside the container
-./acceptance_datadir exec acceptance pytest tests/test_cog.py -v --color=yes
+./acceptance_datadir exec acceptance pytest --pyargs geoserver_acceptance_tests.tests.test_cog -v --color=yes
 ```
 
 #### Run tests from host machine (full functionality)
+
+The configuration for the tests will be read from the file `config.yaml` with some values being overridden with environment variables in the script `run_tests_locally.sh`.
 
 **Note:** This requires the geodatabase port to be exposed (port 6432). The acceptance composition now exposes this port automatically.
 
@@ -75,14 +70,14 @@ cd ../compose
 
 # From acceptance_tests directory, run tests from host
 cd ../acceptance_tests
-./run_tests_locally.sh tests/test_cog.py             # Run COG tests
-./run_tests_locally.sh tests/test_imagemosaic_cog.py # Run ImageMosaic tests  
-./run_tests_locally.sh tests/test_workspace.py       # Run workspace tests
-./run_tests_locally.sh                           # Run all tests
+./run_tests_locally.sh test_cog             # Run COG tests
+./run_tests_locally.sh test_imagemosaic_cog # Run ImageMosaic tests
+./run_tests_locally.sh test_workspace       # Run workspace tests
+./run_tests_locally.sh                      # Run all tests
 
 # Run specific test functions
-./run_tests_locally.sh tests/test_imagemosaic_cog.py::test_create_imagemosaic_local_files
-./run_tests_locally.sh tests/test_cog.py::test_create_cog_coverage
+./run_tests_locally.sh test_imagemosaic_cog::test_create_imagemosaic_local_files
+./run_tests_locally.sh test_cog::test_create_cog_coverage
 ```
 
 ### Run specific tests with make
@@ -110,6 +105,9 @@ cd ../compose
 # Now you can run from the IDE with the `local` spring profile enabled 
 # and the required catalog backend profile (datadir/pgconfig)
 ```
+
+If you need to debug the Python tests, make a clone of the repository `github.com:camptocamp/python-geoservercloud`
+and change the dependency location in the file `requirements.txt`.
 
 ### Accessing Sample Data
 

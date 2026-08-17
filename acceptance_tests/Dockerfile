@@ -10,7 +10,7 @@ RUN apt-get update \
 COPY . /acceptance_tests
 
 WORKDIR /acceptance_tests
-RUN python3 -m pip install --disable-pip-version-check .
+RUN python3 -m pip install --disable-pip-version-check -r requirements.txt
 
 COPY entrypoint.py /bin/entrypoint.py
 

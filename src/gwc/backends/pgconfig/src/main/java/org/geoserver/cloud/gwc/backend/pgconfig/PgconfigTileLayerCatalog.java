@@ -17,6 +17,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import javax.sql.DataSource;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -48,6 +49,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @see PgconfigTileLayerInfoRepository
  * @since 1.7
  */
+@Slf4j(topic = "org.geoserver.cloud.gwc.backend.pgconfig")
 public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
     final @NonNull TileLayerInfoRepository repository;
@@ -198,7 +200,15 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
         if (mediator == null) {
             return;
         }
-        mediator.layerRemoved(prefixedLayerName);
+        try {
+            mediator.layerRemoved(prefixedLayerName);
+        } catch (RuntimeException e) {
+            // Best-effort cache/quota cleanup. The blob store may already have dropped the
+            // layer (the GWC REST controller deletes it before calling removeLayer), in which
+            // case GWC.layerRemoved throws on an "unknown layer". The authoritative removal
+            // already succeeded, so this is not an error.
+            log.debug("Blob store cleanup for removed layer {} skipped: {}", prefixedLayerName, e.getMessage());
+        }
     }
 
     private String prefixedName(String workspaceName, String localName) {
