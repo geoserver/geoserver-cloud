@@ -33,7 +33,7 @@ public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
     private final @NonNull Cache nameCache;
 
     /** cached value for {@link #findAllNames()}, cleared upon any {@link TileLayerEvent} */
-    private Set<String> cachedNames;
+    private volatile Set<String> cachedNames;
 
     @EventListener(TileLayerEvent.class)
     void onTileLayerEvent(TileLayerEvent event) {

@@ -69,6 +69,18 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
         return new PgconfigGwcInitializer(configPersister, configLock);
     }
 
+    /**
+     * Propagates Workspace / Resource / LayerGroup name changes to the GeoWebCache storage broker so the file blob
+     * store directory and pgconfig disk-quota tileset rows follow. Pgconfig derives tile-layer names from
+     * {@code PublishedInfo} on every lookup, which breaks upstream {@code CatalogLayerEventListener}'s rename path
+     * (lookup by old prefixed name returns empty after the SQL trigger refreshes the materialized view).
+     */
+    @Bean
+    PgconfigGwcCatalogRenameListener pgconfigGwcCatalogRenameListener(
+            @Qualifier("rawCatalog") Catalog catalog, ApplicationEventPublisher eventPublisher) {
+        return new PgconfigGwcCatalogRenameListener(catalog, eventPublisher::publishEvent);
+    }
+
     @Bean(name = "gwcCatalogConfiguration")
     GeoServerTileLayerConfiguration pgconfigTileLayerCatalog(
             GridSetBroker gridsetBroker,
@@ -80,18 +92,6 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
         var config = new PgconfigTileLayerCatalog(repository, gridsetBroker, () -> catalog, defaultsProvider);
         Consumer<TileLayerEvent> gwcEventPublisher = eventPublisher::publishEvent;
         return new GeoServerTileLayerConfiguration(config, gwcEventPublisher);
-    }
-
-    /**
-     * Propagates Workspace / Resource / LayerGroup name changes to the GeoWebCache storage broker
-     * so the file blob store directory and pgconfig disk-quota tableset rows follow. Pgconfig
-     * derives tile-layer names from {@code PublishedInfo} on every lookup, which breaks
-     * upstream {@code CatalogLayerEventListener}'s rename path (lookup by old prefixed name
-     * returns empty after the SQL trigger refreshes the materialized view).
-     */
-    @Bean
-    PgconfigGwcCatalogRenameListener pgconfigGwcCatalogRenameListener(@Qualifier("rawCatalog") Catalog catalog) {
-        return new PgconfigGwcCatalogRenameListener(catalog);
     }
 
     @Bean
