@@ -33,8 +33,8 @@
          package); keep it aligned instead of letting spring-boot-dependencies pin the older 4.0.x -->
     <spring-amqp.version>4.1.0</spring-amqp.version>
 
-    <gs.version>3.0.0-CLOUD-SNAPSHOT</gs.version>
-    <gt.version>35-SNAPSHOT</gt.version>
+    <gs.version>3.0.1-CLOUD</gs.version>
+    <gt.version>35.1</gt.version>
     <wicket.version>10.10.0</wicket.version>
     <acl.version>3.0.1</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
