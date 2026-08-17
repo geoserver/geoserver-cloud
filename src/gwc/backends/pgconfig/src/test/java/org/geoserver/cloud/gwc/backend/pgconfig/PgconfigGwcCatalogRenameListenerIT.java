@@ -6,6 +6,7 @@
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -106,6 +107,11 @@ class PgconfigGwcCatalogRenameListenerIT {
 
         verify(mediator).layerRenamed("oldWs:states", "newWs:states");
         verify(mediator).layerRenamed("oldWs:roads", "newWs:roads");
+        assertThat(events)
+                .extracting(TileLayerEvent::getPublishedId, TileLayerEvent::getName, TileLayerEvent::getOldName)
+                .containsExactlyInAnyOrder(
+                        tuple(layer1.getId(), "newWs:states", "oldWs:states"),
+                        tuple(layer2.getId(), "newWs:roads", "oldWs:roads"));
     }
 
     @Test
@@ -119,6 +125,9 @@ class PgconfigGwcCatalogRenameListenerIT {
         renameWorkspace(ws, "newWs");
 
         verify(mediator).layerRenamed("oldWs:grp", "newWs:grp");
+        assertThat(events)
+                .extracting(TileLayerEvent::getPublishedId, TileLayerEvent::getName, TileLayerEvent::getOldName)
+                .contains(tuple(group.getId(), "newWs:grp", "oldWs:grp"));
     }
 
     @Test
@@ -131,6 +140,9 @@ class PgconfigGwcCatalogRenameListenerIT {
         catalog.save(resource);
 
         verify(mediator).layerRenamed("topp:states", "topp:roads");
+        assertThat(events)
+                .extracting(TileLayerEvent::getPublishedId, TileLayerEvent::getName, TileLayerEvent::getOldName)
+                .containsExactly(tuple(layer.getId(), "topp:roads", "topp:states"));
     }
 
     @Test
@@ -144,6 +156,9 @@ class PgconfigGwcCatalogRenameListenerIT {
         catalog.save(group);
 
         verify(mediator).layerRenamed("topp:groupOld", "topp:groupNew");
+        assertThat(events)
+                .extracting(TileLayerEvent::getPublishedId, TileLayerEvent::getName, TileLayerEvent::getOldName)
+                .containsExactly(tuple(group.getId(), "topp:groupNew", "topp:groupOld"));
     }
 
     @Test
@@ -157,6 +172,19 @@ class PgconfigGwcCatalogRenameListenerIT {
 
         verify(mediator, never())
                 .layerRenamed(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString());
+        assertThat(events).isEmpty();
+    }
+
+    @Test
+    void layerRemoved_publishesDeletedEvent() {
+        WorkspaceInfo ws = support.workspace("topp");
+        LayerInfo layer = support.layerInfo(ws, "states");
+
+        catalog.remove(catalog.getLayer(layer.getId()));
+
+        assertThat(events)
+                .extracting(TileLayerEvent::getPublishedId, TileLayerEvent::getName)
+                .containsExactly(tuple(layer.getId(), "topp:states"));
     }
 
     @Test
