@@ -219,7 +219,7 @@ public class PgconfigResourceStore implements ResourceStore {
         Resource from = get(path);
         Resource to = get(target);
         if (from instanceof PgconfigResource pgFrom && to instanceof PgconfigResource pgTo) {
-            return PgconfigResourceStore.this.move(pgFrom, pgTo);
+            return moveDbResource(pgFrom, pgTo);
         }
         if (from instanceof PgconfigResource) {
             throw new UnsupportedOperationException(
@@ -244,7 +244,7 @@ public class PgconfigResourceStore implements ResourceStore {
         Optional<PgconfigResource> dbBacked = findByPath(normalize(path));
         if (dbBacked.isPresent()) {
             PgconfigResource pgTarget = findByPathOrUndefined(normalize(target));
-            return move(dbBacked.get(), pgTarget);
+            return moveDbResource(dbBacked.get(), pgTarget);
         }
         return cache.getLocalOnlyStore().move(path, target);
     }
@@ -394,6 +394,15 @@ public class PgconfigResourceStore implements ResourceStore {
 
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public boolean move(@NonNull final PgconfigResource source, @NonNull final PgconfigResource target) {
+        return moveDbResource(source, target);
+    }
+
+    /**
+     * Move implementation shared by the transactional entry points. In-class callers already run within the transaction
+     * begun by {@link #move(String, String)} and use this method directly: self-invoking the {@code @Transactional}
+     * overload through {@code this} would bypass the transactional proxy.
+     */
+    private boolean moveDbResource(final PgconfigResource source, final PgconfigResource target) {
         if (source.isUndefined()) {
             return true;
         }

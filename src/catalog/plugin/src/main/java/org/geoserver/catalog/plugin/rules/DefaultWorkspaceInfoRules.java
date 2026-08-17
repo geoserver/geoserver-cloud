@@ -52,7 +52,7 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
     private void setAsDefaultIfThereWasNoDefaultWorkspace(CatalogOpContext<WorkspaceInfo> context) {
         if (context.isSuccess()) {
             Boolean needsSetDefault = context.getContextOption(SET_DEFAULT);
-            if (needsSetDefault.booleanValue()) {
+            if (Boolean.TRUE.equals(needsSetDefault)) {
                 context.getCatalog().setDefaultWorkspace(context.getObject());
             }
         }

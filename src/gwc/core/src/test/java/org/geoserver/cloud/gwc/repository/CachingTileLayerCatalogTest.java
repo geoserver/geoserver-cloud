@@ -60,7 +60,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void initialize() {
+    void initialize() {
         caching = new CachingTileLayerCatalog(cacheManager, catalog);
         assertThat(caching.idCache).isNull();
         assertThat(caching.namesById).isNotNull().isEmpty();
@@ -74,7 +74,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void reset() {
+    void reset() {
 
         assertThat(caching.idCache).isNotNull();
         add(caching, "tl1");
@@ -87,7 +87,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void onTileLayerEvent() {
+    void onTileLayerEvent() {
         final String origName = "origName";
         final String newName = "newName";
         catalog.addListener(new TileLayerCatalogListener() {
@@ -140,7 +140,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void getLayerIds() {
+    void getLayerIds() {
         add(catalog, "tl1");
         add(catalog, "tl2");
         assertThat(caching.getLayerIds()).isEmpty();
@@ -151,7 +151,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void getLayerNames() {
+    void getLayerNames() {
         add(catalog, "tl1");
         add(catalog, "tl2");
         assertThat(caching.getLayerNames()).isEmpty();
@@ -162,7 +162,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         add(caching, "tl1");
         GeoServerTileLayerInfo tl = add(caching, "tl2");
 
@@ -185,7 +185,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         add(caching, "tl1");
         add(caching, "tl2");
 
@@ -202,7 +202,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void getLayerId() {
+    void getLayerId() {
         add(caching, "tl1", "name1");
         add(caching, "tl2", "name2");
 
@@ -211,7 +211,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void getLayerName() {
+    void getLayerName() {
         // bypass cache
         add(catalog, "tl1", "name1");
         add(catalog, "tl2", "name2");
@@ -221,7 +221,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void getLayerById() {
+    void getLayerById() {
         add(catalog, "tl1", "name1");
         add(catalog, "tl2", "name2");
 
@@ -230,7 +230,7 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
-    public void getLayerByName() {
+    void getLayerByName() {
         // bypass cache
         add(catalog, "tl1", "name1");
         add(catalog, "tl2", "name2");

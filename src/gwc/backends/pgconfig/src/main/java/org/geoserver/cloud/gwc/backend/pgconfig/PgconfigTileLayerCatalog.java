@@ -189,7 +189,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
         GWC mediator;
         try {
             mediator = GWC.get();
-        } catch (NullPointerException npe) {
+        } catch (NullPointerException _) {
             return;
         }
         if (mediator == null) {
