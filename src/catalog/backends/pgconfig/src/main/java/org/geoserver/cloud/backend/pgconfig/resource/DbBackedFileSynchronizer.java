@@ -157,10 +157,9 @@ public class DbBackedFileSynchronizer {
             }
             long localMtime = file.lastModified();
             maxSeen = Math.max(maxSeen, localMtime);
-            if (localMtime <= newestSynced) {
-                continue;
+            if (localMtime > newestSynced) {
+                push(resourcePath, file, localMtime);
             }
-            push(resourcePath, file, localMtime);
         }
         newestSyncedMtime.put(path, maxSeen);
         lastSynced.put(path, System.currentTimeMillis());

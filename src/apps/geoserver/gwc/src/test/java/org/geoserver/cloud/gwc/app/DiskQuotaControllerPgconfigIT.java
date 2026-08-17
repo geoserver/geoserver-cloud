@@ -89,9 +89,10 @@ class DiskQuotaControllerPgconfigIT {
         ResponseEntity<String> resp = authed.getForEntity("/gwc/rest/diskquota", String.class);
         assertThat(resp.getStatusCode()).as("body: %s", resp.getBody()).isEqualTo(OK);
         String body = resp.getBody();
-        assertThat(body).contains("<org.geowebcache.diskquota.DiskQuotaConfig>");
-        assertThat(body).contains("<enabled>");
-        assertThat(body).contains("<globalQuota>");
+        assertThat(body)
+                .contains("<org.geowebcache.diskquota.DiskQuotaConfig>")
+                .contains("<enabled>")
+                .contains("<globalQuota>");
     }
 
     /**
@@ -126,11 +127,12 @@ class DiskQuotaControllerPgconfigIT {
         ResponseEntity<String> getResp = authed.getForEntity("/gwc/rest/diskquota", String.class);
         assertThat(getResp.getStatusCode()).isEqualTo(OK);
         String body = getResp.getBody();
-        assertThat(body).contains("<enabled>true</enabled>");
-        assertThat(body).contains("<cacheCleanUpFrequency>5</cacheCleanUpFrequency>");
-        assertThat(body).contains("<cacheCleanUpUnits>SECONDS</cacheCleanUpUnits>");
-        assertThat(body).contains("<maxConcurrentCleanUps>4</maxConcurrentCleanUps>");
-        assertThat(body).contains("<globalExpirationPolicyName>LFU</globalExpirationPolicyName>");
+        assertThat(body)
+                .contains("<enabled>true</enabled>")
+                .contains("<cacheCleanUpFrequency>5</cacheCleanUpFrequency>")
+                .contains("<cacheCleanUpUnits>SECONDS</cacheCleanUpUnits>")
+                .contains("<maxConcurrentCleanUps>4</maxConcurrentCleanUps>")
+                .contains("<globalExpirationPolicyName>LFU</globalExpirationPolicyName>");
     }
 
     @Test

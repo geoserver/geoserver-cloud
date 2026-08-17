@@ -271,7 +271,7 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
         GWC mediator;
         try {
             mediator = GWC.get();
-        } catch (NullPointerException npe) {
+        } catch (NullPointerException _) {
             log.debug("Skipping {} tile layer rename(s); GWC singleton not available", pairs.size());
             return;
         }

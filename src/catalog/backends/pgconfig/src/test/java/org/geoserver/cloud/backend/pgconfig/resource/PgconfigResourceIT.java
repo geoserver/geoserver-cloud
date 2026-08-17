@@ -410,7 +410,7 @@ class PgconfigResourceIT {
     }
 
     @Test
-    void testMoveUpdatesParentDirectoryMtimes() throws Exception {
+    void testMoveUpdatesParentDirectoryMtimes() {
         store.get("workspaces").dir();
         store.get("workspaces/mvsrc").dir();
         store.get("workspaces/mvdst").dir();

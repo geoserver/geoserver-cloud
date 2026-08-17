@@ -81,6 +81,7 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
 
     @Override
     public void setGlobal(GeoServerInfo global) {
+        requireNonNull(global);
         resolve(global);
         setId(global.getSettings());
         repository.setGlobal(global);

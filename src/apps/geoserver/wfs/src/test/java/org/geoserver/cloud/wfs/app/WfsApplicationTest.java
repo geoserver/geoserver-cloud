@@ -105,8 +105,7 @@ abstract class WfsApplicationTest {
         String wsa = getFeatureAsJson(port, "wsa");
         assertThat(wsa)
                 .as("the wsa virtual service should not crash on the unqualified typeName")
-                .doesNotContain("ClassCastException", "cannot be cast");
-        assertThat(wsa)
+                .doesNotContain("ClassCastException", "cannot be cast")
                 .as("the wsa virtual service should return wsa's own 'roads' feature")
                 .contains("FeatureCollection")
                 .contains("wsa road")

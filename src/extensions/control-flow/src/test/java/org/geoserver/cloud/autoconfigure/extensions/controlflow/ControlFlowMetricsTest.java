@@ -258,9 +258,7 @@ class ControlFlowMetricsTest {
                 .as("rule active queues gauge keeps its documented name")
                 .contains("geoserver_controlflow_rule_queues_active")
                 .as("rule rate limit gauge keeps its documented name")
-                .contains("geoserver_controlflow_rule_rate_limit");
-
-        assertThat(scrape)
+                .contains("geoserver_controlflow_rule_rate_limit")
                 .as("no base-unit suffix on the global running gauge")
                 .doesNotContain("_running_requests")
                 .as("no base-unit suffix on the rule active queues gauge")

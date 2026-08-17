@@ -75,6 +75,7 @@ public class PgconfigDiskQuotaAutoConfiguration {
     }
 
     @Bean(name = "PostgreSQLQuotaDialect")
+    @SuppressWarnings("java:S6830") // upstream bean-name contract, see class javadoc
     SQLDialect postgreSQLQuotaDialect() {
         return new PostgreSQLDialect();
     }
@@ -84,7 +85,7 @@ public class PgconfigDiskQuotaAutoConfiguration {
             @Qualifier("pgconfigDataSource") DataSource pgconfigDataSource,
             @Qualifier("gwcDefaultStorageFinder") DefaultStorageFinder storageFinder,
             @Qualifier("gwcTilePageCalculator") TilePageCalculator tilePageCalculator,
-            @Qualifier("PostgreSQLQuotaDialect") SQLDialect dialect,
+            @SuppressWarnings("java:S6830") @Qualifier("PostgreSQLQuotaDialect") SQLDialect dialect,
             PgconfigBackendProperties pgconfigProperties) {
 
         DataSource nonClosingDataSource = new DelegatingDataSource(pgconfigDataSource);
@@ -97,6 +98,7 @@ public class PgconfigDiskQuotaAutoConfiguration {
     }
 
     @Bean(name = "DiskQuotaStoreProvider")
+    @SuppressWarnings("java:S6830") // upstream bean-name contract, see class javadoc
     ConfigurableQuotaStoreProvider diskQuotaStoreProvider(
             @Qualifier("DiskQuotaConfigLoader") ConfigLoader loader,
             @Qualifier("gwcTilePageCalculator") TilePageCalculator tilePageCalculator,
