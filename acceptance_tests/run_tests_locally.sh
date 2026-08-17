@@ -2,21 +2,25 @@
 
 virtualenv -q .venv/
 source .venv/bin/activate
-pip install -q -e .
+pip install -q -r requirements.txt
 
 # Default GeoServer URL
 GEOSERVER_URL=${GEOSERVER_URL:-"http://localhost:9090/geoserver/cloud"}
 
 # Default database connection for local testing (requires geodatabase port exposed on 6432)
-PGHOST=${PGHOST:-"localhost"}
-PGPORT=${PGPORT:-"6432"}
-PGDATABASE=${PGDATABASE:-"acceptance"}
-PGUSER=${PGUSER:-"geoserver"}
-PGPASSWORD=${PGPASSWORD:-"geoserver"}
-PGSCHEMA=${PGSCHEMA:-"test1"}
+GEOSERVER_PG_HOST_DOCKER=${GEOSERVER_PG_HOST_DOCKER:-"geodatabase"}
+GEOSERVER_PG_PORT_DOCKER=${GEOSERVER_PG_PORT_DOCKER:-"5432"}
+GEOSERVER_PG_HOST_LOCAL=${GEOSERVER_PG_HOST_LOCAL:-"localhost"}
+GEOSERVER_PG_PORT_LOCAL=${GEOSERVER_PG_PORT_LOCAL:-"6432"}
 
-# Note: This script runs tests from the host machine and requires the geodatabase 
-# port to be exposed (6432). Start services with: ./acceptance_datadir up -d
+# Acceptance test configuration
+GEOSERVER_ACCEPTANCE_CONFIG=${GEOSERVER_ACCEPTANCE_CONFIG:-"config.yaml"}
+# Flags to activate geoserver-cloud specific tests
+GEOSERVER_ACCEPTANCE_RUN_DB_TESTS=${GEOSERVER_ACCEPTANCE_RUN_DB_TESTS:-"true"}
+GEOSERVER_ACCEPTANCE_RUN_COG_TESTS=${GEOSERVER_ACCEPTANCE_RUN_COG_TESTS:-"true"}
+GEOSERVER_ACCEPTANCE_RUN_JNDI_TESTS=${GEOSERVER_ACCEPTANCE_RUN_JNDI_TESTS:-"true"}
+GEOSERVER_ACCEPTANCE_RUN_SLOW_TESTS=${GEOSERVER_ACCEPTANCE_RUN_SLOW_TESTS:-"false"}
+GEOSERVER_ACCEPTANCE_RUN_AWS_S3_TESTS=${GEOSERVER_ACCEPTANCE_RUN_AWS_S3_TESTS:-"true"}
 
 # Help function
 show_help() {
@@ -32,19 +36,19 @@ show_help() {
     echo "TEST_PATH:"
     echo "  Optional path to specific test file or test function"
     echo "  Examples:"
-    echo "    $0 tests/test_cog.py"
-    echo "    $0 tests/test_cog_imagemosaic.py::test_create_imagemosaic_cogs_http"
-    echo "    $0 tests/test_workspace.py"
+    echo "    $0 test_cog"
+    echo "    $0 test_cog_imagemosaic::test_create_imagemosaic_cogs_http"
+    echo "    $0 test_workspace"
     echo ""
-    echo "Environment variables:"
-    echo "  GEOSERVER_URL  GeoServer URL (default: http://localhost:9090/geoserver/cloud)"
-    echo "  PGHOST         Database host (default: localhost)"
-    echo "  PGPORT         Database port (default: 6432)"
+    echo "Environment variables (see script for full list):"
+    echo "  GEOSERVER_URL                   GeoServer URL (default: http://localhost:9090/geoserver/cloud)"
+    echo "  GEOSERVER_PG_HOST_LOCAL         Database host (default: localhost)"
+    echo "  GEOSERVER_PG_PORT_LOCAL         Database port (default: 6432)"
     echo ""
     echo "Examples:"
     echo "  $0                           # Run all tests"
-    echo "  $0 tests/test_cog.py        # Run COG tests only"
-    echo "  $0 -v                       # Run all tests with verbose output"
+    echo "  $0 test_cog                  # Run COG tests only"
+    echo "  $0 -v                        # Run all tests with verbose output"
     echo "  GEOSERVER_URL=http://localhost:8080/geoserver $0  # Use different URL"
 }
 
@@ -80,9 +84,9 @@ done
 
 # Set the target (all tests or specific test)
 if [[ -n "$TEST_PATH" ]]; then
-    TARGET="$TEST_PATH"
+    TARGET="geoserver_acceptance_tests.tests.$TEST_PATH"
 else
-    TARGET="."
+    TARGET="geoserver_acceptance_tests.tests"
 fi
 
 echo "Running GeoServer Cloud acceptance tests..."
@@ -113,14 +117,8 @@ fi
 
 echo ""
 
-# Check if we're using Poetry or virtual environment
-if command -v poetry &> /dev/null && [[ -f "pyproject.toml" ]]; then
-    echo "Using Poetry to run tests..."
-    echo "Installing dependencies if needed..."
-    poetry install
-    export GEOSERVER_URL PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD PGSCHEMA
-    poetry run pytest $VERBOSE_FLAG --color=yes $TARGET
-elif [[ -n "$VIRTUAL_ENV" ]]; then
+# Check if virtual environment is activated
+if [[ -n "$VIRTUAL_ENV" ]]; then
     echo "Using activated virtual environment..."
     # Check if pytest is available
     if ! command -v pytest &> /dev/null; then
@@ -128,12 +126,10 @@ elif [[ -n "$VIRTUAL_ENV" ]]; then
         echo "Please install dependencies: pip install -e ."
         exit 1
     fi
-    export GEOSERVER_URL PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD PGSCHEMA
-    pytest $VERBOSE_FLAG --color=yes $TARGET
+    export GEOSERVER_URL GEOSERVER_PG_HOST_DOCKER GEOSERVER_PG_PORT_DOCKER GEOSERVER_PG_HOST_LOCAL GEOSERVER_PG_PORT_LOCAL GEOSERVER_ACCEPTANCE_CONFIG GEOSERVER_ACCEPTANCE_RUN_COG_TESTS GEOSERVER_ACCEPTANCE_RUN_DB_TESTS GEOSERVER_ACCEPTANCE_RUN_JNDI_TESTS GEOSERVER_ACCEPTANCE_RUN_SLOW_TESTS GEOSERVER_ACCEPTANCE_RUN_AWS_S3_TESTS
+    pytest $VERBOSE_FLAG --color=yes --pyargs $TARGET
 else
-    echo "Error: Please either:"
-    echo "  1. Install Poetry (https://python-poetry.org/docs/#installing-with-the-official-installer) and run this script again, or"
-    echo "  2. Create and activate a virtual environment:"
+    echo "Error: Please create and activate a virtual environment:"
     echo "     python -m venv .venv"
     echo "     source .venv/bin/activate  # Linux/macOS"
     echo "     pip install -e ."
