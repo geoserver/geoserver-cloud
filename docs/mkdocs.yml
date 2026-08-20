@@ -111,6 +111,7 @@ nav:
         - Example — pgconfig: deploy/kubernetes/helm/example-pgconfig.md
   - User Guide:
     - Overview: user-guide/index.md
+    - Additional libraries and fonts: user-guide/additional-libs-and-fonts.md
     - ImageMosaics through the REST API: user-guide/imagemosaic-rest-api.md
     - GeoParquet through the REST API: user-guide/geoparquet-rest-api.md
     - Monitoring control-flow: user-guide/controlflow-monitoring.md

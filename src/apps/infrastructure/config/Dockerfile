@@ -41,6 +41,6 @@ ENV XDG_CONFIG_HOME: /tmp
 # AOT training run for faster startup (each arch builds natively, no QEMU)
 RUN java -XX:AOTCacheOutput=app.aot -Dspring.context.exit=onRefresh \
   -Dspring.profiles.active=native \
-  org.springframework.boot.loader.launch.JarLauncher; \
+  org.springframework.boot.loader.launch.PropertiesLauncher; \
   rm -rf /tmp/*
 
