@@ -28,6 +28,13 @@ COPY target/config/ /etc/geoserver/
 
 RUN mkdir -p /opt/app/bin
 
+# Mount point for user-provided jar files (e.g. JDBC drivers, GeoServer extensions).
+# PropertiesLauncher prepends the jars in LOADER_PATH to the application classpath.
+# Sticky bit (1777) allows any runtime uid to populate it (e.g. from an init container)
+# while only owners can delete their own files.
+RUN mkdir -p /opt/additional_libs && chmod 1777 /opt/additional_libs
+ENV LOADER_PATH=/opt/additional_libs
+
 WORKDIR /opt/app/bin
 
 EXPOSE 8080
@@ -53,4 +60,6 @@ CMD curl -f -s -o /dev/null localhost:8081/actuator/health || exit 1
 # the cache if present, or silently continue without it.
 # Override at runtime with -e AOT_MODE=off to disable AOT for a specific container.
 ENV AOT_MODE=auto
-CMD exec java $JAVA_OPTS -XX:AOTMode=$AOT_MODE -XX:AOTCache=app.aot org.springframework.boot.loader.launch.JarLauncher
+# PropertiesLauncher instead of JarLauncher: builds the same BOOT-INF classpath and
+# additionally prepends the jars found in LOADER_PATH (/opt/additional_libs)
+CMD exec java $JAVA_OPTS -XX:AOTMode=$AOT_MODE -XX:AOTCache=app.aot org.springframework.boot.loader.launch.PropertiesLauncher

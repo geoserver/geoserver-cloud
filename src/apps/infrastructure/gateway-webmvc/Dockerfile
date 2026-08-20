@@ -25,5 +25,5 @@ COPY --from=builder /builder/application/ ./
 RUN java -XX:AOTCacheOutput=app.aot \
 -Dspring.context.exit=onRefresh \
 -Dspring.profiles.active=standalone \
-org.springframework.boot.loader.launch.JarLauncher; \
+org.springframework.boot.loader.launch.PropertiesLauncher; \
 rm -rf /tmp/*

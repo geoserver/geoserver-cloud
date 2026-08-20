@@ -30,5 +30,5 @@ RUN GEOSERVER_DATA_DIR=/tmp/datadir && \
   -Dgeoserver.acl.client.startupCheck=false \
   -Dgeoserver.bus.enabled=true \
   -Dspring.profiles.active=standalone,datadir,acl \
-  org.springframework.boot.loader.launch.JarLauncher && \
+  org.springframework.boot.loader.launch.PropertiesLauncher && \
  rm -rf /tmp/*

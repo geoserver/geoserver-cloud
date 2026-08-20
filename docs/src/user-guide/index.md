@@ -5,6 +5,10 @@ complete, real-world workflow against a running deployment.
 
 Available guides:
 
+- [Additional libraries and fonts](additional-libs-and-fonts.md): mount
+  user-provided jar files and fonts into the containers, like JDBC drivers,
+  GeoServer extensions, and fonts for map labeling, without rebuilding the
+  images.
 - [ImageMosaics through the REST API](imagemosaic-rest-api.md): publish an
   ImageMosaic of Cloud Optimized GeoTIFFs stored on object storage, using the
   same REST API calls that work against vanilla GeoServer.

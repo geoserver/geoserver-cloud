@@ -45,6 +45,19 @@ fonts-noto-core \
 RUN mkdir -p /opt/app/data_directory /data/geowebcache \
 && chmod 0777 /opt/app/data_directory /data/geowebcache
 
+# Mount point for user-provided fonts, registered with fontconfig, which makes the
+# JVM pick them up and list them in the GeoServer web UI's available fonts without
+# any startup script. Fontconfig scans the directory lazily at runtime; its per-user
+# cache goes to $HOME/.cache, writable by any runtime uid.
+RUN mkdir -p /opt/additional_fonts && chmod 1777 /opt/additional_fonts
+RUN cat > /etc/fonts/conf.d/05-additional-fonts.conf <<'EOF'
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+  <dir>/opt/additional_fonts</dir>
+</fontconfig>
+EOF
+
 WORKDIR /opt/app/bin
 COPY --from=builder /builder/dependencies/ ./
 COPY --from=builder /builder/snapshot-dependencies/ ./
