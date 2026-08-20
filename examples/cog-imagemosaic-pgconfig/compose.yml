@@ -1,4 +1,4 @@
-# GeoServer Cloud images default to the 3.1.0 release, which includes the
+# GeoServer Cloud images default to the 3.0.1.2 release, which includes the
 # COG ImageMosaic fix for the pgconfig catalog backend. To use a locally
 # built image instead, run with GSCLOUD_VERSION=3.1.0-SNAPSHOT.
 x-variables:
@@ -89,9 +89,6 @@ x-gs-dependencies: &gs-dependencies
     condition: service_healthy
   acl:
     condition: service_healthy
-  init-volumes:
-    condition: service_completed_successfully
-    required: true
 
 volumes:
   geowebcache_data: # Stores GeoWebCache tile data
@@ -174,7 +171,7 @@ services:
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. It registers itself with the Consul discovery service and can be scaled
   config:
-    image: geoservercloud/geoserver-cloud-config:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-config:${GSCLOUD_VERSION:-3.0.1.2}
     user: 1000:1000 # set the userid:groupid the container runs as
     environment:
       <<: *config-server-overrides
@@ -217,7 +214,7 @@ services:
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/cloud/wms, http://localhost:9090/geoserver/cloud/wfs, etc)
   gateway:
-    image: geoservercloud/geoserver-cloud-gateway:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-gateway:${GSCLOUD_VERSION:-3.0.1.2}
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       config:
@@ -234,17 +231,9 @@ services:
           cpus: '4.0'
           memory: 1G
 
-  # Initializes shared volume ownership so GeoServer services (running as 1000:1000) can write to them
-  init-volumes:
-    image: alpine:3.24.0
-    user: root
-    command: chown 1000:1000 /data/geowebcache
-    volumes:
-      - geowebcache_data:/data/geowebcache
-
   # GeoServer template service configuration
   geoserver_template:
-    image: geoservercloud/geoserver-cloud-webui:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-webui:${GSCLOUD_VERSION:-3.0.1.2}
     user: "1000:1000"
     environment:
       <<: *common_env
@@ -266,7 +255,7 @@ services:
 
   # GeoServer microservices
   wfs:
-    image: geoservercloud/geoserver-cloud-wfs:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-wfs:${GSCLOUD_VERSION:-3.0.1.2}
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -274,7 +263,7 @@ services:
       replicas: 1
 
   wms:
-    image: geoservercloud/geoserver-cloud-wms:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-wms:${GSCLOUD_VERSION:-3.0.1.2}
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -282,7 +271,7 @@ services:
       replicas: 1
 
   wcs:
-    image: geoservercloud/geoserver-cloud-wcs:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-wcs:${GSCLOUD_VERSION:-3.0.1.2}
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -290,7 +279,7 @@ services:
       replicas: 1
 
   wps:
-    image: geoservercloud/geoserver-cloud-wps:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-wps:${GSCLOUD_VERSION:-3.0.1.2}
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -298,7 +287,7 @@ services:
       replicas: 1
 
   restconfig:
-    image: geoservercloud/geoserver-cloud-rest:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-rest:${GSCLOUD_VERSION:-3.0.1.2}
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -306,7 +295,7 @@ services:
       replicas: 1
 
   webui:
-    image: geoservercloud/geoserver-cloud-webui:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-webui:${GSCLOUD_VERSION:-3.0.1.2}
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -314,7 +303,7 @@ services:
       replicas: 1
 
   gwc:
-    image: geoservercloud/geoserver-cloud-gwc:${GSCLOUD_VERSION:-3.1.0-SNAPSHOT}
+    image: geoservercloud/geoserver-cloud-gwc:${GSCLOUD_VERSION:-3.0.1.2}
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
