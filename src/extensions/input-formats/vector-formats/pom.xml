@@ -53,8 +53,17 @@
       <artifactId>gt-geopkg</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geotools.jdbc</groupId>
-      <artifactId>gt-jdbc-oracle</artifactId>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-oracle</artifactId>
+    </dependency>
+    <dependency>
+      <!--
+        Test scope: the images do not bundle the driver (see the ojdbc17 exclusions in dependencyManagement); the
+        tests need it for the Oracle NG factory to report itself as available.
+      -->
+      <groupId>com.oracle.database.jdbc</groupId>
+      <artifactId>ojdbc17</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.geotools.jdbc</groupId>
