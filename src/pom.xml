@@ -574,9 +574,20 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <!--
+          ojdbc17 is not bundled: its FUTC license requires shipping the license text along (the gs-oracle plugin zip
+          includes OracleFUTC.html, the bare maven artifact does not) and excluding it keeps the distribution GPL-only.
+          Provide the driver through /opt/additional_libs, see the "Additional libraries and fonts" user guide page.
+        -->
         <groupId>org.geoserver.importer</groupId>
         <artifactId>gs-importer-core</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc17</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.importer</groupId>
@@ -597,6 +608,22 @@
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-feature-pregeneralized</artifactId>
         <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <!--
+          ojdbc17 is not bundled: its FUTC license requires shipping the license text along (the gs-oracle plugin zip
+          includes OracleFUTC.html, the bare maven artifact does not) and excluding it keeps the distribution GPL-only.
+          Provide the driver through /opt/additional_libs, see the "Additional libraries and fonts" user guide page.
+        -->
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-oracle</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc17</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
