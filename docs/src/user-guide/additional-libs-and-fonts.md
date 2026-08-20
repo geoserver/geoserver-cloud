@@ -8,7 +8,7 @@ mount points, without rebuilding the images:
 
 Typical uses:
 
-- JDBC drivers that cannot be redistributed, like the Oracle `ojdbc` driver.
+- JDBC drivers the images do not bundle, like the Oracle `ojdbc` driver.
 - GeoServer extensions not bundled in the official images.
 - Corporate or symbol fonts for map labeling with SLD styles.
 
@@ -72,6 +72,23 @@ Jars in `/opt/additional_libs` come before the bundled libraries on the
 classpath. This allows replacing the version of a bundled library, but also
 means a mounted jar can unintentionally shadow classes the services depend
 on. Mount only what you need.
+
+### Oracle JDBC driver
+
+The official images do not include the Oracle JDBC driver. Its license,
+the Oracle Free Use Terms and Conditions, permits redistribution only
+under conditions like shipping the license text with every distribution;
+not bundling the driver avoids taking on those conditions and keeps
+GeoServer Cloud a GPL-only distribution. The Oracle extension is
+included; to use Oracle datastores, provide the driver:
+
+1. Download `ojdbc17.jar` from the
+   [Oracle JDBC downloads page](https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html)
+   or from Maven Central (`com.oracle.database.jdbc:ojdbc17`).
+2. Place it in the directory mounted at `/opt/additional_libs` on every
+   GeoServer container, including the services that do not access Oracle
+   datastores: all of them load the catalog, and the catalog fails to load
+   datastores whose classes are missing.
 
 ### File permissions
 
