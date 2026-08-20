@@ -24,7 +24,7 @@ RUN true
 COPY --from=builder /builder/application/ ./
 
 # AOT training run for faster startup (each arch builds natively, no QEMU)
-RUN GEOSERVER_DATA_DIR=/tmp/datadir && \
+RUN export GEOSERVER_DATA_DIR=/tmp/datadir && \
  mkdir $GEOSERVER_DATA_DIR && \
  java -XX:AOTCacheOutput=app.aot -Dspring.context.exit=onRefresh \
   -Dgeoserver.acl.client.startupCheck=false \
