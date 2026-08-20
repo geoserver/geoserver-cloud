@@ -85,9 +85,6 @@ x-gs-dependencies: &gs-dependencies
     condition: service_healthy
   acl:
     condition: service_healthy
-  init-volumes:
-    condition: service_completed_successfully
-    required: true
 
 volumes:
   geowebcache_data: # Stores GeoWebCache tile data
@@ -166,7 +163,7 @@ services:
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. It registers itself with the Consul discovery service and can be scaled
   config:
-    image: geoservercloud/geoserver-cloud-config:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-config:3.0.1.2
     user: 1000:1000 # set the userid:groupid the container runs as
     environment:
       <<: *config-server-overrides
@@ -175,7 +172,7 @@ services:
       # the default repository https://github.com/geoserver/geoserver-cloud-config.git
       SPRING_PROFILES_ACTIVE: native
       # If using the `git` profile, get the config from this tag
-      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v3.1.0-SNAPSHOT
+      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v3.0.1.2
     # Uncomment to bind to a local filesystem directory if using the 'native' profile
     #volumes:
     #  - ./config:/etc/geoserver
@@ -209,7 +206,7 @@ services:
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/cloud/wms, http://localhost:9090/geoserver/cloud/wfs, etc)
   gateway:
-    image: geoservercloud/geoserver-cloud-gateway:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-gateway:3.0.1.2
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       config:
@@ -226,17 +223,9 @@ services:
           cpus: '4.0'
           memory: 1G
 
-  # Initializes shared volume ownership so GeoServer services (running as 1000:1000) can write to them
-  init-volumes:
-    image: alpine:3.24.0
-    user: root
-    command: chown 1000:1000 /data/geowebcache
-    volumes:
-      - geowebcache_data:/data/geowebcache
-
   # GeoServer template service configuration
   geoserver_template:
-    image: geoservercloud/geoserver-cloud-webui:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-webui:3.0.1.2
     user: "1000:1000"
     environment:
       <<: *common_env
@@ -252,7 +241,7 @@ services:
 
   # GeoServer microservices
   wfs:
-    image: geoservercloud/geoserver-cloud-wfs:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-wfs:3.0.1.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -260,7 +249,7 @@ services:
       replicas: 1
 
   wms:
-    image: geoservercloud/geoserver-cloud-wms:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-wms:3.0.1.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -268,7 +257,7 @@ services:
       replicas: 1
 
   wcs:
-    image: geoservercloud/geoserver-cloud-wcs:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-wcs:3.0.1.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -276,7 +265,7 @@ services:
       replicas: 1
 
   wps:
-    image: geoservercloud/geoserver-cloud-wps:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-wps:3.0.1.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -284,7 +273,7 @@ services:
       replicas: 1
 
   restconfig:
-    image: geoservercloud/geoserver-cloud-rest:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-rest:3.0.1.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -292,7 +281,7 @@ services:
       replicas: 1
 
   webui:
-    image: geoservercloud/geoserver-cloud-webui:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-webui:3.0.1.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
@@ -300,7 +289,7 @@ services:
       replicas: 1
 
   gwc:
-    image: geoservercloud/geoserver-cloud-gwc:3.1.0-SNAPSHOT
+    image: geoservercloud/geoserver-cloud-gwc:3.0.1.2
     extends:
       service: geoserver_template
     depends_on: *gs-dependencies
