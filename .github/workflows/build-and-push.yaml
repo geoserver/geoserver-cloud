@@ -12,8 +12,12 @@ on:
       - "Makefile"
       - "pom.xml"
       - ".github/workflows/build-and-push.yaml"
+      - ".github/workflows/geoserver-artifacts.yaml"
+      - ".github/actions/**"
+      - ".gitmodules"
       - "docker-build/**"
       - "config"
+      - "geoserver_submodule/**"
       - "src/**"
     tags:
       - '*'
@@ -27,7 +31,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  geoserver-artifacts:
+    name: GeoServer artifacts
+    if: github.repository == 'geoserver/geoserver-cloud'
+    uses: ./.github/workflows/geoserver-artifacts.yaml
+
   build-base-images:
+    needs: geoserver-artifacts
     if: github.repository == 'geoserver/geoserver-cloud'
     name: Base images (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
@@ -58,6 +68,9 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    - name: Build GeoServer submodule artifacts
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Set version
       run: echo "VERSION=$(make -s show-version)" >> "$GITHUB_ENV"
@@ -218,7 +231,7 @@ jobs:
         find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} + 2>/dev/null || true
 
   build-geoserver-images:
-    needs: stitch-base-manifests
+    needs: [stitch-base-manifests, geoserver-artifacts]
     if: github.repository == 'geoserver/geoserver-cloud'
     name: GeoServer ${{ matrix.app }} (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
@@ -252,6 +265,9 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    - name: Build GeoServer submodule artifacts
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Set version
       run: echo "VERSION=$(make -s show-version)" >> "$GITHUB_ENV"
