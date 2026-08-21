@@ -1,0 +1,49 @@
+name: GeoServer submodule artifacts
+description: >
+  Makes the customized GeoServer Maven artifacts available in the local Maven
+  repository. Restores them from a cache keyed on the geoserver_submodule/geoserver
+  commit, building the submodule with `make deps` on a cache miss. Requires the
+  repository checked out with submodules and a JDK already set up.
+
+inputs:
+  lookup-only:
+    description: >
+      Check whether the cache entry exists instead of downloading it. The
+      priming job publishes the artifacts for the jobs that depend on it and
+      has no use for the download itself.
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve geoserver submodule revision
+      id: revision
+      shell: bash
+      run: echo "sha=$(git rev-parse HEAD:geoserver_submodule/geoserver)" >> "$GITHUB_OUTPUT"
+
+    - name: Restore GeoServer artifacts
+      id: restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ~/.m2/repository/org/geoserver
+          !~/.m2/repository/org/geoserver/cloud
+        key: geoserver-artifacts-${{ steps.revision.outputs.sha }}
+        lookup-only: ${{ inputs.lookup-only }}
+
+    - name: Build customized GeoServer
+      if: steps.restore.outputs.cache-hit != 'true'
+      shell: bash
+      run: make deps
+
+    # Save right away rather than through a post-job hook: the jobs using this
+    # action purge SNAPSHOT artifacts from ~/.m2 before finishing, which would
+    # otherwise leave nothing to save.
+    - name: Cache GeoServer artifacts
+      if: steps.restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          ~/.m2/repository/org/geoserver
+          !~/.m2/repository/org/geoserver/cloud
+        key: geoserver-artifacts-${{ steps.revision.outputs.sha }}

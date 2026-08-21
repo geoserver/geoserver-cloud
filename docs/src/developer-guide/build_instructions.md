@@ -14,7 +14,10 @@ Clone the repository, including submodules. Alternatively, replace the repositor
 git clone --recurse-submodules git@github.com:geoserver/geoserver-cloud.git
 ```
 
-The `--recurse-submodules` argument is necessary for `clone` to populate the `config/` directory from the [geoserver/geoserver-cloud-config](https://github.com/geoserver/geoserver-cloud-config) repository, which is in turn required to build the Docker images.
+The `--recurse-submodules` argument is necessary for `clone` to populate two submodules:
+
+* `config/`, from the [geoserver/geoserver-cloud-config](https://github.com/geoserver/geoserver-cloud-config) repository, which is in turn required to build the Docker images.
+* `geoserver_submodule/geoserver`, a shallow checkout of the customized GeoServer branch from the [camptocamp/geoserver](https://github.com/camptocamp/geoserver) repository, required to build the upstream GeoServer dependencies (see [below](#note-on-custom-upstream-geoserver-version)).
 
 If you already cloned the repository without it, initialize the submodule with
 
@@ -25,13 +28,21 @@ git submodule update --init --recursive
 
 ## Build
 
-The `make` command from the project root directory will compile, test, and install all the project artifacts, and build the GeoServer-Cloud Docker images. So for a full build just run:
+The `make` command from the project root directory will build the customized GeoServer dependencies, compile, test, and install all the project artifacts, and build the GeoServer-Cloud Docker images. So for a full build just run:
 
 ```bash
 make
 ```
 
-To build without running tests, run
+To build the customized GeoServer dependencies alone, run
+
+```bash
+make deps
+```
+
+This is required once after cloning, and again whenever the `geoserver_submodule/geoserver` submodule is updated. It installs the custom GeoServer Maven artifacts into the local Maven repository, where the rest of the build resolves them from, since they are not published to any public Maven repository.
+
+To build the project without running tests, run
 
 ```bash
 make install
@@ -90,8 +101,8 @@ sufficient for testing.
 
 Additionally, this branch changes the artifact versions (e.g. from `2.28.0` to `2.28.0.0`), to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.28-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
 
-The `gscloud/gs_version/integration` branch is checked out as a submodule on the [camptocamp/geoserver-cloud-geoserver](https://github.com/camptocamp/geoserver-cloud-geoserver) repository, which publishes the custom geoserver maven artifacts to the Github maven package registry.
+The `gscloud/gs_version/integration` branch of the [camptocamp/geoserver](https://github.com/camptocamp/geoserver) repository is checked out as a shallow submodule under `geoserver_submodule/geoserver`, and each *GeoServer Cloud* branch pins the submodule branch matching its GeoServer version.
 
-The root pom adds this additional maven repository, so no further action is required for the geoserver-cloud build to use those dependencies.
+Run `make deps` to build it and install the custom GeoServer Maven artifacts into the local Maven repository. The CI workflows do the same through the `.github/actions/geoserver-artifacts` composite action, which caches the built artifacts keyed on the submodule commit.
 
 
