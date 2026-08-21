@@ -34,6 +34,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        # only the java build needs the geoserver submodule; spare python the
+        # heavyweight checkout
+        submodules: ${{ matrix.language == 'java-kotlin' && 'recursive' || 'false' }}
 
     - name: Set up Java
       if: matrix.language == 'java-kotlin'
@@ -42,6 +46,12 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    # Runs before CodeQL init on purpose: the GeoServer submodule compilation
+    # must not be traced into the CodeQL database, only this project's code.
+    - name: Build GeoServer submodule artifacts
+      if: matrix.language == 'java-kotlin'
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
@@ -56,3 +66,9 @@ jobs:
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"
+
+    - name: Remove project jars from cached repository
+      if: always() && matrix.language == 'java-kotlin'
+      run: |
+        rm -rf ~/.m2/repository/org/geoserver/cloud
+        find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} + 2>/dev/null || true

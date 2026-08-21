@@ -23,10 +23,13 @@ on:
       - "release/**"
     paths:
       - ".github/workflows/sonarcloud.yaml"
+      - ".github/actions/**"
+      - ".gitmodules"
       - "pom.xml"
       - "src/**"
       - "Makefile"
       - "config"
+      - "geoserver_submodule/**"
       - "acceptance_tests/**"
       - "ci/**"
   workflow_run:
@@ -61,6 +64,9 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
           cache: 'maven'
+
+      - name: Build GeoServer submodule artifacts
+        uses: ./.github/actions/geoserver-artifacts
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
@@ -188,6 +194,12 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
           cache: 'maven'
+
+      # The Sonar analyzer resolves each module's dependency jars; the
+      # customized GeoServer artifacts are only available by building the
+      # submodule since they are not published to any Maven repository.
+      - name: Build GeoServer submodule artifacts
+        uses: ./.github/actions/geoserver-artifacts
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4

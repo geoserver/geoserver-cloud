@@ -11,8 +11,12 @@ on:
       - "Makefile"
       - "pom.xml"
       - ".github/workflows/build-and-push.yaml"
+      - ".github/workflows/geoserver-artifacts.yaml"
+      - ".github/actions/**"
+      - ".gitmodules"
       - "docker-build/**"
       - "config"
+      - "geoserver_submodule/**"
       - "src/**"
     tags:
       - '*'
@@ -23,7 +27,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  geoserver-artifacts:
+    name: GeoServer artifacts
+    if: github.repository == 'geoserver/geoserver-cloud'
+    uses: ./.github/workflows/geoserver-artifacts.yaml
+
   base-images:
+    needs: geoserver-artifacts
     if: github.repository == 'geoserver/geoserver-cloud'
     name: Build and Push Base Images
     runs-on: ubuntu-latest
@@ -55,6 +65,9 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    - name: Build GeoServer submodule artifacts
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Package base images
       run: |
@@ -117,7 +130,7 @@ jobs:
         find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} + 2>/dev/null || true
 
   geoserver-images:
-    needs: base-images
+    needs: [base-images, geoserver-artifacts]
     if: github.repository == 'geoserver/geoserver-cloud'
     name: Build GeoServer image
     runs-on: ubuntu-latest
@@ -154,6 +167,9 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    - name: Build GeoServer submodule artifacts
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Package GeoServer apps
       run: |
