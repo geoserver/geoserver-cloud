@@ -8,9 +8,12 @@ on:
     paths:
       - ".github/workflows/pr-build-and-test.yaml"
       - ".github/workflows/build-and-push.yaml"
+      - ".github/actions/**"
+      - ".gitmodules"
       - "pom.xml"
       - "Makefile"
       - "config"
+      - "geoserver_submodule/**"
       - "src/**"
       - "acceptance_tests/**"
       - "ci/**"
@@ -41,6 +44,9 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    - name: Build GeoServer submodule artifacts
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Validate pom formatting
       run: make build-tools lint-pom
