@@ -8,9 +8,13 @@ on:
     paths:
       - ".github/workflows/pull-request.yaml"
       - ".github/workflows/build-and-push.yaml"
+      - ".github/workflows/geoserver-artifacts.yaml"
+      - ".github/actions/**"
+      - ".gitmodules"
       - "pom.xml"
       - "Makefile"
       - "config"
+      - "geoserver_submodule/**"
       - "src/**"
       - "acceptance_tests/**"
       - "ci/**"
@@ -22,8 +26,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  geoserver-artifacts:
+    name: GeoServer artifacts
+    if: github.repository == 'geoserver/geoserver-cloud'
+    uses: ./.github/workflows/geoserver-artifacts.yaml
+
   test:
     name: Build and Test Pull Request
+    needs: geoserver-artifacts
     if: github.repository == 'geoserver/geoserver-cloud'
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -38,6 +48,9 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    - name: Build GeoServer submodule artifacts
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Validate pom formatting
       run: make build-tools lint-pom
@@ -102,6 +115,7 @@ jobs:
 
   acceptance:
     name: Acceptance
+    needs: geoserver-artifacts
     if: github.repository == 'geoserver/geoserver-cloud'
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -122,6 +136,9 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    - name: Build GeoServer submodule artifacts
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Install packages
       run: make install

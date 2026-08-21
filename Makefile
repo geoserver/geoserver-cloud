@@ -1,5 +1,5 @@
 .PHONY: all
-all: install test build-image
+all: deps install test build-image
 
 TAG?=$(shell ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
 
@@ -11,6 +11,27 @@ REPACKAGE ?= true
 .PHONY: clean
 clean:
 	./mvnw clean
+
+# Build the customized GeoServer from the geoserver_submodule/geoserver
+# submodule and install its artifacts into the local Maven repository.
+# Run `git submodule update --init` first if the submodule is not checked out.
+GEOSERVER_SUBMODULE = geoserver_submodule/geoserver
+GEOSERVER_BUILD_FLAGS = --batch-mode -DskipTests -ntp -fae -Dsort.skip=true -Dspotless.apply.skip=true
+
+.PHONY: deps
+deps: deps-core deps-extensions deps-community
+
+.PHONY: deps-core
+deps-core:
+	./mvnw install -f $(GEOSERVER_SUBMODULE)/src/pom.xml $(GEOSERVER_BUILD_FLAGS)
+
+.PHONY: deps-extensions
+deps-extensions:
+	./mvnw install -f $(GEOSERVER_SUBMODULE)/src/extension/pom.xml -Prelease $(GEOSERVER_BUILD_FLAGS)
+
+.PHONY: deps-community
+deps-community:
+	./mvnw install -f $(GEOSERVER_SUBMODULE)/src/community/pom.xml -PcommunityReleaseCloud $(GEOSERVER_BUILD_FLAGS)
 
 .PHONY: build-tools
 build-tools:
