@@ -65,8 +65,13 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
         return handlerMapping;
     }
 
+    /**
+     * Named {@code restRequestPathInfoFilter} because the GWC starter's {@code GeoWebCacheCoreConfiguration}
+     * contributes a {@code setRequestPathInfoFilter} bean; with bean definition overriding enabled, reusing that
+     * name would replace this filter and leave REST API requests without servlet path and path info (issue #913).
+     */
     @Bean
-    SetRequestPathInfoFilter setRequestPathInfoFilter() {
+    SetRequestPathInfoFilter restRequestPathInfoFilter() {
         return new SetRequestPathInfoFilter();
     }
 
