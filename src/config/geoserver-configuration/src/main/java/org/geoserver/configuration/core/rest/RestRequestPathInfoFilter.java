@@ -28,8 +28,17 @@ import org.springframework.http.MediaType;
  * <p>Standard GeoServer REST expects specific servlet path and path info structures. This filter, along with its
  * associated {@link SuffixStripFilterAwareHttpServletRequest}, ensures that even when running behind a gateway or in a
  * microservice context, the REST controllers receive requests in the expected format.
+ *
+ * <p>A request is adapted when {@code /rest} is the first path segment after the context path. Matching the whole first
+ * segment keeps REST API requests whose path contains another base path as data, such as
+ * {@code /rest/resource/gwc-gs.xml}, from being mistaken for GeoWebCache requests (issue #913), while GWC-dispatched
+ * URLs such as {@code /gwc/rest/**} and {@code /{workspace}/gwc/rest/**} are left alone because their first segment is
+ * not {@code rest}.
  */
 public class RestRequestPathInfoFilter implements Filter {
+
+    @SuppressWarnings("java:S1075") // base path is fixed
+    static final String REST_BASE_PATH = "/rest";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -40,19 +49,25 @@ public class RestRequestPathInfoFilter implements Filter {
     }
 
     public static HttpServletRequest adaptRequest(HttpServletRequest request) {
-        final String requestURI = request.getRequestURI();
-        @SuppressWarnings("java:S1075") // base path is fixed
-        final String basePath = "/rest";
-        final int basePathIdx = requestURI.indexOf(basePath);
-        if (basePathIdx > -1 && !requestURI.contains("/gwc")) {
-            return new SuffixStripFilterAwareHttpServletRequest(request, basePath);
+        if (isRestApiRequest(request)) {
+            return new SuffixStripFilterAwareHttpServletRequest(request, REST_BASE_PATH);
         }
         return request;
     }
 
+    private static boolean isRestApiRequest(HttpServletRequest request) {
+        String pathAfterContext =
+                request.getRequestURI().substring(request.getContextPath().length());
+        if (!pathAfterContext.startsWith(REST_BASE_PATH)) {
+            return false;
+        }
+        int basePathEnd = REST_BASE_PATH.length();
+        return pathAfterContext.length() == basePathEnd || pathAfterContext.charAt(basePathEnd) == '/';
+    }
+
     /**
-     * An {@link HttpServletRequestWrapper} that adjusts the request URI, servlet path, and path info to match what the
-     * GeoServer REST API expects.
+     * An {@link HttpServletRequestWrapper} that adjusts the servlet path and path info to match what the GeoServer REST
+     * API expects: the servlet path is the {@code /rest} base path and the path info is whatever follows it.
      *
      * <p>It also overrides content-type resolution to support path extensions (e.g., .sld) when the original request's
      * Content-Type is generic or missing.
@@ -62,7 +77,6 @@ public class RestRequestPathInfoFilter implements Filter {
         private HttpServletRequest request;
 
         final String servletPath;
-        final String adjustedRequestURI;
         final String pathInfo;
 
         public SuffixStripFilterAwareHttpServletRequest(HttpServletRequest request, String basePath) {
@@ -70,26 +84,10 @@ public class RestRequestPathInfoFilter implements Filter {
             this.request = request;
 
             final String requestURI = request.getRequestURI();
-            final int basePathIdx = requestURI.indexOf(basePath);
-
             final String contextPath = request.getContextPath();
-            final String prefix = requestURI.substring(0, basePathIdx);
-            if (prefix.length() > contextPath.length()) {
-                // virtual service URL: strip the workspace prefix from the URI
-                servletPath = prefix.substring(contextPath.length());
-                adjustedRequestURI = contextPath + requestURI.substring(prefix.length());
-            } else {
-                servletPath = basePath;
-                adjustedRequestURI = requestURI;
-            }
 
-            final String pathToBase = requestURI.substring(0, basePathIdx + basePath.length());
-            pathInfo = requestURI.substring(pathToBase.length());
-        }
-
-        @Override
-        public String getRequestURI() {
-            return adjustedRequestURI;
+            servletPath = basePath;
+            pathInfo = requestURI.substring(contextPath.length() + basePath.length());
         }
 
         @Override
@@ -126,10 +124,11 @@ public class RestRequestPathInfoFilter implements Filter {
                     || contentType.startsWith(MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
                 String ext = (String) request.getAttribute(SuffixStripFilter.EXTENSION_ATTRIBUTE);
                 if (ext == null) {
-                    int lastDot = adjustedRequestURI.lastIndexOf('.');
-                    int lastSlash = adjustedRequestURI.lastIndexOf('/');
+                    String requestURI = request.getRequestURI();
+                    int lastDot = requestURI.lastIndexOf('.');
+                    int lastSlash = requestURI.lastIndexOf('/');
                     if (lastDot > lastSlash) {
-                        ext = adjustedRequestURI.substring(lastDot + 1);
+                        ext = requestURI.substring(lastDot + 1);
                     }
                 }
                 if (ext != null) {
