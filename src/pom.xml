@@ -38,7 +38,7 @@
     <wicket.version>10.10.0</wicket.version>
     <acl.version>3.0.1</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
-    <parquetry-geoserver.version>1.0-SNAPSHOT</parquetry-geoserver.version>
+    <tileverse-geoserver.version>3.0-SNAPSHOT</tileverse-geoserver.version>
     <jackson.version>3.1.2</jackson.version>
     <jackson2.version>2.21.0</jackson2.version>
 
@@ -672,9 +672,9 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.tileverse.parquetry.geoserver</groupId>
-        <artifactId>parquetry-geoserver-plugin</artifactId>
-        <version>${parquetry-geoserver.version}</version>
+        <groupId>io.tileverse.geoserver</groupId>
+        <artifactId>tileverse-geoserver-parquetry</artifactId>
+        <version>${tileverse-geoserver.version}</version>
       </dependency>
       <!-- GeoServer Cloud Extensions -->
       <!-- GeoServer Cloud Starters -->

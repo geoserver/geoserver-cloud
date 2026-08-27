@@ -15,8 +15,8 @@
       <artifactId>gs-cloud-extensions-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.tileverse.parquetry.geoserver</groupId>
-      <artifactId>parquetry-geoserver-plugin</artifactId>
+      <groupId>io.tileverse.geoserver</groupId>
+      <artifactId>tileverse-geoserver-parquetry</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.web</groupId>
