@@ -98,6 +98,58 @@ class GwcRequestPathInfoFilterTest {
     }
 
     @Test
+    void virtual_workspaceNameStartingWithGwc() {
+        MockHttpServletRequest request = mockRequest("/gwcws/gwc/demo/layer:name", "");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result.getServletPath()).isEqualTo("/gwcws");
+        assertThat(result.getPathInfo()).isEqualTo("/demo/layer:name");
+        assertThat(result.getRequestURI()).isEqualTo("/gwc/demo/layer:name");
+    }
+
+    /** {@code GET /rest/resource/gwc-gs.xml} failed on any path containing "/gwc", see issue #913 */
+    @Test
+    void restResourceFileNameContainingGwc_returnsOriginalRequest() {
+        MockHttpServletRequest request = mockRequest("/rest/resource/gwc-gs.xml", "");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result).isSameAs(request);
+    }
+
+    @Test
+    void restResourceGwcDirectory_returnsOriginalRequest() {
+        MockHttpServletRequest request = mockRequest("/rest/resource/gwc/geowebcache.xml", "");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result).isSameAs(request);
+    }
+
+    @Test
+    void restResourceNonExistentGwcPrefixedPath_returnsOriginalRequest() {
+        MockHttpServletRequest request = mockRequest("/rest/resource/gwcfoo", "");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result).isSameAs(request);
+    }
+
+    @Test
+    void webUiPathWithGwcSegment_returnsOriginalRequest() {
+        MockHttpServletRequest request = mockRequest("/web/images/gwc/tile.png", "");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result).isSameAs(request);
+    }
+
+    @Test
+    void gwcNotAtSegmentBoundary_returnsOriginalRequest() {
+        MockHttpServletRequest request = mockRequest("/gwcstore/styles.json", "");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result).isSameAs(request);
+    }
+
+    @Test
+    void gwcSegmentDeeperThanVirtualServicePrefix_returnsOriginalRequest() {
+        MockHttpServletRequest request = mockRequest("/a/b/c/gwc/tile.png", "");
+        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
+        assertThat(result).isSameAs(request);
+    }
+
+    @Test
     void doFilter_delegatesToAdaptRequestAndChain() throws Exception {
         MockHttpServletRequest request = mockRequest("/gwc/demo/layer:name", "");
         HttpServletResponse response = mock(HttpServletResponse.class);
