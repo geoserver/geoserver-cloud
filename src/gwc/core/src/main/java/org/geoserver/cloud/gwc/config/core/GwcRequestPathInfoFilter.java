@@ -12,6 +12,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Servlet filter that proceeds with an {@link HttpServletRequestWrapper} decorator to return
@@ -21,9 +22,24 @@ import java.io.IOException;
  * <p>GWC makes heavy use of {@link HttpServletRequestWrapper#getPathInfo()}, but it returns {@code null} in a
  * spring-boot application.
  *
+ * <p>Only genuine GWC dispatch paths are adapted: those where {@code /gwc} is a whole path segment placed either right
+ * after the context path or after a virtual service prefix ({@code /{workspace}} or {@code /{workspace}/{layer}}).
+ * Requests under another dispatcher's URL space that merely contain {@code /gwc} in their data, such as the REST API's
+ * {@code /rest/resource/gwc-gs.xml} or {@code /rest/resource/gwc/...}, are left untouched (issue #913).
+ *
  * @since 1.0
  */
 public class GwcRequestPathInfoFilter implements Filter {
+
+    @SuppressWarnings("java:S1075") // base path is fixed
+    static final String GWC_BASE_PATH = "/gwc";
+
+    /**
+     * First path segments claimed by other GeoServer dispatchers: {@code rest} is the REST API and {@code web} the
+     * wicket UI. A workspace with one of these names cannot be addressed through virtual service URLs anyway, the
+     * gateway routes those base paths to their own services.
+     */
+    private static final Set<String> RESERVED_DISPATCH_PREFIXES = Set.of("rest", "web");
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -35,11 +51,9 @@ public class GwcRequestPathInfoFilter implements Filter {
 
     public static HttpServletRequest adaptRequest(HttpServletRequest request) {
         final String requestURI = request.getRequestURI();
-        @SuppressWarnings("java:S1075") // base path is fixed
-        final String gwcBasePath = "/gwc";
-        final int gwcIdx = requestURI.indexOf(gwcBasePath);
+        final String contextPath = request.getContextPath();
+        final int gwcIdx = indexOfGwcBasePath(requestURI, contextPath);
         if (gwcIdx > -1) {
-            final String contextPath = request.getContextPath();
             final String prefix = requestURI.substring(0, gwcIdx);
             final String servletPath;
             final String adjustedRequestURI;
@@ -49,11 +63,11 @@ public class GwcRequestPathInfoFilter implements Filter {
                 servletPath = prefix.substring(contextPath.length());
                 adjustedRequestURI = contextPath + requestURI.substring(prefix.length());
             } else {
-                servletPath = gwcBasePath;
+                servletPath = GWC_BASE_PATH;
                 adjustedRequestURI = requestURI;
             }
 
-            final String pathToGwc = requestURI.substring(0, gwcIdx + gwcBasePath.length());
+            final String pathToGwc = requestURI.substring(0, gwcIdx + GWC_BASE_PATH.length());
             final String pathInfo = requestURI.substring(pathToGwc.length());
 
             return new HttpServletRequestWrapper(request) {
@@ -74,5 +88,42 @@ public class GwcRequestPathInfoFilter implements Filter {
             };
         }
         return request;
+    }
+
+    /**
+     * Locates {@code /gwc} where it acts as the GWC servlet base path, returning its index within {@code requestURI},
+     * or {@code -1} when the request is not a GWC one. Occurrences inside longer segments ({@code /gwc-gs.xml}) or
+     * deeper in the path than a virtual service prefix allows ({@code /rest/resource/gwc/...}) do not qualify.
+     */
+    private static int indexOfGwcBasePath(String requestURI, String contextPath) {
+        final String path = requestURI.substring(contextPath.length());
+        int idx = path.indexOf(GWC_BASE_PATH);
+        while (idx > -1) {
+            if (isWholeSegment(path, idx) && isVirtualServicePrefix(path.substring(0, idx))) {
+                return contextPath.length() + idx;
+            }
+            idx = path.indexOf(GWC_BASE_PATH, idx + 1);
+        }
+        return -1;
+    }
+
+    private static boolean isWholeSegment(String path, int idx) {
+        final int end = idx + GWC_BASE_PATH.length();
+        return end == path.length() || path.charAt(end) == '/';
+    }
+
+    /**
+     * The path before {@code /gwc} may only be empty or a virtual service prefix: {@code /{workspace}} or
+     * {@code /{workspace}/{layer}}, with the workspace not being a base path reserved by another dispatcher.
+     */
+    private static boolean isVirtualServicePrefix(String prefix) {
+        if (prefix.isEmpty()) {
+            return true;
+        }
+        String[] segments = prefix.substring(1).split("/");
+        if (segments.length > 2) {
+            return false;
+        }
+        return !RESERVED_DISPATCH_PREFIXES.contains(segments[0]);
     }
 }

@@ -7,9 +7,12 @@ package org.geoserver.cloud.restconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_XML;
@@ -288,6 +291,78 @@ abstract class RestConfigApplicationTest {
         testPathExtensionContentType("/rest/workspaces.html", TEXT_HTML);
         testPathExtensionContentType("/rest/workspaces.xml", APPLICATION_XML);
         testPathExtensionContentType("/rest/workspaces.json", APPLICATION_JSON);
+    }
+
+    /**
+     * Any {@code /rest/resource/**} path containing the {@code /gwc} character sequence returned a 500 NPE ("Cannot
+     * invoke String.substring(int) because path is null"), because the servlet filters that rebuild
+     * {@code getPathInfo()} mistook such URIs for GeoWebCache requests. See issue #913.
+     */
+    @Test
+    void testResourceEndpointPathContainingGwc() {
+        restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
+
+        ResponseEntity<String> response = restTemplate.getForEntity("/rest/resource/gwc-gs.xml", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(OK);
+        assertThat(response.getBody()).contains("GeoServerGWCConfig");
+
+        response = restTemplate.getForEntity("/rest/resource/gwcfoo", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(NOT_FOUND);
+    }
+
+    /** Directory variant of issue #913: listing a directory whose name starts with {@code gwc} */
+    @Test
+    void testResourceEndpointDirectoryNameContainingGwc() {
+        restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
+
+        try {
+            putTextResource("/rest/resource/gwc913dir/child.txt", "issue #913 directory probe");
+
+            ResponseEntity<String> listing = restTemplate.getForEntity("/rest/resource/gwc913dir", String.class);
+            assertThat(listing.getStatusCode()).isEqualTo(OK);
+            assertThat(listing.getBody()).contains("child.txt");
+        } finally {
+            deleteResourceQuietly("/rest/resource/gwc913dir");
+        }
+    }
+
+    /** Round trip through the resource REST API on a file path containing {@code /gwc}, see issue #913 */
+    @Test
+    void testResourceEndpointRoundTripOnGwcPrefixedFileName() {
+        restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
+
+        String file = "/rest/resource/styles/gwc-913-probe.txt";
+        String contents = "issue #913 round trip probe";
+        try {
+            putTextResource(file, contents);
+
+            ResponseEntity<String> get = restTemplate.getForEntity(file, String.class);
+            assertThat(get.getStatusCode()).isEqualTo(OK);
+            assertThat(get.getBody()).isEqualTo(contents);
+
+            ResponseEntity<Void> delete = restTemplate.exchange(file, DELETE, null, Void.class);
+            assertThat(delete.getStatusCode()).isEqualTo(OK);
+
+            ResponseEntity<String> afterDelete = restTemplate.getForEntity(file, String.class);
+            assertThat(afterDelete.getStatusCode()).isEqualTo(NOT_FOUND);
+        } finally {
+            deleteResourceQuietly(file);
+        }
+    }
+
+    private void putTextResource(String path, String contents) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        ResponseEntity<Void> put = restTemplate.exchange(path, PUT, new HttpEntity<>(contents, headers), Void.class);
+        assertThat(put.getStatusCode()).isIn(OK, CREATED);
+    }
+
+    private void deleteResourceQuietly(String path) {
+        try {
+            restTemplate.exchange(path, DELETE, null, Void.class);
+        } catch (RuntimeException e) {
+            // ignore, the assertion failure is the interesting outcome
+        }
     }
 
     protected void testPathExtensionContentType(String uri, MediaType expected) {
