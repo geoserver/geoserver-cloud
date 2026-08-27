@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.extensions.parquetry;
 
-import io.tileverse.parquetry.geoserver.config.GeoParquetConfiguration;
+import io.tileverse.geoserver.parquetry.config.GeoParquetConfiguration;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
