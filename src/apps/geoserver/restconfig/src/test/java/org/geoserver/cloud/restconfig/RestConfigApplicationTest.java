@@ -356,6 +356,49 @@ abstract class RestConfigApplicationTest {
         }
     }
 
+    /**
+     * The {@code format} parameter must decide the metadata representation even when the resource name has a
+     * well-known file extension: the path-extension negotiation strategy used to win, asking for a
+     * {@code text/plain} response no message converter can produce for the REST wrapper.
+     */
+    @Test
+    void testResourceEndpointMetadataHonorsFormatParameter() {
+        String file = "/rest/resource/resource_api_meta/probe.txt";
+        try {
+            putTextResource(file, "metadata probe");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept", "*/*");
+            ResponseEntity<String> metadata = restTemplate.exchange(
+                    file + "?operation=metadata&format=json", GET, new HttpEntity<>(headers), String.class);
+            assertThat(metadata.getStatusCode()).isEqualTo(OK);
+            assertThat(metadata.getHeaders().getContentType()).isEqualTo(APPLICATION_JSON);
+            assertThat(metadata.getBody()).contains("probe.txt");
+        } finally {
+            deleteResourceQuietly("/rest/resource/resource_api_meta");
+        }
+    }
+
+    /**
+     * Directory listings default to the html representation for any Accept header: without the {@code format}
+     * parameter the Accept header used to decide, and clients preferring a type without a converter for the REST
+     * wrapper, such as this test's {@code text/plain}, got a 500.
+     */
+    @Test
+    void testResourceEndpointDirectoryHtmlListing() {
+        try {
+            putTextResource("/rest/resource/resource_api_html/child.txt", "html listing probe");
+
+            ResponseEntity<String> listing =
+                    restTemplate.getForEntity("/rest/resource/resource_api_html", String.class);
+            assertThat(listing.getStatusCode()).isEqualTo(OK);
+            assertThat(listing.getHeaders().getContentType()).asString().contains("text/html");
+            assertThat(listing.getBody()).contains("child.txt");
+        } finally {
+            deleteResourceQuietly("/rest/resource/resource_api_html");
+        }
+    }
+
     private void putTextResource(String path, String contents) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);

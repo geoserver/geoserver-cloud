@@ -6,6 +6,7 @@
 package org.geoserver.cloud.restconfig;
 
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,7 +24,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.support.FormattingConversionService;
+import org.springframework.http.MediaType;
 import org.springframework.web.accept.ContentNegotiationManager;
+import org.springframework.web.accept.ContentNegotiationStrategy;
+import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
@@ -63,6 +67,62 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
         handlerMapping.setUseRegisteredSuffixPatternMatch(true);
 
         return handlerMapping;
+    }
+
+    /**
+     * Restores the {@code format} query parameter as the authority over the response representation for
+     * {@code /rest/resource/**} requests.
+     *
+     * <p>Upstream ships this as {@code ResourceController$ResourceControllerConfiguration}, but its patterns
+     * ({@code /resource}, {@code /resource/**}) lack the {@code /rest} prefix and never match the request lookup
+     * path, leaving format resolution to the path-extension and Accept-header strategies. A metadata request for
+     * {@code probe.txt} then negotiates {@code text/plain} from the file extension, and a directory listing follows
+     * the Accept header; neither type has a message converter for the REST wrapper and both fail with a 500.
+     *
+     * <p>{@link RestConfiguration}'s delegating strategy finds this bean through {@code GeoServerExtensions} and
+     * consults it before the extension and header strategies. File content downloads are unaffected: their content
+     * type is preset on the {@code ResponseEntity} the controller returns, bypassing negotiation.
+     */
+    @Bean
+    ContentNegotiationStrategy resourceApiFormatContentNegotiationStrategy() {
+        return new ResourceApiFormatContentNegotiationStrategy();
+    }
+
+    static class ResourceApiFormatContentNegotiationStrategy implements ContentNegotiationStrategy {
+
+        @SuppressWarnings("java:S1075") // base path is fixed
+        static final String RESOURCE_API_BASE_PATH = "/rest/resource";
+
+        @Override
+        public List<MediaType> resolveMediaTypes(NativeWebRequest webRequest) {
+            HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+            if (request == null || !isResourceApiRequest(request)) {
+                return List.of();
+            }
+            return List.of(requestedFormat(request));
+        }
+
+        private boolean isResourceApiRequest(HttpServletRequest request) {
+            String path =
+                    request.getRequestURI().substring(request.getContextPath().length());
+            if (!path.startsWith(RESOURCE_API_BASE_PATH)) {
+                return false;
+            }
+            int basePathEnd = RESOURCE_API_BASE_PATH.length();
+            return path.length() == basePathEnd || path.charAt(basePathEnd) == '/';
+        }
+
+        /** Mirrors {@code ResourceController.getFormat}: xml and json are honored, anything else means html */
+        private MediaType requestedFormat(HttpServletRequest request) {
+            String format = request.getParameter("format");
+            if ("xml".equals(format)) {
+                return MediaType.APPLICATION_XML;
+            }
+            if ("json".equals(format)) {
+                return MediaType.APPLICATION_JSON;
+            }
+            return MediaType.TEXT_HTML;
+        }
     }
 
     /**
