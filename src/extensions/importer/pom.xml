@@ -74,5 +74,16 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <!-- Importer.onApplicationEvent() calls LoggingUtils.checkBuiltInLoggingConfiguration(),
+           whose bytecode references org.apache.logging.log4j.core.config.Configuration.
+           RELINQUISH_LOG4J_CONTROL (set by GeoServerContextInitializer) makes it a no-op at
+           runtime, but the JVM still resolves that type during class verification, so it must
+           be present at runtime or the class loading fails with NoClassDefFoundError as soon as
+           the Importer extension is enabled. See https://github.com/geoserver/geoserver-cloud/issues/912
+           and the equivalent fix previously applied to gs-cloud-webui for GlobalSettingsPage. -->
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
   </dependencies>
 </project>
