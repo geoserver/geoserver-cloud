@@ -16,13 +16,16 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * @since 1.0
  * @see DefaultTileLayerCatalogConfiguration
+ * @see ImageCodecsConfiguration
  */
 @Configuration(proxyBeanMethods = true)
 @ImportFilteredResource(GeoServerIntegrationConfiguration.GS_INTEGRATION_INCLUDES)
+@Import(ImageCodecsConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")
 public class GeoServerIntegrationConfiguration {
 
