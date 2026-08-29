@@ -12,6 +12,7 @@ import org.geoserver.cloud.autoconfigure.gwc.backend.DefaultTileLayerCatalogAuto
 import org.geoserver.cloud.gwc.event.ConfigChangeEvent;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.configuration.gwc.GwcGeoServerContextConfiguration;
+import org.geoserver.configuration.gwc.GwcImageCodecsConfiguration;
 import org.geoserver.gwc.config.CloudGwcConfigPersister;
 import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -27,12 +28,13 @@ import org.springframework.context.annotation.Import;
  *
  * @see ConditionalOnGeoWebCacheEnabled
  * @see GwcGeoServerContextConfiguration
+ * @see GwcImageCodecsConfiguration
  * @see DefaultTileLayerCatalogAutoConfiguration
  * @since 1.0
  */
 @AutoConfiguration
 @ConditionalOnGeoWebCacheEnabled
-@Import(GwcGeoServerContextConfiguration.class)
+@Import({GwcGeoServerContextConfiguration.class, GwcImageCodecsConfiguration.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class GeoServerIntegrationAutoConfiguration {
