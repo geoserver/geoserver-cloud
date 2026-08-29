@@ -22,6 +22,8 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.GeoServerSecurityManager;
+import org.geoserver.wms.GetMap;
+import org.geoserver.wms.WMS;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -110,6 +112,18 @@ public class GeoWebCacheContextRunner {
         @ConditionalOnMissingBean
         GeoServerSecurityManager geoServerSecurityManager(GeoServerDataDirectory datadir) throws Exception {
             return new GeoServerSecurityManager(datadir);
+        }
+
+        /**
+         * The {@code coalescedRequestSplitter} the GWC mediator is built with renders the non-cached
+         * members of a multi-layer tile request through WMS. Applications get this bean from the WMS
+         * service, or from {@code WebMapServiceMinimalConfiguration} when they don't run it; a bare
+         * {@link GetMap} serves the same purpose here without pulling the WMS context in.
+         */
+        @Bean(name = "wmsGetMap")
+        @ConditionalOnMissingBean(name = "wmsGetMap")
+        GetMap wmsGetMap(GeoServer geoServer) {
+            return new GetMap(new WMS(geoServer));
         }
     }
 }
