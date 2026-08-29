@@ -108,8 +108,10 @@ docker buildx rm gscloud-builder
 
 Additionally, this branch changes the artifact versions (e.g. from `2.28.0` to `2.28.0.0`), to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.28-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
 
-The `gscloud/gs_version/integration` branch is checked out as a submodule on the [camptocamp/geoserver-cloud-geoserver](https://github.com/camptocamp/geoserver-cloud-geoserver) repository, which publishes the custom geoserver maven artifacts to the Github maven package registry.
+The `gscloud/2.28.x/integration` branch of the [camptocamp/geoserver](https://github.com/camptocamp/geoserver) repository is checked out as a shallow submodule under `geoserver_submodule/geoserver`, and each *GeoServer Cloud* branch pins the submodule branch matching its GeoServer version.
 
-The root pom adds this additional maven repository, so no further action is required for the geoserver-cloud build to use those dependencies.
+Run `make deps` to build it and install the custom GeoServer Maven artifacts into the local Maven repository, where the rest of the build resolves them from, since they are not published to any public Maven repository. It builds the submodule exactly as checked out, and never changes what is checked out.
+
+`make deps-sync` fetches the head of `gscloud/2.28.x/integration` and checks it out, leaving the submodule at a commit the superproject does not record yet. Build it with `make deps`, then stage and commit the submodule to pin the new GeoServer revision.
 
 
