@@ -42,6 +42,8 @@ make deps
 
 This is required once after cloning, and again whenever the `geoserver_submodule/geoserver` submodule is updated. It installs the custom GeoServer Maven artifacts into the local Maven repository, where the rest of the build resolves them from, since they are not published to any public Maven repository.
 
+`make deps` builds the submodule exactly as checked out, and never changes what is checked out, see [Updating the GeoServer submodule](#updating-the-geoserver-submodule).
+
 To build the project without running tests, run
 
 ```bash
@@ -105,4 +107,38 @@ The `gscloud/gs_version/integration` branch of the [camptocamp/geoserver](https:
 
 Run `make deps` to build it and install the custom GeoServer Maven artifacts into the local Maven repository. The CI workflows do the same through the `.github/actions/geoserver-artifacts` composite action, which caches the built artifacts keyed on the submodule commit.
 
+#### Updating the GeoServer submodule
 
+Two distinct operations.
+
+*Check out the commit the current branch pins*, needed after cloning, pulling, or switching *GeoServer Cloud* branches:
+
+```shell
+git submodule update --init
+make deps
+```
+
+*Move the pin to the current head of the tracked GeoServer branch*, which is how a change made in the [camptocamp/geoserver](https://github.com/camptocamp/geoserver) repository reaches *GeoServer Cloud*:
+
+```shell
+make deps-sync
+make deps
+git add geoserver_submodule/geoserver
+```
+
+`make deps-sync` fetches the branch `.gitmodules` declares for the current *GeoServer Cloud* branch, `gscloud/3.1.x/integration` here and a different one per release line, and checks its head out. That leaves the submodule pointing at a commit the superproject does not record yet. Staging and committing it is what pins the new GeoServer revision; until then the next `git submodule update` puts the old one back.
+
+The `gscloud` branches are force-pushed, and their heads need no ancestry with the commit currently pinned. `deps-sync` therefore fetches the branch by name at depth 1 rather than going through `git submodule update --remote`, which resolves a remote-tracking ref and would pull the rewritten history into the shallow clone. Repeated rounds of this leave unreachable objects behind in `geoserver_submodule/geoserver/.git`; `git -C geoserver_submodule/geoserver gc --prune=now` reclaims them.
+
+Never pass `--depth` to `git submodule update`. It reaches the underlying `git clone`, where it implies `--single-branch`, leaving a clone that tracks only the GeoServer repository's default branch, `main`, and never fetches the branch `.gitmodules` declares. The pinned commit still arrives through a follow-up fetch by object id, which hides the problem until the day a command needs the branch:
+
+```
+fatal: Unable to find refs/remotes/origin/gscloud/3.1.x/integration revision in submodule path 'geoserver_submodule/geoserver'
+```
+
+The `shallow = true` flag in `.gitmodules` keeps the clone at depth 1 without that side effect, and is honored by both `git clone --recurse-submodules` and a plain `git submodule update --init`. `make deps-sync` works either way, fetching by branch name instead of relying on the refspec. To give an already narrowed clone its branch back, without recloning:
+
+```shell
+git -C geoserver_submodule/geoserver config remote.origin.fetch \
+  '+refs/heads/gscloud/3.1.x/integration:refs/remotes/origin/gscloud/3.1.x/integration'
+```

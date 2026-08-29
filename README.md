@@ -122,7 +122,7 @@ Check out the full [Release Notes](https://github.com/geoserver/geoserver-cloud/
 
 Please read [the contribution guidelines](CONTRIBUTING.md) before contributing pull requests to the GeoServer Cloud project.
 
-Follow the [developer's guide](docs/develop/index.md) to know more about the project's technical details.
+Follow the [developer's guide](docs/src/developer-guide/index.md) to know more about the project's technical details.
 
 ## Bugs
 
@@ -143,13 +143,25 @@ Requirements:
  * [GNU Make](https://www.gnu.org/software/make/) (optional, recommended).
 
 
-This is a super quick-start guide to make your first build. For more detailed information on the build process and options, follow the [Build Instructions](./docs/develop/build_instructions.md) guide.
+This is a super quick-start guide to make your first build. For more detailed information on the build process and options, follow the [Build Instructions](./docs/src/developer-guide/build_instructions.md) guide.
 
 Clone the repository, including submodules. Alternatively, replace the repository URL by your own fork's:
 
 ```shell
 git clone --recurse-submodules git@github.com:geoserver/geoserver-cloud.git
 ```
+
+The `geoserver_submodule/geoserver` submodule holds the customized GeoServer sources, which `make` builds and installs through its `deps` target. Whenever the pinned submodule commit changes, for instance after pulling or switching branches, check it out and rebuild those artifacts:
+
+```shell
+git submodule update --init
+make deps
+```
+
+`make deps` never changes what the submodule has checked out. Moving the pin to the head of the tracked GeoServer branch is `make deps-sync`, described in the guide above.
+
+See [Note on custom upstream GeoServer version](docs/src/developer-guide/build_instructions.md#note-on-custom-upstream-geoserver-version) for why this dependency is built locally and how to move the pin to a newer commit.
+
 Build with:
 
 ```shell
