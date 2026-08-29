@@ -1,5 +1,9 @@
 .PHONY: all
-all: deps install test build-image
+all: deps install test build-image ## Full build: GeoServer dependencies, artifacts, tests and local images
+
+.PHONY: help
+help: ## Show this help
+	@awk 'BEGIN {FS = ":.*## "; printf "Targets:\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  \033[36m%-34s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 TAG?=$(shell ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
 
@@ -9,17 +13,32 @@ COSIGN_PASSWORD := $(COSIGN_PASSWORD)
 REPACKAGE ?= true
 
 .PHONY: clean
-clean:
+clean: ## Remove build output (mvnw clean)
 	./mvnw clean
 
 # Build the customized GeoServer from the geoserver_submodule/geoserver
 # submodule and install its artifacts into the local Maven repository.
-# Run `git submodule update --init` first if the submodule is not checked out.
+# `make deps` builds the submodule as checked out, `make deps-sync` moves it to
+# the head of the GeoServer branch this branch tracks.
 GEOSERVER_SUBMODULE = geoserver_submodule/geoserver
+GEOSERVER_SUBMODULE_BRANCH = $(shell git config -f .gitmodules submodule.geoserver.branch)
 GEOSERVER_BUILD_FLAGS = --batch-mode -DskipTests -ntp -fae -Dsort.skip=true -Dspotless.apply.skip=true
 
 .PHONY: deps
-deps: deps-core deps-extensions deps-community
+deps: deps-core deps-extensions deps-community ## Build the customized GeoServer from the submodule into the local repo
+
+# Moves the submodule to the current head of the GeoServer branch declared in
+# .gitmodules, which differs per release line, and leaves the resulting commit
+# for the superproject to record. That branch is force-pushed upstream, hence
+# fetching it by name at depth 1: the new head needs no ancestry with the old
+# one, and no remote-tracking ref has to exist for it. Build the result with
+# `make deps` and commit the submodule to pin it.
+.PHONY: deps-sync
+deps-sync: ## Move the submodule to the head of the GeoServer branch it tracks
+	@test -e $(GEOSERVER_SUBMODULE)/.git || git submodule update --init $(GEOSERVER_SUBMODULE)
+	git -C $(GEOSERVER_SUBMODULE) fetch --depth 1 origin $(GEOSERVER_SUBMODULE_BRANCH)
+	git -C $(GEOSERVER_SUBMODULE) checkout --detach FETCH_HEAD
+	@git status --short $(GEOSERVER_SUBMODULE)
 
 .PHONY: deps-core
 deps-core:
@@ -38,7 +57,7 @@ build-tools:
 	./mvnw clean install -pl build-tools/ -ntp
 
 .PHONY: lint
-lint: build-tools
+lint: build-tools ## Run static analysis (checkstyle, spotless, sortpom)
 	./mvnw validate -Dqa -fae -ntp -T1C
 
 .PHONY: lint-pom
@@ -50,7 +69,7 @@ lint-java: build-tools
 	./mvnw validate -Dqa -fae -Dsortpom.skip=true -ntp -T1C
 
 .PHONY: format
-format: format-pom format-java
+format: format-pom format-java ## Apply Java and POM formatting
 
 .PHONY: format-pom
 format-pom:
@@ -61,20 +80,20 @@ format-java:
 	./mvnw spotless:apply -ntp -T1C
 
 .PHONY: install
-install: build-tools
+install: build-tools ## Compile and install all modules, skipping tests
 	./mvnw clean install -DskipTests -ntp -U -T1C -pl src/starters/spring-boot3,src/starters/observability-spring-boot-3 -am
 	./mvnw clean install -DskipTests -ntp -U -T1C
 
 .PHONY: package
-package:
+package: ## Package all modules, skipping tests
 	./mvnw clean package -Dfmt.skip -DskipTests -ntp -U -T1C
 
 .PHONY: test
-test:
+test: ## Run unit and integration tests
 	./mvnw verify -Dfmt.skip -ntp -T1C
 
 .PHONY: build-image
-build-image: build-base-images build-image-infrastructure build-image-geoserver
+build-image: build-base-images build-image-infrastructure build-image-geoserver ## Build the Docker images for this platform
 
 .PHONY: build-base-images
 build-base-images: package-base-images
@@ -101,7 +120,7 @@ build-image-geoserver: package-geoserver-images
 	docker compose -f docker-build/geoserver.yml build $(filter-out $@ build-image build-image-multiplatform,$(MAKECMDGOALS))
 
 .PHONY: build-image-multiplatform
-build-image-multiplatform: build-base-images-multiplatform build-image-infrastructure-multiplatform build-image-geoserver-multiplatform
+build-image-multiplatform: build-base-images-multiplatform build-image-infrastructure-multiplatform build-image-geoserver-multiplatform ## Build the multi-platform Docker images
 
 .PHONY: build-base-images-multiplatform
 build-base-images-multiplatform: package-base-images
@@ -154,7 +173,7 @@ else
 endif
 
 .PHONY: pull-images
-pull-images:
+pull-images: ## Pull the published images for the current version
 	TAG=$$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout) \
 	docker compose \
      -f docker-build/geoserver-multiplatform.yml \
@@ -162,7 +181,7 @@ pull-images:
      pull --quiet
 
 .PHONY: sign-image
-sign-image:
+sign-image: ## Sign the release images with cosign
 	@bash -c '\
 	TAG=$$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout); \
 	images=$$(TAG=$$TAG docker compose -f docker-build/geoserver-multiplatform.yml -f docker-build/infrastructure-multiplatform.yml config --images); \
@@ -178,7 +197,7 @@ sign-image:
 	done'
 
 .PHONY: verify-image
-verify-image:
+verify-image: ## Verify the release image signatures with cosign
 	@bash -c '\
 	TAG=$$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout); \
 	images=$$(TAG=$$TAG docker compose -f docker-build/geoserver-multiplatform.yml -f docker-build/infrastructure-multiplatform.yml config --images); \
@@ -198,7 +217,7 @@ build-acceptance:
 	docker build --tag=geoservercloud/acceptance:latest acceptance_tests
 
 .PHONY: acceptance-tests-datadir
-acceptance-tests-datadir: build-acceptance start-acceptance-tests-datadir run-acceptance-tests-datadir
+acceptance-tests-datadir: build-acceptance start-acceptance-tests-datadir run-acceptance-tests-datadir ## Run the acceptance tests on the data directory backend
 
 .PHONY: start-acceptance-tests-datadir
 start-acceptance-tests-datadir:
@@ -209,11 +228,11 @@ run-acceptance-tests-datadir:
 	(cd compose/ && ./acceptance_datadir run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && COLUMNS=120 pytest -v --color=yes --pyargs geoserver_acceptance_tests.tests  -k "not test_i18n_layers_default_locale"')
 
 .PHONY: clean-acceptance-tests-datadir
-clean-acceptance-tests-datadir:
+clean-acceptance-tests-datadir: ## Tear down the data directory acceptance composition
 	(cd compose/ && TAG=$(TAG) ./acceptance_datadir down -v)
 
 .PHONY: acceptance-tests-pgconfig
-acceptance-tests-pgconfig: build-acceptance start-acceptance-tests-pgconfig run-acceptance-tests-pgconfig
+acceptance-tests-pgconfig: build-acceptance start-acceptance-tests-pgconfig run-acceptance-tests-pgconfig ## Run the acceptance tests on the pgconfig backend
 
 .PHONY: start-acceptance-tests-pgconfig
 start-acceptance-tests-pgconfig:
@@ -224,11 +243,11 @@ run-acceptance-tests-pgconfig:
 	(cd compose/ && ./acceptance_pgconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && COLUMNS=120 pytest -v --color=yes --pyargs geoserver_acceptance_tests.tests  -k "not imagemosaic and not test_i18n_layers_default_locale"')
 
 .PHONY: clean-acceptance-tests-pgconfig
-clean-acceptance-tests-pgconfig:
+clean-acceptance-tests-pgconfig: ## Tear down the pgconfig acceptance composition
 	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig down -v)
 
 .PHONY: acceptance-tests-jdbcconfig
-acceptance-tests-jdbcconfig: build-acceptance start-acceptance-tests-jdbcconfig run-acceptance-tests-jdbcconfig
+acceptance-tests-jdbcconfig: build-acceptance start-acceptance-tests-jdbcconfig run-acceptance-tests-jdbcconfig ## Run the acceptance tests on the jdbcconfig backend
 
 .PHONY: start-acceptance-tests-jdbcconfig
 start-acceptance-tests-jdbcconfig:
@@ -239,7 +258,7 @@ run-acceptance-tests-jdbcconfig:
 	(cd compose/ && ./acceptance_jdbcconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
 
 .PHONY: clean-acceptance-tests-jdbcconfig
-clean-acceptance-tests-jdbcconfig:
+clean-acceptance-tests-jdbcconfig: ## Tear down the jdbcconfig acceptance composition
 	(cd compose/ && ./acceptance_jdbcconfig down -v)
 
 # Prevent make from treating service names as targets when using $(MAKECMDGOALS) in build-image-geoserver/build-image-geoserver-multiplatform
