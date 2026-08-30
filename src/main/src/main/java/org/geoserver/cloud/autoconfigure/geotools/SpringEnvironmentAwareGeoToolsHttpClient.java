@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.auth.AuthCache;
@@ -403,16 +402,14 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
             return responseHeader == null ? null : responseHeader.getValue();
         }
 
+        /**
+         * Returns the entity content as is, already decoded: Apache HttpClient decompresses it, and since 5.6 it leaves
+         * {@code Content-Encoding} on the response, which would make decompressing here a second pass over plain bytes.
+         */
         @Override
         public InputStream getResponseStream() throws IOException {
             if (responseBodyAsStream == null) {
                 responseBodyAsStream = methodResponse.getEntity().getContent();
-                // commons httpclient does not handle gzip encoding automatically, we have to check
-                // ourselves: https://issues.apache.org/jira/browse/HTTPCLIENT-816
-                Header header = methodResponse.getFirstHeader("Content-Encoding");
-                if (header != null && "gzip".equals(header.getValue())) {
-                    responseBodyAsStream = new GZIPInputStream(responseBodyAsStream);
-                }
             }
             return responseBodyAsStream;
         }

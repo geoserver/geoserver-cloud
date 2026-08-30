@@ -25,6 +25,8 @@ import org.geoserver.platform.resource.MemoryLockProvider;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.impl.LayerGroupContainmentCache;
+import org.geoserver.wms.GetMap;
+import org.geoserver.wms.WMS;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -126,6 +128,17 @@ public class GeoWebCacheContextRunner {
         @ConditionalOnMissingBean
         LayerGroupContainmentCache layerGroupContainmentCache(@Qualifier("rawCatalog") CatalogPlugin rawCatalog) {
             return new LayerGroupContainmentCache(rawCatalog);
+        }
+
+        /**
+         * Stand-in for the bean the WMS service, or GwcWMSMinimalConfiguration, contributes in production, required
+         * since the coalescedRequestSplitter the GWC mediator is built with renders the non-cached members of a
+         * multi-layer tile request through WMS
+         */
+        @Bean(name = "wmsGetMap")
+        @ConditionalOnMissingBean(name = "wmsGetMap")
+        GetMap wmsGetMap(GeoServer geoServer) {
+            return new GetMap(new WMS(geoServer));
         }
     }
 }
