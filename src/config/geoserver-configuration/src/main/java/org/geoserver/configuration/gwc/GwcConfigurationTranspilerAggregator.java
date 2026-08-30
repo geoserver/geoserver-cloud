@@ -17,6 +17,7 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
  * @see GwcKMLServiceConfiguration
  * @see GwcTMSServiceConfiguration
  * @see GwcWMSServiceConfiguration
+ * @see GwcImageCodecsConfiguration
  * @see GwcWMTSServiceConfiguration
  * @see GwcGeoServerWMTSIntegrationConfiguration
  * @see GwcGeoServerWebUIConfiguration
@@ -88,7 +89,30 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 @TranspileXmlConfig(
         locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-wmsservice-context.xml",
         targetClass = "GwcWMSServiceConfiguration",
-        publicAccess = true)
+        publicAccess = true,
+        // contributed by GwcImageCodecsConfiguration, which GeoWebCache needs whether or not this service runs
+        excludes = {
+            GwcConfigurationTranspilerAggregator.IMAGE_ENCODERS,
+            GwcConfigurationTranspilerAggregator.IMAGE_DECODERS,
+            GwcConfigurationTranspilerAggregator.IMAGE_ENCODER_CONTAINER,
+            GwcConfigurationTranspilerAggregator.IMAGE_DECODER_CONTAINER
+        })
+@TranspileXmlConfig(
+        locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-wmsservice-context.xml",
+        targetClass = "GwcImageCodecsConfiguration",
+        publicAccess = true,
+        /*
+         * The image codecs upstream declares along with the GWC WMS service. The coalescedRequestSplitter the
+         * gwcFacade is built with decodes the cached member tiles and encodes the assembled multi-layer tile, hence
+         * these beans come with the GeoServer integration instead. The per-format codecs come along with the two
+         * containers, which collect them from the application context and fail to initialize if none is found.
+         */
+        includes = {
+            GwcConfigurationTranspilerAggregator.IMAGE_ENCODERS,
+            GwcConfigurationTranspilerAggregator.IMAGE_DECODERS,
+            GwcConfigurationTranspilerAggregator.IMAGE_ENCODER_CONTAINER,
+            GwcConfigurationTranspilerAggregator.IMAGE_DECODER_CONTAINER
+        })
 @TranspileXmlConfig(
         locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-wmtsservice-context.xml",
         targetClass = "GwcWMTSServiceConfiguration",
@@ -128,4 +152,13 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
             "wfsSqlViewKvpParser",
             "gml2OutputFormat"
         })
-public class GwcConfigurationTranspilerAggregator {}
+public class GwcConfigurationTranspilerAggregator {
+
+    static final String IMAGE_ENCODERS = ".*Encoder";
+
+    static final String IMAGE_DECODERS = ".*Decoder";
+
+    static final String IMAGE_ENCODER_CONTAINER = "encoderContainer";
+
+    static final String IMAGE_DECODER_CONTAINER = "decoderContainer";
+}

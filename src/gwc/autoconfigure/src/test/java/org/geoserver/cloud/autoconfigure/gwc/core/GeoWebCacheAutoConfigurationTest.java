@@ -96,6 +96,23 @@ class GeoWebCacheAutoConfigurationTest {
         });
     }
 
+    /**
+     * The GWC mediator is built with a {@code coalescedRequestSplitter} that decodes and encodes images, and upstream
+     * declares the codec beans it needs along with the GWC WMS service, which is not enabled here.
+     */
+    @Test
+    void imageCodecsAvailableWithoutTheGwcWmsService() {
+        runner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .hasBean("gwcFacade")
+                .hasBean("coalescedRequestSplitter")
+                .hasBean("decoderContainer")
+                .hasBean("encoderContainer")
+                .hasBean("PNGDecoder")
+                .hasBean("PNGEncoder")
+                .doesNotHaveBean("gwcServiceWMSTarget"));
+    }
+
     @Test
     void contextLoads() {
         runner.run(context -> {

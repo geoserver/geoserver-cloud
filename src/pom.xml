@@ -26,9 +26,9 @@
     <spring-cloud.version>2025.1.2</spring-cloud.version>
     <spring-boot.version>4.0.7</spring-boot.version>
     <!-- match upstream geoserver dependencies -->
-    <spring.version>7.0.8</spring.version>
-    <spring.security.version>7.1.0</spring.security.version>
-    <spring-integration.version>7.1.0</spring-integration.version>
+    <spring.version>7.0.9</spring.version>
+    <spring.security.version>7.1.1</spring.security.version>
+    <spring-integration.version>7.1.1</spring-integration.version>
     <!-- spring-integration 7.1.0 requires spring-amqp 4.1.x (MessageListenerContainer moved to the core
          package); keep it aligned instead of letting spring-boot-dependencies pin the older 4.0.x -->
     <spring-amqp.version>4.1.0</spring-amqp.version>
@@ -39,8 +39,8 @@
     <acl.version>3.0.1</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
     <tileverse-geoserver.version>3.0-SNAPSHOT</tileverse-geoserver.version>
-    <jackson.version>3.1.2</jackson.version>
-    <jackson2.version>2.21.0</jackson2.version>
+    <jackson.version>3.2.2</jackson.version>
+    <jackson2.version>2.22.2</jackson2.version>
 
     <!-- default target java version, submodules may override -->
     <java.version>25</java.version>
@@ -48,8 +48,8 @@
     <java.sdk.version>25</java.sdk.version>
 
     <!-- dependency versions -->
-    <postgresql.version>42.7.7</postgresql.version>
-    <httpclient5.version>5.4.4</httpclient5.version>
+    <postgresql.version>42.7.13</postgresql.version>
+    <httpclient5.version>5.6.3</httpclient5.version>
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <flyway.version>12.1.0</flyway.version>
@@ -1146,49 +1146,66 @@
           </dependency>
           <dependency>
             <!--
-[ERROR] +-org.geoserver.cloud.apps:gs-cloud-webui:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.0-CLOUD-SNAPSHOT:compile
-[ERROR]     +-joda-time:joda-time:jar:2.8.1:compile
-[ERROR] and
-[ERROR] +-org.geoserver.cloud.apps:gs-cloud-webui:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-starter:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-autoconfigure:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.0.0-SNAPSHOT:compile
-[ERROR]         +-org.geoserver.extension:gs-gwc-s3:jar:3.0.0-CLOUD-SNAPSHOT:compile
-[ERROR]           +-org.geowebcache:gwc-aws-s3:jar:2.0-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud.apps:gs-cloud-wms:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-starter:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-autoconfigure:jar:3.1.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.1.0-SNAPSHOT:compile
+[ERROR]         +-org.geoserver.extension:gs-gwc-s3:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]           +-org.geowebcache:gwc-aws-s3:jar:2.1-SNAPSHOT:compile
 [ERROR]             +-com.amazonaws:aws-java-sdk-s3:jar:1.12.797:compile
 [ERROR]               +-com.amazonaws:aws-java-sdk-core:jar:1.12.797:compile
 [ERROR]                 +-joda-time:joda-time:jar:2.12.7:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud.apps:gs-cloud-webui:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud:gs-cloud-spring-cloud-starter:jar:3.0.0-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud.apps:gs-cloud-wms:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-spring-cloud-starter:jar:3.1.0-SNAPSHOT:compile
 [ERROR]     +-org.springframework.cloud:spring-cloud-starter-bus-amqp:jar:5.0.2:compile
 [ERROR]       +-org.springframework.cloud:spring-cloud-starter-stream-rabbit:jar:5.0.2:compile
 [ERROR]         +-org.springframework.cloud:spring-cloud-stream-binder-rabbit:jar:5.0.2:compile
 [ERROR]           +-org.springframework.cloud:spring-cloud-function-context:jar:5.0.3:compile
-[ERROR]             +-tools.jackson.datatype:jackson-datatype-joda:jar:3.1.2:compile
-[ERROR]               +-joda-time:joda-time:jar:2.12.7:compile
+[ERROR]             +-tools.jackson.datatype:jackson-datatype-joda:jar:3.2.2:compile
+[ERROR]               +-joda-time:joda-time:jar:2.14.1:compile
 -->
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.12.7</version>
+            <version>2.14.1</version>
           </dependency>
           <dependency>
             <!--
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-security:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-security-auth-key:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.geoserver.extension:gs-authkey:jar:3.0.0-CLOUD-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-security:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-security-auth-key:jar:3.1.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.extension:gs-authkey:jar:3.1.0-CLOUD-SNAPSHOT:compile
 [ERROR]         +-net.minidev:json-smart:jar:2.6.0:compile
 [ERROR]           +-net.minidev:accessors-smart:jar:2.6.0:compile
 [ERROR]             +-org.ow2.asm:asm:jar:9.7.1:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-css-styling:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.extension:gs-css:jar:3.0.0-CLOUD-SNAPSHOT:compile
-[ERROR]       +-org.geotools:gt-css:jar:35-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-css-styling:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.extension:gs-css:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-org.geotools:gt-css:jar:36-SNAPSHOT:compile
 [ERROR]         +-org.parboiled:parboiled-java:jar:1.4.1:compile
 [ERROR]           +-org.ow2.asm:asm:jar:9.2:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-css-styling:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.extension:gs-css:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-org.geotools:gt-css:jar:36-SNAPSHOT:compile
+[ERROR]         +-org.parboiled:parboiled-java:jar:1.4.1:compile
+[ERROR]           +-org.ow2.asm:asm-tree:jar:9.2:compile
+[ERROR]             +-org.ow2.asm:asm:jar:9.2:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-css-styling:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.extension:gs-css:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-org.geotools:gt-css:jar:36-SNAPSHOT:compile
+[ERROR]         +-org.parboiled:parboiled-java:jar:1.4.1:compile
+[ERROR]           +-org.ow2.asm:asm-util:jar:9.2:compile
+[ERROR]             +-org.ow2.asm:asm:jar:9.2:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-css-styling:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.extension:gs-css:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-org.ow2.asm:asm:jar:9.2:compile
 -->
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
@@ -1196,37 +1213,70 @@
           </dependency>
           <dependency>
             <!--
-[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver:gs-gwc:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.geoserver:gs-main:jar:3.0.0-SNAPSHOT:compile
-[ERROR]         +-org.geoserver:gs-ows:jar:3.0.0-SNAPSHOT:compile
-[ERROR]           +-tools.jackson.dataformat:jackson-dataformat-xml:jar:3.1.0:compile
-[ERROR]             +-com.fasterxml.woodstox:woodstox-core:jar:7.1.1:compile
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-ogcapi-core:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.extension:gs-ogcapi-core:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-tools.jackson.dataformat:jackson-dataformat-xml:jar:3.2.2:compile
+[ERROR]       +-com.fasterxml.woodstox:woodstox-core:jar:7.2.1:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.community:gs-gwc-gcs-blob:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geowebcache:gwc-gcs-blob:jar:2.0-SNAPSHOT:compile
-[ERROR]       +-com.google.cloud:google-cloud-storage:jar:2.63.0:compile
-[ERROR]         +-com.fasterxml.woodstox:woodstox-core:jar:7.0.0:compile
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-ogcapi-core:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.extension:gs-ogcapi-core:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-com.fasterxml.woodstox:woodstox-core:jar:7.2.2:compile
 -->
             <groupId>com.fasterxml.woodstox</groupId>
             <artifactId>woodstox-core</artifactId>
-            <version>7.1.1</version>
+            <version>7.2.2</version>
           </dependency>
           <dependency>
             <!--
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-formats:jar:3.0.0-SNAPSHOT:compile
-[ERROR]       +-org.geoserver.community:gs-pmtiles-store:jar:3.0.0-SNAPSHOT:compile
-[ERROR]         +-org.geotools:gt-pmtiles:jar:35-SNAPSHOT:compile
-[ERROR]           +-io.tileverse.pmtiles:tileverse-pmtiles:jar:1.3.3:compile
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver:gs-gwc:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-org.geoserver:gs-main:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]         +-org.geoserver:gs-ows:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]           +-tools.jackson.dataformat:jackson-dataformat-xml:jar:3.2.2:compile
+[ERROR]             +-org.codehaus.woodstox:stax2-api:jar:4.3.0:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.community:gs-gwc-gcs-blob:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-org.geowebcache:gwc-gcs-blob:jar:2.1-SNAPSHOT:compile
+[ERROR]       +-com.google.cloud:google-cloud-storage:jar:2.67.0:compile
+[ERROR]         +-org.codehaus.woodstox:stax2-api:jar:4.2.2:compile
+-->
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>stax2-api</artifactId>
+            <version>4.3.0</version>
+          </dependency>
+          <dependency>
+            <!--
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-formats:jar:3.1.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.community:gs-pmtiles-store:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]         +-org.geotools:gt-pmtiles:jar:36-SNAPSHOT:compile
+[ERROR]           +-io.tileverse.pmtiles:tileverse-pmtiles:jar:2.1-M1:compile
 [ERROR]             +-org.apache.commons:commons-compress:jar:1.28.0:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.0.0-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.importer:gs-importer-core:jar:3.0.0-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-parquetry:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-io.tileverse.geoserver:tileverse-geoserver-parquetry:jar:3.1-SNAPSHOT:compile
+[ERROR]       +-io.tileverse.parquetry:parquetry-geotools:jar:1.0-RC3:compile
+[ERROR]         +-io.tileverse.parquetry:parquetry-core:jar:1.0-RC3:compile
+[ERROR]           +-io.tileverse.parquetry:parquetry-compression:jar:1.0-RC3:compile
+[ERROR]             +-org.apache.commons:commons-compress:jar:1.27.1:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.importer:gs-importer-core:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-org.apache.commons:commons-compress:jar:1.26.1:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.importer:gs-importer-web:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-org.apache.commons:commons-compress:jar:1.26.1:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-importer:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.importer:gs-importer-rest:jar:3.1.0-CLOUD-SNAPSHOT:compile
 [ERROR]       +-org.apache.commons:commons-compress:jar:1.26.1:compile
             -->
             <groupId>org.apache.commons</groupId>
@@ -1235,16 +1285,25 @@
           </dependency>
           <dependency>
             <!--
-[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.0-CLOUD-SNAPSHOT:provided
-[ERROR]     +-org.wicketstuff:wicketstuff-select2:jar:10.9.2:provided
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.1.0-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.apache.wicket:wicket-core:jar:10.10.0:provided
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.1.0-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.apache.wicket:wicket-extensions:jar:10.10.0:provided
+[ERROR]       +-org.apache.wicket:wicket-core:jar:10.10.0:provided
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.1.0-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.wicketstuff:wicketstuff-select2:jar:10.10.0:provided
 [ERROR]       +-de.agilecoders.wicket.webjars:wicket-webjars:jar:4.0.14:provided
 [ERROR]         +-org.apache.wicket:wicket-core:jar:10.8.0:provided
 [ERROR] and
-[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.0-SNAPSHOT
-[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.0-CLOUD-SNAPSHOT:provided
-[ERROR]     +-org.wicketstuff:wicketstuff-select2:jar:10.9.2:provided
-[ERROR]       +-org.apache.wicket:wicket-core:jar:10.9.1:provided
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.1.0-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.wicketstuff:wicketstuff-select2:jar:10.10.0:provided
+[ERROR]       +-org.apache.wicket:wicket-core:jar:10.10.0:provided
 -->
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-core</artifactId>
