@@ -23,15 +23,12 @@
     <!-- ================================ -->
     <!-- Project version management       -->
     <!-- ================================ -->
-    <spring-cloud.version>2025.1.2</spring-cloud.version>
-    <spring-boot.version>4.0.7</spring-boot.version>
+    <spring-cloud.version>2025.1.3</spring-cloud.version>
+    <spring-boot.version>4.1.1</spring-boot.version>
     <!-- match upstream geoserver dependencies -->
     <spring.version>7.0.9</spring.version>
     <spring.security.version>7.1.1</spring.security.version>
     <spring-integration.version>7.1.1</spring-integration.version>
-    <!-- spring-integration 7.1.0 requires spring-amqp 4.1.x (MessageListenerContainer moved to the core
-         package); keep it aligned instead of letting spring-boot-dependencies pin the older 4.0.x -->
-    <spring-amqp.version>4.1.0</spring-amqp.version>
 
     <gs.version>3.1.0-CLOUD-SNAPSHOT</gs.version>
     <gt.version>36-SNAPSHOT</gt.version>
@@ -52,7 +49,6 @@
     <httpclient5.version>5.6.3</httpclient5.version>
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
-    <flyway.version>12.1.0</flyway.version>
     <testcontainers.version>2.0.4</testcontainers.version>
     <fork.javac>false</fork.javac>
     <maven.compiler.release>${java.version}</maven.compiler.release>
@@ -143,14 +139,6 @@
         <groupId>org.springframework.integration</groupId>
         <artifactId>spring-integration-bom</artifactId>
         <version>${spring-integration.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <!-- before spring-boot-dependencies so it overrides boot's older spring-amqp, matching spring-integration -->
-      <dependency>
-        <groupId>org.springframework.amqp</groupId>
-        <artifactId>spring-amqp-bom</artifactId>
-        <version>${spring-amqp.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -810,16 +798,6 @@
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
         <version>${mapstruct.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-core</artifactId>
-        <version>${flyway.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-database-postgresql</artifactId>
-        <version>${flyway.version}</version>
       </dependency>
       <dependency>
         <groupId>org.wiremock</groupId>
