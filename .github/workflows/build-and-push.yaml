@@ -83,7 +83,7 @@ jobs:
         find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} + 2>/dev/null || true
 
   infrastructure-images:
-    needs: base-images
+    needs: [base-images, geoserver-artifacts]
     if: github.repository == 'geoserver/geoserver-cloud'
     name: Build infrastructure images
     runs-on: ubuntu-latest
@@ -115,6 +115,9 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    - name: Build GeoServer submodule artifacts
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Package infrastructure apps
       run: |
