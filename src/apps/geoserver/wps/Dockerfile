@@ -9,19 +9,21 @@ WORKDIR /builder
 
 COPY ${JAR_FILE} application.jar
 
-RUN java -Djarmode=layertools -jar application.jar extract
+# --layers takes one comma-separated list, and the destination must be an empty directory of its own
+RUN java -Djarmode=tools -jar application.jar extract --launcher --destination extracted \
+ --layers dependencies,spring-boot-loader,snapshot-dependencies,application
 
 ##########
 FROM $REPOSITORY/gs-cloud-base-geoserver-image:$TAG
 
 # WORKDIR already set to /opt/app/bin
 
-COPY --from=builder /builder/dependencies/ ./
-COPY --from=builder /builder/snapshot-dependencies/ ./
-COPY --from=builder /builder/spring-boot-loader/ ./
+COPY --from=builder /builder/extracted/dependencies/ ./
+COPY --from=builder /builder/extracted/snapshot-dependencies/ ./
+COPY --from=builder /builder/extracted/spring-boot-loader/ ./
 #see https://github.com/moby/moby/issues/37965
 RUN true
-COPY --from=builder /builder/application/ ./
+COPY --from=builder /builder/extracted/application/ ./
 
 # AOT training run for faster startup (each arch builds natively, no QEMU)
 RUN export GEOSERVER_DATA_DIR=/tmp/datadir && \
