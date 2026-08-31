@@ -155,11 +155,31 @@ class CachingCatalogFacadeContainmentSupport {
         cache.put(key, value);
     }
 
+    /**
+     * The loader runs outside the cache's compute function: loading a {@link LayerGroupInfo} resolves its child groups
+     * and hence re-enters this method, which {@link Cache#get(Object, Callable)} does not allow.
+     */
+    @SuppressWarnings("unchecked")
     public <T> T get(Object key, Callable<T> loader) {
-        T value = cache.get(key, loader);
+        ValueWrapper cached = cache.get(key);
+        T value = null == cached ? load(loader) : (T) cached.get();
         if (null == value || (value instanceof Collection<?> c && c.isEmpty())) {
             cache.evict(key);
+        } else if (null == cached) {
+            put(key, value);
         }
+        return value;
+    }
+
+    /** As {@link #get get}, but caches null, meaning there is no such default. */
+    @SuppressWarnings("unchecked")
+    private <T> T getAllowingNull(Object key, Callable<T> loader) {
+        ValueWrapper cached = cache.get(key);
+        if (null != cached) {
+            return (T) cached.get();
+        }
+        T value = load(loader);
+        put(key, value);
         return value;
     }
 
@@ -214,7 +234,7 @@ class CachingCatalogFacadeContainmentSupport {
     }
 
     public WorkspaceInfo getDefaultWorkspace(Callable<WorkspaceInfo> loader) {
-        return cache.get(DEFAULT_WORKSPACE_CACHE_KEY, loader);
+        return getAllowingNull(DEFAULT_WORKSPACE_CACHE_KEY, loader);
     }
 
     public void evictDefaultWorkspace() {
@@ -224,7 +244,7 @@ class CachingCatalogFacadeContainmentSupport {
     }
 
     public NamespaceInfo getDefaultNamespace(Callable<NamespaceInfo> loader) {
-        return cache.get(DEFAULT_NAMESPACE_CACHE_KEY, loader);
+        return getAllowingNull(DEFAULT_NAMESPACE_CACHE_KEY, loader);
     }
 
     public void evictDefaultNamespace() {
@@ -234,7 +254,7 @@ class CachingCatalogFacadeContainmentSupport {
     }
 
     public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace, Callable<DataStoreInfo> loader) {
-        return cache.get(generateDefaultDataStoreKey(workspace.getId()), loader);
+        return getAllowingNull(generateDefaultDataStoreKey(workspace.getId()), loader);
     }
 
     public void evictDefaultDataStore(WorkspaceInfo ws) {
