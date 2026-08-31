@@ -52,18 +52,18 @@ jobs:
             runner: ubuntu-24.04-arm
     steps:
     - name: Login to Docker Hub
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: recursive
 
     - name: Setup Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
         java-version: '25'
@@ -96,7 +96,7 @@ jobs:
         done
 
     - name: Upload digests
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: digests-base-${{ matrix.arch }}
         path: /tmp/digests/*
@@ -115,21 +115,21 @@ jobs:
     timeout-minutes: 10
     steps:
     - name: Login to Docker Hub
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: recursive
 
     - name: Setup Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
         java-version: '25'
@@ -138,13 +138,13 @@ jobs:
       run: echo "VERSION=$(make -s show-version)" >> "$GITHUB_ENV"
 
     - name: Download amd64 digests
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: digests-base-amd64
         path: /tmp/digests/amd64/
 
     - name: Download arm64 digests
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: digests-base-arm64
         path: /tmp/digests/arm64/
@@ -180,18 +180,18 @@ jobs:
             runner: ubuntu-24.04-arm
     steps:
     - name: Login to Docker Hub
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: recursive
 
     - name: Setup Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
         java-version: '25'
@@ -222,7 +222,7 @@ jobs:
         done
 
     - name: Upload digests
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: digests-infra-${{ matrix.arch }}
         path: /tmp/digests/*
@@ -252,18 +252,18 @@ jobs:
             runner: ubuntu-24.04-arm
     steps:
     - name: Login to Docker Hub
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: recursive
 
     - name: Setup Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
         java-version: '25'
@@ -295,7 +295,7 @@ jobs:
         echo "$digest" > "/tmp/digests/${name}"
 
     - name: Upload digest
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: digests-gs-${{ matrix.app }}-${{ matrix.arch }}
         path: /tmp/digests/*
@@ -314,45 +314,45 @@ jobs:
     timeout-minutes: 15
     steps:
     - name: Login to Docker Hub
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
 
     - name: Download amd64 infrastructure digests
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: digests-infra-amd64
         path: /tmp/digests/amd64/
 
     - name: Download arm64 infrastructure digests
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: digests-infra-arm64
         path: /tmp/digests/arm64/
 
     - name: Download amd64 geoserver digests
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         pattern: digests-gs-*-amd64
         path: /tmp/digests/amd64/
         merge-multiple: true
 
     - name: Download arm64 geoserver digests
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         pattern: digests-gs-*-arm64
         path: /tmp/digests/arm64/
         merge-multiple: true
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Setup Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
         java-version: '25'
@@ -384,18 +384,18 @@ jobs:
     timeout-minutes: 30
     steps:
     - name: Login to Docker Hub
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: recursive
 
     - name: Setup Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         distribution: 'temurin'
         java-version: '25'
@@ -405,7 +405,7 @@ jobs:
         make pull-images
 
     - name: Install Cosign
-      uses: sigstore/cosign-installer@v3.5.0
+      uses: sigstore/cosign-installer@v3.10.1
 
     - name: Sign images
       env:
