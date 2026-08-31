@@ -165,7 +165,7 @@ jobs:
         done
 
   build-infrastructure-images:
-    needs: stitch-base-manifests
+    needs: [stitch-base-manifests, geoserver-artifacts]
     if: github.repository == 'geoserver/geoserver-cloud'
     name: Infrastructure images (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
@@ -196,6 +196,9 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
         cache: 'maven'
+
+    - name: Build GeoServer submodule artifacts
+      uses: ./.github/actions/geoserver-artifacts
 
     - name: Set version
       run: echo "VERSION=$(make -s show-version)" >> "$GITHUB_ENV"
