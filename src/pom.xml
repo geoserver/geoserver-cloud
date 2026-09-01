@@ -47,6 +47,11 @@
     <!-- dependency versions -->
     <postgresql.version>42.7.13</postgresql.version>
     <httpclient5.version>5.6.3</httpclient5.version>
+    <!--
+     pinned ahead of the 5.30.0 managed by spring-boot-dependencies 4.1.1. Remove this
+     property and the matching dependencyManagement entry once the managed version catches up.
+    -->
+    <rabbit-amqp-client.version>5.35.0</rabbit-amqp-client.version>
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <testcontainers.version>2.0.4</testcontainers.version>
@@ -185,6 +190,12 @@
         <groupId>org.apache.httpcomponents.client5</groupId>
         <artifactId>httpclient5</artifactId>
         <version>${httpclient5.version}</version>
+      </dependency>
+      <dependency>
+        <!-- explicit entry required, a property alone cannot override an imported BOM -->
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>${rabbit-amqp-client.version}</version>
       </dependency>
       <dependency>
         <groupId>net.datafaker</groupId>
