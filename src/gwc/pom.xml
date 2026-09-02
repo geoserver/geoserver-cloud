@@ -20,11 +20,6 @@
   </modules>
   <dependencies>
     <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <!-- provide IDE auto-completion and documentation for the @ConfigurationProperties when editing application.yml -->
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
