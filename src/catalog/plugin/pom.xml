@@ -22,15 +22,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <!-- for CatalogImplConformanceTest, this dep is excluded from gs-main in the root pom -->
-      <!-- during the upgrade to GeoServer 2.22.x, GeoServerInfoImpl has the following field: -->
-      <!-- protected Integer xmlPostRequestLogBufferSize = LoggingFilter.REQUEST_LOG_BUFFER_SIZE_DEFAULT -->
-      <!-- which creates a direct dependency against the servlet API (javax.servlet.Filter) -->
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-main</artifactId>
       <version>${gs.version}</version>

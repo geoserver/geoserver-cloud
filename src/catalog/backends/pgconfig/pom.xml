@@ -11,11 +11,6 @@
   <description>PostgreSQL catalog backend</description>
   <dependencies>
     <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.geoserver.cloud.catalog.backend</groupId>
       <artifactId>gs-cloud-catalog-backend-common</artifactId>
     </dependency>

@@ -842,6 +842,17 @@
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!--
+      Upstream GeoServer declares jakarta.servlet-api as provided. Provided scope is not
+      transitive: every module compiling against the GeoServer API has to declare it itself,
+      for instance GeoServerInfoImpl.xmlPostRequestLogBufferSize references LoggingFilter.
+      At runtime the servlet classes come from tomcat-embed-core.
+    -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>net.datafaker</groupId>
       <artifactId>datafaker</artifactId>
