@@ -11,10 +11,6 @@
   <description>Base Autoconfigurations to set up the Catalog and Config backend</description>
   <dependencies>
     <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-main</artifactId>
     </dependency>
