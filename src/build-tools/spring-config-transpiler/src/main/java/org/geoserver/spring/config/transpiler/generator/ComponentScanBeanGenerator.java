@@ -179,7 +179,7 @@ public class ComponentScanBeanGenerator {
         // Load the class via reflection
         Class<?> beanClass;
         try {
-            beanClass = Class.forName(fqcn, false, getClass().getClassLoader());
+            beanClass = Reflections.loadForInspection(fqcn);
         } catch (ClassNotFoundException e) {
             context.printMessage(WARNING, "Cannot load component class %s: %s".formatted(fqcn, e.getMessage()));
             skippedBeans.put(fqcn, "class not found: " + e.getMessage());

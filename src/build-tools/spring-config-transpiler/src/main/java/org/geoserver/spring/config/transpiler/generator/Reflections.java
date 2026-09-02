@@ -127,10 +127,22 @@ public class Reflections {
 
     public Class<?> convertToRuntimeClass(String beanClassName) {
         try {
-            return Class.forName(convertToRuntimeClassName(beanClassName));
+            return loadForInspection(convertToRuntimeClassName(beanClassName));
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    /**
+     * Load a class to inspect its type metadata, without running its static initializer.
+     *
+     * <p>The transpiler only reads signatures, assignability and identity from the classes it loads. Initializing them
+     * is both unnecessary and harmful: a static initializer runs application code at annotation-processing time, and
+     * that code reaches for runtime services the annotation processor classpath does not provide.
+     */
+    public Class<?> loadForInspection(String className) throws ClassNotFoundException {
+        boolean initialize = false;
+        return Class.forName(className, initialize, Reflections.class.getClassLoader());
     }
 
     /**
