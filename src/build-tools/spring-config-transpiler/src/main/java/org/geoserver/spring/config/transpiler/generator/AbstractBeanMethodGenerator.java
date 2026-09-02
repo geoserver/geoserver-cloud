@@ -1188,7 +1188,7 @@ public abstract class AbstractBeanMethodGenerator implements BeanMethodGenerator
          */
         private static boolean isClassAssignableToGenericBound(String className, Class<?> boundClass) {
             try {
-                Class<?> providedClass = Class.forName(className);
+                Class<?> providedClass = Reflections.loadForInspection(className);
                 return boundClass.isAssignableFrom(providedClass);
             } catch (ClassNotFoundException _) {
                 return false;
@@ -1197,7 +1197,7 @@ public abstract class AbstractBeanMethodGenerator implements BeanMethodGenerator
 
         private boolean isExactClass(String className, Class<?> expected) {
             try {
-                return Class.forName(className) == expected;
+                return Reflections.loadForInspection(className) == expected;
             } catch (ClassNotFoundException _) {
                 return false;
             }

@@ -262,7 +262,7 @@ class TypeNameResolver {
 
         // Strategy 2: Use runtime reflection
         try {
-            Class<?> factoryClass = Class.forName(className);
+            Class<?> factoryClass = Reflections.loadForInspection(className);
             for (java.lang.reflect.Method method : factoryClass.getDeclaredMethods()) {
                 if (method.getName().equals(factoryMethod) && Modifier.isStatic(method.getModifiers())) {
                     Class<?> returnType = method.getReturnType();
@@ -438,7 +438,7 @@ class TypeNameResolver {
 
         try {
             // Use runtime reflection to load the class and analyze setter methods
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = Reflections.loadForInspection(beanClassName);
             String setterName = Reflections.buildSetterName(propertyName);
 
             context.printMessage(NOTE, "Looking for setter method: " + setterName + " in class " + beanClassName);
