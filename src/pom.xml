@@ -33,7 +33,7 @@
     <gs.version>3.1.0-CLOUD-SNAPSHOT</gs.version>
     <gt.version>36-SNAPSHOT</gt.version>
     <wicket.version>10.10.0</wicket.version>
-    <acl.version>3.0.1</acl.version>
+    <acl.version>3.0.3</acl.version>
     <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
     <tileverse-geoserver.version>3.1-SNAPSHOT</tileverse-geoserver.version>
     <jackson.version>3.2.2</jackson.version>
