@@ -357,6 +357,10 @@
               <groupId>org.springframework</groupId>
               <artifactId>spring-webmvc</artifactId>
             </path>
+            <path>
+              <groupId>jakarta.servlet</groupId>
+              <artifactId>jakarta.servlet-api</artifactId>
+            </path>
             <!-- GeoServer dependencies needed by the annotation processor -->
             <path>
               <groupId>org.geoserver</groupId>

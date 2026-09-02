@@ -155,8 +155,7 @@ public class FactoryMethodBeanMethodGenerator extends AbstractBeanMethodGenerato
             String typeName = result.getResolvedTypeName();
             try {
                 // Try to load the class via reflection to properly handle inner classes
-                Class<?> clazz = Class.forName(
-                        typeName.replace('.', '$'), false, getClass().getClassLoader());
+                Class<?> clazz = Reflections.loadForInspection(typeName.replace('.', '$'));
                 return ClassName.get(clazz);
             } catch (ClassNotFoundException _) {
                 // Not found with $ replacement, try as-is
@@ -164,7 +163,7 @@ public class FactoryMethodBeanMethodGenerator extends AbstractBeanMethodGenerato
 
             try {
                 // Try loading directly (works for top-level classes)
-                Class<?> clazz = Class.forName(typeName, false, getClass().getClassLoader());
+                Class<?> clazz = Reflections.loadForInspection(typeName);
                 return ClassName.get(clazz);
             } catch (ClassNotFoundException _) {
                 // Fall back to string parsing
@@ -179,8 +178,7 @@ public class FactoryMethodBeanMethodGenerator extends AbstractBeanMethodGenerato
                 while (dotIndex > 0) {
                     candidate = candidate.substring(0, dotIndex) + "$" + candidate.substring(dotIndex + 1);
                     try {
-                        Class<?> clazz =
-                                Class.forName(candidate, false, getClass().getClassLoader());
+                        Class<?> clazz = Reflections.loadForInspection(candidate);
                         return ClassName.get(clazz);
                     } catch (ClassNotFoundException _) {
                         // Try the next dot
