@@ -112,9 +112,9 @@ services:
         limits:
           cpus: '4.0'
           memory: 4G
-    
+
   acl:
-    image: geoservercloud/geoserver-acl:3.0.0
+    image: geoservercloud/geoserver-acl:3.0.3
     user: "1000:1000"
     depends_on:
       geoserverdb:
