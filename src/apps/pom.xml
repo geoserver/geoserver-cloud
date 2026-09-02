@@ -40,6 +40,11 @@
                     <groupId>org.projectlombok</groupId>
                     <artifactId>lombok</artifactId>
                   </exclude>
+                  <!-- tomcat-embed-core supplies the jakarta.servlet classes at runtime -->
+                  <exclude>
+                    <groupId>jakarta.servlet</groupId>
+                    <artifactId>jakarta.servlet-api</artifactId>
+                  </exclude>
                 </excludes>
               </configuration>
             </execution>

@@ -15,10 +15,6 @@
   <dependencies>
     <!-- Inherit common starters from parent pom -->
     <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wcs</artifactId>
     </dependency>
