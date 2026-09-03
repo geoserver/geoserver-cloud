@@ -13,12 +13,21 @@ import org.geoserver.cloud.configuration.ogcapi.core.OgcApiCoreWebConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Configuration class for the OGC API Features administration pages, conditional on the web UI service.
+ * <p>
+ * {@code featureServiceXStreamInitializer} is filtered out: every service
+ * reads and writes the conformance objects it describes, so it is contributed
+ * unconditionally by
+ * {@link OgcApiFeaturesXStreamPersisterAutoConfiguration} instead of by this
+ * service-scoped configuration.
+ */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnOgcApiFeatures
 @ConditionalOnGeoServerWebUI
 @Import({OgcApiCoreConfiguration.class, OgcApiCoreWebConfiguration.class})
 @ImportFilteredResource({
-    "jar:gs-ogcapi-features-.*!/applicationContext.xml",
+    "jar:gs-ogcapi-features-.*!/applicationContext.xml#name=^(?!featureServiceXStreamInitializer).*$",
     "jar:gs-web-features-.*!/applicationContext.xml"
 })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.ogcapi.features")

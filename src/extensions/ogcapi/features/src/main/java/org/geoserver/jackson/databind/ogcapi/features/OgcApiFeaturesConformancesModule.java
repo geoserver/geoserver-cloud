@@ -291,6 +291,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
             writeNullSafe(gen, "queryables", value.isQueryables());
             writeNullSafe(gen, "ids", value.isIDs());
             writeNullSafe(gen, "sortBy", value.isSortBy());
+            writeNullSafe(gen, "propertySelection", value.isPropertySelection());
 
             gen.writeEndObject();
         }
@@ -359,6 +360,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
                 case "queryables" -> conf.setQueryables(value);
                 case "ids" -> conf.setIDs(value);
                 case "sortBy" -> conf.setSortBy(value);
+                case "propertySelection" -> conf.setPropertySelection(value);
                 default -> throw new IllegalArgumentException("Unknown field in FeatureConformance: " + fieldName);
             }
         }

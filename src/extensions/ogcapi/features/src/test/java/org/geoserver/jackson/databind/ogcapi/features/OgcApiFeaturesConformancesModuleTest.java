@@ -189,4 +189,25 @@ class OgcApiFeaturesConformancesModuleTest {
         assertEquals(true, deserialized.isQueryables());
         assertEquals(true, deserialized.isFilter());
     }
+
+    /**
+     * {@code propertySelection} used to be missing from both the serializer and the deserializer, so a pgconfig backend
+     * silently dropped it. See issue #872.
+     */
+    @Test
+    void testSerializeDeserializeFeatureConformancePropertySelection() throws JsonProcessingException {
+
+        FeatureConformance original = new FeatureConformance();
+        original.setPropertySelection(true);
+        original.setSortBy(false);
+
+        String json = mapper.writeValueAsString(original);
+
+        assertTrue(json.contains("\"propertySelection\":true"));
+
+        FeatureConformance deserialized = mapper.readValue(json, FeatureConformance.class);
+
+        assertEquals(true, deserialized.isPropertySelection());
+        assertEquals(false, deserialized.isSortBy());
+    }
 }
