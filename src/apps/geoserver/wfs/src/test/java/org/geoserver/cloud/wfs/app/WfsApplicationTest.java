@@ -17,6 +17,10 @@ import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
+import org.geoserver.config.util.XStreamPersisterInitializer;
+import org.geoserver.ogcapi.OGCAPIXStreamPersisterInitializer;
+import org.geoserver.ogcapi.v1.features.FeatureServiceXStreamPersisterInitializer;
+import org.geoserver.wfs.WFSXStreamPersisterInitializer;
 import org.geotools.feature.NameImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +43,25 @@ abstract class WfsApplicationTest {
     @Autowired
     @Qualifier("rawCatalog")
     private Catalog catalog;
+
+    /**
+     * The initializers that describe stored configuration objects moved out of the service-scoped configurations and
+     * into auto-configurations conditional on class presence alone, so this service, which runs the OGC API, must end
+     * up with exactly one of each rather than a duplicate. See issue #872.
+     */
+    @Test
+    void configSerializationInitializersAreNotDuplicated() {
+        assertThat(context.getBeansOfType(XStreamPersisterInitializer.class).values())
+                .hasAtLeastOneElementOfType(WFSXStreamPersisterInitializer.class)
+                .hasAtLeastOneElementOfType(OGCAPIXStreamPersisterInitializer.class)
+                .hasAtLeastOneElementOfType(FeatureServiceXStreamPersisterInitializer.class);
+
+        assertThat(context.getBeansOfType(WFSXStreamPersisterInitializer.class)).hasSize(1);
+        assertThat(context.getBeansOfType(OGCAPIXStreamPersisterInitializer.class))
+                .hasSize(1);
+        assertThat(context.getBeansOfType(FeatureServiceXStreamPersisterInitializer.class))
+                .hasSize(1);
+    }
 
     @Test
     void owsGetCapabilitiesSmokeTest(@LocalServerPort int servicePort) {

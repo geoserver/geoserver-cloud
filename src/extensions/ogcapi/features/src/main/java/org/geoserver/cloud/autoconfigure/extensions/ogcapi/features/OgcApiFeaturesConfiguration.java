@@ -14,12 +14,19 @@ import org.springframework.context.annotation.Import;
 
 /**
  * Configuration class for OGC API Features, conditional on WFS service.
+ * <p>
+ * {@code featureServiceXStreamInitializer} is filtered out: every service
+ * reads and writes the conformance objects it describes, so it is contributed
+ * unconditionally by
+ * {@link OgcApiFeaturesXStreamPersisterAutoConfiguration} instead of by this
+ * service-scoped configuration.
  */
 @Configuration
 @ConditionalOnOgcApiFeatures
 @ConditionalOnGeoServerWFS
 @Import(OgcApiCoreConfiguration.class)
-@ImportFilteredResource("jar:gs-ogcapi-features-.*!/applicationContext.xml")
+@ImportFilteredResource(
+        "jar:gs-ogcapi-features-.*!/applicationContext.xml#name=^(?!featureServiceXStreamInitializer).*$")
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.ogcapi.features")
 class OgcApiFeaturesConfiguration {
 

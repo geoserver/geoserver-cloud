@@ -6,6 +6,8 @@
 package org.geoserver.cloud.restconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.list;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
@@ -20,6 +22,7 @@ import static org.springframework.http.MediaType.TEXT_HTML;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.geoserver.catalog.Catalog;
@@ -28,11 +31,23 @@ import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.ProjectionPolicy;
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.geoserver.cloud.gwc.config.core.GwcRequestPathInfoFilter;
+import org.geoserver.config.GeoServer;
+import org.geoserver.config.util.XStreamPersisterInitializer;
 import org.geoserver.gwc.GWC;
+import org.geoserver.inspire.InspireXStreamPersisterInitializer;
+import org.geoserver.ogcapi.LinkInfo;
+import org.geoserver.ogcapi.OGCAPIXStreamPersisterInitializer;
+import org.geoserver.ogcapi.impl.LinkInfoImpl;
+import org.geoserver.ogcapi.v1.features.FeatureConformance;
+import org.geoserver.ogcapi.v1.features.FeatureServiceXStreamPersisterInitializer;
+import org.geoserver.wfs.WFSInfo;
+import org.geoserver.wfs.WFSXStreamPersisterInitializer;
+import org.geotools.data.wfs.internal.v2_0.storedquery.StoredQueryConfiguration;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +74,9 @@ abstract class RestConfigApplicationTest {
 
     @Autowired
     protected Catalog catalog;
+
+    @Autowired
+    protected GeoServer geoServer;
 
     @BeforeEach
     void before() {
@@ -200,6 +218,7 @@ abstract class RestConfigApplicationTest {
         ft.setName(ftName);
         ft.setNativeName(ftName);
         ft.setSRS("EPSG:4326");
+        ft.setProjectionPolicy(ProjectionPolicy.NONE);
         ReferencedEnvelope world = new ReferencedEnvelope(-180, 180, -90, 90, DefaultGeographicCRS.WGS84);
         ft.setNativeBoundingBox(world);
         ft.setLatLonBoundingBox(world);
@@ -412,6 +431,159 @@ abstract class RestConfigApplicationTest {
         } catch (RuntimeException e) {
             // ignore, the assertion failure is the interesting outcome
         }
+    }
+
+    /**
+     * Serializing a stored configuration object depends on an {@link XStreamPersisterInitializer} that knows its type.
+     * Those beans used to be registered only by the service that consumes them, leaving this one to rewrite complex
+     * metadata map values as their {@code toString()}. See issue #872.
+     */
+    @Test
+    void configSerializationInitializersPresent() {
+        assertThat(context.getBeansOfType(XStreamPersisterInitializer.class).values())
+                .as("every service must be able to serialize stored configuration objects (issue #872)")
+                .hasAtLeastOneElementOfType(WFSXStreamPersisterInitializer.class)
+                .hasAtLeastOneElementOfType(OGCAPIXStreamPersisterInitializer.class)
+                .hasAtLeastOneElementOfType(FeatureServiceXStreamPersisterInitializer.class)
+                .hasAtLeastOneElementOfType(InspireXStreamPersisterInitializer.class);
+    }
+
+    /**
+     * Reading the WFS settings and writing the same document back used to replace the OGC API Features conformance
+     * object with the string returned by its {@code toString()}, breaking the WFS service with a
+     * {@code ClassCastException}. See issue #872.
+     */
+    @Test
+    void wfsSettingsRoundTripPreservesOgcApiFeaturesConformance() {
+        try {
+            storeFeatureConformance();
+
+            String settings = getWfsSettings();
+            putWfsSettings(settings);
+
+            WFSInfo wfs = geoServer.getService(WFSInfo.class);
+            assertThat(wfs.getMetadata().get(FeatureConformance.METADATA_KEY))
+                    .as("a REST settings round trip must preserve the conformance object type (issue #872)")
+                    .isInstanceOf(FeatureConformance.class);
+
+            FeatureConformance conformance = FeatureConformance.configuration(wfs);
+            assertThat(conformance.isCore()).isTrue();
+            assertThat(conformance.isPropertySelection()).isTrue();
+        } finally {
+            removeFeatureConformance();
+        }
+    }
+
+    /**
+     * The {@code ogcApiLinks} metadata entry of a resource used to come back from a REST round trip as the string
+     * returned by {@code ArrayList.toString()}. See issue #872.
+     */
+    @Test
+    void featureTypeRoundTripPreservesOgcApiLinks(@TempDir Path storeDirectory) throws IOException {
+        try {
+            createVectorLayer(storeDirectory, "ogcapilinks", "ogcapilinksstore", "roads");
+            storeOgcApiLinks("ogcapilinks", "roads");
+
+            roundTripFeatureType("ogcapilinks", "ogcapilinksstore", "roads");
+
+            Object links = catalog.getFeatureTypeByName("ogcapilinks", "roads")
+                    .getMetadata()
+                    .get(LinkInfo.LINKS_METADATA_KEY);
+            assertThat(links)
+                    .as("a REST round trip must preserve the OGC API links (issue #872)")
+                    .asInstanceOf(list(LinkInfo.class))
+                    .singleElement()
+                    .extracting(LinkInfo::getHref)
+                    .isEqualTo("http://example.com/roads.gpkg");
+        } finally {
+            dropVectorLayerTree("ogcapilinks", "ogcapilinksstore", "roads");
+        }
+    }
+
+    /**
+     * The {@code storedQueryConfiguration} metadata entry of a cascaded WFS feature type used to come back from a REST
+     * round trip as a string. See issue #872.
+     */
+    @Test
+    void featureTypeRoundTripPreservesStoredQueryConfiguration(@TempDir Path storeDirectory) throws IOException {
+        try {
+            createVectorLayer(storeDirectory, "storedquery", "storedquerystore", "roads");
+            storeStoredQueryConfiguration("storedquery", "roads");
+
+            roundTripFeatureType("storedquery", "storedquerystore", "roads");
+
+            Object configuration = catalog.getFeatureTypeByName("storedquery", "roads")
+                    .getMetadata()
+                    .get(FeatureTypeInfo.STORED_QUERY_CONFIGURATION);
+            assertThat(configuration)
+                    .as("a REST round trip must preserve the cascaded stored query configuration (issue #872)")
+                    .asInstanceOf(type(StoredQueryConfiguration.class))
+                    .extracting(StoredQueryConfiguration::getStoredQueryId)
+                    .isEqualTo("urn:ogc:def:query:OGC-WFS::GetFeatureById");
+        } finally {
+            dropVectorLayerTree("storedquery", "storedquerystore", "roads");
+        }
+    }
+
+    private void storeOgcApiLinks(String workspace, String featureType) {
+        ArrayList<LinkInfo> links = new ArrayList<>();
+        links.add(new LinkInfoImpl("enclosure", "application/geopackage+sqlite3", "http://example.com/roads.gpkg"));
+
+        FeatureTypeInfo info = catalog.getFeatureTypeByName(workspace, featureType);
+        info.getMetadata().put(LinkInfo.LINKS_METADATA_KEY, links);
+        catalog.save(info);
+    }
+
+    private void storeStoredQueryConfiguration(String workspace, String featureType) {
+        StoredQueryConfiguration configuration = new StoredQueryConfiguration();
+        configuration.setStoredQueryId("urn:ogc:def:query:OGC-WFS::GetFeatureById");
+
+        FeatureTypeInfo info = catalog.getFeatureTypeByName(workspace, featureType);
+        info.getMetadata().put(FeatureTypeInfo.STORED_QUERY_CONFIGURATION, configuration);
+        catalog.save(info);
+    }
+
+    private void roundTripFeatureType(String workspace, String store, String featureType) {
+        String uri = "/rest/workspaces/%s/datastores/%s/featuretypes/%s.json".formatted(workspace, store, featureType);
+
+        ResponseEntity<String> get = restTemplate.getForEntity(uri, String.class);
+        assertThat(get.getStatusCode()).isEqualTo(OK);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(APPLICATION_JSON);
+        ResponseEntity<String> put =
+                restTemplate.exchange(uri, PUT, new HttpEntity<>(get.getBody(), headers), String.class);
+        assertThat(put.getStatusCode()).isEqualTo(OK);
+    }
+
+    private void storeFeatureConformance() {
+        FeatureConformance conformance = new FeatureConformance();
+        conformance.setCore(Boolean.TRUE);
+        conformance.setPropertySelection(Boolean.TRUE);
+
+        WFSInfo wfs = geoServer.getService(WFSInfo.class);
+        wfs.getMetadata().put(FeatureConformance.METADATA_KEY, conformance);
+        geoServer.save(wfs);
+    }
+
+    private void removeFeatureConformance() {
+        WFSInfo wfs = geoServer.getService(WFSInfo.class);
+        wfs.getMetadata().remove(FeatureConformance.METADATA_KEY);
+        geoServer.save(wfs);
+    }
+
+    private String getWfsSettings() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/rest/services/wfs/settings.json", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(OK);
+        return response.getBody();
+    }
+
+    private void putWfsSettings(String settings) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(APPLICATION_JSON);
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/rest/services/wfs/settings", PUT, new HttpEntity<>(settings, headers), String.class);
+        assertThat(response.getStatusCode()).isEqualTo(OK);
     }
 
     protected void testPathExtensionContentType(String uri, MediaType expected) {
