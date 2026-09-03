@@ -83,12 +83,22 @@ class OgcApiCoreConfigurationTest {
                 .hasSingleBean(APIConfigurationSupport.class)
                 .hasSingleBean(AnnotatedHTMLMessageConverter.class)
                 .hasSingleBean(DefaultAPIExceptionHandler.class)
-                .hasSingleBean(OGCAPIXStreamPersisterInitializer.class)
                 .hasSingleBean(LocalWorkspaceCallback.class)
                 .hasSingleBean(ByteArrayMessageConverter.class)
                 .hasSingleBean(FreemarkerTemplateSupport.class)
                 .hasBean("apiClasspathPublisherMapping")
                 .hasBean("apiLocalWorkspaceURLManger")
                 .hasSingleBean(APIFilterParser.class));
+    }
+
+    /**
+     * {@code OGCAPIXStreamPersisterInitializer} describes catalog metadata that every service reads and writes, so it
+     * is contributed by its own auto-configuration on class presence alone rather than by this service-scoped
+     * configuration. See issue #872.
+     */
+    @Test
+    void testXStreamPersisterInitializerIsNotServiceScoped() {
+        runner.run(
+                context -> assertThat(context).hasNotFailed().doesNotHaveBean(OGCAPIXStreamPersisterInitializer.class));
     }
 }
