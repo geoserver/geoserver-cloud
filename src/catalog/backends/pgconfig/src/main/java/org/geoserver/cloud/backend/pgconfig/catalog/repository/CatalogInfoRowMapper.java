@@ -271,9 +271,15 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         }
         WorkspaceInfo workspace = null == style ? null : style.getWorkspace();
         if (null != workspace) {
-            String wsid = workspace.getId();
-            WorkspaceInfo ws = mapWorkspace(wsid, rs);
-            style.setWorkspace(ws);
+            // the workspace column holds the queried object's workspace, which is not the style's when a layer
+            // references a style from another workspace
+            WorkspaceInfo rowWorkspace = mapWorkspace(rs);
+            if (null != rowWorkspace && Objects.equals(workspace.getId(), rowWorkspace.getId())) {
+                style.setWorkspace(rowWorkspace);
+            } else if (null != styleLoader) {
+                StyleInfo resolved = loadStyle(style.getId());
+                return null == resolved ? style : resolved;
+            }
         }
         return style;
     }
