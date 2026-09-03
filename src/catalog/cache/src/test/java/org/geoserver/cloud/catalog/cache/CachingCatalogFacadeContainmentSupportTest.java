@@ -146,6 +146,28 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
+    @DisplayName("get() supports a loader that loads another entry, as nested layer groups do")
+    void testGetLoaderCanReenterTheCache() {
+        LayerGroupInfo group = stub(LayerGroupInfo.class, "Aa", "group");
+        LayerGroupInfo nested = stub(LayerGroupInfo.class, "BB", "nested");
+        InfoIdKey groupKey = InfoIdKey.valueOf(group);
+        InfoIdKey nestedKey = InfoIdKey.valueOf(nested);
+
+        // the ids collide, so both keys land in the same ConcurrentHashMap bin, where a nested load is
+        // rejected rather than merely being likely to be
+        assertThat(groupKey).hasSameHashCodeAs(nestedKey);
+
+        assertThat(support.get(groupKey, () -> {
+                    support.get(nestedKey, () -> nested);
+                    return group;
+                }))
+                .isSameAs(group);
+
+        assertCached(groupKey, group);
+        assertCached(nestedKey, nested);
+    }
+
+    @Test
     @DisplayName("getByName() caches when the requested key is the object's canonical name key")
     void testGetByNameCanonicalKeyIsCached() throws Exception {
         LayerInfo layer = stubReal(LayerInfo.class, "l1", "roads");
