@@ -1309,6 +1309,26 @@
             <artifactId>wicket-core</artifactId>
             <version>${wicket.version}</version>
           </dependency>
+          <dependency>
+            <!--
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-formats:jar:3.1.0-SNAPSHOT:compile
+[ERROR]       +-org.geotools:gt-flatgeobuf:jar:36-SNAPSHOT:compile
+[ERROR]         +-org.wololo:flatgeobuf:jar:3.28.2:compile
+[ERROR]           +-com.google.flatbuffers:flatbuffers-java:jar:24.12.23:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-parquetry:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-io.tileverse.geoserver:tileverse-geoserver-parquetry:jar:3.1-SNAPSHOT:compile
+[ERROR]       +-io.tileverse.parquetry:parquetry-arrow:jar:1.0-SNAPSHOT:compile
+[ERROR]         +-org.apache.arrow:arrow-format:jar:19.0.0:compile
+[ERROR]           +-com.google.flatbuffers:flatbuffers-java:jar:25.2.10:compile
+-->
+            <groupId>com.google.flatbuffers</groupId>
+            <artifactId>flatbuffers-java</artifactId>
+            <version>25.2.10</version>
+          </dependency>
         </dependencies>
       </dependencyManagement>
       <build>
