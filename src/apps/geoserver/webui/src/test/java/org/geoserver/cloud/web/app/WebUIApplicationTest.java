@@ -20,6 +20,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.util.tester.WicketTester;
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.core.WebUIContextInitializer;
+import org.geoserver.cloud.web.WicketTesters;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.GeoServerHomePage;
 import org.geoserver.web.ServicesPanel;
@@ -81,9 +82,8 @@ class WebUIApplicationTest {
     }
 
     @BeforeEach
-    void setUpWicketTester() {
-        boolean init = true;
-        tester = new WicketTester(app, init);
+    void setUpWicketTester() throws IOException {
+        tester = WicketTesters.create(app, tmpdir);
     }
 
     @AfterEach
