@@ -27,6 +27,13 @@
       <artifactId>httpclient5</artifactId>
     </dependency>
     <dependency>
+      <!-- provided: the web applications supply Spring MVC through the webmvc starter,
+           needed here by the access denied page handler -->
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>

@@ -16,6 +16,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.tester.WicketTester;
+import org.geoserver.cloud.web.WicketTesters;
 import org.geoserver.cloud.web.app.WebUIApplication;
 import org.geoserver.gwc.web.diskquota.JDBCConnectionPoolPanel;
 import org.geoserver.web.GeoServerApplication;
@@ -73,8 +74,8 @@ class JDBCConnectionPoolPanelCloudTest {
     }
 
     @BeforeEach
-    void setUpWicketTester() {
-        tester = new WicketTester(app, true);
+    void setUpWicketTester() throws IOException {
+        tester = WicketTesters.create(app, tmpdir);
     }
 
     @AfterEach

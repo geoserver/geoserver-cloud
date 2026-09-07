@@ -270,6 +270,9 @@ abstract class RestConfigApplicationTest {
 
         response = restTemplate.exchange("/rest", GET, new HttpEntity<>(headers), String.class);
         assertThat(response.getStatusCode()).isEqualTo(FORBIDDEN);
+        assertThat(response.getBody())
+                .as("the access denied page must be served whether the classpath holds it exploded or in a jar")
+                .contains("Access Denied");
     }
 
     @Test

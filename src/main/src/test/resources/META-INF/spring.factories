@@ -1,0 +1,2 @@
+org.springframework.test.context.ContextCustomizerFactory=\
+org.geoserver.cloud.autoconfigure.main.AccessDeniedPageContextCustomizerFactory
