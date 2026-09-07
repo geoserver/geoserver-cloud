@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.apache.wicket.util.tester.WicketTester;
+import org.geoserver.cloud.web.WicketTesters;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.GeoServerHomePage;
 import org.junit.jupiter.api.AfterEach;
@@ -68,9 +69,8 @@ class AclIntegrationTest {
     }
 
     @BeforeEach
-    void setUpWicketTester() {
-        boolean init = true;
-        tester = new WicketTester(app, init);
+    void setUpWicketTester() throws IOException {
+        tester = WicketTesters.create(app, datadir);
     }
 
     @AfterEach
