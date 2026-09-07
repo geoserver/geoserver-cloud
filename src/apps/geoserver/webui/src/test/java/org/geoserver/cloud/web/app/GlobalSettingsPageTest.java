@@ -21,6 +21,7 @@ import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.TagTester;
 import org.apache.wicket.util.tester.WicketTester;
+import org.geoserver.cloud.web.WicketTesters;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.web.GeoServerApplication;
@@ -87,9 +88,8 @@ class GlobalSettingsPageTest {
     }
 
     @BeforeEach
-    void setUpWicketTester() {
-        boolean init = true;
-        tester = new WicketTester(app, init);
+    void setUpWicketTester() throws IOException {
+        tester = WicketTesters.create(app, tmpdir);
     }
 
     @BeforeEach
