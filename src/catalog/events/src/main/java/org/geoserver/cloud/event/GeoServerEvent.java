@@ -17,12 +17,21 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
+import org.geoserver.cloud.event.security.RolesChanged;
+import org.geoserver.cloud.event.security.UsersAndGroupsChanged;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonSubTypes({@JsonSubTypes.Type(value = UpdateSequenceEvent.class), @JsonSubTypes.Type(value = LifecycleEvent.class)})
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = UpdateSequenceEvent.class),
+    @JsonSubTypes.Type(value = LifecycleEvent.class),
+    @JsonSubTypes.Type(value = UsersAndGroupsChanged.class),
+    @JsonSubTypes.Type(value = RolesChanged.class)
+})
 @SuppressWarnings("serial")
 public abstract class GeoServerEvent implements Serializable {
 
@@ -44,6 +53,12 @@ public abstract class GeoServerEvent implements Serializable {
     protected GeoServerEvent(long timestamp, String author) {
         this.timestamp = timestamp;
         this.author = author;
+    }
+
+    /** The name of the user authenticated on the current thread, if any, as the author of an event created now */
+    protected static String resolveAuthor() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return null == authentication ? null : authentication.getName();
     }
 
     @SuppressWarnings("unchecked")
