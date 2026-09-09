@@ -34,8 +34,9 @@
     <gt.version>35-SNAPSHOT</gt.version>
     <wicket.version>10.10.0</wicket.version>
     <acl.version>3.0.3</acl.version>
-    <cloud-dependencies-bom.version>1.0.2</cloud-dependencies-bom.version>
+    <cloud-dependencies-bom.version>1.0-SNAPSHOT</cloud-dependencies-bom.version>
     <tileverse-geoserver.version>3.0-SNAPSHOT</tileverse-geoserver.version>
+    <tileverse.version>2.1-SNAPSHOT</tileverse.version>
     <jackson.version>3.2.2</jackson.version>
     <jackson2.version>2.22.2</jackson2.version>
 
@@ -94,6 +95,13 @@
         <groupId>io.tileverse</groupId>
         <artifactId>cloud-dependencies-bom</artifactId>
         <version>${cloud-dependencies-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.tileverse</groupId>
+        <artifactId>tileverse-bom</artifactId>
+        <version>${tileverse.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
