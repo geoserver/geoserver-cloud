@@ -15,10 +15,15 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.GeoServerConfigurationLock.LockType;
+import org.geoserver.cloud.event.GeoServerEvent;
+import org.geoserver.cloud.event.security.RolesChanged;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.cloud.event.security.SecurityManagerReloaded;
+import org.geoserver.cloud.event.security.UsersAndGroupsChanged;
 import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.security.GeoServerRoleService;
 import org.geoserver.security.GeoServerSecurityManager;
+import org.geoserver.security.GeoServerUserGroupService;
 import org.geoserver.security.config.PasswordPolicyConfig;
 import org.geoserver.security.config.SecurityAuthProviderConfig;
 import org.geoserver.security.config.SecurityManagerConfig;
@@ -37,11 +42,17 @@ import org.springframework.security.authentication.AuthenticationProvider;
  * services of changes to the security configuration happened on the currently running service, and
  * to {@link #onRemoteSecurityConfigChangeEvent listen to} those events to {@link
  * GeoServerSecurityManager#reload() reload} the security config when other service made a change.
+ *
+ * <p>Changes to the contents of user/group and role services (users, groups, roles and their associations) are notified
+ * separately, through {@link UsersAndGroupsChanged} and {@link RolesChanged}: the services returned by
+ * {@link #loadUserGroupService(String)} and {@link #loadRoleService(String)} create stores that fire those events once
+ * saved, and {@link #onRemoteUsersAndGroupsChanged} and {@link #onRemoteRolesChanged} reload just the named service,
+ * instead of the whole security configuration, when another service instance saved such a store.
  */
 @Slf4j(topic = "org.geoserver.cloud.security")
 public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
 
-    private final Consumer<SecurityConfigChanged> eventPublisher;
+    private final Consumer<GeoServerEvent> eventPublisher;
     private final Supplier<Long> updateSequenceIncrementor;
 
     // Store applicationContext from setApplicationContext method
@@ -54,7 +65,7 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     public CloudGeoServerSecurityManager(
             GeoServerConfigurationLock configLock,
             GeoServerDataDirectory dataDir,
-            @NonNull Consumer<SecurityConfigChanged> eventPublisher,
+            @NonNull Consumer<GeoServerEvent> eventPublisher,
             @NonNull Supplier<Long> updateSequenceIncrementor,
             @NonNull List<AuthenticationProvider> additionalAuthenticationProviders)
             throws Exception {
@@ -134,13 +145,112 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         log.debug("Security configuration reloaded due to change event:", event);
     }
 
+    /** Listens to {@link UsersAndGroupsChanged} sent by other services and reloads the named user group service */
+    @EventListener(UsersAndGroupsChanged.class)
+    public void onRemoteUsersAndGroupsChanged(UsersAndGroupsChanged event) {
+        if (shallHandle(event)) {
+            reloadUserGroupService(event.getServiceName());
+        }
+    }
+
+    /** Listens to {@link RolesChanged} sent by other services and reloads the named role service */
+    @EventListener(RolesChanged.class)
+    public void onRemoteRolesChanged(RolesChanged event) {
+        if (shallHandle(event)) {
+            reloadRoleService(event.getServiceName());
+        }
+    }
+
+    private boolean shallHandle(GeoServerEvent event) {
+        if (event.isLocal()) {
+            return false;
+        }
+        if (!isInitialized()) {
+            log.info("Ignoring event, security subsystem not yet initialized: {}", event);
+            return false;
+        }
+        return true;
+    }
+
+    private void reloadUserGroupService(String serviceName) {
+        try {
+            GeoServerUserGroupService service = loadUserGroupService(serviceName);
+            if (service == null) {
+                log.info("Ignoring users and groups change, no user group service named {}", serviceName);
+            } else {
+                log.info("Reloading users and groups of service {}", serviceName);
+                service.load();
+            }
+        } catch (IOException e) {
+            log.error("Error reloading users and groups of service {}", serviceName, e);
+        }
+    }
+
+    private void reloadRoleService(String serviceName) {
+        try {
+            GeoServerRoleService service = loadRoleService(serviceName);
+            if (service == null) {
+                log.info("Ignoring roles change, no role service named {}", serviceName);
+            } else {
+                log.info("Reloading roles of service {}", serviceName);
+                service.load();
+            }
+        } catch (IOException e) {
+            log.error("Error reloading roles of service {}", serviceName, e);
+        }
+    }
+
+    /**
+     * Override to make the stores created by the returned service {@link #fireUsersAndGroupsChanged fire} a remote
+     * {@link UsersAndGroupsChanged} once saved
+     */
+    @Override
+    public GeoServerUserGroupService loadUserGroupService(String name) throws IOException {
+        GeoServerUserGroupService service = super.loadUserGroupService(name);
+        if (service == null) {
+            return null;
+        }
+        return new ChangeNotifyingUserGroupService(service, this::fireUsersAndGroupsChanged);
+    }
+
+    /**
+     * Override to make the stores created by the returned service {@link #fireRolesChanged fire} a remote
+     * {@link RolesChanged} once saved
+     */
+    @Override
+    public GeoServerRoleService loadRoleService(String name) throws IOException {
+        GeoServerRoleService service = super.loadRoleService(name);
+        if (service == null) {
+            return null;
+        }
+        return new ChangeNotifyingRoleService(service, this::fireRolesChanged);
+    }
+
     /** Fires a {@link SecurityConfigChanged} for other services to react accordingly, unless it is {@link #reload() reloading} . */
     public void fireRemoteChangedEvent(@NonNull String reason) {
+        publishUnlessReloading(reason, () -> event(reason));
+    }
+
+    /**
+     * Fires a {@link UsersAndGroupsChanged} for the named user group service, unless it is {@link #reload() reloading}
+     */
+    void fireUsersAndGroupsChanged(@NonNull String serviceName) {
+        String reason = "users and groups of service %s changed".formatted(serviceName);
+        publishUnlessReloading(reason, () -> UsersAndGroupsChanged.createLocal(serviceName));
+    }
+
+    /** Fires a {@link RolesChanged} for the named role service, unless it is {@link #reload() reloading} */
+    void fireRolesChanged(@NonNull String serviceName) {
+        String reason = "roles of service %s changed".formatted(serviceName);
+        publishUnlessReloading(reason, () -> RolesChanged.createLocal(serviceName));
+    }
+
+    private void publishUnlessReloading(String reason, Supplier<GeoServerEvent> event) {
         if (reloading.get()) {
             log.info("{}: won't send security change event, config is reloading", reason);
         } else {
             log.debug("Publishing remote security event due to {}", reason);
-            eventPublisher.accept(event(reason));
+            eventPublisher.accept(event.get());
         }
     }
 

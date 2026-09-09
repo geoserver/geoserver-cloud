@@ -429,7 +429,7 @@ public abstract class BusAmqpIntegrationTests {
         final @Getter BusEventCollector local;
         final @Getter BusEventCollector remote;
 
-        public <E extends InfoEvent> EventsCaptor captureEventsOf(Class<E> type) {
+        public <E extends GeoServerEvent> EventsCaptor captureEventsOf(Class<E> type) {
             local.capture(type);
             remote.capture(type);
             return this;
