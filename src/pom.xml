@@ -1325,6 +1325,16 @@
       <dependencyManagement>
         <dependencies>
           <dependency>
+            <!-- gwc-aws-s3 pins 1.12.261, whose aws-java-sdk-core still depends on
+                 software.amazon.ion:ion-java 1.0.2, a groupId that no longer receives releases
+                 (the project moved to com.amazon.ion). Later 1.12.x releases dropped ion-java -->
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-bom</artifactId>
+            <version>1.12.797</version>
+            <type>pom</type>
+            <scope>import</scope>
+          </dependency>
+          <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>4.33.2</version>
