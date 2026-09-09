@@ -13,8 +13,6 @@ import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.config.GeoServerInfo;
 import org.springframework.core.style.ToStringCreator;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({@JsonSubTypes.Type(value = InfoEvent.class), @JsonSubTypes.Type(value = SecurityConfigChanged.class)})
@@ -39,11 +37,6 @@ public class UpdateSequenceEvent extends GeoServerEvent implements Comparable<Up
 
     protected @Override ToStringCreator toStringBuilder() {
         return super.toStringBuilder().append("updateSequence", updateSequence);
-    }
-
-    private static String resolveAuthor() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return null == authentication ? null : authentication.getName();
     }
 
     public static UpdateSequenceEvent createLocal(long value) {

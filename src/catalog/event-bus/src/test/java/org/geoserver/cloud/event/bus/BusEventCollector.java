@@ -57,7 +57,7 @@ public class BusEventCollector {
         }
     }
 
-    public void capture(@NonNull Class<? extends InfoEvent> type) {
+    public void capture(@NonNull Class<? extends GeoServerEvent> type) {
         this.eventType = type;
     }
 
@@ -65,7 +65,7 @@ public class BusEventCollector {
         this.eventType = type;
     }
 
-    public <T extends InfoEvent> RemoteGeoServerEvent expectOne(Class<T> payloadType) {
+    public <T extends GeoServerEvent> RemoteGeoServerEvent expectOne(Class<T> payloadType) {
 
         return expectOne(payloadType, x -> true);
     }
@@ -74,7 +74,7 @@ public class BusEventCollector {
         return expectOne(payloadType, c -> infoType.equals(c.getObjectType()));
     }
 
-    public <T extends InfoEvent> RemoteGeoServerEvent expectOne(Class<T> payloadType, Predicate<T> filter) {
+    public <T extends GeoServerEvent> RemoteGeoServerEvent expectOne(Class<T> payloadType, Predicate<T> filter) {
 
         List<RemoteGeoServerEvent> matches = await().atMost(Duration.ofSeconds(10)) //
                 .until(() -> allOf(payloadType, filter), not(List::isEmpty));

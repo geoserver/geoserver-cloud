@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
-import org.geoserver.cloud.event.security.SecurityConfigChanged;
+import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.security.CloudGeoServerSecurityFilterChainProxy;
@@ -87,7 +87,7 @@ public class GeoServerSecurityConfiguration {
             EnvironmentAdminAuthenticationProvider envAuth //
             ) throws Exception {
 
-        Consumer<SecurityConfigChanged> publisher = localContextPublisher::publishEvent;
+        Consumer<GeoServerEvent> publisher = localContextPublisher::publishEvent;
         Supplier<Long> updateSequenceIncrementor = updateSequence::nextValue;
 
         return new CloudGeoServerSecurityManager(lock, dataDir, publisher, updateSequenceIncrementor, List.of(envAuth));
