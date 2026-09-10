@@ -8,6 +8,7 @@ package org.geoserver.cloud.autoconfigure.gateway;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
+import org.geoserver.cloud.gateway.filter.FormPostCharacterEncodingFilter;
 import org.geoserver.cloud.gateway.filter.GeoServerGatewayFilterFunctions;
 import org.geoserver.cloud.gateway.predicate.GeoServerGatewayRequestPredicates;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ class GatewayApplicationAutoconfigurationTest {
                 .hasNotFailed()
                 .hasSingleBean(GeoServerGatewayRequestPredicates.GeoServerGatewayPredicateSupplier.class)
                 .hasSingleBean(GeoServerGatewayFilterFunctions.GeoServerGatewayFilterSupplier.class)
+                .hasSingleBean(FormPostCharacterEncodingFilter.class)
                 .hasSingleBean(CorsFilter.class));
     }
 
