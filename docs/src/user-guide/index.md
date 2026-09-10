@@ -15,6 +15,10 @@ Available guides:
 - [GeoParquet through the REST API](geoparquet-rest-api.md): publish
   GeoParquet files from a local volume or object storage as vector layers,
   creating the datastores and layers through the REST API.
+- [GeoParquet and Arrow IPC over WFS](wfs-geoparquet-arrow-ipc.md): download
+  any vector layer as a GeoParquet file or an Arrow IPC stream through WFS
+  GetFeature, tune the Parquet output, and read the results back with DuckDB
+  and Python.
 - [Monitoring control-flow](controlflow-monitoring.md): run the dev compose
   stack with Prometheus and Grafana, generate load, and watch request
   throttling live on the control-flow dashboard.

@@ -22,7 +22,7 @@
     <module>output-formats</module>
     <module>importer</module>
     <module>ogcapi</module>
-    <module>parquetry</module>
+    <module>tileverse</module>
   </modules>
 
   <dependencies>
