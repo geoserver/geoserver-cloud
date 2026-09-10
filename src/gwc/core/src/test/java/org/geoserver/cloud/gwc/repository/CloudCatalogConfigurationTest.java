@@ -23,6 +23,7 @@ import org.geoserver.gwc.layer.GeoServerTileLayerInfoImpl;
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geowebcache.config.DefaultGridsets;
 import org.geowebcache.grid.GridSetBroker;
+import org.geowebcache.layer.TileLayer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -114,6 +115,6 @@ class CloudCatalogConfigurationTest {
         assertThat(config.getLayerNames()).containsExactly(LAYER_NAME);
         assertThat(config.getLayerCount()).isOne();
         assertThat(config.containsLayer(LAYER_NAME)).isTrue();
-        assertThatCode(() -> config.getLayers().forEach(tl -> tl.getName())).doesNotThrowAnyException();
+        assertThatCode(() -> config.getLayers().forEach(TileLayer::getName)).doesNotThrowAnyException();
     }
 }

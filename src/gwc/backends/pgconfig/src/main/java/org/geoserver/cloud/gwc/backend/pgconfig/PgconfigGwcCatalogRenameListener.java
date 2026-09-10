@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -169,24 +170,24 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
             return List.of();
         }
         String newPrefix = newWorkspace.getName();
-        List<TileLayerRename> pairs = new ArrayList<>();
-        for (ResourceInfo resource : catalog.getResourcesByStore(store, ResourceInfo.class)) {
-            NamespaceInfo oldNamespace = resource.getNamespace();
-            if (oldNamespace == null) {
-                continue;
-            }
-            String oldPrefixed = prefixed(oldNamespace.getPrefix(), resource.getName());
-            String newPrefixed = prefixed(newPrefix, resource.getName());
-            if (oldPrefixed.equals(newPrefixed)) {
-                continue;
-            }
-            String layerId = catalog.getLayers(resource).stream()
-                    .map(LayerInfo::getId)
-                    .findFirst()
-                    .orElse(null);
-            pairs.add(new TileLayerRename(layerId, oldPrefixed, newPrefixed));
+        return catalog.getResourcesByStore(store, ResourceInfo.class).stream()
+                .map(resource -> storeMoveRename(resource, newPrefix))
+                .flatMap(Optional::stream)
+                .toList();
+    }
+
+    /** The rename of a resource's tile layer when its store moves to another workspace, empty if the name stays. */
+    private Optional<TileLayerRename> storeMoveRename(ResourceInfo resource, String newPrefix) {
+        NamespaceInfo oldNamespace = resource.getNamespace();
+        if (oldNamespace == null) {
+            return Optional.empty();
         }
-        return pairs;
+        String oldPrefixed = prefixed(oldNamespace.getPrefix(), resource.getName());
+        String newPrefixed = prefixed(newPrefix, resource.getName());
+        if (oldPrefixed.equals(newPrefixed)) {
+            return Optional.empty();
+        }
+        return Optional.of(new TileLayerRename(firstLayerId(resource), oldPrefixed, newPrefixed));
     }
 
     private List<TileLayerRename> collectWorkspaceRenames(CatalogModifyEvent event) {
@@ -248,11 +249,14 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
         if (oldPrefixed.equals(newPrefixed)) {
             return List.of();
         }
-        String layerId = catalog.getLayers(resource).stream()
+        return List.of(new TileLayerRename(firstLayerId(resource), oldPrefixed, newPrefixed));
+    }
+
+    private @Nullable String firstLayerId(ResourceInfo resource) {
+        return catalog.getLayers(resource).stream()
                 .map(LayerInfo::getId)
                 .findFirst()
                 .orElse(null);
-        return List.of(new TileLayerRename(layerId, oldPrefixed, newPrefixed));
     }
 
     private List<TileLayerRename> collectLayerGroupRename(LayerGroupInfo group, CatalogModifyEvent event) {
@@ -298,9 +302,10 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
      */
     private void publishTileLayerEvents(List<TileLayerRename> pairs) {
         for (TileLayerRename pair : pairs) {
-            if (pair.publishedId() != null) {
+            String publishedId = pair.publishedId();
+            if (publishedId != null) {
                 eventPublisher.accept(
-                        TileLayerEvent.modified(this, pair.publishedId(), pair.newPrefixed(), pair.oldPrefixed()));
+                        TileLayerEvent.modified(this, publishedId, pair.newPrefixed(), pair.oldPrefixed()));
             }
         }
     }

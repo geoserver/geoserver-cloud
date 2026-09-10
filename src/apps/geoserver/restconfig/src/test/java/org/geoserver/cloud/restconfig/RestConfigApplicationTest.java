@@ -247,7 +247,7 @@ abstract class RestConfigApplicationTest {
             if (found != null) {
                 remover.accept(found);
             }
-        } catch (RuntimeException e) {
+        } catch (RuntimeException _) {
             // ignore, the assertion failure is the interesting outcome
         }
     }
@@ -381,7 +381,7 @@ abstract class RestConfigApplicationTest {
     private void deleteResourceQuietly(String path) {
         try {
             restTemplate.exchange(path, DELETE, null, Void.class);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException _) {
             // ignore, the assertion failure is the interesting outcome
         }
     }

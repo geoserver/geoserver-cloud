@@ -8,13 +8,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 class GwcRequestPathInfoFilterTest {
 
-    @Test
-    void nonGwcUrl_returnsOriginalRequest() {
-        MockHttpServletRequest request = mockRequest("/actuator/health", "");
+    /**
+     * Requests not dispatched to GWC are left alone: no {@code gwc} segment at all, {@code gwc} as part of a resource
+     * name under the REST API ({@code GET /rest/resource/gwc-gs.xml} returned a 500 NPE, see issue #913), a {@code gwc}
+     * directory under the REST resource API, a non-existent {@code gwc}-prefixed REST resource, a web UI path with a
+     * {@code gwc} segment, a first segment merely starting with {@code gwc}, and a {@code gwc} segment deeper than a
+     * virtual service prefix allows.
+     */
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "/actuator/health",
+                "/rest/resource/gwc-gs.xml",
+                "/rest/resource/gwc/geowebcache.xml",
+                "/rest/resource/gwcfoo",
+                "/web/images/gwc/tile.png",
+                "/gwcstore/styles.json",
+                "/a/b/c/gwc/tile.png"
+            })
+    void nonGwcRequest_returnsOriginalRequest(String requestURI) {
+        MockHttpServletRequest request = mockRequest(requestURI, "");
         HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
         assertThat(result).isSameAs(request);
     }
@@ -89,49 +108,6 @@ class GwcRequestPathInfoFilterTest {
         assertThat(result.getServletPath()).isEqualTo("/gwcws");
         assertThat(result.getPathInfo()).isEqualTo("/demo/layer:name");
         assertThat(result.getRequestURI()).isEqualTo("/gwc/demo/layer:name");
-    }
-
-    /** {@code GET /rest/resource/gwc-gs.xml} returned a 500 NPE, see issue #913 */
-    @Test
-    void restResourceFileNameContainingGwc_returnsOriginalRequest() {
-        MockHttpServletRequest request = mockRequest("/rest/resource/gwc-gs.xml", "");
-        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
-        assertThat(result).isSameAs(request);
-    }
-
-    @Test
-    void restResourceGwcDirectory_returnsOriginalRequest() {
-        MockHttpServletRequest request = mockRequest("/rest/resource/gwc/geowebcache.xml", "");
-        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
-        assertThat(result).isSameAs(request);
-    }
-
-    @Test
-    void restResourceNonExistentGwcPrefixedPath_returnsOriginalRequest() {
-        MockHttpServletRequest request = mockRequest("/rest/resource/gwcfoo", "");
-        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
-        assertThat(result).isSameAs(request);
-    }
-
-    @Test
-    void webUiPathWithGwcSegment_returnsOriginalRequest() {
-        MockHttpServletRequest request = mockRequest("/web/images/gwc/tile.png", "");
-        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
-        assertThat(result).isSameAs(request);
-    }
-
-    @Test
-    void gwcNotAtSegmentBoundary_returnsOriginalRequest() {
-        MockHttpServletRequest request = mockRequest("/gwcstore/styles.json", "");
-        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
-        assertThat(result).isSameAs(request);
-    }
-
-    @Test
-    void gwcSegmentDeeperThanVirtualServicePrefix_returnsOriginalRequest() {
-        MockHttpServletRequest request = mockRequest("/a/b/c/gwc/tile.png", "");
-        HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
-        assertThat(result).isSameAs(request);
     }
 
     private MockHttpServletRequest mockRequest(String requestURI, String contextPath) {
