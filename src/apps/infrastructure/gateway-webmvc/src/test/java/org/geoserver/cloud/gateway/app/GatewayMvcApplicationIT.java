@@ -7,6 +7,9 @@ package org.geoserver.cloud.gateway.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -104,6 +107,42 @@ class GatewayMvcApplicationIT {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         String body = response.getBody();
         assertThat(body).contains("GET /wms/reflect").doesNotContain("/geoserver/cloud/wms");
+    }
+
+    // Regression tests for #693: a bare '=' inside a query value (CQL_FILTER=a=1, viewparams=a:b=c) made the
+    // upstream stripPrefix rebuild of the URI throw, and the gateway answered 500 to a request the service accepts.
+
+    @Test
+    void stripBasePath_keepsBareEqualsSignInQuery() {
+        ResponseEntity<String> response = getVerbatim("/geoserver/cloud/ows?CQL_FILTER=1=1");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(decodedRequestLine(response.getBody())).isEqualTo("GET /ows?CQL_FILTER=1=1 HTTP/1.1");
+        assertThat(response.getBody()).contains("X-Forwarded-Prefix: /geoserver/cloud");
+    }
+
+    @Test
+    void stripBasePath_keepsPercentEncodedQuery() {
+        ResponseEntity<String> response = getVerbatim("/geoserver/cloud/ows?layers=a%3Db%20c");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(decodedRequestLine(response.getBody())).isEqualTo("GET /ows?layers=a=b c HTTP/1.1");
+    }
+
+    /** Sends the path and query exactly as given, bypassing the URI template encoding of the String overloads. */
+    private ResponseEntity<String> getVerbatim(String pathAndQuery) {
+        URI uri = URI.create(testRestTemplate.getRootUri() + pathAndQuery);
+        return testRestTemplate.getForEntity(uri, String.class);
+    }
+
+    /** The request line as echoed by the backend, percent-decoded. */
+    private static String decodedRequestLine(String echoedRequest) {
+        String requestLine = echoedRequest
+                .lines()
+                .filter(line -> line.startsWith("GET ") || line.startsWith("POST "))
+                .findFirst()
+                .orElseThrow();
+        return URLDecoder.decode(requestLine, StandardCharsets.UTF_8);
     }
 
     // --- SecureHeaders tests ---
