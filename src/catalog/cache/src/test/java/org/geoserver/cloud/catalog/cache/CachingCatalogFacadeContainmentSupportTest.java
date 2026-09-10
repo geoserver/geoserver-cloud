@@ -170,6 +170,51 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
+    @DisplayName("get() does not cache a value loaded before a concurrent eviction of its key")
+    void testGetDoesNotCacheValueLoadedBeforeConcurrentEviction() {
+        WorkspaceInfo ws = stub(WorkspaceInfo.class);
+        InfoIdKey key = InfoIdKey.valueOf(ws);
+
+        // the loader stands for a load in flight when a remote event evicts the same key
+        WorkspaceInfo loaded = support.get(key, () -> {
+            support.evict(key.id(), "ws", key.type());
+            return ws;
+        });
+
+        assertThat(loaded).isSameAs(ws);
+        assertNotCached(key);
+    }
+
+    @Test
+    @DisplayName("getByName() does not cache a value loaded before a concurrent eviction of its key")
+    void testGetByNameDoesNotCacheValueLoadedBeforeConcurrentEviction() {
+        WorkspaceInfo ws = stubReal(WorkspaceInfo.class, "ws1", "ws");
+        InfoNameKey key = InfoNameKey.valueOf(ws);
+
+        WorkspaceInfo loaded = support.getByName(key, () -> {
+            support.evict(ws.getId(), key.prefixexName(), key.type());
+            return ws;
+        });
+
+        assertThat(loaded).isSameAs(ws);
+        assertNotCached(key);
+    }
+
+    @Test
+    @DisplayName("getDefaultWorkspace() does not cache a value loaded before a concurrent eviction")
+    void testGetDefaultWorkspaceDoesNotCacheValueLoadedBeforeConcurrentEviction() {
+        WorkspaceInfo ws = stub(WorkspaceInfo.class);
+
+        WorkspaceInfo loaded = support.getDefaultWorkspace(() -> {
+            support.evictDefaultWorkspace();
+            return ws;
+        });
+
+        assertThat(loaded).isSameAs(ws);
+        assertNotCached(DEFAULT_WORKSPACE_CACHE_KEY);
+    }
+
+    @Test
     @DisplayName("getByName() caches when the requested key is the object's canonical name key")
     void testGetByNameCanonicalKeyIsCached() throws Exception {
         LayerInfo layer = stubReal(LayerInfo.class, "l1", "roads");

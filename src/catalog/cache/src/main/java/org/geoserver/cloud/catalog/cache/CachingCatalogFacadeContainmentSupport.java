@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.ParametersAreNonnullByDefault;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -59,6 +60,13 @@ class CachingCatalogFacadeContainmentSupport {
     private final @NonNull Cache cache;
 
     /**
+     * Loaders run outside the cache's atomic computation, so an eviction arriving while a load is in
+     * flight, as remote events do, finds nothing to remove. The epoch changes on every eviction, and a
+     * loaded value is only cached when the epoch is unchanged since the load started.
+     */
+    private final AtomicLong evictionEpoch = new AtomicLong();
+
+    /**
      * Cascade evicts cached {@link CatalogInfo} objects that directly or indirectly reference an
      * object called to be evicted
      */
@@ -80,6 +88,7 @@ class CachingCatalogFacadeContainmentSupport {
     }
 
     public void evictAll() {
+        evictionEpoch.incrementAndGet();
         cache.clear();
     }
 
@@ -125,10 +134,12 @@ class CachingCatalogFacadeContainmentSupport {
         }
         // regardless of the object being evicted or not, cascade evict any entry referencing it
         referenceCleaner.cascadeEvict(idKey);
+        evictionEpoch.incrementAndGet();
         return evicted;
     }
 
     boolean evict(Object key) {
+        evictionEpoch.incrementAndGet();
         boolean evicted = cache.evictIfPresent(key);
         if (evicted) {
             log.trace("evicted {}", key);
@@ -169,10 +180,13 @@ class CachingCatalogFacadeContainmentSupport {
     @SuppressWarnings("unchecked")
     public <T> T get(Object key, Callable<T> loader) {
         ValueWrapper cached = cache.get(key);
-        T value = null == cached ? load(loader) : (T) cached.get();
-        if (null == value || (value instanceof Collection<?> c && c.isEmpty())) {
-            cache.evict(key);
-        } else if (null == cached) {
+        if (null != cached) {
+            return (T) cached.get();
+        }
+        long epoch = evictionEpoch.get();
+        T value = load(loader);
+        boolean empty = null == value || (value instanceof Collection<?> c && c.isEmpty());
+        if (!empty && epoch == evictionEpoch.get()) {
             put(key, value);
         }
         return value;
@@ -185,8 +199,11 @@ class CachingCatalogFacadeContainmentSupport {
         if (null != cached) {
             return (T) cached.get();
         }
+        long epoch = evictionEpoch.get();
         T value = load(loader);
-        put(key, value);
+        if (epoch == evictionEpoch.get()) {
+            put(key, value);
+        }
         return value;
     }
 
@@ -211,8 +228,9 @@ class CachingCatalogFacadeContainmentSupport {
             T value = (T) cachedValue;
             return value;
         }
+        long epoch = evictionEpoch.get();
         T value = load(loader);
-        if (value != null && key.equals(InfoNameKey.valueOf(value))) {
+        if (value != null && key.equals(InfoNameKey.valueOf(value)) && epoch == evictionEpoch.get()) {
             put(key, value);
         }
         return value;
@@ -270,6 +288,7 @@ class CachingCatalogFacadeContainmentSupport {
 
     public void evictDefaultDataStore(String workspaceId, String name) {
         Object key = generateDefaultDataStoreKey(workspaceId);
+        evictionEpoch.incrementAndGet();
         if (cache.evictIfPresent(key)) {
             log.trace("evicted default datastore for workspace {}", name);
         }
