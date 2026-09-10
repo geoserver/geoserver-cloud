@@ -130,8 +130,9 @@ class CachedReferenceCleaner {
             case COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE -> canReferenceStore(cached, evicted);
             case COVERAGE, FEATURETYPE, WMSLAYER, WMTSLAYER -> canReferenceResource(cached, evicted);
 
-            // evicted a LayerInfo, only LayerGroupInfos may reference it
-            case LAYER -> cached instanceof LayerGroupInfo;
+            // evicted a LayerInfo, held by the cached layers-by-resource lists and referenced by LayerGroupInfos
+            case LAYER ->
+                (cached instanceof LayerInfo l && evicted.id().equals(l.getId())) || cached instanceof LayerGroupInfo;
 
             // evicted a LayerGroupInfo, only other LayerGroupInfos may reference it
             case LAYERGROUP -> cached instanceof LayerGroupInfo;
