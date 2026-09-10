@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.geoserver.catalog.CatalogFacade.ANY_WORKSPACE;
 import static org.geoserver.catalog.CatalogFacade.NO_WORKSPACE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.FEATURETYPE;
+import static org.geoserver.cloud.event.info.ConfigInfoType.LAYER;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,6 +59,7 @@ import org.geoserver.cloud.event.catalog.DefaultDataStoreSet;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -435,6 +437,25 @@ class CachingCatalogFacadeTest {
         facade.getLayers(resource);
         facade.getLayers(resource);
 
+        verify(subject, times(2)).getLayers(resource);
+    }
+
+    @Test
+    @DisplayName("a remote LayerInfo modified event evicts the cached layers by resource list holding the layer")
+    void testOnCatalogInfoModifiedLayerEvictsLayersByResource() {
+        facade = new CachingCatalogFacade(subject);
+        FeatureTypeInfo resource = stub(FeatureTypeInfo.class);
+        LayerInfo layer = stub(LayerInfo.class);
+        when(subject.getLayers(resource)).thenReturn(List.of(layer));
+        assertThat(facade.getLayers(resource)).containsExactly(layer);
+
+        String layerName = layer.getName();
+        CatalogInfoModified event = event(CatalogInfoModified.class, layer.getId(), LAYER);
+        when(event.getObjectName()).thenReturn(layerName);
+        when(event.getOldName()).thenReturn(layerName);
+        facade.onCatalogInfoModified(event);
+
+        facade.getLayers(resource);
         verify(subject, times(2)).getLayers(resource);
     }
 
