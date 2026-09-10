@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.gateway;
 
+import org.geoserver.cloud.gateway.filter.FormPostCharacterEncodingFilter;
 import org.geoserver.cloud.gateway.filter.GeoServerGatewayFilterFunctions;
 import org.geoserver.cloud.gateway.filter.ProxyExceptionFilter;
 import org.geoserver.cloud.gateway.predicate.GeoServerGatewayRequestPredicates;
@@ -59,6 +60,18 @@ public class GatewayApplicationAutoconfiguration {
     @Bean
     ProxyExceptionFilter proxyExceptionFilter() {
         return new ProxyExceptionFilter();
+    }
+
+    /**
+     * Servlet filter declaring UTF-8 as the character encoding of form posts that do not specify one, before Spring
+     * Cloud Gateway's {@code FormFilter} rebuilds their body. Without it, browser form submissions containing non-ASCII
+     * characters reach the backend services double-encoded.
+     *
+     * @see FormPostCharacterEncodingFilter
+     */
+    @Bean
+    FormPostCharacterEncodingFilter formPostCharacterEncodingFilter() {
+        return new FormPostCharacterEncodingFilter();
     }
 
     /**
