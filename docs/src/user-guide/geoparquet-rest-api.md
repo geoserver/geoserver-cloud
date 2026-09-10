@@ -6,7 +6,7 @@ The parquetry store is independent from the DuckDB-based "GeoParquet" community 
 
 ## Prerequisites
 
-- GeoServer Cloud 3.1.0 or newer. The parquetry extension is enabled by default (`geoserver.extension.parquetry.enabled: true`).
+- GeoServer Cloud 3.1.0 or newer. The parquetry extension and its "Parquet" datastore are enabled by default (`geoserver.extension.tileverse.parquetry.enabled` and `geoserver.extension.tileverse.parquetry.parquet.enabled`, both `true`).
 - GeoParquet files reachable from the GeoServer pods: a mounted volume or object storage.
 - Admin credentials for the REST API.
 
@@ -128,6 +128,10 @@ With `use-default-credentials-provider=true` the pods authenticate through the A
     For MinIO, Cloudflare R2, DigitalOcean Spaces, or any other S3-compatible service, add `storage.s3.endpoint` with the service root (for example `http://minio:9000`). Setting an endpoint turns on path-style addressing automatically; `storage.s3.force-path-style` overrides that if needed.
 
 Azure Blob Storage, Google Cloud Storage, and plain HTTP servers follow the same pattern: point `geoparquet` at the backend's URI form and add that backend's `storage.*` parameters from the [reference below](#storage-configuration-properties).
+
+## Downloading features as GeoParquet or Arrow IPC
+
+The parquetry extension also adds `geoparquet` and `arrow-ipc` as WFS GetFeature output formats, for any vector layer. See [GeoParquet and Arrow IPC over WFS](wfs-geoparquet-arrow-ipc.md).
 
 ## Store connection parameters
 

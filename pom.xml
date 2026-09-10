@@ -105,7 +105,13 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.extensions</groupId>
-        <artifactId>gs-cloud-extension-parquetry</artifactId>
+        <artifactId>gs-cloud-extensions-tileverse</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-tileverse-parquetry</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
