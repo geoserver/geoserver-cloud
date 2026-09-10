@@ -2322,6 +2322,24 @@ public abstract class CatalogConformanceTest {
         assertThrows(IllegalArgumentException.class, () -> catalog.add(lg2));
     }
 
+    /**
+     * A layer group posted through the REST API without a {@code <styles>} element reaches the catalog with a
+     * {@code null} styles list, since XStream bypasses field initializers. The catalog must assign the default style to
+     * every layer instead of failing.
+     */
+    @Test
+    void testAddLayerGroupWithNullStylesAssignsDefaultStyles() {
+        LayerInfo layer = addLayer();
+        LayerGroupInfo lg = catalog.getFactory().createLayerGroup();
+        lg.setName("layerGroupWithoutStyles");
+        lg.getLayers().add(layer);
+        OwsUtils.set(lg, "styles", null);
+
+        LayerGroupInfo added = addLayerGroup(lg);
+
+        assertEquals(Collections.singletonList(null), added.getStyles());
+    }
+
     @Test
     void testGetLayerGroupByName() {
         addLayerGroup();
