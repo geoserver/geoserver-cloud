@@ -45,6 +45,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.faker.CatalogFaker;
 import org.geoserver.catalog.impl.CoverageStoreInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.resolving.ProxyUtils;
@@ -544,6 +545,25 @@ public abstract class PatchSerializationTest {
         // List.of(data.wmsService, data.wfsService));
         // REVISIT: WCSInfoImpl.equals is broken, can't do testPatch("serviceInfos",
         // List.of(data.wcsService));
+    }
+
+    /**
+     * A layer group modified through the REST API with an empty {@code <style/>} element holds a default style
+     * placeholder in its styles list: a {@link ResolvingProxy} with an empty reference. The patch must encode it as a
+     * null style for the receiving side to be able to read the event.
+     */
+    @Test
+    void testPatchWithDefaultStylePlaceholderInList() throws Exception {
+        StyleInfo defaultStylePlaceholder = ResolvingProxy.create("", StyleInfo.class);
+        List<StyleInfo> styles = Arrays.asList(data.style1, defaultStylePlaceholder);
+
+        Patch decoded = roundtrip(new Patch().with("styles", styles));
+
+        List<StyleInfo> decodedStyles = decoded.get("styles").orElseThrow().value();
+        assertThat(decodedStyles).hasSize(2);
+        assertResolvingProxy(decodedStyles.get(0));
+        assertThat(decodedStyles.get(0).getId()).isEqualTo(data.style1.getId());
+        assertThat(decodedStyles.get(1)).isNull();
     }
 
     @Test
