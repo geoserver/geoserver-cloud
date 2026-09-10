@@ -156,11 +156,13 @@ public class DefaultPropertyValuesResolver {
     }
 
     private void resolve(LayerGroupInfo layerGroup) {
+        // XStream bypasses field initializers and leaves the styles list null; resolving the collections first turns
+        // that null into an empty list
+        resolveCollections(layerGroup);
         List<StyleInfo> styles = layerGroup.getStyles();
         if (styles.isEmpty()) {
             layerGroup.getLayers().forEach(l -> styles.add(null));
         }
-        resolveCollections(layerGroup);
     }
 
     private void resolve(StyleInfo style) {
