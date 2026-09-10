@@ -9,9 +9,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
+import java.net.URI;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
+import org.springframework.cloud.gateway.server.mvc.common.MvcUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.servlet.function.HandlerFilterFunction;
 import org.springframework.web.servlet.function.ServerRequest;
@@ -79,6 +82,42 @@ class StripBasePathTest {
     @Test
     void deepPath_stripsCorrectly() throws Exception {
         assertThat(filterPath("/a/b/c", "/a/b/c/d/e")).isEqualTo("/d/e");
+    }
+
+    @Test
+    void queryWithBareEqualsSign_isKeptVerbatim() throws Exception {
+        ServerRequest stripped = filterRequest("/geoserver/cloud", "/geoserver/cloud/ows", "CQL_FILTER=1=1");
+
+        assertThat(stripped.uri().getRawPath()).isEqualTo("/ows");
+        assertThat(stripped.uri().getRawQuery()).isEqualTo("CQL_FILTER=1=1");
+    }
+
+    @Test
+    void percentEncodedQuery_isKeptVerbatim() throws Exception {
+        ServerRequest stripped = filterRequest("/geoserver/cloud", "/geoserver/cloud/ows", "layers=a%3Db%20c");
+
+        assertThat(stripped.uri().getRawQuery()).isEqualTo("layers=a%3Db%20c");
+    }
+
+    /** The X-Forwarded-Prefix header is derived from the original URL recorded by the filter. */
+    @Test
+    void originalRequestUrl_isRecorded() throws Exception {
+        ServerRequest stripped = filterRequest("/geoserver/cloud", "/geoserver/cloud/ows", "service=WMS");
+
+        LinkedHashSet<URI> originalUrls = MvcUtils.getAttribute(stripped, MvcUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR);
+        assertThat(originalUrls).containsExactly(URI.create("http://localhost/geoserver/cloud/ows?service=WMS"));
+    }
+
+    private ServerRequest filterRequest(String prefix, String requestPath, String queryString) throws Exception {
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", requestPath);
+        mockRequest.setQueryString(queryString);
+        ServerRequest request = ServerRequest.create(mockRequest, List.of());
+        AtomicReference<ServerRequest> captured = new AtomicReference<>();
+        GeoServerGatewayFilterFunctions.stripBasePath(prefix).filter(request, req -> {
+            captured.set(req);
+            return ServerResponse.ok().build();
+        });
+        return captured.get();
     }
 
     private String filterPath(String prefix, String requestPath) throws Exception {
