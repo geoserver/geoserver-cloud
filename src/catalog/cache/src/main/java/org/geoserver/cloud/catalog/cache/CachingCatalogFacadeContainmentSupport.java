@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -55,6 +56,13 @@ class CachingCatalogFacadeContainmentSupport {
     private final @NonNull Cache cache;
 
     /**
+     * Loaders run outside the cache's atomic computation, so an eviction arriving while a load is in flight, as remote
+     * events do, finds nothing to remove. The epoch changes on every eviction, and a loaded value is only cached when
+     * the epoch is unchanged since the load started.
+     */
+    private final AtomicLong evictionEpoch = new AtomicLong();
+
+    /**
      * Cascade evicts cached {@link CatalogInfo} objects that directly or indirectly reference an object called to be
      * evicted
      */
@@ -76,6 +84,7 @@ class CachingCatalogFacadeContainmentSupport {
     }
 
     public void evictAll() {
+        evictionEpoch.incrementAndGet();
         cache.clear();
     }
 
@@ -118,10 +127,12 @@ class CachingCatalogFacadeContainmentSupport {
         }
         // regardless of the object being evicted or not, cascade evict any entry referencing it
         referenceCleaner.cascadeEvict(idKey);
+        evictionEpoch.incrementAndGet();
         return evicted;
     }
 
     boolean evict(Object key) {
+        evictionEpoch.incrementAndGet();
         boolean evicted = cache.evictIfPresent(key);
         if (evicted) {
             log.trace("evicted {}", key);
@@ -155,10 +166,36 @@ class CachingCatalogFacadeContainmentSupport {
         cache.put(key, value);
     }
 
+    /**
+     * The loader runs outside the cache's compute function: loading a {@link LayerGroupInfo} resolves its child groups
+     * and hence re-enters this method, which {@link Cache#get(Object, Callable)} does not allow.
+     */
+    @SuppressWarnings("unchecked")
     public <T> T get(Object key, Callable<T> loader) {
-        T value = cache.get(key, loader);
-        if (null == value || (value instanceof Collection<?> c && c.isEmpty())) {
-            cache.evict(key);
+        ValueWrapper cached = cache.get(key);
+        if (null != cached) {
+            return (T) cached.get();
+        }
+        long epoch = evictionEpoch.get();
+        T value = load(loader);
+        boolean empty = null == value || (value instanceof Collection<?> c && c.isEmpty());
+        if (!empty && epoch == evictionEpoch.get()) {
+            put(key, value);
+        }
+        return value;
+    }
+
+    /** As {@link #get get}, but caches null, meaning there is no such default. */
+    @SuppressWarnings("unchecked")
+    private <T> T getAllowingNull(Object key, Callable<T> loader) {
+        ValueWrapper cached = cache.get(key);
+        if (null != cached) {
+            return (T) cached.get();
+        }
+        long epoch = evictionEpoch.get();
+        T value = load(loader);
+        if (epoch == evictionEpoch.get()) {
+            put(key, value);
         }
         return value;
     }
@@ -184,8 +221,9 @@ class CachingCatalogFacadeContainmentSupport {
             T value = (T) cachedValue;
             return value;
         }
+        long epoch = evictionEpoch.get();
         T value = load(loader);
-        if (value != null && key.equals(InfoNameKey.valueOf(value))) {
+        if (value != null && key.equals(InfoNameKey.valueOf(value)) && epoch == evictionEpoch.get()) {
             put(key, value);
         }
         return value;
@@ -214,7 +252,7 @@ class CachingCatalogFacadeContainmentSupport {
     }
 
     public WorkspaceInfo getDefaultWorkspace(Callable<WorkspaceInfo> loader) {
-        return cache.get(DEFAULT_WORKSPACE_CACHE_KEY, loader);
+        return getAllowingNull(DEFAULT_WORKSPACE_CACHE_KEY, loader);
     }
 
     public void evictDefaultWorkspace() {
@@ -224,7 +262,7 @@ class CachingCatalogFacadeContainmentSupport {
     }
 
     public NamespaceInfo getDefaultNamespace(Callable<NamespaceInfo> loader) {
-        return cache.get(DEFAULT_NAMESPACE_CACHE_KEY, loader);
+        return getAllowingNull(DEFAULT_NAMESPACE_CACHE_KEY, loader);
     }
 
     public void evictDefaultNamespace() {
@@ -234,7 +272,7 @@ class CachingCatalogFacadeContainmentSupport {
     }
 
     public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace, Callable<DataStoreInfo> loader) {
-        return cache.get(generateDefaultDataStoreKey(workspace.getId()), loader);
+        return getAllowingNull(generateDefaultDataStoreKey(workspace.getId()), loader);
     }
 
     public void evictDefaultDataStore(WorkspaceInfo ws) {
@@ -243,6 +281,7 @@ class CachingCatalogFacadeContainmentSupport {
 
     public void evictDefaultDataStore(String workspaceId, String name) {
         Object key = generateDefaultDataStoreKey(workspaceId);
+        evictionEpoch.incrementAndGet();
         if (cache.evictIfPresent(key)) {
             log.trace("evicted default datastore for workspace {}", name);
         }

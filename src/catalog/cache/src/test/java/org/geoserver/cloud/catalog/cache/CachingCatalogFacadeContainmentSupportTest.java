@@ -146,6 +146,73 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
+    @DisplayName("get() supports a loader that loads another entry, as nested layer groups do")
+    void testGetLoaderCanReenterTheCache() {
+        LayerGroupInfo group = stub(LayerGroupInfo.class, "Aa", "group");
+        LayerGroupInfo nested = stub(LayerGroupInfo.class, "BB", "nested");
+        InfoIdKey groupKey = InfoIdKey.valueOf(group);
+        InfoIdKey nestedKey = InfoIdKey.valueOf(nested);
+
+        // the ids collide, so both keys land in the same ConcurrentHashMap bin, where a nested load is
+        // rejected rather than merely being likely to be
+        assertThat(groupKey).hasSameHashCodeAs(nestedKey);
+
+        assertThat(support.get(groupKey, () -> {
+                    support.get(nestedKey, () -> nested);
+                    return group;
+                }))
+                .isSameAs(group);
+
+        assertCached(groupKey, group);
+        assertCached(nestedKey, nested);
+    }
+
+    @Test
+    @DisplayName("get() does not cache a value loaded before a concurrent eviction of its key")
+    void testGetDoesNotCacheValueLoadedBeforeConcurrentEviction() {
+        WorkspaceInfo ws = stub(WorkspaceInfo.class);
+        InfoIdKey key = InfoIdKey.valueOf(ws);
+
+        // the loader stands for a load in flight when a remote event evicts the same key
+        WorkspaceInfo loaded = support.get(key, () -> {
+            support.evict(key.id(), "ws", key.type());
+            return ws;
+        });
+
+        assertThat(loaded).isSameAs(ws);
+        assertNotCached(key);
+    }
+
+    @Test
+    @DisplayName("getByName() does not cache a value loaded before a concurrent eviction of its key")
+    void testGetByNameDoesNotCacheValueLoadedBeforeConcurrentEviction() {
+        WorkspaceInfo ws = stubReal(WorkspaceInfo.class, "ws1", "ws");
+        InfoNameKey key = InfoNameKey.valueOf(ws);
+
+        WorkspaceInfo loaded = support.getByName(key, () -> {
+            support.evict(ws.getId(), key.prefixedName(), key.type());
+            return ws;
+        });
+
+        assertThat(loaded).isSameAs(ws);
+        assertNotCached(key);
+    }
+
+    @Test
+    @DisplayName("getDefaultWorkspace() does not cache a value loaded before a concurrent eviction")
+    void testGetDefaultWorkspaceDoesNotCacheValueLoadedBeforeConcurrentEviction() {
+        WorkspaceInfo ws = stub(WorkspaceInfo.class);
+
+        WorkspaceInfo loaded = support.getDefaultWorkspace(() -> {
+            support.evictDefaultWorkspace();
+            return ws;
+        });
+
+        assertThat(loaded).isSameAs(ws);
+        assertNotCached(DEFAULT_WORKSPACE_CACHE_KEY);
+    }
+
+    @Test
     @DisplayName("getByName() caches when the requested key is the object's canonical name key")
     void testGetByNameCanonicalKeyIsCached() throws Exception {
         LayerInfo layer = stubReal(LayerInfo.class, "l1", "roads");
