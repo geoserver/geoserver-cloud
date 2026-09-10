@@ -25,6 +25,7 @@ import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.jackson.databind.catalog.dto.ResolvingProxyDto;
@@ -104,7 +105,7 @@ public abstract class ResolvingProxyMapper {
     }
 
     public <T extends Info> ResolvingProxyDto infoToReference(final T info) {
-        if (info == null) {
+        if (info == null || isProxyWithoutReference(info)) {
             return null;
         }
         final String id = info.getId();
@@ -124,6 +125,16 @@ public abstract class ResolvingProxyMapper {
         Objects.requireNonNull(id, () -> "Object has no id: " + info);
         Objects.requireNonNull(type, () -> "Bad info class: " + info.getClass());
         return new ResolvingProxyDto(type, id);
+    }
+
+    /**
+     * XStream builds a {@link ResolvingProxy} with an empty reference for an empty {@code <style/>} element, the
+     * placeholder for a layer group's default style, and the catalog resolves it to {@code null}. Encode it as
+     * {@code null} too, since a reference without id cannot be read at the receiving end.
+     */
+    private boolean isProxyWithoutReference(Info info) {
+        ResolvingProxy proxy = ProxyUtils.handler(info, ResolvingProxy.class);
+        return proxy != null && ResolvingProxy.getRef(info) == null;
     }
 
     private ClassMappings resolveType(@NonNull Info value) {
