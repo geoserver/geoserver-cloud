@@ -1,2 +1,0 @@
-org.geoserver.cloud.autoconfigure.extensions.parquetry.ParquetryAutoConfiguration
-org.geoserver.cloud.autoconfigure.extensions.parquetry.ParquetryWebComponentsAutoConfiguration
