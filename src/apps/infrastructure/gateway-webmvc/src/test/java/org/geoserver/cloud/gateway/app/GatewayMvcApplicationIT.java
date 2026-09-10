@@ -260,6 +260,39 @@ class GatewayMvcApplicationIT {
         assertThat(echoedRequest).contains("Content-Type: application/json").doesNotContain("charset");
     }
 
+    // --- Form post body preservation tests ---
+    // Regression tests for #981: the gateway's FormFilter rebuilds form bodies from the servlet parameter map and
+    // encodes them as UTF-8. Browsers omit the charset parameter on form submissions, and without it Tomcat parses the
+    // body as ISO-8859-1, double-encoding every non-ASCII character on the way to the backend.
+
+    @Test
+    void formPost_withoutCharset_preservesUtf8Body() {
+        String echoedRequest = postForm("application/x-www-form-urlencoded");
+
+        assertThat(echoedRequest).contains("title=%C3%85%C3%84%C3%96");
+    }
+
+    @Test
+    void formPost_withCharset_preservesUtf8Body() {
+        String echoedRequest = postForm("application/x-www-form-urlencoded; charset=UTF-8");
+
+        assertThat(echoedRequest).contains("title=%C3%85%C3%84%C3%96");
+    }
+
+    /** Posts a {@code title} of three non-ASCII letters, percent-encoded as UTF-8, and returns the echoed request. */
+    private String postForm(String contentType) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(contentType));
+        byte[] body = "title=%C3%85%C3%84%C3%96".getBytes(StandardCharsets.US_ASCII);
+        HttpEntity<byte[]> entity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response =
+                testRestTemplate.exchange("/echo/form", HttpMethod.POST, entity, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        return response.getBody();
+    }
+
     // --- ProxyExceptionFilter tests ---
     // Verify the gateway returns 502 instead of hanging or dumping a stack trace
     // when a backend service is unreachable.

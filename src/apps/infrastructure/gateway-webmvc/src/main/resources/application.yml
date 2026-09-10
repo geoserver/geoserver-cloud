@@ -13,6 +13,8 @@ spring:
       # Disable CharacterEncodingFilter. It appends ';charset=UTF-8' to Content-Type headers
       # (e.g. 'application/zip' becomes 'application/zip;charset=UTF-8'), which breaks
       # downstream services that rely on exact media type matching.
+      # Form posts are the exception: FormPostCharacterEncodingFilter declares UTF-8 on those lacking
+      # a charset, otherwise the gateway's FormFilter double-encodes their non-ASCII characters.
       enabled: false
     multipart:
       # Disable multipart request parsing so multipart/form-data bodies are streamed through
