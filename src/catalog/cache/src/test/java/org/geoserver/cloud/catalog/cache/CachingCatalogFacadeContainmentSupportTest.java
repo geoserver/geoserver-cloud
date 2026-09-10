@@ -314,6 +314,27 @@ class CachingCatalogFacadeContainmentSupportTest {
         assertNotCached(key);
     }
 
+    /**
+     * Remote events only provide the id, name and type of the modified object, hence
+     * {@code Catalog.getLayerByName(prefixedName)}, which resolves the resource and then calls
+     * {@code getLayers(resource)}, kept returning the stale cached layer.
+     */
+    @Test
+    @DisplayName("when a LayerInfo is evicted by id and name, the layers by resource list holding it is evicted")
+    void testEvictByIdAndNameLayerInfoEvictsLayersByResource() {
+        LayerInfo layer = stub(LayerInfo.class);
+        FeatureTypeInfo resource = stub(FeatureTypeInfo.class);
+        when(layer.getResource()).thenReturn(resource);
+
+        InfoIdKey key = support.generateLayersByResourceKey(resource);
+        List<LayerInfo> value = List.of(layer);
+        support.getCache().put(key, value);
+
+        assertCached(key, value);
+        support.evict(layer.getId(), InfoEvent.prefixedName(layer), ConfigInfoType.LAYER);
+        assertNotCached(key);
+    }
+
     @Test
     @DisplayName("when a StoreInfo is evicted, the keys for StoreInfo and its concrete type are evicted")
     void testEvictStoreInfoEvictsTheGenericAndConcreteTypeKeys() {
