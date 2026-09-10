@@ -8,6 +8,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
@@ -63,27 +65,14 @@ class RestRequestPathInfoFilterTest {
         assertThat(result.getPathInfo()).isEmpty();
     }
 
-    @Test
-    void gwcRestApi_notAdapted() {
-        MockHttpServletRequest request = mockRequest("/gwc/rest/layers.json", "");
-        assertThat(RestRequestPathInfoFilter.adaptRequest(request)).isSameAs(request);
-    }
-
-    @Test
-    void virtualServiceGwcRestApi_notAdapted() {
-        MockHttpServletRequest request = mockRequest("/ws/gwc/rest/layers.json", "");
-        assertThat(RestRequestPathInfoFilter.adaptRequest(request)).isSameAs(request);
-    }
-
-    @Test
-    void nonRestPath_notAdapted() {
-        MockHttpServletRequest request = mockRequest("/actuator/health", "");
-        assertThat(RestRequestPathInfoFilter.adaptRequest(request)).isSameAs(request);
-    }
-
-    @Test
-    void restNotAtSegmentBoundary_notAdapted() {
-        MockHttpServletRequest request = mockRequest("/restful/thing", "");
+    /**
+     * Paths outside the {@code /rest} base path are left alone: the GWC REST API, the same API under a virtual service,
+     * any unrelated path, and a first segment merely starting with {@code rest}.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"/gwc/rest/layers.json", "/ws/gwc/rest/layers.json", "/actuator/health", "/restful/thing"})
+    void pathOutsideRestBasePath_notAdapted(String requestURI) {
+        MockHttpServletRequest request = mockRequest(requestURI, "");
         assertThat(RestRequestPathInfoFilter.adaptRequest(request)).isSameAs(request);
     }
 

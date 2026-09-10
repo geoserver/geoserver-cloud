@@ -58,7 +58,7 @@ public @Data class ParquetryConfigProperties {
     }
 
     /** The WFS GetFeature output formats the plugin provides. */
-    public @Data static class OutputFormats {
+    public static @Data class OutputFormats {
 
         /** The {@code geoparquet} output format. */
         private Feature geoparquet = new Feature();
@@ -72,7 +72,7 @@ public @Data class ParquetryConfigProperties {
     }
 
     /** One switchable feature of the plugin. */
-    public @Data static class Feature {
+    public static @Data class Feature {
 
         /** Whether the feature is on. */
         private boolean enabled = true;

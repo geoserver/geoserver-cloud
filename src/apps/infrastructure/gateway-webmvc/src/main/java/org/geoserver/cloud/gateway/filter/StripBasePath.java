@@ -6,6 +6,9 @@
 package org.geoserver.cloud.gateway.filter;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cloud.gateway.server.mvc.common.MvcUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.function.HandlerFilterFunction;
@@ -46,18 +49,18 @@ class StripBasePath implements HandlerFilterFunction<ServerResponse, ServerRespo
 
     @Override
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next) throws Exception {
-        String path = request.uri().getRawPath();
-        int partsToRemove = resolvePartsToStrip(prefix, path);
+        String rawPath = request.uri().getRawPath();
+        int partsToRemove = resolvePartsToStrip(prefix, rawPath);
         if (partsToRemove == 0) {
             return next.handle(request);
         }
-        ServerRequest strippedRequest = stripRequestPath(request, partsToRemove);
+        ServerRequest strippedRequest = stripRequestPath(request, rawPath, partsToRemove);
         return next.handle(strippedRequest);
     }
 
-    private static int resolvePartsToStrip(String basePath, String requestPath) {
+    private static int resolvePartsToStrip(String basePath, @Nullable String requestPath) {
         boolean emptyPrefix = basePath == null || basePath.isEmpty() || "/".equals(basePath);
-        if (emptyPrefix || !requestPath.startsWith(basePath)) {
+        if (emptyPrefix || requestPath == null || !requestPath.startsWith(basePath)) {
             return 0;
         }
         int basePathSteps = StringUtils.countOccurrencesOf(basePath, "/");
@@ -70,27 +73,19 @@ class StripBasePath implements HandlerFilterFunction<ServerResponse, ServerRespo
      * recorded for the {@code X-Forwarded-Prefix} header included, except that the query string is copied as received
      * instead of being parsed and validated again.
      */
-    private static ServerRequest stripRequestPath(ServerRequest request, int parts) {
+    private static ServerRequest stripRequestPath(ServerRequest request, String rawPath, int parts) {
         URI uri = request.uri();
         MvcUtils.addOriginalRequestUrl(request, uri);
-        String strippedPath = stripLeadingSegments(uri.getRawPath(), parts);
+        String strippedPath = stripLeadingSegments(rawPath, parts);
         URI strippedUri = withPath(uri, strippedPath);
         return ServerRequest.from(request).uri(strippedUri).build();
     }
 
     private static String stripLeadingSegments(String rawPath, int parts) {
         String[] segments = StringUtils.tokenizeToStringArray(rawPath, "/");
-        StringBuilder stripped = new StringBuilder("/");
-        for (int i = parts; i < segments.length; i++) {
-            if (stripped.length() > 1) {
-                stripped.append('/');
-            }
-            stripped.append(segments[i]);
-        }
-        if (stripped.length() > 1 && rawPath.endsWith("/")) {
-            stripped.append('/');
-        }
-        return stripped.toString();
+        String remaining = Arrays.stream(segments).skip(parts).collect(Collectors.joining("/"));
+        boolean keepTrailingSlash = !remaining.isEmpty() && rawPath.endsWith("/");
+        return keepTrailingSlash ? "/" + remaining + "/" : "/" + remaining;
     }
 
     /** Replaces the path, keeping scheme, authority, query and fragment exactly as they were received. */

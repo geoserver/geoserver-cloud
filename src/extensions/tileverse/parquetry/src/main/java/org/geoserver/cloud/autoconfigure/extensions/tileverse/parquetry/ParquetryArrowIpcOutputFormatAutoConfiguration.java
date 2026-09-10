@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Import;
     ParquetryArrowIpcOutputFormatAutoConfiguration.WebUIConfiguration.class
 })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry")
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class ParquetryArrowIpcOutputFormatAutoConfiguration {
 
     /** Registers the output format in the WFS service. */

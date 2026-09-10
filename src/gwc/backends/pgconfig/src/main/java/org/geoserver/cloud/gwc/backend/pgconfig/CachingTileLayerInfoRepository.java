@@ -8,6 +8,7 @@ package org.geoserver.cloud.gwc.backend.pgconfig;
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +34,11 @@ public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
     private final @NonNull Cache nameCache;
 
     /** cached value for {@link #findAllNames()}, cleared upon any {@link TileLayerEvent} */
-    private volatile Set<String> cachedNames;
+    private final AtomicReference<Set<String>> cachedNames = new AtomicReference<>();
 
     @EventListener(TileLayerEvent.class)
     void onTileLayerEvent(TileLayerEvent event) {
-        cachedNames = null;
+        cachedNames.set(null);
         log.debug("handling {}", event);
         String prefixedName = null == event.getOldName() ? event.getName() : event.getOldName();
         evict(prefixedName);
@@ -143,10 +144,10 @@ public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
 
     @Override
     public Set<String> findAllNames() throws DataAccessException {
-        Set<String> allNames = this.cachedNames;
+        Set<String> allNames = cachedNames.get();
         if (null == allNames) {
-            allNames = repository.findAllNames();
-            this.cachedNames = Set.copyOf(allNames);
+            allNames = Set.copyOf(repository.findAllNames());
+            cachedNames.set(allNames);
         }
         return allNames;
     }
