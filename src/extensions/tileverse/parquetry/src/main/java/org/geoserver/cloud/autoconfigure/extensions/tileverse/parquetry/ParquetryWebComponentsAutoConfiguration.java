@@ -1,0 +1,35 @@
+/* (c) 2026 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
+ */
+package org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry;
+
+import io.tileverse.geoserver.parquetry.config.GeoParquetConfiguration;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.context.annotation.Import;
+
+/**
+ * Contributes the GeoParquet datastore edit panel to the web admin interface, when the "Parquet" datastore feature is
+ * on.
+ *
+ * <p>Imports only {@link GeoParquetConfiguration}. The plugin's Iceberg and Stac-GeoParquet panel configurations stay
+ * out until those stores are production ready; their factories are unavailable anyway, see
+ * {@link ParquetryContextInitializer}.
+ *
+ * @since 3.1.0
+ */
+@AutoConfiguration
+@ConditionalOnParquetryParquet
+@ConditionalOnGeoServerWebUI
+@Import(GeoParquetConfiguration.class)
+@Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry")
+public class ParquetryWebComponentsAutoConfiguration {
+
+    @PostConstruct
+    void log() {
+        log.info("Parquetry WebUI components installed");
+    }
+}

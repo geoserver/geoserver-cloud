@@ -1,3 +1,0 @@
-# Application Context Initializers
-org.springframework.context.ApplicationContextInitializer=\
-org.geoserver.cloud.autoconfigure.extensions.parquetry.ParquetryContextInitializer
