@@ -152,7 +152,7 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
             "wfsSqlViewKvpParser",
             "gml2OutputFormat"
         })
-public class GwcConfigurationTranspilerAggregator {
+class GwcConfigurationTranspilerAggregator {
 
     static final String IMAGE_ENCODERS = ".*Encoder";
 
