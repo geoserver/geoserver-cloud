@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.vectorformats.pmtiles;
 
+import io.tileverse.cache.Cache;
 import io.tileverse.cache.CacheManager;
 import io.tileverse.cache.CacheStats;
 import io.tileverse.cache.CaffeineCache;
@@ -11,7 +12,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 import org.jspecify.annotations.NonNull;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -29,16 +31,16 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
  *   <li>{@code /actuator/prometheus} - Prometheus-format metrics export
  * </ul>
  *
- * <p>The adapter creates caches on-demand using Tileverse's cache builders, then registers them with Spring's
- * {@link CaffeineCacheManager} for unified management.
+ * <p>The adapter creates caches on-demand using Tileverse's cache builders and holds on to what each builder returned.
+ * The native Caffeine cache behind it is registered with Spring's {@link CaffeineCacheManager} for unified management.
  *
  * @see "PMTilesPluginAutoConfiguration#setUpCacheManager()"
  */
-public class SpringCaffeineCacheManagerAdapter implements io.tileverse.cache.CacheManager {
+public class SpringCaffeineCacheManagerAdapter implements CacheManager {
 
     private CaffeineCacheManager springCaffeineCacheManager;
 
-    private final Collection<String> customCacheNames = new CopyOnWriteArrayList<>();
+    private final ConcurrentMap<String, Cache<?, ?>> caches = new ConcurrentHashMap<>();
 
     /**
      * Creates a new adapter wrapping the given Spring cache manager.
@@ -50,6 +52,38 @@ public class SpringCaffeineCacheManagerAdapter implements io.tileverse.cache.Cac
     }
 
     /**
+     * Gets or creates a cache with the given identifier.
+     *
+     * <p>The builder creates the cache once per identifier, and every later call for that identifier returns that same
+     * instance. A caller with its own cache type therefore gets its own type back, along with whatever the type holds
+     * beyond the native Caffeine cache, such as the asynchronous view that entries are loaded through.
+     *
+     * @param cacheIdentifier unique name for the cache
+     * @param builder supplier that creates the cache if it doesn't exist
+     * @return the cache instance
+     */
+    @Override
+    public <K, V, C extends Cache<K, V>> C getCache(@NonNull String cacheIdentifier, @NonNull Supplier<C> builder) {
+
+        Cache<?, ?> cache = caches.computeIfAbsent(cacheIdentifier, name -> buildAndRegister(name, builder));
+
+        @SuppressWarnings("unchecked")
+        C typed = (C) cache;
+        return typed;
+    }
+
+    /**
+     * Creates the cache and registers its native Caffeine cache with Spring, where the actuator endpoints read its
+     * statistics and its contents.
+     */
+    private Cache<?, ?> buildAndRegister(String cacheIdentifier, Supplier<? extends Cache<?, ?>> builder) {
+        Cache<?, ?> cache = builder.get();
+        CaffeineCache<?, ?> caffeineCache = (CaffeineCache<?, ?>) cache;
+        springCaffeineCacheManager.registerCustomCache(cacheIdentifier, caffeineCache.getNativeCache());
+        return cache;
+    }
+
+    /**
      * Returns the names of caches created through this adapter.
      *
      * <p>Note: This only returns caches created by Tileverse/PMTiles, not all caches in Spring's cache manager.
@@ -58,7 +92,7 @@ public class SpringCaffeineCacheManagerAdapter implements io.tileverse.cache.Cac
      */
     @Override
     public Collection<String> getCacheNames() {
-        return List.copyOf(customCacheNames);
+        return List.copyOf(caches.keySet());
     }
 
     /**
@@ -69,72 +103,13 @@ public class SpringCaffeineCacheManagerAdapter implements io.tileverse.cache.Cac
     @Override
     public Map<String, CacheStats> stats() {
         Map<String, CacheStats> stats = new HashMap<>();
-        for (String name : customCacheNames) {
-            com.github.benmanes.caffeine.cache.Cache<Object, Object> cache = getExistingNativeCache(name);
-            if (cache != null) {
-                stats.put(name, CaffeineCache.stats(cache));
-            }
-        }
+        caches.forEach((name, cache) -> stats.put(name, cache.stats()));
         return stats;
     }
 
     /** Invalidates all entries in all caches managed by this adapter. */
     @Override
     public void invalidateAll() {
-        for (String cacheName : customCacheNames) {
-            springCaffeineCacheManager.getCache(cacheName).invalidate();
-        }
-    }
-
-    /**
-     * Gets or creates a cache with the given identifier.
-     *
-     * <p>If a cache with the given name already exists in Spring's cache manager, it is wrapped and returned.
-     * Otherwise, the provided builder is used to create a new Caffeine cache, which is then registered with Spring's
-     * cache manager before being returned.
-     *
-     * @param cacheIdentifier unique name for the cache
-     * @param builder supplier that creates the cache if it doesn't exist
-     * @return the cache instance
-     */
-    @Override
-    public <K, V, C extends io.tileverse.cache.Cache<K, V>> C getCache(
-            @NonNull String cacheIdentifier, @NonNull Supplier<C> builder) {
-
-        com.github.benmanes.caffeine.cache.Cache<K, V> caffeineCache = getExistingNativeCache(cacheIdentifier);
-        if (caffeineCache == null) {
-            caffeineCache = buildNativeCache(builder);
-            registerCustomCache(cacheIdentifier, caffeineCache);
-        }
-        @SuppressWarnings("unchecked")
-        C cache = (C) new io.tileverse.cache.CaffeineCache<>(caffeineCache);
-        return cache;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <K, V> com.github.benmanes.caffeine.cache.Cache<K, V> getExistingNativeCache(String cacheIdentifier) {
-        Collection<String> cacheNames = springCaffeineCacheManager.getCacheNames();
-        if (cacheNames.contains(cacheIdentifier)) {
-            org.springframework.cache.Cache springCache = springCaffeineCacheManager.getCache(cacheIdentifier);
-            return (com.github.benmanes.caffeine.cache.Cache<K, V>) springCache.getNativeCache();
-        }
-        return null;
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private <K, V> com.github.benmanes.caffeine.cache.Cache<K, V> buildNativeCache(
-            @NonNull Supplier<? extends io.tileverse.cache.Cache<K, V>> builder) {
-
-        io.tileverse.cache.CaffeineCache<K, V> tileverseCache = (io.tileverse.cache.CaffeineCache) builder.get();
-        return (com.github.benmanes.caffeine.cache.Cache<K, V>) tileverseCache.getNativeCache();
-    }
-
-    @SuppressWarnings("unchecked")
-    private <K, V> void registerCustomCache(
-            String cacheIdentifier, com.github.benmanes.caffeine.cache.Cache<K, V> caffeineCache) {
-        com.github.benmanes.caffeine.cache.Cache<Object, Object> cache =
-                (com.github.benmanes.caffeine.cache.Cache<Object, Object>) caffeineCache;
-        springCaffeineCacheManager.registerCustomCache(cacheIdentifier, cache);
-        customCacheNames.add(cacheIdentifier);
+        caches.values().forEach(Cache::invalidateAll);
     }
 }
