@@ -54,6 +54,7 @@ import org.geotools.api.style.Style;
 import org.geotools.data.wfs.internal.v2_0.storedquery.StoredQueryConfiguration;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geowebcache.config.TileLayerConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +116,11 @@ abstract class RestConfigApplicationTest {
 
             assertThat(gwc.tileLayerExists("gwclifecycle:streets"))
                     .as("removing the layer must remove its tile layer")
+                    .isFalse();
+            TileLayerConfiguration tileLayers =
+                    context.getBean("gwcCatalogConfiguration", TileLayerConfiguration.class);
+            assertThat(tileLayers.containsLayer("gwclifecycle:streets"))
+                    .as("the stored tile layer configuration must be gone, not just hidden")
                     .isFalse();
         } finally {
             dropVectorLayerTree("gwclifecycle", "gwclifecyclestore", "streets", "roads");
