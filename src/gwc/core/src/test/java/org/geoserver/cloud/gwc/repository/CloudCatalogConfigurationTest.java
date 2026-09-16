@@ -8,6 +8,7 @@ package org.geoserver.cloud.gwc.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
@@ -31,9 +32,10 @@ import org.junit.jupiter.api.Test;
 /**
  * In a cluster, a tile layer configuration can be visible through the shared storage or a
  * {@link org.geoserver.cloud.gwc.event.TileLayerEvent} before this node's catalog replicated the {@link LayerInfo} it
- * refers to. {@link CloudCatalogConfiguration} must hide such tile layers until the catalog catches up instead of
- * letting {@link org.geoserver.gwc.layer.GeoServerTileLayer#getPublishedInfo()} throw {@link IllegalStateException} and
- * break whole responses like WMTS GetCapabilities.
+ * refers to. {@link CloudCatalogConfiguration} must leave such tile layers out of its listings instead of letting
+ * {@link org.geoserver.gwc.layer.GeoServerTileLayer#getPublishedInfo()} throw {@link IllegalStateException} and break
+ * whole responses like WMTS GetCapabilities, while its lookups by name keep answering about the stored configuration,
+ * which is how a removed layer's tile layer gets deleted.
  */
 class CloudCatalogConfigurationTest {
 
@@ -60,6 +62,7 @@ class CloudCatalogConfigurationTest {
         when(tileLayerCatalog.getLayerIds()).thenReturn(Set.of(LAYER_ID));
         when(tileLayerCatalog.getLayerId(LAYER_NAME)).thenReturn(LAYER_ID);
         when(tileLayerCatalog.getLayerById(LAYER_ID)).thenReturn(info);
+        when(tileLayerCatalog.getLayerByName(LAYER_NAME)).thenReturn(info);
         when(tileLayerCatalog.exists(LAYER_ID)).thenReturn(true);
         when(tileLayerCatalog.getLayerName(LAYER_ID)).thenReturn(LAYER_NAME);
 
@@ -74,15 +77,13 @@ class CloudCatalogConfigurationTest {
     }
 
     @Test
-    void getLayerHidesTileLayersNotYetInTheLocalCatalog() {
+    void listingsExcludeTileLayersNotYetInTheLocalCatalog() {
         when(catalog.getLayer(LAYER_ID)).thenReturn(null);
         when(catalog.getLayerGroup(LAYER_ID)).thenReturn(null);
 
-        assertThat(config.getLayer(LAYER_NAME)).isEmpty();
         assertThat(config.getLayers()).isEmpty();
         assertThat(config.getLayerNames()).isEmpty();
         assertThat(config.getLayerCount()).isZero();
-        assertThat(config.containsLayer(LAYER_NAME)).isFalse();
     }
 
     @Test
@@ -99,6 +100,28 @@ class CloudCatalogConfigurationTest {
         assertThatCode(() -> config.addLayer(tileLayer))
                 .as("adding over a tile layer hidden until the catalog catches up must not fail")
                 .doesNotThrowAnyException();
+    }
+
+    /**
+     * Reproduces the stale tile layer left behind by a layer removal: upstream's {@code CatalogLayerEventListener} runs
+     * after the catalog dropped the {@code LayerInfo}, and reaches the tile layer catalog through
+     * {@code GWC.hasTileLayer} -> {@code TileLayerDispatcher.layerExists} -> {@code getLayer} and
+     * {@code TileLayerDispatcher.removeLayer} -> {@code containsLayer}.
+     */
+    @Test
+    void removalFindsTheTileLayerOfAnAlreadyRemovedLayerInfo() {
+        when(catalog.getLayer(LAYER_ID)).thenReturn(null);
+        when(catalog.getLayerGroup(LAYER_ID)).thenReturn(null);
+
+        assertThat(config.getLayer(LAYER_NAME))
+                .as("TileLayerDispatcher.layerExists() must still see the stored configuration")
+                .isPresent();
+        assertThat(config.containsLayer(LAYER_NAME))
+                .as("TileLayerDispatcher.removeLayer() must still find the configuration to remove")
+                .isTrue();
+
+        config.removeLayer(LAYER_NAME);
+        verify(tileLayerCatalog).delete(LAYER_ID);
     }
 
     @Test
