@@ -9,8 +9,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.cache.LoadingCache;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -75,31 +75,35 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
      * In a cluster, a tile layer configuration can be visible through the shared storage or a {@link TileLayerEvent}
      * before this node's catalog replicated the {@link PublishedInfo} it refers to. Upstream assumes both are updated
      * atomically and {@link GeoServerTileLayer#getPublishedInfo()} throws {@link IllegalStateException}, which would
-     * break whole responses like WMTS GetCapabilities. Hide such tile layers until the local catalog catches up.
+     * break whole responses like WMTS GetCapabilities. Leave such tile layers out of the listings until the local
+     * catalog catches up.
+     *
+     * <p>The lookups by name, {@link #getLayer(String)} and {@link #containsLayer(String)}, keep answering about the
+     * stored configuration. A {@code PublishedInfo} already removed from the catalog is indistinguishable from one not
+     * replicated yet, and upstream's {@code CatalogLayerEventListener} reaches this configuration through those two
+     * methods to delete the tile layer of a layer the catalog has just removed.
      */
     @Override
-    public Optional<TileLayer> getLayer(final String layerName) {
-        return super.getLayer(layerName).filter(this::publishedInfoResolves);
+    public Collection<TileLayer> getLayers() {
+        return super.getLayers().stream().filter(this::publishedInfoResolves).toList();
     }
 
-    /** Keeps the name listing consistent with {@link #getLayer}, excluding hidden tile layers. */
+    /** Keeps the name listing consistent with {@link #getLayers}. */
     @Override
     public Set<String> getLayerNames() {
         return super.getLayerNames().stream()
-                .filter(name -> getLayer(name).isPresent())
+                .filter(this::resolvesAgainstLocalCatalog)
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    /** Keeps the count consistent with {@link #getLayerNames}, excluding hidden tile layers. */
+    /** Keeps the count consistent with {@link #getLayerNames}. */
     @Override
     public int getLayerCount() {
         return getLayerNames().size();
     }
 
-    /** Keeps the containment check consistent with {@link #getLayer}, excluding hidden tile layers. */
-    @Override
-    public boolean containsLayer(String layerName) {
-        return getLayer(layerName).isPresent();
+    private boolean resolvesAgainstLocalCatalog(String layerName) {
+        return getLayer(layerName).filter(this::publishedInfoResolves).isPresent();
     }
 
     private boolean publishedInfoResolves(TileLayer tileLayer) {
