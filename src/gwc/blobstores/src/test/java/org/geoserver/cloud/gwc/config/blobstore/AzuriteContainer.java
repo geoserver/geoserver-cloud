@@ -29,7 +29,7 @@ import org.testcontainers.utility.DockerImageName;
 public class AzuriteContainer extends GenericContainer<AzuriteContainer> {
 
     private static final @NonNull DockerImageName IMAGE_NAME =
-            DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite:3.35.0");
+            DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite:3.37.0");
 
     public final @Getter String accountName = "devstoreaccount1";
     public final @Getter String accountKey =
