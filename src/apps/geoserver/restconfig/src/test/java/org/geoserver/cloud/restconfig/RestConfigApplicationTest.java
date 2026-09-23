@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.list;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
@@ -42,6 +43,7 @@ import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConf
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.util.XStreamPersisterInitializer;
 import org.geoserver.gwc.GWC;
+import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geoserver.inspire.InspireXStreamPersisterInitializer;
 import org.geoserver.ogcapi.LinkInfo;
 import org.geoserver.ogcapi.OGCAPIXStreamPersisterInitializer;
@@ -54,7 +56,6 @@ import org.geotools.api.style.Style;
 import org.geotools.data.wfs.internal.v2_0.storedquery.StoredQueryConfiguration;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geowebcache.config.TileLayerConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,13 +118,33 @@ abstract class RestConfigApplicationTest {
             assertThat(gwc.tileLayerExists("gwclifecycle:streets"))
                     .as("removing the layer must remove its tile layer")
                     .isFalse();
-            TileLayerConfiguration tileLayers =
-                    context.getBean("gwcCatalogConfiguration", TileLayerConfiguration.class);
-            assertThat(tileLayers.containsLayer("gwclifecycle:streets"))
-                    .as("the stored tile layer configuration must be gone, not just hidden")
-                    .isFalse();
         } finally {
             dropVectorLayerTree("gwclifecycle", "gwclifecyclestore", "streets", "roads");
+        }
+    }
+
+    /**
+     * A tile layer looked up by name resolves its {@code PublishedInfo} and keeps it, which leaves the tile layer
+     * resolvable even once its layer is gone. This test never looks one up, and checks the tile layer storage instead
+     * of the configuration that hid it, which makes a removal that leaves the stored configuration behind fail here.
+     */
+    @Test
+    void removingALayerRemovesItsStoredTileLayerConfiguration(@TempDir Path storeDirectory) throws IOException {
+        TileLayerCatalog tileLayerCatalog =
+                context.getBeanProvider(TileLayerCatalog.class).getIfAvailable();
+        assumeTrue(tileLayerCatalog != null, "backend keeps tile layer configurations outside a TileLayerCatalog");
+
+        try {
+            LayerInfo layer = createVectorLayer(storeDirectory, "gwccoldcache", "gwccoldcachestore", "roads");
+            assertThat(tileLayerCatalog.getLayerById(layer.getId())).isNotNull();
+
+            catalog.remove(catalog.getLayer(layer.getId()));
+
+            assertThat(tileLayerCatalog.getLayerById(layer.getId()))
+                    .as("the stored tile layer configuration must be gone, not just hidden")
+                    .isNull();
+        } finally {
+            dropVectorLayerTree("gwccoldcache", "gwccoldcachestore", "roads");
         }
     }
 
