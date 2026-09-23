@@ -33,6 +33,12 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
  * Tile layers must follow the lifecycle of the {@code PublishedInfo} they are configured for: removing the layer must
  * remove its stored tile layer configuration, or a client that recreates a layer by delete-then-create leaves a
  * configuration behind, tied to the id of a layer that no longer exists.
+ *
+ * <p>Both tests remove a layer, and differ only in whether the tile layer was looked up by name beforehand. A lookup by
+ * name resolves the {@code PublishedInfo} and keeps it on the cached {@code GeoServerTileLayer} for the rest of that
+ * instance's life, which leaves the tile layer resolvable even once its layer is gone. A broken removal is visible only
+ * without such a lookup: a test that reads the tile layer by name first cannot tell a deleted tile layer from one
+ * hidden behind an unresolved layer.
  */
 class TileLayerLifecycleTest {
 
@@ -47,7 +53,7 @@ class TileLayerLifecycleTest {
     }
 
     @Test
-    void removingALayerRemovesItsStoredTileLayerConfiguration() {
+    void removingALayerRemovesItsStoredTileLayerConfigurationWithAColdCache() {
         runner.run(context -> {
             GeoServerExtensionsHelper.init(context);
 
@@ -57,6 +63,31 @@ class TileLayerLifecycleTest {
 
             TileLayerCatalog tileLayerCatalog = tileLayerCatalog(context);
             assertThat(tileLayerCatalog.getLayerById(layer.getId())).isNotNull();
+
+            catalog.remove(catalog.getLayer(layer.getId()));
+
+            assertThat(tileLayerCatalog.getLayerById(layer.getId()))
+                    .as("the stored tile layer configuration must be gone, not just hidden")
+                    .isNull();
+            assertThat(tileLayerCatalog.getLayerNames()).doesNotContain(LAYER_NAME);
+        });
+    }
+
+    @Test
+    void removingALayerRemovesItsStoredTileLayerConfigurationWithAWarmCache() {
+        runner.run(context -> {
+            GeoServerExtensionsHelper.init(context);
+
+            Catalog catalog = context.getBean("rawCatalog", Catalog.class);
+            LayerInfo layer = addCascadedLayer(catalog);
+            addTileLayer(context, layer);
+
+            TileLayerCatalog tileLayerCatalog = tileLayerCatalog(context);
+            assertThat(tileLayerCatalog.getLayerById(layer.getId())).isNotNull();
+
+            assertThat(GWC.get().tileLayerExists(LAYER_NAME))
+                    .as("a lookup by name, which warms the tile layer cache")
+                    .isTrue();
 
             catalog.remove(catalog.getLayer(layer.getId()));
 
