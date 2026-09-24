@@ -99,6 +99,24 @@ predicates:
 
 If the value regex is omitted or blank, only the presence of a matching parameter name is required.
 
+## Backend Response Content-Type
+
+Spring Cloud Gateway Server MVC parses the `Content-Type` of every proxied response to decide whether to
+flush after each chunk, as required by streaming media types such as `text/event-stream`. Spring rejects
+several of the GML media types used by GeoServer because they are not valid under RFC 9110, while the OGC
+specifications require those exact strings:
+
+- `text/xml; subtype=gml/3.1.1` (WFS 1.1.0 GetFeature and DescribeFeatureType, WMS GetFeatureInfo, WPS raw
+  GML 3 geometry outputs)
+- `text/xml; subtype=gml/2.1.2` (WFS 1.0.0 GetFeature, WPS raw GML 2 geometry outputs)
+- `application/vnd.ogc.gml/3.1.1` (WMS and WMTS GetFeatureInfo)
+- `text/xml; subtype=wfs-collection/1.0` and `/1.1` (WPS raw feature collection outputs)
+
+`LenientContentTypeProxyExchange` replaces the default proxy exchange: responses with an unparsable
+`Content-Type` are copied through without per-chunk flushing and with the header forwarded verbatim; all
+other responses take the default Spring Cloud Gateway path. Upstream issue:
+[spring-cloud-gateway#3695](https://github.com/spring-cloud/spring-cloud-gateway/issues/3695).
+
 ## Service Configuration
 
 ### Base Path
