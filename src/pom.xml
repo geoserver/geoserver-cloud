@@ -29,7 +29,8 @@
     <spring.version>5.3.39</spring.version>
     <spring.security.version>5.8.16</spring.security.version>
     <tomcat.version>9.0.113</tomcat.version>
-    <jackson.version>2.22.2</jackson.version>
+    <!-- 2.19.4 required by spring-cloud-starter-netflix-eureka-client:3.1.8, which receives no more updates and is EOL -->
+    <jackson.version>2.19.4</jackson.version>
     <jackson.version.annotations>2.22</jackson.version.annotations>
     <gs.version>2.28.5-SNAPSHOT</gs.version>
     <gt.version>34-SNAPSHOT</gt.version>
