@@ -32,8 +32,8 @@ import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.event.CatalogModifyEvent;
 import org.geoserver.catalog.event.CatalogPostModifyEvent;
 import org.geoserver.catalog.event.CatalogRemoveEvent;
-import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.LayerGroupStyleListener;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geotools.api.filter.Filter;
 import org.springframework.beans.BeansException;
@@ -86,7 +86,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
          * we override everything here, and avoid building the cache twice,
          * on the constructor and on the app context event
          */
-        super(new CatalogImpl());
+        super(new CatalogPlugin());
         this.rawCatalog = rawCatalog;
         rawCatalog.addListener(new CatalogChangeListener());
         rawCatalog.addListener(new LayerGroupStyleListener());

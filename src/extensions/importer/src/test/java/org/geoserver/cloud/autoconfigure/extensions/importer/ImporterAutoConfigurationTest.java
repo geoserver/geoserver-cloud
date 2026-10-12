@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 import java.io.File;
 import java.lang.reflect.Field;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.impl.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.impl.GeoServerImpl;
 import org.geoserver.importer.Importer;
@@ -45,7 +45,7 @@ class ImporterAutoConfigurationTest {
         GeoServerExtensionsHelper.setIsSpringContext(false);
         GeoServerExtensionsHelper.singleton("resourceLoader", loader, GeoServerResourceLoader.class);
 
-        Catalog catalog = new CatalogImpl();
+        Catalog catalog = new CatalogPlugin();
         catalog.setResourceLoader(loader);
 
         GeoServerImpl geoServer = new GeoServerImpl();
