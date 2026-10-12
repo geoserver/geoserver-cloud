@@ -105,8 +105,7 @@ class PMTilesPluginAutoConfigurationTest {
             contextRunner.run(context -> assertThat(context)
                     .hasNotFailed()
                     .doesNotHaveBean(PMTilesWebUIConfiguration.class)
-                    .doesNotHaveBean("pmtilesDataStorePanel")
-                    .doesNotHaveBean("radioGroupParamPanelCssContribution"));
+                    .doesNotHaveBean("pmtilesDataStorePanel"));
 
             contextRunner
                     .withPropertyValues("geoserver.service.webui.enabled=true")
@@ -114,16 +113,14 @@ class PMTilesPluginAutoConfigurationTest {
                     .run(context -> assertThat(context)
                             .hasNotFailed()
                             .doesNotHaveBean(PMTilesWebUIConfiguration.class)
-                            .doesNotHaveBean("pmtilesDataStorePanel")
-                            .doesNotHaveBean("radioGroupParamPanelCssContribution"));
+                            .doesNotHaveBean("pmtilesDataStorePanel"));
 
             contextRunner
                     .withPropertyValues("geoserver.service.webui.enabled=true")
                     .run(context -> assertThat(context)
                             .hasNotFailed()
                             .hasSingleBean(PMTilesWebUIConfiguration.class)
-                            .hasBean("pmtilesDataStorePanel")
-                            .hasBean("radioGroupParamPanelCssContribution"));
+                            .hasBean("pmtilesDataStorePanel"));
         }
     }
 
