@@ -19,6 +19,7 @@ import org.geoserver.ogcapi.APIFilterParser;
 import org.geoserver.ogcapi.AnnotatedHTMLMessageConverter;
 import org.geoserver.ogcapi.ByteArrayMessageConverter;
 import org.geoserver.ogcapi.DefaultAPIExceptionHandler;
+import org.geoserver.ogcapi.FilterConformanceXStreamPersisterInitializer;
 import org.geoserver.ogcapi.FreemarkerTemplateSupport;
 import org.geoserver.ogcapi.LocalWorkspaceCallback;
 import org.geoserver.ogcapi.OGCAPIXStreamPersisterInitializer;
@@ -92,13 +93,15 @@ class OgcApiCoreConfigurationTest {
     }
 
     /**
-     * {@code OGCAPIXStreamPersisterInitializer} describes catalog metadata that every service reads and writes, so it
-     * is contributed by its own auto-configuration on class presence alone rather than by this service-scoped
-     * configuration. See issue #872.
+     * The XStream persister initializers describe metadata read and written by all services. Their own
+     * auto-configuration contributes them on class presence alone, instead of this service-scoped configuration. See
+     * issue #872.
      */
     @Test
-    void testXStreamPersisterInitializerIsNotServiceScoped() {
-        runner.run(
-                context -> assertThat(context).hasNotFailed().doesNotHaveBean(OGCAPIXStreamPersisterInitializer.class));
+    void testXStreamPersisterInitializersAreNotServiceScoped() {
+        runner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .doesNotHaveBean(OGCAPIXStreamPersisterInitializer.class)
+                .doesNotHaveBean(FilterConformanceXStreamPersisterInitializer.class));
     }
 }

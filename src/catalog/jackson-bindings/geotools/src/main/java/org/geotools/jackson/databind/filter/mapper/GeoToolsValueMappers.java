@@ -51,6 +51,17 @@ public abstract class GeoToolsValueMappers {
     private static final org.geotools.util.Converter measure2Str =
             new MeasureConverterFactory().createConverter(Measure.class, String.class, null);
 
+    /**
+     * Former names of classes moved to another package, each mapped to its current name.
+     *
+     * <p>Stored configuration identifies the type of a value by its class name. The pgconfig backend still holds the
+     * former names, and they must keep resolving to the moved classes.
+     */
+    private static final Map<String, String> FORMER_CLASS_NAMES = Map.of(
+            // moved from gs-ogcapi-features to gs-ogcapi-core in GeoServer 3.1
+            "org.geoserver.ogcapi.v1.features.CQL2Conformance", "org.geoserver.ogcapi.CQL2Conformance",
+            "org.geoserver.ogcapi.v1.features.ECQLConformance", "org.geoserver.ogcapi.ECQLConformance");
+
     public abstract FilterDto.MultiValuedFilterDto.MatchActionDto matchAction(
             MultiValuedFilter.MatchAction matchAction);
 
@@ -98,14 +109,20 @@ public abstract class GeoToolsValueMappers {
      * This implementation supports the syntaxes "{@code java.util.Map.Entry[]}", "{@code java.util.Map$Entry[]}",
      * "{@code [Ljava.util.Map.Entry;}", and "{@code [Ljava.util.Map$Entry;}".
      *
+     * <p>The former name of a class moved to another package resolves to that class.
+     *
      * @param value the class name
      * @return the class represented by {@code value} using the current thread's context class loader
      * @throws IllegalArgumentException if the class is not found
      */
     @SuppressWarnings("unchecked")
     public <T> Class<T> canonicalNameToClass(String value) {
+        if (null == value) {
+            return null;
+        }
+        String currentName = FORMER_CLASS_NAMES.getOrDefault(value, value);
         try {
-            return null == value ? null : (Class<T>) ClassUtils.getClass(value);
+            return (Class<T>) ClassUtils.getClass(currentName);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(e);
         }
