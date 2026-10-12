@@ -75,6 +75,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.cloud.catalog</groupId>
+      <artifactId>gs-cloud-catalog-plugin</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <!-- Importer.onApplicationEvent() calls LoggingUtils.checkBuiltInLoggingConfiguration(),
            whose bytecode references org.apache.logging.log4j.core.config.Configuration.
            RELINQUISH_LOG4J_CONTROL (set by GeoServerContextInitializer) makes it a no-op at
