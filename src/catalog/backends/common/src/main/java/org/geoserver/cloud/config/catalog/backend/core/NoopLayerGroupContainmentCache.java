@@ -6,7 +6,7 @@
 package org.geoserver.cloud.config.catalog.backend.core;
 
 import org.geoserver.catalog.LayerGroupInfo;
-import org.geoserver.catalog.impl.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.security.impl.LayerGroupContainmentCache;
 
 /**
@@ -22,6 +22,6 @@ class NoopLayerGroupContainmentCache extends LayerGroupContainmentCache {
      * empty in-memory catalog and call it a day
      */
     public NoopLayerGroupContainmentCache() {
-        super(new CatalogImpl());
+        super(new CatalogPlugin());
     }
 }
