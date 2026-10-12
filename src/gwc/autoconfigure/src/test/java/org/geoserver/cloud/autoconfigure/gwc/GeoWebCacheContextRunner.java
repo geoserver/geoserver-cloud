@@ -22,6 +22,7 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.GeoServerSecurityManager;
+import org.geoserver.security.impl.LayerGroupContainmentCache;
 import org.geoserver.wms.GetMap;
 import org.geoserver.wms.WMS;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -112,6 +113,16 @@ public class GeoWebCacheContextRunner {
         @ConditionalOnMissingBean
         GeoServerSecurityManager geoServerSecurityManager(GeoServerDataDirectory datadir) throws Exception {
             return new GeoServerSecurityManager(datadir);
+        }
+
+        /**
+         * Stand-in for the bean contributed by {@code CoreBackendConfiguration} in applications. The
+         * {@code gwcSecurityCacheInvalidator} bean of GeoServer (GSIP 241) requires it.
+         */
+        @Bean(name = "layerGroupContainmentCache")
+        @ConditionalOnMissingBean
+        LayerGroupContainmentCache layerGroupContainmentCache(@Qualifier("rawCatalog") CatalogPlugin rawCatalog) {
+            return new LayerGroupContainmentCache(rawCatalog);
         }
 
         /**
