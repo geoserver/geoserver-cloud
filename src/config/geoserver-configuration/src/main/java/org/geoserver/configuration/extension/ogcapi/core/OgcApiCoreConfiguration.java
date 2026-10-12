@@ -23,9 +23,10 @@ import org.springframework.context.annotation.Import;
  * {@code mvcContentNegotiationManager} bean it provides (via
  * {@link org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport}).
  *
- * <p>{@code OGCAPIXStreamPersisterInitializer} is excluded: every service reads and writes the {@code ogcApiLinks}
- * metadata entries it describes, so it is contributed unconditionally by
- * {@code OgcApiCoreXStreamPersisterAutoConfiguration} instead of by this service-scoped configuration.
+ * <p>{@code OGCAPIXStreamPersisterInitializer} and {@code filterConformanceXStreamInitializer} are excluded. They
+ * describe the {@code ogcApiLinks}, {@code cql2} and {@code ecql} metadata entries, read and written by all services.
+ * {@code OgcApiCoreXStreamPersisterAutoConfiguration} contributes both unconditionally, instead of this service-scoped
+ * configuration.
  *
  * @see RestConfiguration
  * @see OgcApiCoreConfiguration_Generated
@@ -38,7 +39,8 @@ import org.springframework.context.annotation.Import;
         excludes = {
             // Exclude component-scan of org.geoserver.ogcapi.v1.features.* classes
             "org\\.geoserver\\.ogcapi\\.v1\\.features\\..*",
-            "org\\.geoserver\\.ogcapi\\.OGCAPIXStreamPersisterInitializer"
+            "org\\.geoserver\\.ogcapi\\.OGCAPIXStreamPersisterInitializer",
+            "filterConformanceXStreamInitializer"
         })
 @Import({RestConfiguration.class, OgcApiCoreConfiguration_Generated.class})
 public class OgcApiCoreConfiguration {}
