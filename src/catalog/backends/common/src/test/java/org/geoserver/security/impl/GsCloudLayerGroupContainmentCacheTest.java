@@ -42,9 +42,9 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.NamespaceInfoImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.data.test.MockData;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -90,7 +90,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     @BeforeAll
     static void setupBaseCatalog() throws Exception {
         GeoServerExtensionsHelper.setIsSpringContext(false);
-        catalog = new CatalogImpl();
+        catalog = new CatalogPlugin();
         catalog.setResourceLoader(new GeoServerResourceLoader());
 
         // the workspace

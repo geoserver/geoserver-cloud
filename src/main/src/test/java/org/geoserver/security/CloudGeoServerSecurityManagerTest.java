@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.impl.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.main.GeoServerMainSecurityAutoConfiguration;
 import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.security.RolesChanged;
@@ -233,7 +233,7 @@ class CloudGeoServerSecurityManagerTest {
 
     @SneakyThrows(Exception.class)
     private static ApplicationContextRunner createContextRunner(File dataDirectory) {
-        Catalog rawCatalog = new CatalogImpl();
+        Catalog rawCatalog = new CatalogPlugin();
         SecureCatalogImpl secureCatalog = new SecureCatalogImpl(rawCatalog, new TestResourceAccessManager());
         GeoServer geoserver = mock(GeoServer.class);
         FileSystemResourceStore resourceStore = new FileSystemResourceStore(dataDirectory);
