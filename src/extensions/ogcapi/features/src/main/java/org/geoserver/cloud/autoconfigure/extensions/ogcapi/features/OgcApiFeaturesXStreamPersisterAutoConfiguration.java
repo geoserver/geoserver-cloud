@@ -11,12 +11,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 
 /**
- * Teaches {@code XStreamPersister} how to read and write the OGC API Features conformance objects stored under the
- * {@code ogcapiFeatures}, {@code cql2} and {@code ecql} keys of {@code WFSInfo}'s metadata map.
+ * Teaches {@code XStreamPersister} how to read and write the OGC API Features conformance object stored under the
+ * {@code ogcapiFeatures} key of {@code WFSInfo}'s metadata map. The {@code cql2} and {@code ecql} keys are handled by
+ * {@code OgcApiCoreXStreamPersisterAutoConfiguration}.
  *
- * <p>Without the initializer, {@code XStreamPersister} writes those metadata values as the string returned by their
- * {@code toString()} and reads them back as a {@code String}, which later fails with a {@code ClassCastException} in
- * the WFS service. Every service reads and writes {@code WFSInfo}, so this is a property of the configuration subsystem
+ * <p>Without the initializer, {@code XStreamPersister} writes that metadata value as the string returned by its
+ * {@code toString()} and reads it back as a {@code String}, which later fails with a {@code ClassCastException} in the
+ * WFS service. Every service reads and writes {@code WFSInfo}, so this is a property of the configuration subsystem
  * rather than of the OGC API Features service: neither the running GeoServer service nor
  * {@code geoserver.extension.ogcapi.features.enabled} controls it. Turning the extension off must not let a service
  * corrupt the configuration the extension wrote while it was on.

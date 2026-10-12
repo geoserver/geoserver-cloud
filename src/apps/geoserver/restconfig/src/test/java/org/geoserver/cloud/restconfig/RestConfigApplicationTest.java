@@ -45,6 +45,7 @@ import org.geoserver.config.util.XStreamPersisterInitializer;
 import org.geoserver.gwc.GWC;
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geoserver.inspire.InspireXStreamPersisterInitializer;
+import org.geoserver.ogcapi.FilterConformanceXStreamPersisterInitializer;
 import org.geoserver.ogcapi.LinkInfo;
 import org.geoserver.ogcapi.OGCAPIXStreamPersisterInitializer;
 import org.geoserver.ogcapi.impl.LinkInfoImpl;
@@ -424,6 +425,7 @@ abstract class RestConfigApplicationTest {
                 .as("every service must be able to serialize stored configuration objects (issue #872)")
                 .hasAtLeastOneElementOfType(WFSXStreamPersisterInitializer.class)
                 .hasAtLeastOneElementOfType(OGCAPIXStreamPersisterInitializer.class)
+                .hasAtLeastOneElementOfType(FilterConformanceXStreamPersisterInitializer.class)
                 .hasAtLeastOneElementOfType(FeatureServiceXStreamPersisterInitializer.class)
                 .hasAtLeastOneElementOfType(InspireXStreamPersisterInitializer.class);
     }

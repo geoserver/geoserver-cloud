@@ -5,10 +5,9 @@
 package org.geoserver.jackson.databind.ogcapi.features;
 
 import java.io.Serial;
-import java.lang.reflect.Field;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.ogcapi.v1.features.CQL2Conformance;
-import org.geoserver.ogcapi.v1.features.ECQLConformance;
+import org.geoserver.ogcapi.CQL2Conformance;
+import org.geoserver.ogcapi.ECQLConformance;
 import org.geoserver.ogcapi.v1.features.FeatureConformance;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
@@ -24,10 +23,6 @@ import tools.jackson.databind.module.SimpleModule;
  *
  * <p>This module is registered through the SPI mechanism via META-INF/services/tools.jackson.databind.JacksonModule to
  * ensure it's picked up by the {@code PgconfigObjectMapper} utility class.
- *
- * <p>NOTE: This module particularly addresses a bug in {@link CQL2Conformance#isAdvanced()} which can throw
- * {@code NullPointerException} when the 'advanced' field is null. This workaround should be removed once the issue is
- * fixed in the upstream GeoServer codebase.
  */
 @Slf4j
 public class OgcApiFeaturesConformancesModule extends SimpleModule {
@@ -57,7 +52,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
         registerSubtypes(FeatureConformance.class);
     }
 
-    /** Custom serializer for CQL2Conformance that safely handles the problematic isAdvanced() method. */
+    /** Custom serializer for CQL2Conformance. */
     static class CQL2ConformanceSerializer extends ValueSerializer<CQL2Conformance> {
         @Override
         public Class<CQL2Conformance> handledType() {
@@ -74,14 +69,9 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
 
             gen.writeStartObject();
 
-            // Write standard fields
             writeNullSafe(gen, "text", value.isText());
             writeNullSafe(gen, "json", value.isJSON());
-
-            // Use reflection for the problematic 'advanced' field
-            writeAdvancedField(gen, value);
-
-            // Write other fields using standard getters
+            writeNullSafe(gen, "advanced", value.isAdvanced());
             writeNullSafe(gen, "arithmetic", value.isArithmetic());
             writeNullSafe(gen, "basic", value.isBasic());
             writeNullSafe(gen, "basicSpatial", value.isBasicSpatial());
@@ -97,24 +87,6 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
                 gen.writeBooleanProperty(fieldName, value);
             } else {
                 gen.writeNullProperty(fieldName);
-            }
-        }
-
-        @SuppressWarnings("java:S3011") // /setAccessible required because method and variable typed don't match
-        private void writeAdvancedField(JsonGenerator gen, CQL2Conformance value) {
-            try {
-                Field field = CQL2Conformance.class.getDeclaredField("advanced");
-                field.setAccessible(true);
-                Boolean advanced = (Boolean) field.get(value);
-
-                if (advanced != null) {
-                    gen.writeBooleanProperty("advanced", advanced);
-                } else {
-                    gen.writeNullProperty("advanced");
-                }
-            } catch (Exception _) {
-                // If anything goes wrong, write null
-                gen.writeNullProperty("advanced");
             }
         }
     }
@@ -164,8 +136,8 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
             switch (fieldName) {
                 case "text" -> conf.setText(value);
                 case "json" -> conf.setJSON(value);
-                case "advanced" -> conf.setCql2Advanced(value);
-                case "arithmetic" -> conf.setArtihmetic(value);
+                case "advanced" -> conf.setAdvanced(value);
+                case "arithmetic" -> conf.setArithmetic(value);
                 case "basic" -> conf.setBasic(value);
                 case "basicSpatial" -> conf.setBasicSpatial(value);
                 case "functions" -> conf.setFunctions(value);

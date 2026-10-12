@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.geoserver.ogcapi.v1.features.CQL2Conformance;
-import org.geoserver.ogcapi.v1.features.ECQLConformance;
+import org.geoserver.ogcapi.CQL2Conformance;
+import org.geoserver.ogcapi.ECQLConformance;
 import org.geoserver.ogcapi.v1.features.FeatureConformance;
 import org.geotools.jackson.databind.filter.dto.LiteralDto;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
@@ -71,7 +71,7 @@ class OgcApiFeaturesConformancesModuleTest {
     void testCQL2ConformanceWithNonNullAdvanced() throws JacksonException {
 
         CQL2Conformance conf = new CQL2Conformance();
-        conf.setCql2Advanced(true);
+        conf.setAdvanced(true);
 
         String json = mapper.writeValueAsString(conf);
 
@@ -104,6 +104,43 @@ class OgcApiFeaturesConformancesModuleTest {
         assertEquals(true, deserialized.isText());
         assertEquals(false, deserialized.isJSON());
         assertEquals(true, deserialized.isBasic());
+    }
+
+    // pgconfig rows written before CQL2Conformance moved out of org.geoserver.ogcapi.v1.features
+    @Test
+    void testCQL2ConformanceFormerName() throws JacksonException {
+        String json =
+                """
+                {"Literal":{"type":"org.geoserver.ogcapi.v1.features.CQL2Conformance",\
+                "value":{"text":true,"json":false,"advanced":null,"basic":true}}}
+                """;
+
+        LiteralDto literal = mapper.readValue(json, LiteralDto.class);
+
+        Object value = literal.getValue();
+        assertThat(value).isInstanceOf(CQL2Conformance.class);
+
+        CQL2Conformance deserialized = (CQL2Conformance) value;
+        assertEquals(true, deserialized.isText());
+        assertEquals(false, deserialized.isJSON());
+        assertEquals(true, deserialized.isBasic());
+    }
+
+    // pgconfig rows written before ECQLConformance moved out of org.geoserver.ogcapi.v1.features
+    @Test
+    void testECQLConformanceFormerName() throws JacksonException {
+        String json =
+                """
+                {"Literal":{"type":"org.geoserver.ogcapi.v1.features.ECQLConformance","value":{"text":true}}}
+                """;
+
+        LiteralDto literal = mapper.readValue(json, LiteralDto.class);
+
+        Object value = literal.getValue();
+        assertThat(value).isInstanceOf(ECQLConformance.class);
+
+        ECQLConformance deserialized = (ECQLConformance) value;
+        assertEquals(true, deserialized.isText());
     }
 
     @Test
