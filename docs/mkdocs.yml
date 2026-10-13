@@ -132,6 +132,7 @@ nav:
     - Contributor Recognition: developer-guide/contributor_recognition.md
     - Logging: developer-guide/logging.md
     - Acceptance Tests: developer-guide/acceptance_tests.md
+    - Releasing: developer-guide/releasing.md
     - Services:
       - Consul Service: developer-guide/services/consul-service.md
       - Gateway Service: developer-guide/services/gateway-service.md
