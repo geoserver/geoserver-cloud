@@ -8,6 +8,8 @@ package org.geoserver.cloud.autoconfigure.gateway;
 import org.geoserver.cloud.gateway.filter.FormPostCharacterEncodingFilter;
 import org.geoserver.cloud.gateway.filter.GeoServerGatewayFilterFunctions;
 import org.geoserver.cloud.gateway.filter.ProxyExceptionFilter;
+import org.geoserver.cloud.gateway.filter.RequestIdHeadersFilter;
+import org.geoserver.cloud.gateway.filter.RequestIdTrustFilter;
 import org.geoserver.cloud.gateway.predicate.GeoServerGatewayRequestPredicates;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -24,7 +26,8 @@ import org.springframework.web.filter.CorsFilter;
 @EnableConfigurationProperties({
     GlobalCorsProperties.class,
     SecureHeadersProperties.class,
-    SharedAuthConfigurationProperties.class
+    SharedAuthConfigurationProperties.class,
+    RequestIdConfigurationProperties.class
 })
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class GatewayApplicationAutoconfiguration {
@@ -72,6 +75,29 @@ public class GatewayApplicationAutoconfiguration {
     @Bean
     FormPostCharacterEncodingFilter formPostCharacterEncodingFilter() {
         return new FormPostCharacterEncodingFilter();
+    }
+
+    /**
+     * Sends the request id of the gateway to the services, to log a request with the same id in the gateway and in the
+     * service.
+     *
+     * @see RequestIdHeadersFilter
+     */
+    @Bean
+    RequestIdHeadersFilter requestIdHeadersFilter() {
+        return new RequestIdHeadersFilter();
+    }
+
+    /**
+     * Servlet filter hiding the request id headers of the requests from clients other than the trusted proxies, to keep
+     * clients from choosing the request id of the logs.
+     *
+     * @see RequestIdTrustFilter
+     * @see RequestIdConfigurationProperties#getTrustedProxies()
+     */
+    @Bean
+    RequestIdTrustFilter requestIdTrustFilter(RequestIdConfigurationProperties config) {
+        return new RequestIdTrustFilter(config.getTrustedProxies());
     }
 
     /**

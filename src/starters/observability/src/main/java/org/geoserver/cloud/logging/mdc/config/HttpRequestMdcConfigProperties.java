@@ -59,9 +59,19 @@ public class HttpRequestMdcConfigProperties {
 
     public static final String REQUEST_ID_HEADER = "http.request.id";
 
+    /** The request headers providing the request id, in order of precedence */
+    public static final List<String> REQUEST_ID_HEADERS = List.of("trace-id", REQUEST_ID_HEADER, "X-Request-ID");
+
     /**
-     * Whether to append the http.request.id MDC property. The value is the id provided by the http.request.id header,
-     * or a new monotonically increating UID if no such header is present.
+     * The request ids accepted from the request headers: up to 64 letters, digits, hyphens, underscores, or dots, as in
+     * a UUID or a ULID. Clients can set these headers. Other values are ignored, to keep long or unexpected text out of
+     * the logs.
+     */
+    private static final Pattern VALID_REQUEST_ID = Pattern.compile("[A-Za-z0-9._-]{1,64}");
+
+    /**
+     * Whether to append the http.request.id MDC property. The value comes from the trace-id, http.request.id, or
+     * X-Request-ID request header if it is valid, or is a new ULID.
      */
     private boolean id = true;
 
@@ -277,10 +287,7 @@ public class HttpRequestMdcConfigProperties {
         MDC.put(key, value);
     }
 
-    /**
-     * @return the id provided by the {@code traceId} header, {@code http.request.id} header, or a new monotonically
-     *     increating UID if no such header is present
-     */
+    /** @return the request id found by {@link #findRequestId}, or a new one */
     public static String findOrCreateRequestId(Supplier<HttpHeaders> headers) {
         return findRequestId(headers).orElseGet(() -> newRequestId());
     }
@@ -291,17 +298,21 @@ public class HttpRequestMdcConfigProperties {
     }
 
     /**
-     * Obtains the request id, if present, fromt the {@code trace-id}, {@code http.request.id}, or {@code x-request-id}
-     * request headers.
+     * Obtains the request id from the first of the {@link #REQUEST_ID_HEADERS} with a valid value, as defined by
+     * {@link #VALID_REQUEST_ID}.
      */
     public static Optional<String> findRequestId(Supplier<HttpHeaders> headers) {
         HttpHeaders httpHeaders = headers.get();
-        return header("trace-id", httpHeaders)
-                .or(() -> header(REQUEST_ID_HEADER, httpHeaders))
-                .or(() -> header("X-Request-ID", httpHeaders));
+        return REQUEST_ID_HEADERS.stream()
+                .map(name -> validRequestId(name, httpHeaders))
+                .flatMap(Optional::stream)
+                .findFirst();
     }
 
-    private static Optional<String> header(String name, HttpHeaders headers) {
-        return Optional.ofNullable(headers.get(name)).filter(l -> !l.isEmpty()).map(l -> l.getFirst());
+    private static Optional<String> validRequestId(String headerName, HttpHeaders headers) {
+        return Optional.ofNullable(headers.get(headerName))
+                .filter(values -> !values.isEmpty())
+                .map(List::getFirst)
+                .filter(VALID_REQUEST_ID.asMatchPredicate());
     }
 }
