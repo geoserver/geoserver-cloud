@@ -10,6 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -69,6 +71,9 @@ class GatewayMvcApplicationIT {
         registry.add(r2 + ".id", () -> "dead-backend");
         registry.add(r2 + ".uri", () -> "http://localhost:1"); // port 1: always refused
         registry.add(r2 + ".predicates[0]", () -> "Path=/dead/**");
+
+        // Request ids: a trusted proxy address unused by the tests, which send their requests from 127.0.0.1
+        registry.add("geoserver.gateway.request-id.trusted-proxies", () -> "10\\.9\\.8\\.7");
 
         // CORS configuration
         registry.add(
@@ -157,6 +162,64 @@ class GatewayMvcApplicationIT {
         assertThat(headers.getFirst("X-Content-Type-Options")).isEqualTo("nosniff");
         assertThat(headers.getFirst("Strict-Transport-Security")).isNotNull();
         assertThat(headers.getFirst("Referrer-Policy")).isNotNull();
+    }
+
+    // --- Request id tests ---
+    // The gateway sends its request id to the services, to log a request with the same id in both. It ignores the
+    // request ids sent by clients other than the trusted proxies.
+
+    @Test
+    void requestId_forwarded() {
+        ResponseEntity<String> response = testRestTemplate.getForEntity("/echo/test", String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(echoedHeader(response.getBody(), "X-Request-ID")).isNotBlank();
+    }
+
+    @Test
+    void requestId_ignoresClientValue() {
+        String echoedRequest = getEchoWithHeaders(Map.of("X-Request-ID", "client-request-id"));
+
+        assertThat(echoedHeader(echoedRequest, "X-Request-ID")).isNotBlank().isNotEqualTo("client-request-id");
+    }
+
+    @Test
+    void requestId_dropsTraceId() {
+        String echoedRequest = getEchoWithHeaders(Map.of("trace-id", "client-trace-id"));
+
+        assertThat(echoedHeader(echoedRequest, "trace-id")).isNull();
+        assertThat(echoedHeader(echoedRequest, "X-Request-ID")).isNotEqualTo("client-trace-id");
+    }
+
+    // Any client can set X-Forwarded-For to the address of a trusted proxy
+    @Test
+    void requestId_ignoresForwardedFor() {
+        Map<String, String> headers = Map.of("X-Forwarded-For", "10.9.8.7", "X-Request-ID", "client-request-id");
+        String echoedRequest = getEchoWithHeaders(headers);
+
+        assertThat(echoedHeader(echoedRequest, "X-Request-ID")).isNotEqualTo("client-request-id");
+    }
+
+    private String getEchoWithHeaders(Map<String, String> headers) {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setAll(headers);
+        HttpEntity<?> entity = new HttpEntity<>(requestHeaders);
+
+        ResponseEntity<String> response = testRestTemplate.exchange("/echo/test", HttpMethod.GET, entity, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        return response.getBody();
+    }
+
+    /** The value of a request header as echoed by the backend, which changes the case of header names. */
+    private static String echoedHeader(String echoedRequest, String name) {
+        String prefix = name.toLowerCase(Locale.ROOT) + ": ";
+        return echoedRequest
+                .lines()
+                .filter(line -> line.toLowerCase(Locale.ROOT).startsWith(prefix))
+                .map(line -> line.substring(prefix.length()))
+                .findFirst()
+                .orElse(null);
     }
 
     // --- CORS tests ---

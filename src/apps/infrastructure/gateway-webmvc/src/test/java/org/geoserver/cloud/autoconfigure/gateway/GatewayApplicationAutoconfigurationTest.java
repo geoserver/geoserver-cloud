@@ -10,6 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Map;
 import org.geoserver.cloud.gateway.filter.FormPostCharacterEncodingFilter;
 import org.geoserver.cloud.gateway.filter.GeoServerGatewayFilterFunctions;
+import org.geoserver.cloud.gateway.filter.RequestIdHeadersFilter;
+import org.geoserver.cloud.gateway.filter.RequestIdTrustFilter;
 import org.geoserver.cloud.gateway.predicate.GeoServerGatewayRequestPredicates;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -29,6 +31,8 @@ class GatewayApplicationAutoconfigurationTest {
                 .hasSingleBean(GeoServerGatewayRequestPredicates.GeoServerGatewayPredicateSupplier.class)
                 .hasSingleBean(GeoServerGatewayFilterFunctions.GeoServerGatewayFilterSupplier.class)
                 .hasSingleBean(FormPostCharacterEncodingFilter.class)
+                .hasSingleBean(RequestIdHeadersFilter.class)
+                .hasSingleBean(RequestIdTrustFilter.class)
                 .hasSingleBean(CorsFilter.class));
     }
 
@@ -71,6 +75,23 @@ class GatewayApplicationAutoconfigurationTest {
         runner.withPropertyValues("geoserver.base-path=/geoserver/", "basepath=${geoserver.base-path}")
                 .run(context -> assertThat(context.getEnvironment().getProperty("basepath"))
                         .isEqualTo("/geoserver"));
+    }
+
+    @Test
+    void requestId_trustsNoProxyByDefault() {
+        runner.run(context -> {
+            RequestIdConfigurationProperties props = context.getBean(RequestIdConfigurationProperties.class);
+            assertThat(props.getTrustedProxies()).isNull();
+        });
+    }
+
+    @Test
+    void requestId_trustedProxies() {
+        runner.withPropertyValues("geoserver.gateway.request-id.trusted-proxies=10\\.0\\.0\\.\\d+")
+                .run(context -> {
+                    RequestIdConfigurationProperties props = context.getBean(RequestIdConfigurationProperties.class);
+                    assertThat(props.getTrustedProxies().pattern()).isEqualTo("10\\.0\\.0\\.\\d+");
+                });
     }
 
     @Test

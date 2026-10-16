@@ -216,4 +216,46 @@ class MdcConfigPropertiesTest {
         assertThat(owsConfig.isServiceFormat()).isTrue();
         assertThat(owsConfig.isOperationName()).isTrue();
     }
+
+    @Test
+    void findsRequestId() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-ID", "01k2request-id_v4.x");
+
+        Optional<String> requestId = HttpRequestMdcConfigProperties.findRequestId(() -> headers);
+
+        assertThat(requestId).contains("01k2request-id_v4.x");
+    }
+
+    @Test
+    void limitsRequestIdLength() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-ID", "a".repeat(64));
+        assertThat(HttpRequestMdcConfigProperties.findRequestId(() -> headers)).isPresent();
+
+        headers.set("X-Request-ID", "a".repeat(65));
+        assertThat(HttpRequestMdcConfigProperties.findRequestId(() -> headers)).isEmpty();
+    }
+
+    @Test
+    void ignoresInvalidRequestId() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-ID", "id with spaces");
+
+        Optional<String> requestId = HttpRequestMdcConfigProperties.findRequestId(() -> headers);
+
+        assertThat(requestId).isEmpty();
+    }
+
+    // An invalid id does not hide a valid one in the next header
+    @Test
+    void skipsInvalidRequestId() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("trace-id", "{invalid}");
+        headers.set("X-Request-ID", "valid-id");
+
+        Optional<String> requestId = HttpRequestMdcConfigProperties.findRequestId(() -> headers);
+
+        assertThat(requestId).contains("valid-id");
+    }
 }
