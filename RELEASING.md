@@ -1,154 +1,148 @@
-# Releasing GeoServer Cloud
+# Releasing GeoServer Cloud 2.28.x
 
-This document describes the stable release process for GeoServer Cloud, using `v2.28.4.0` as the reference example.
+A release is a commit setting the release version, tagged `v2.28.5.3`. Pushing the signed tag runs the `Build and Push Docker images` workflow. The workflow builds, publishes and signs the Docker images under that version. The GitHub release comes afterwards, with its notes edited by hand, and the branch goes back to a snapshot version.
 
-## Overview
+This is the checklist for the 2.28.x series, released from this branch, `release/2.28.x`. The guide behind it is [Releasing](https://geoserver.org/geoserver-cloud/developer-guide/releasing/) in the developer guide, kept on `main` as [docs/src/developer-guide/releasing.md](https://github.com/geoserver/geoserver-cloud/blob/main/docs/src/developer-guide/releasing.md). Read it before your first release, and when something fails. It is written for the 3.x series. The 2.28.x series differs in three places:
 
-Stable releases are prepared on a dedicated branch named like:
+- **Version numbers.** A release has four numbers from the start: `2.28.5.0` is the first release on GeoServer 2.28.5, `2.28.5.1` and `2.28.5.2` the GeoServer Cloud patch releases on it. Between releases the branch stays at the series snapshot, `2.28.5-SNAPSHOT`, and each release commit is reverted. The branch moves to `2.28.6-SNAPSHOT` with the upgrade to GeoServer 2.28.6, in a commit of its own.
+- **The fork version.** The fork branch of a release is named after the GeoServer Cloud version and sets that version in the GeoServer poms, with no `-CLOUD` suffix: `gscloud/2.28.5.2` has `<version>2.28.5.2</version>`, and `gs.version` is `2.28.5.2`. Each release gets its own branch, patch releases included. `gt.version` stays `34-SNAPSHOT`.
+- **The gateway pom.** `src/apps/infrastructure/gateway/pom.xml` has a `<version>` of its own. The release commit sets it to the release version, and the revert puts the series snapshot back.
 
-- `r2.28.4.0`
+## Before you start
 
-That branch contains:
+- The fork has a permanent branch for the release, created from the head of `gscloud/2.28.x/integration` with the poms set to the release version. Make it in a full GeoServer clone with the fork as the remote `camptocamp`, see [Prepare the fork](https://geoserver.org/geoserver-cloud/developer-guide/releasing/#prepare-the-fork):
 
-- the project version bump
-- the upstream custom GeoServer and GeoTools dependency bump
-- compose tag updates
-- docs and README updates
+    ```bash
+    git fetch camptocamp
+    git switch -c gscloud/2.28.5.3 camptocamp/gscloud/2.28.x/integration
+    git grep -l '2.28.5-SNAPSHOT' -- '*pom.xml' | xargs sed -i 's/2\.28\.5-SNAPSHOT/2.28.5.3/g'
+    git commit -a -m "Set version to 2.28.5.3"
+    git push camptocamp gscloud/2.28.5.3
+    ```
 
-The actual release is created by tagging that branch:
+    On macOS, use `sed -i ''`.
 
-- `v2.28.4.0`
+- You can push branches and tags to `geoserver/geoserver-cloud`, called `upstream` below, and have a signing key configured in git.
+- JDK 25, GNU make, Docker and, optionally, `gh`.
 
-Pushing the tag triggers the GitHub Actions workflow that builds, publishes, and signs the Docker images.
+## A GeoServer Cloud patch release: `2.28.5.3`
 
-After the tag is pushed, the stable maintenance branch is reopened for continued work as a snapshot:
+1. Create the release branch and pin the GeoServer:
 
-- `release/2.28.x`
+    ```bash
+    git fetch upstream
+    git switch -c r2.28.5.3 upstream/release/2.28.x
+    git config -f .gitmodules submodule.geoserver.branch gscloud/2.28.5.3
+    make deps-sync
+    make deps
+    ```
 
-## Preconditions
+2. Set the version: `pom.xml` `<revision>2.28.5.3</revision>`, `src/pom.xml` `<gs.version>2.28.5.3</gs.version>`, `src/apps/infrastructure/gateway/pom.xml` `<version>2.28.5.3</version>`, `compose/.env` `TAG=2.28.5.3`. `gt.version` stays `34-SNAPSHOT`. Build and commit:
 
-Before releasing, verify:
+    ```bash
+    make install
+    git add .gitmodules geoserver_submodule/geoserver pom.xml src/pom.xml src/apps/infrastructure/gateway/pom.xml compose/.env
+    git commit -m "Set version to 2.28.5.3"
+    ```
 
-- the dedicated release branch exists and contains the intended release-prep commits
-- the custom upstream GeoServer artifacts referenced by `gs.version` are already published
-- the target tag does not already exist
-- the local checkout is clean
+3. Push `r2.28.5.3` to your fork and open a pull request against `release/2.28.x`. Wait for it to be green. Do not merge it.
 
-For `v2.28.4.0`, the prepared branch is:
+4. Tag, push the tag and wait for the workflow:
 
-- `r2.28.4.0`
+    ```bash
+    git tag -s v2.28.5.3 -m "GeoServer Cloud 2.28.5.3"
+    git push upstream v2.28.5.3
+    gh run watch
+    ```
 
-## Release Branch Contents
+5. Create the GitHub release with generated notes, then edit the notes on GitHub, see [Create the GitHub release](https://geoserver.org/geoserver-cloud/developer-guide/releasing/#create-the-github-release). `--notes-start-tag` names the previous release of the series, and `--latest=false` leaves the Latest mark on the 3.x series:
 
-A release-prepared branch is expected to contain these kinds of changes:
+    ```bash
+    gh release create v2.28.5.3 --verify-tag --generate-notes --notes-start-tag v2.28.5.2 --latest=false --title "GeoServer Cloud 2.28.5.3"
+    ```
 
-- `pom.xml`: project revision set to the release version
-- `src/pom.xml`: upstream dependency versions set to the release line
-- `src/apps/infrastructure/gateway/pom.xml`: explicit app version set to the release version
-- `compose/.env`: default image tag set to the release version
-- `README.md` and docs updated to reference the released version
+6. Fast-forward the branch. Do not push yet: a pushed head at the release version publishes the release images again.
 
-For `v2.28.4.0`, that means:
+    ```bash
+    git switch release/2.28.x
+    git merge --ff-only r2.28.5.3
+    ```
 
-- `revision=2.28.4.0`
-- `gs.version=2.28.4.0`
-- `gt.version=34.3`
-- `TAG=2.28.4.0`
+7. Revert the release commit and push. The branch is back at `2.28.5-SNAPSHOT` on the integration branch:
 
-## Tag the Release
+    ```bash
+    git revert --no-edit v2.28.5.3
+    git push upstream release/2.28.x
+    ```
 
-Fetch the latest refs and switch to the prepared release branch:
+8. Tag the config repository:
 
-```bash
-git fetch origin --tags
-git switch r2.28.4.0
-```
+    ```bash
+    git submodule update --init config
+    git -C config tag -s v2.28.5.3 -m "GeoServer Cloud 2.28.5.3"
+    git -C config push origin v2.28.5.3
+    ```
 
-Create and push the tag:
+9. Update the docs on `main`, in their own commit: the image tags and config label of the maintenance examples under `docs/src/deploy/docker-compose/maintenance/`. See [Update the docs](https://geoserver.org/geoserver-cloud/developer-guide/releasing/#update-the-docs).
 
-```bash
-git tag -a v2.28.4.0 -m "GeoServer Cloud 2.28.4.0"
-git push origin v2.28.4.0
-```
+## A new GeoServer version: `2.28.6.0`
 
-This should trigger the `Build and Push Docker images` workflow, that will prepare and publish the docker images for this version.
+The branch moves to the new snapshot first, in a commit of its own, when upstream `2.28.x` goes to `2.28.6-SNAPSHOT`: the fork branches `gscloud/2.28.x/base`, `gscloud/2.28.x/version` and `gscloud/2.28.x/integration` are rebuilt at `2.28.6-SNAPSHOT`, and on this branch `pom.xml`, `src/pom.xml`, the gateway pom and `compose/.env` go from `2.28.5-SNAPSHOT` to `2.28.6-SNAPSHOT`, committed as "Upgrade to GeoServer 2.28.6-SNAPSHOT". Once GeoServer 2.28.6 is released, sync the integration branch to it and create `gscloud/2.28.6.0` from its head as under [Before you start](#before-you-start), with `2.28.6-SNAPSHOT` replaced by `2.28.6.0`.
 
-## Reopen the Stable Branch
+1. Create the release branch and pin the GeoServer:
 
-Once the tag has been pushed, advance the stable branch to the same linear history.
+    ```bash
+    git fetch upstream
+    git switch -c r2.28.6.0 upstream/release/2.28.x
+    git config -f .gitmodules submodule.geoserver.branch gscloud/2.28.6.0
+    make deps-sync
+    make deps
+    ```
 
-Do not use a merge commit. Do not use rebase when the release branch is already a descendant of the stable branch.
+2. Set the version: `pom.xml` `<revision>2.28.6.0</revision>`, `src/pom.xml` `<gs.version>2.28.6.0</gs.version>`, `src/apps/infrastructure/gateway/pom.xml` `<version>2.28.6.0</version>`, `compose/.env` `TAG=2.28.6.0`. `gt.version` stays `34-SNAPSHOT`. Build and commit:
 
-Fast-forward `release/2.28.x` to the release line:
+    ```bash
+    make install
+    git add .gitmodules geoserver_submodule/geoserver pom.xml src/pom.xml src/apps/infrastructure/gateway/pom.xml compose/.env
+    git commit -m "Set version to 2.28.6.0"
+    ```
 
-```bash
-git switch release/2.28.x
-git merge --ff-only r2.28.4.0
-```
+3. Push `r2.28.6.0` to your fork and open a pull request against `release/2.28.x`. Wait for it to be green. Do not merge it.
 
-## Revert the Release Version Stamp
+4. Tag, push the tag and wait for the workflow:
 
-Revert the commit that changed the project version to the fixed release number:
+    ```bash
+    git tag -s v2.28.6.0 -m "GeoServer Cloud 2.28.6.0"
+    git push upstream v2.28.6.0
+    gh run watch
+    ```
 
-```bash
-git revert --no-edit <revision>
-```
+5. Create the GitHub release with generated notes, then edit the notes on GitHub. `--notes-start-tag` names the previous release of the series, and `--latest=false` leaves the Latest mark on the 3.x series:
 
-This revert should resets:
+    ```bash
+    gh release create v2.28.6.0 --verify-tag --generate-notes --notes-start-tag v2.28.5.3 --latest=false --title "GeoServer Cloud 2.28.6.0"
+    ```
 
-- `pom.xml`
-- `src/apps/infrastructure/gateway/pom.xml`
-- `compose/.env`
+6. Fast-forward the branch. Do not push yet: a pushed head at the release version publishes the release images again.
 
-Those files will typically return to the previous snapshot line and must then be updated to the new post-release snapshot values.
+    ```bash
+    git switch release/2.28.x
+    git merge --ff-only r2.28.6.0
+    ```
 
-## If needed, update the Snapshot Versions
+7. Revert the release commit and push. The branch is back at `2.28.6-SNAPSHOT` on the integration branch:
 
-If the relaase bumped the GeoServer base version, then go an update the dependencies to a newer snapshot, e.g.: 
+    ```bash
+    git revert --no-edit v2.28.6.0
+    git push upstream release/2.28.x
+    ```
 
-- `pom.xml`: `<revision>2.28.3-SNAPSHOT</revision>`
-- `src/apps/infrastructure/gateway/pom.xml`: `<version>2.28.3-SNAPSHOT</version>`
-- `compose/.env`: `TAG=2.28.3-SNAPSHOT`
-- `src/pom.xml`: `<gs.version>2.28.3-SNAPSHOT</gs.version>`
-- `src/pom.xml`: `<gt.version>34-SNAPSHOT</gt.version>`
+8. Tag the config repository:
 
-Commit the post-release state:
+    ```bash
+    git submodule update --init config
+    git -C config tag -s v2.28.6.0 -m "GeoServer Cloud 2.28.6.0"
+    git -C config push origin v2.28.6.0
+    ```
 
-```bash
-git add pom.xml src/pom.xml src/apps/infrastructure/gateway/pom.xml compose/.env
-git commit -m "Set version to 2.28.3-SNAPSHOT"
-```
-
-Push the reopened stable branch:
-
-```bash
-git push origin release/2.28.x
-```
-
-## Monitor Publication
-
-After pushing the release tag, wait for GitHub Actions to complete.
-
-Verify:
-
-- the tag workflow starts automatically
-- base, infrastructure, and GeoServer images are built successfully
-- the signing job runs for the tag
-- Docker Hub images are published for the release tag
-- signatures are available for the published images
-
-## Create the GitHub Release
-
-Create the GitHub Release only after the Docker images have been successfully published.
-
-Use:
-
-- tag: `v2.28.4.0`
-- target: the tagged commit on `r2.28.4.0`
-
-Include at least:
-
-- release version
-- upstream GeoServer version
-- notable changes or links to changelog or issues
-- Docker image tag to pull
+9. Update the docs on `main`, in their own commit: the image tags and config label of the maintenance examples under `docs/src/deploy/docker-compose/maintenance/`. See [Update the docs](https://geoserver.org/geoserver-cloud/developer-guide/releasing/#update-the-docs).
