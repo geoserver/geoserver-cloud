@@ -27,6 +27,9 @@ curl \
 && rm -rf /var/lib/apt/lists/*
 
 COPY target/config/ /etc/geoserver/
+# Spring Boot loads the Logback configuration from this file, copied above with the default configuration.
+# Set LOGGING_CONFIG to load another file, or to an empty value to load the one bundled in the application.
+ENV LOGGING_CONFIG=file:/etc/geoserver/logback-spring.xml
 
 RUN mkdir -p /opt/app/bin
 

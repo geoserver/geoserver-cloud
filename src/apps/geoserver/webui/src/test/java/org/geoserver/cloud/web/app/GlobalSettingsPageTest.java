@@ -18,12 +18,17 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.ListChoice;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.TagTester;
 import org.apache.wicket.util.tester.WicketTester;
+import org.geoserver.cloud.logging.profiles.LoggingProfiles;
 import org.geoserver.cloud.web.WicketTesters;
+import org.geoserver.cloud.web.ui.LoggingProfileLevelsPanel.LoggerLevel;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.LoggingInfo;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.GeoServerHomePage;
 import org.geoserver.web.GeoServerLoginPage;
@@ -52,14 +57,20 @@ import org.springframework.test.context.DynamicPropertySource;
             "spring.cloud.config.enabled: false",
             "spring.cloud.config.discovery.enabled: false",
             "spring.cloud.consul.enabled: false",
-            "spring.cloud.consul.discovery.enabled: false"
+            "spring.cloud.consul.discovery.enabled: false",
+            "geoserver.logging.profiles.SQL_LOGGING.org.geotools.jdbc: debug"
         })
 @ActiveProfiles("test") // see bootstrap-test.yml
 class GlobalSettingsPageTest {
 
+    private static final String SQL_LOGGING = "SQL_LOGGING";
+
+    private static final String PROFILE_LEVELS = "form:loggingProfileLevels";
+
     private GeoServer gs;
 
     private @Autowired GeoServerApplication app;
+    private @Autowired LoggingProfiles loggingProfiles;
     private WicketTester tester;
 
     static @TempDir Path tmpdir;
@@ -98,6 +109,9 @@ class GlobalSettingsPageTest {
         GeoServerInfo info = gs.getGlobal();
         info.getSettings().setVerbose(false);
         gs.save(info);
+        LoggingInfo logging = gs.getLogging();
+        logging.setLevel(LoggingProfiles.DEFAULT_LOGGING);
+        gs.save(logging);
     }
 
     @AfterEach
@@ -217,6 +231,62 @@ class GlobalSettingsPageTest {
     }
 
     @Test
+    void loggingProfileChoices() {
+        login();
+        tester.startPage(GlobalSettingsPage.class);
+
+        ListChoice<?> choice = (ListChoice<?>) tester.getComponentFromLastRenderedPage("form:log4jConfigFile");
+        assertThat(choice.getChoices()).isEqualTo(loggingProfiles.names());
+        tester.assertModelValue("form:log4jConfigFile", LoggingProfiles.DEFAULT_LOGGING);
+    }
+
+    @Test
+    void saveLoggingProfile() {
+        login();
+        tester.startPage(GlobalSettingsPage.class);
+        FormTester ft = tester.newFormTester("form");
+        int sqlLogging = loggingProfiles.names().indexOf(SQL_LOGGING);
+        ft.select("log4jConfigFile", sqlLogging);
+        ft.submit("submit");
+
+        tester.assertRenderedPage(GeoServerHomePage.class);
+        assertThat(gs.getLogging().getLevel()).isEqualTo(SQL_LOGGING);
+    }
+
+    // DEFAULT_LOGGING sets no level: the panel lists the levels of application-test.yml
+    @Test
+    void defaultProfileLevels() {
+        login();
+        tester.startPage(GlobalSettingsPage.class);
+
+        tester.assertLabel(
+                PROFILE_LEVELS + ":description", "This profile keeps the levels of the configuration (logging.level).");
+        List<LoggerLevel> levels = profileLevels();
+        assertThat(levels.getFirst()).isEqualTo(new LoggerLevel("root", "WARN"));
+        assertThat(levels).contains(new LoggerLevel("org.geoserver.platform", "ERROR"));
+    }
+
+    // The panel follows the selection, and the page saves it with the other settings only
+    @Test
+    void selectedProfileLevels() {
+        login();
+        tester.startPage(GlobalSettingsPage.class);
+        FormTester ft = tester.newFormTester("form");
+        ft.select("log4jConfigFile", loggingProfiles.names().indexOf(SQL_LOGGING));
+        tester.executeAjaxEvent("form:log4jConfigFile", "change");
+
+        tester.assertComponentOnAjaxResponse(PROFILE_LEVELS);
+        assertThat(profileLevels()).containsExactly(new LoggerLevel("org.geotools.jdbc", "DEBUG"));
+        assertThat(gs.getLogging().getLevel()).isEqualTo(LoggingProfiles.DEFAULT_LOGGING);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<LoggerLevel> profileLevels() {
+        Component levels = tester.getComponentFromLastRenderedPage(PROFILE_LEVELS + ":levels");
+        return ((ListView<LoggerLevel>) levels).getModelObject();
+    }
+
+    @Test
     void testLoggedOut() {
         logout();
         tester.startPage(GlobalSettingsPage.class);
@@ -232,7 +302,8 @@ class GlobalSettingsPageTest {
         assertNotNull(page);
         assertHidden("proxyBaseUrlContainer");
         assertHidden("useHeadersProxyURLContainer");
-        assertHidden("loggingSettingsContainer");
+        assertHidden("stdOutLoggingContainer");
+        assertHidden("requestLoggingContainer");
         assertHidden("lockProviderContainer");
         assertHidden("webUISettingsContainer");
     }

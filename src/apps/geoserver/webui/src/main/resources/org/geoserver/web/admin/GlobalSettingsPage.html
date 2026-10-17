@@ -56,33 +56,38 @@
     </div>
   </fieldset>
   <h3><span><wicket:message key="internalSettings">Internal Settings</wicket:message></span></h3>
-  <fieldset class="unused" id="loggingSettingsContainer">
+  <fieldset id="loggingSettingsContainer">
     <legend><span><wicket:message key="loggingSettings">Logging Settings</wicket:message></span></legend>
     <div class="gs-form">
       <div class="gs-form-group">
         <label for="log4jConfigFile"><wicket:message key="log4jConfigFile">Logging Profile</wicket:message></label>
-        <select id="log4jConfigFile" class="w-fit" wicket:id="log4jConfigFile" />
+        <div class="logging-profile">
+          <select id="log4jConfigFile" class="w-fit" wicket:id="log4jConfigFile" />
+          <div wicket:id="loggingProfileLevels"></div>
+        </div>
       </div>
-      <div class="choiceItem">
+      <div class="choiceItem unused" id="stdOutLoggingContainer">
         <input id="stdOutLogging" type="checkbox" wicket:id="stdOutLogging" />
         <label for="stdOutLogging"><wicket:message key="stdOutLogging">Enable logging to STDOUT</wicket:message></label>
       </div>
-      <div class="choiceItem">
-        <input id="requestLogging" type="checkbox" wicket:id="requestLogging" />
-        <label for="requestLogging"><wicket:message key="requestLogging">Enable Request Logging</wicket:message></label>
-      </div>
-      <div class="gs-form" wicket:id="requestLoggingSub">
+      <div class="unused" id="requestLoggingContainer">
         <div class="choiceItem">
-          <input id="requestLoggingBodies" type="checkbox" wicket:id="requestLoggingBodies" />
-          <label for="requestLoggingBodies"><wicket:message key="requestLoggingBodies">Log Request Bodies</wicket:message></label>
+          <input id="requestLogging" type="checkbox" wicket:id="requestLogging" />
+          <label for="requestLogging"><wicket:message key="requestLogging">Enable Request Logging</wicket:message></label>
         </div>
-        <div class="gs-form-group">
-          <label for="xmlPostRequestLogBufferSize"><wicket:message key="xmlPostRequestLogBufferSize">Number of characters to log for incoming POST requests</wicket:message></label>
-          <input id="xmlPostRequestLogBufferSize" class="w-sm" type="text" wicket:id="xmlPostRequestLogBufferSize" />
-        </div>
-        <div class="choiceItem">
-          <input id="requestLoggingHeaders" type="checkbox" wicket:id="requestLoggingHeaders" />
-          <label for="requestLoggingHeaders"><wicket:message key="requestLoggingHeaders">Log Request Headers</wicket:message></label>
+        <div class="gs-form" wicket:id="requestLoggingSub">
+          <div class="choiceItem">
+            <input id="requestLoggingBodies" type="checkbox" wicket:id="requestLoggingBodies" />
+            <label for="requestLoggingBodies"><wicket:message key="requestLoggingBodies">Log Request Bodies</wicket:message></label>
+          </div>
+          <div class="gs-form-group">
+            <label for="xmlPostRequestLogBufferSize"><wicket:message key="xmlPostRequestLogBufferSize">Number of characters to log for incoming POST requests</wicket:message></label>
+            <input id="xmlPostRequestLogBufferSize" class="w-sm" type="text" wicket:id="xmlPostRequestLogBufferSize" />
+          </div>
+          <div class="choiceItem">
+            <input id="requestLoggingHeaders" type="checkbox" wicket:id="requestLoggingHeaders" />
+            <label for="requestLoggingHeaders"><wicket:message key="requestLoggingHeaders">Log Request Headers</wicket:message></label>
+          </div>
         </div>
       </div>
     </div>

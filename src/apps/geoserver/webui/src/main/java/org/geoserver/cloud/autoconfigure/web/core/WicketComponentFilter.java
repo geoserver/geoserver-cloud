@@ -12,11 +12,13 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.geoserver.web.admin.LogPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,10 @@ import org.springframework.http.HttpStatus;
 /**
  * A servlet filter that intercepts requests to Wicket bookmarkable pages and returns a 404 (Not Found) response when
  * the requested page belongs to a component that has been disabled through configuration.
+ *
+ * <p>It also returns a 404 response for the GeoServer pages unsupported by GeoServer Cloud, regardless of the
+ * configuration. For example, the {@link LogPage} shows the log file of GeoServer, and the services log to the console
+ * only.
  *
  * <p>This filter examines incoming requests to {@code /web/wicket/bookmarkable/*} URLs, extracts the target page class
  * name, and uses {@link WebUIConfigurationProperties} to determine if access to that page should be allowed based on
@@ -58,6 +64,9 @@ public class WicketComponentFilter implements Filter {
     private static final Pattern BOOKMARKABLE_URL_PATTERN =
             Pattern.compile("/web/(?:wicket/)?bookmarkable/([^?/]+)(?:\\?.*)?$");
 
+    /** The class names of the GeoServer pages unsupported by GeoServer Cloud */
+    private static final Set<String> UNSUPPORTED_PAGES = Set.of(LogPage.class.getName());
+
     private @NonNull WebUIConfigurationProperties config;
 
     /**
@@ -67,8 +76,9 @@ public class WicketComponentFilter implements Filter {
      *
      * <ol>
      *   <li>Checks if the request is an HTTP request and if configuration is available
-     *   <li>For Wicket bookmarkable page requests, determines if the requested page belongs to a disabled component
-     *   <li>If the page should be hidden (belongs to a disabled component):
+     *   <li>For Wicket bookmarkable page requests, determines if the requested page is unsupported, or belongs to a
+     *       disabled component
+     *   <li>If the page should be hidden:
      *       <ul>
      *         <li>Returns an HTTP 404 (Not Found) response
      *         <li>Sets the content type to text/plain
@@ -97,9 +107,8 @@ public class WicketComponentFilter implements Filter {
             httpResponse.setStatus(HttpStatus.NOT_FOUND.value());
             httpResponse.setContentType("text/plain");
             httpResponse.getWriter().println("Page not found");
-            String requestURI = httpRequest.getRequestURI();
-            requestURI = (requestURI == null) ? "" : requestURI.replaceAll("[\\n\\r\\t]", "_");
-            LOGGER.debug("Blocked access to disabled component: {}", requestURI);
+            String requestURI = sanitizeUri(httpRequest.getRequestURI());
+            LOGGER.debug("Blocked access to a disabled or unsupported page: {}", requestURI);
         } else {
             chain.doFilter(request, response);
         }
@@ -109,9 +118,8 @@ public class WicketComponentFilter implements Filter {
         String requestURI = request.getRequestURI();
         String bookmarkablePageClassName = extractBookmarkablePageClassName(requestURI);
         if (bookmarkablePageClassName != null) {
-            // Return true if the page should be hidden (when enablePageClassUrl returns
-            // false)
-            return !config.enablePageClassUrl(bookmarkablePageClassName);
+            return UNSUPPORTED_PAGES.contains(bookmarkablePageClassName)
+                    || !config.enablePageClassUrl(bookmarkablePageClassName);
         }
         // If not a bookmarkable page URL, don't hide it
         return false;
@@ -132,5 +140,16 @@ public class WicketComponentFilter implements Filter {
             }
         }
         return null;
+    }
+
+    /**
+     * Replaces the characters other than printable ASCII with an underscore, before the URI goes to the log. A line
+     * break in the URI would split the log line.
+     */
+    private static String sanitizeUri(String requestURI) {
+        if (requestURI == null) {
+            return "";
+        }
+        return requestURI.replaceAll("[^\\x20-\\x7E]", "_");
     }
 }

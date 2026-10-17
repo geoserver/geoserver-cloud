@@ -26,13 +26,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /**
  * Lets only trusted proxies set the request id of the logs.
  *
- * <p>The gateway takes the request id from the request headers, and creates a new one if there is none. Any client can
- * send these headers, and reuse the id of another request to mix its log lines with the lines of that request. This
- * filter hides the request id headers unless the request comes from a trusted proxy. The gateway then creates its own
- * id.
+ * <p>The gateway takes the request id from the request headers, and creates a new one if there is none. This filter
+ * hides the request id headers unless the request comes from a trusted proxy. The gateway then creates its own id.
  *
- * <p>The check uses the address of the connection, as seen by the servlet container. The remote address of the request
- * may come from the {@code X-Forwarded-For} header instead, and any client can set this header.
+ * <p>The check uses the address of the connection, as seen by the servlet container, and not the remote address of the
+ * request. The remote address may come from the {@code X-Forwarded-For} header.
  *
  * <p>It must run before the {@link org.geoserver.cloud.logging.mdc.servlet.HttpRequestMdcFilter}, ordered at
  * {@code HIGHEST_PRECEDENCE + 2}: that filter reads the request id headers to fill the MDC.

@@ -5,7 +5,15 @@
      default logging profile, if you add more profiles besides json-logs (e.g. "custom"),
      change name to name="!(json-logs|custom)"
     -->
-    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <!--
+     Logs to the console only. Spring Boot's base.xml also adds a file appender, writing to /tmp/spring.log.
+    -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <root level="INFO">
+      <appender-ref ref="CONSOLE" />
+    </root>
   </springProfile>
 
   <springProfile name="json-logs">

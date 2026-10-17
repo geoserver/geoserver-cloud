@@ -112,6 +112,7 @@ nav:
   - User Guide:
     - Overview: user-guide/index.md
     - Additional libraries and fonts: user-guide/additional-libs-and-fonts.md
+    - Logging: user-guide/logging.md
     - ImageMosaics through the REST API: user-guide/imagemosaic-rest-api.md
     - GeoParquet through the REST API: user-guide/geoparquet-rest-api.md
     - GeoParquet and Arrow IPC over WFS: user-guide/wfs-geoparquet-arrow-ipc.md
@@ -119,6 +120,7 @@ nav:
     - Control-flow metrics reference: user-guide/controlflow-metrics-reference.md
   - Configuration:
     - Externalized configuration guide: configuration/index.md
+    - Migration 3.0.1 to 3.0.2: configuration/migration-3.0.1-to-3.0.2.md
     - Migration 2.28 to 3.0: configuration/migration-2.28-to-3.0.md
     - Migration 2.26 to 2.27: configuration/migration-2.26-to-2.27.md
   - Community:

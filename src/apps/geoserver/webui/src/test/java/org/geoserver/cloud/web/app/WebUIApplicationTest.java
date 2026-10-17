@@ -23,7 +23,9 @@ import org.geoserver.cloud.autoconfigure.web.core.WebUIContextInitializer;
 import org.geoserver.cloud.web.WicketTesters;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.GeoServerHomePage;
+import org.geoserver.web.MenuPageInfo;
 import org.geoserver.web.ServicesPanel;
+import org.geoserver.web.admin.LogPage;
 import org.geoserver.web.wicket.WicketHierarchyPrinter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -161,6 +163,14 @@ class WebUIApplicationTest {
     @Test
     void homePageSelectionModeDefaultsToTEXT() {
         assertThat(System.getProperty("GeoServerHomePage.selectionMode")).isEqualTo("TEXT");
+    }
+
+    // The LogPage shows the log file, and the services log to the console only
+    @Test
+    void noLogPageMenuEntry() {
+        List<MenuPageInfo> menuPages = app.getBeansOfType(MenuPageInfo.class);
+
+        assertThat(menuPages).extracting(MenuPageInfo::getComponentClass).doesNotContain(LogPage.class);
     }
 
     /**
