@@ -8,7 +8,6 @@ package org.geoserver.cloud.gateway.filter;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.Nullable;
 import org.springframework.cloud.gateway.server.mvc.common.MvcUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.function.HandlerFilterFunction;
@@ -50,6 +49,10 @@ class StripBasePath implements HandlerFilterFunction<ServerResponse, ServerRespo
     @Override
     public ServerResponse filter(ServerRequest request, HandlerFunction<ServerResponse> next) throws Exception {
         String rawPath = request.uri().getRawPath();
+        // An opaque URI has no path
+        if (rawPath == null) {
+            return next.handle(request);
+        }
         int partsToRemove = resolvePartsToStrip(prefix, rawPath);
         if (partsToRemove == 0) {
             return next.handle(request);
@@ -58,9 +61,9 @@ class StripBasePath implements HandlerFilterFunction<ServerResponse, ServerRespo
         return next.handle(strippedRequest);
     }
 
-    private static int resolvePartsToStrip(String basePath, @Nullable String requestPath) {
+    private static int resolvePartsToStrip(String basePath, String requestPath) {
         boolean emptyPrefix = basePath == null || basePath.isEmpty() || "/".equals(basePath);
-        if (emptyPrefix || requestPath == null || !requestPath.startsWith(basePath)) {
+        if (emptyPrefix || !requestPath.startsWith(basePath)) {
             return 0;
         }
         int basePathSteps = StringUtils.countOccurrencesOf(basePath, "/");
