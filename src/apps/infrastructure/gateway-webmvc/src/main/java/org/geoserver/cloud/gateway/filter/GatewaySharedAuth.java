@@ -235,9 +235,12 @@ class GatewaySharedAuth implements HandlerFilterFunction<ServerResponse, ServerR
         return method;
     }
 
+    /**
+     * Replaces the characters other than printable ASCII with an underscore, before the URI goes to the log. A line
+     * break in the URI would split the log line.
+     */
     static String sanitizeUri(String requestURI) {
-        // sanitize the URI to remove line breaks
-        return (requestURI == null) ? "" : requestURI.replaceAll("[\\n\\r\\t]", "_");
+        return (requestURI == null) ? "" : requestURI.replaceAll("[^\\x20-\\x7E]", "_");
     }
 
     @SneakyThrows
