@@ -161,4 +161,8 @@ class GwcConfigurationTranspilerAggregator {
     static final String IMAGE_ENCODER_CONTAINER = "encoderContainer";
 
     static final String IMAGE_DECODER_CONTAINER = "decoderContainer";
+
+    private GwcConfigurationTranspilerAggregator() {
+        // holds the transpiler annotations and their constants
+    }
 }

@@ -66,7 +66,7 @@ public class LenientContentTypeProxyExchange extends RestClientProxyExchange {
         try {
             clientResponse.getHeaders().getContentType();
             return true;
-        } catch (InvalidMediaTypeException unparsable) {
+        } catch (InvalidMediaTypeException _) {
             return false;
         }
     }
