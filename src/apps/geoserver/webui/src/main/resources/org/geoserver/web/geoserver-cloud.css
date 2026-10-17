@@ -1,3 +1,40 @@
+/*
+ * The theme displays some of these elements with more specific selectors, like ".gs-form > .choiceItem".
+ * Without !important, those selectors win over this rule.
+ */
 .unused{
-  display: none;
+  display: none !important;
+}
+
+/* The "Logging Profile" choice of the global settings, and the levels of the selected profile next to it */
+.logging-profile {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+/* The theme limits the width of the last element of a form group to 100 characters */
+.gs-form-group > div.logging-profile {
+  max-width: none;
+}
+
+.logging-profile-levels {
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.logging-profile-levels p {
+  margin-top: 0;
+}
+
+/* The theme stretches tables to the width of their container */
+.logging-profile-levels table {
+  width: auto;
+  margin-bottom: 0;
+}
+
+/* Long logger names wrap when there is no room left */
+.logging-profile-levels td:first-child {
+  padding-right: 2rem;
+  overflow-wrap: anywhere;
 }
