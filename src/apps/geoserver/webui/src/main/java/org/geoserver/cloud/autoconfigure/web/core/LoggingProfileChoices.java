@@ -73,6 +73,7 @@ class LoggingProfileChoices implements GeoServerApplicationInitializer, ICompone
      * Shows the levels of the profile selected in the choice. It leaves the model of the choice unchanged, because the
      * page saves the selection with the other settings.
      */
+    @SuppressWarnings("java:S110") // the depth comes from the Wicket class hierarchy
     private static class ShowLevelsOnChange extends AjaxFormComponentUpdatingBehavior {
 
         private final IModel<String> selectedProfile;
