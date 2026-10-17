@@ -20,9 +20,9 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 @TranspileXmlConfig(
         locations = "jar:gs-web-core-.*!/applicationContext.xml",
         targetClass = "WebCoreConfiguration",
-        publicAccess = true
-        // excludes = {"logsPage"} // exclude the logs menu entry
-        )
+        publicAccess = true,
+        // The LogPage of this menu entry shows the log file, and the services log to the console only
+        excludes = {"logsPage"})
 @TranspileXmlConfig(
         locations = "jar:gs-theme-.*!/applicationContext.xml",
         targetClass = "WebThemeConfiguration",

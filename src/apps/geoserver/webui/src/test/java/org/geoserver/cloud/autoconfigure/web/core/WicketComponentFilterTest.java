@@ -144,4 +144,15 @@ class WicketComponentFilterTest {
         verify(response).setStatus(HttpStatus.NOT_FOUND.value());
         verify(chain, never()).doFilter(request, response);
     }
+
+    // The LogPage shows the log file, and the services log to the console only
+    @Test
+    void testUnsupportedPage() throws ServletException, IOException {
+        when(request.getRequestURI()).thenReturn("/web/wicket/bookmarkable/org.geoserver.web.admin.LogPage");
+
+        filter.doFilter(request, response, chain);
+
+        verify(response).setStatus(HttpStatus.NOT_FOUND.value());
+        verify(chain, never()).doFilter(request, response);
+    }
 }
