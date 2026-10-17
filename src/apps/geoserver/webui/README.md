@@ -107,16 +107,21 @@ The nested properties obey their parent's `enabled` settings, so for example, if
 
 ## Differences with monolith GeoServer application's Web UI
 
-- The `LogPage` (`/web/wicket/bookmarkable/org.geoserver.web.admin.LogPage`) menu entry is removed.
+- The `LogPage` (`/web/wicket/bookmarkable/org.geoserver.web.admin.LogPage`) is removed. The "Logs" menu entry
+is gone, and the URL of the page returns a 404 response. The page shows the log file of GeoServer, and the services
+log to the console only.
 
 ### Changes to GlobalSettings page:
 
 A copy of `GlobalSettingsPage.html` is provided, setting `class="unused"` to HTML elements
 that shall be hidden.
 
-The contributed `geoserver-cloud.css` stylesheet defines `.unused{display: none;}`.
+The contributed `geoserver-cloud.css` stylesheet defines `.unused{display: none !important;}`. The theme displays
+some of these elements with more specific selectors, and these selectors would win over a rule without `!important`.
 
-- The "**Logging settings**" section set is hidden.
+- The "**Logging settings**" section shows the "Logging Profile" selection only, with the logging profiles of
+GeoServer Cloud. Next to it, `LoggingProfileLevelsPanel` lists the levels set by the selected profile. "Enable logging
+to STDOUT" and "Enable Request Logging" are hidden, because they have no effect.
 - The "**Lock Provider**" selection is hidden, each Configuration and Catalog backend implementation is in charge of
 setting up a lock provider appropriate to the backend that works effectively on a distributed system.
 - The "**Web UI Mode**" selection is hidden. `WebUIApplicationAutoConfiguration` forces it to be

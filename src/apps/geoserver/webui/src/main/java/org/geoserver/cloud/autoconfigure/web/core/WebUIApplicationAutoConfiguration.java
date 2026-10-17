@@ -13,6 +13,7 @@ import org.geoserver.cloud.autoconfigure.web.wcs.WebWcsAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.wfs.WebWfsAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.wms.WebWmsAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.wps.WebWpsAutoConfiguration;
+import org.geoserver.cloud.logging.profiles.LoggingProfiles;
 import org.geoserver.configuration.core.web.WebCoreConfiguration;
 import org.geoserver.configuration.core.web.WebRestConfiguration;
 import org.geoserver.configuration.core.web.WebThemeConfiguration;
@@ -53,6 +54,12 @@ public class WebUIApplicationAutoConfiguration {
     @Bean
     WebUIInitializer webUIDefaultsInitializer(Environment env) {
         return new WebUIInitializer(env);
+    }
+
+    /** Lists the logging profiles of GeoServer Cloud in the Global Settings page */
+    @Bean
+    LoggingProfileChoices loggingProfileChoices(LoggingProfiles loggingProfiles) {
+        return new LoggingProfileChoices(loggingProfiles);
     }
 
     /**

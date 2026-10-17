@@ -3,3 +3,4 @@ org.geoserver.cloud.autoconfigure.main.XstreamServiceLoadersAutoConfiguration
 org.geoserver.cloud.autoconfigure.main.GeoServerMainSecurityAutoConfiguration
 org.geoserver.cloud.autoconfigure.main.AccessDeniedPageAutoConfiguration
 org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientAutoConfiguration
+org.geoserver.cloud.autoconfigure.logging.profiles.LoggingProfilesAutoConfiguration

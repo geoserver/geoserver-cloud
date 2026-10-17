@@ -9,6 +9,9 @@ Available guides:
   user-provided jar files and fonts into the containers, like JDBC drivers,
   GeoServer extensions, and fonts for map labeling, without rebuilding the
   images.
+- [Logging](logging.md): select a logging profile for all the service
+  instances from the web UI or the REST API, define your own profiles,
+  change the log output, and write JSON logs.
 - [ImageMosaics through the REST API](imagemosaic-rest-api.md): publish an
   ImageMosaic of Cloud Optimized GeoTIFFs stored on object storage, using the
   same REST API calls that work against vanilla GeoServer.
