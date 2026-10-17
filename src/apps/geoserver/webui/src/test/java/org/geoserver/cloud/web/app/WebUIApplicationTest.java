@@ -170,7 +170,10 @@ class WebUIApplicationTest {
     void noLogPageMenuEntry() {
         List<MenuPageInfo> menuPages = app.getBeansOfType(MenuPageInfo.class);
 
-        assertThat(menuPages).extracting(MenuPageInfo::getComponentClass).doesNotContain(LogPage.class);
+        assertThat(menuPages)
+                .extracting(MenuPageInfo::getComponentClass)
+                .isNotEmpty()
+                .doesNotContain(LogPage.class);
     }
 
     /**

@@ -32,6 +32,7 @@ import org.springframework.core.env.Environment;
  * ({@code logging.level.*}). The panel lists those levels instead. It also lists them for an unknown profile, because
  * the services then apply the levels of the configuration only.
  */
+@SuppressWarnings("java:S110") // the depth comes from the Wicket class hierarchy
 public class LoggingProfileLevelsPanel extends GenericPanel<String> {
 
     /** The root logger first, then the other loggers by name */

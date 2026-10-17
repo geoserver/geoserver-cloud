@@ -85,9 +85,10 @@ class StripBasePath implements HandlerFilterFunction<ServerResponse, ServerRespo
     }
 
     private static String stripLeadingSegments(String rawPath, int parts) {
+        boolean endsWithSlash = rawPath.endsWith("/");
         String[] segments = StringUtils.tokenizeToStringArray(rawPath, "/");
         String remaining = Arrays.stream(segments).skip(parts).collect(Collectors.joining("/"));
-        boolean keepTrailingSlash = !remaining.isEmpty() && rawPath.endsWith("/");
+        boolean keepTrailingSlash = endsWithSlash && !remaining.isEmpty();
         return keepTrailingSlash ? "/" + remaining + "/" : "/" + remaining;
     }
 
