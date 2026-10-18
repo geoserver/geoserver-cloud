@@ -35,8 +35,8 @@
     <wicket.version>10.11.0</wicket.version>
     <acl.version>3.0.3</acl.version>
     <cloud-dependencies-bom.version>1.1.0</cloud-dependencies-bom.version>
-    <tileverse-geoserver.version>3.0-SNAPSHOT</tileverse-geoserver.version>
-    <tileverse.version>2.1-SNAPSHOT</tileverse.version>
+    <tileverse-geoserver.version>3.0.2</tileverse-geoserver.version>
+    <tileverse.version>2.1.0</tileverse.version>
     <jackson.version>3.2.3</jackson.version>
     <jackson2.version>2.22.2</jackson2.version>
 
@@ -1318,6 +1318,24 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
             <groupId>com.google.flatbuffers</groupId>
             <artifactId>flatbuffers-java</artifactId>
             <version>25.2.10</version>
+          </dependency>
+          <dependency>
+            <!--
+[ERROR] Dependency convergence error for io.tileverse.geoserver:tileverse-geoserver-storage-web:jar:3.0-SNAPSHOT. Paths to dependency are:
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.2-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.2-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-formats:jar:3.0.2-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.community:gs-pmtiles-store:jar:3.0.2-CLOUD-SNAPSHOT:compile
+[ERROR]         +-io.tileverse.geoserver:tileverse-geoserver-storage-web:jar:3.0-SNAPSHOT:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.2-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-tileverse-parquetry:jar:3.0.2-SNAPSHOT:compile
+[ERROR]     +-io.tileverse.geoserver:tileverse-geoserver-parquetry:jar:3.0.2:compile
+[ERROR]       +-io.tileverse.geoserver:tileverse-geoserver-storage-web:jar:3.0.2:compile
+-->
+            <groupId>io.tileverse.geoserver</groupId>
+            <artifactId>tileverse-geoserver-storage-web</artifactId>
+            <version>${tileverse-geoserver.version}</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
