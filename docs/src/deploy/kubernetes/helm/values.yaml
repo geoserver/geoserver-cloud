@@ -84,6 +84,9 @@ additional-stuff: &additional-stuff
     <<: *additional-volumes
   containers:
     spring:
+      # the default image tags of the chart lag behind GeoServer Cloud releases
+      image:
+        tag: '3.0.2'
       env:
         <<: *env-override
       volumeMounts:
@@ -129,3 +132,9 @@ geoservercloud:
         enabled: true
         replicaCount: 1
         <<: *additional-stuff
+      # disabled by default, the tag applies when the acl service is enabled
+      acl:
+        containers:
+          spring:
+            image:
+              tag: '3.0.3'

@@ -6,6 +6,9 @@ repo_url: https://github.com/geoserver/geoserver-cloud
 edit_uri: edit/main/docs/src/
 site_url: !ENV [SITE_URL, 'https://geoserver.org/geoserver-cloud']
 docs_dir: src
+# READMEs in example folders are for readers on GitHub, the site has its own pages
+exclude_docs: |
+  deploy/kubernetes/helm/README.md
 
 theme:
   name: material
