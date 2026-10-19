@@ -30,8 +30,8 @@
     <spring.security.version>7.1.1</spring.security.version>
     <spring-integration.version>7.1.1</spring-integration.version>
 
-    <gs.version>3.0.2-CLOUD-SNAPSHOT</gs.version>
-    <gt.version>35-SNAPSHOT</gt.version>
+    <gs.version>3.0.2-CLOUD</gs.version>
+    <gt.version>35.2</gt.version>
     <wicket.version>10.11.0</wicket.version>
     <acl.version>3.0.3</acl.version>
     <cloud-dependencies-bom.version>1.1.0</cloud-dependencies-bom.version>
