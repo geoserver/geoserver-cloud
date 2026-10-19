@@ -114,7 +114,7 @@ If you're looking for instructions to just get *GeoServer Cloud* up and running 
 
 ## Status
 
-`v3.0.0` released on top of GeoServer `3.0.0`.
+`v3.0.2` released on top of GeoServer `3.0.2`.
 
 Check out the full [Release Notes](https://github.com/geoserver/geoserver-cloud/releases) for a changelog.
 
