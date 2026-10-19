@@ -1,3 +1,7 @@
+# A fixed project name keeps the containers and volumes of this example apart
+# from other GeoServer Cloud compositions on the same host.
+name: gscloud_example_stable_pgconfig
+
 x-variables:
   environment: &common_env
     SPRING_PROFILES_INCLUDE: "config-first"

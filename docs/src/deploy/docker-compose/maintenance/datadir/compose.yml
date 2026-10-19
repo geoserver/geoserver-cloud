@@ -1,3 +1,7 @@
+# A fixed project name keeps the containers and volumes of this example apart
+# from other GeoServer Cloud compositions on the same host.
+name: gscloud_example_maintenance_datadir
+
 # Define a shared environment block for all services
 x-variables:
   environment: &common_env
@@ -25,7 +29,7 @@ volumes:
 
 services:
   rabbitmq:
-    image: rabbitmq:4-management-alpine
+    image: rabbitmq:3.13-management-alpine
     user: "1000:1000"
     restart: unless-stopped
     tmpfs:
