@@ -152,6 +152,22 @@ xml configuration. If a separate administrator username is given, the regular
 
 By default, GeoServer Cloud services are available under `geoserver/cloud/web` path. You can change it by using the `GEOSERVER_BASE_PATH` or Java System Properties `geoserver.base-path`.
 
+## Client address behind a reverse proxy
+
+The services read the client address of a request for their logs, the control-flow rules, the brute force prevention, and the IP based security rules. The gateway tells them this address in the `X-Forwarded-For` header, and resolves it in the same way as Tomcat's remote IP valve. A trusted proxy in front of the gateway lists the client address in the `X-Forwarded-For` header of the request, and the gateway takes the right-most address of the header not matching the trusted proxies. For a request from any other client, the client address is the address of the connection.
+
+`geoserver.gateway.trusted-proxies` is a regular expression matching the addresses of the trusted proxies, as seen by the gateway. By default, the gateway trusts no proxy. Behind a reverse proxy or a Kubernetes ingress controller, list its addresses, otherwise the services see the proxy address as the client address of the requests:
+
+```yaml
+geoserver:
+  gateway:
+    trusted-proxies: 10\.42\.\d+\.\d+
+```
+
+On Kubernetes, the expression must match the pod addresses of the ingress controller. The ingress controller sees the real client address only when the Service in front of it has `externalTrafficPolicy: Local`.
+
+The gateway logs a warning the first time a request with an `X-Forwarded-For` header comes from an address other than the trusted proxies.
+
 ## Use GeoServer ACL
 
 To use GeoServer ACL with GeoServer Cloud, you need to do the following steps:

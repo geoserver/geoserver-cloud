@@ -7,12 +7,15 @@ package org.geoserver.cloud.autoconfigure.gateway;
 
 import org.geoserver.cloud.gateway.filter.RouteProfileGatewayFilterFactory;
 import org.geoserver.cloud.gateway.filter.StripBasePathGatewayFilterFactory;
+import org.geoserver.cloud.gateway.filter.TrustedProxies;
 import org.geoserver.cloud.gateway.predicate.RegExpQueryRoutePredicateFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 @AutoConfiguration
+@EnableConfigurationProperties(GatewayConfigurationProperties.class)
 public class GatewayApplicationAutoconfiguration {
 
     /**
@@ -61,5 +64,16 @@ public class GatewayApplicationAutoconfiguration {
     @Bean
     StripBasePathGatewayFilterFactory stripBasePathGatewayFilterFactory() {
         return new StripBasePathGatewayFilterFactory();
+    }
+
+    /**
+     * The reverse proxies trusted to tell the client address of the requests they forward.
+     *
+     * @see GatewayConfigurationProperties#getTrustedProxies()
+     * @see ForwardedHeadersAutoConfiguration
+     */
+    @Bean
+    TrustedProxies trustedProxies(GatewayConfigurationProperties config) {
+        return TrustedProxies.of(config.trustedProxiesPattern());
     }
 }

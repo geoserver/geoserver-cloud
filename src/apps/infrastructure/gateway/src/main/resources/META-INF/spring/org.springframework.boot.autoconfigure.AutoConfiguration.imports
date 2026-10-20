@@ -1,2 +1,3 @@
 org.geoserver.cloud.autoconfigure.gateway.GatewayApplicationAutoconfiguration
 org.geoserver.cloud.autoconfigure.gateway.GatewaySharedAuthAutoConfiguration
+org.geoserver.cloud.autoconfigure.gateway.ForwardedHeadersAutoConfiguration
