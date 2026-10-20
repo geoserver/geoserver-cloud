@@ -5,11 +5,13 @@
 
 package org.geoserver.cloud.autoconfigure.gateway;
 
+import org.geoserver.cloud.gateway.filter.ClientAddressFilter;
 import org.geoserver.cloud.gateway.filter.FormPostCharacterEncodingFilter;
 import org.geoserver.cloud.gateway.filter.GeoServerGatewayFilterFunctions;
 import org.geoserver.cloud.gateway.filter.ProxyExceptionFilter;
 import org.geoserver.cloud.gateway.filter.RequestIdHeadersFilter;
 import org.geoserver.cloud.gateway.filter.RequestIdTrustFilter;
+import org.geoserver.cloud.gateway.filter.TrustedProxies;
 import org.geoserver.cloud.gateway.predicate.GeoServerGatewayRequestPredicates;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -27,7 +29,7 @@ import org.springframework.web.filter.CorsFilter;
     GlobalCorsProperties.class,
     SecureHeadersProperties.class,
     SharedAuthConfigurationProperties.class,
-    RequestIdConfigurationProperties.class
+    GatewayConfigurationProperties.class
 })
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class GatewayApplicationAutoconfiguration {
@@ -89,15 +91,35 @@ public class GatewayApplicationAutoconfiguration {
     }
 
     /**
+     * The reverse proxies trusted to tell the client address and the request id of the requests they forward.
+     *
+     * @see GatewayConfigurationProperties#getTrustedProxies()
+     */
+    @Bean
+    TrustedProxies trustedProxies(GatewayConfigurationProperties config) {
+        return TrustedProxies.of(config.resolveTrustedProxies());
+    }
+
+    /**
+     * Servlet filter reporting the client address as the remote address of the request, read from the
+     * {@code X-Forwarded-For} header when a trusted proxy sent the request.
+     *
+     * @see ClientAddressFilter
+     */
+    @Bean
+    ClientAddressFilter clientAddressFilter(TrustedProxies trustedProxies) {
+        return new ClientAddressFilter(trustedProxies);
+    }
+
+    /**
      * Servlet filter hiding the request id headers of the requests from clients other than the trusted proxies, to keep
      * clients from choosing the request id of the logs.
      *
      * @see RequestIdTrustFilter
-     * @see RequestIdConfigurationProperties#getTrustedProxies()
      */
     @Bean
-    RequestIdTrustFilter requestIdTrustFilter(RequestIdConfigurationProperties config) {
-        return new RequestIdTrustFilter(config.getTrustedProxies());
+    RequestIdTrustFilter requestIdTrustFilter(TrustedProxies trustedProxies) {
+        return new RequestIdTrustFilter(trustedProxies);
     }
 
     /**

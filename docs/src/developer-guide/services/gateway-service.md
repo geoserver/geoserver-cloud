@@ -134,6 +134,24 @@ geoserver:
   base-path: /geoserver/cloud
 ```
 
+### Trusted Proxies
+
+`geoserver.gateway.trusted-proxies` is a regular expression matching the addresses of the reverse
+proxies in front of the gateway, as seen by the gateway. The gateway reads the client address of a
+request from its `X-Forwarded-For` header, and the request id of the logs from its `X-Request-ID`
+header, only when a trusted proxy sent the request. By default, no proxy is trusted. See
+[Client address behind a reverse proxy](../../configuration/index.md#client-address-behind-a-reverse-proxy).
+
+```yaml
+geoserver:
+  gateway:
+    trusted-proxies: 10\.0\.0\.\d+
+```
+
+The `spring.cloud.gateway.server.webmvc.trusted-proxies` setting of Spring Cloud Gateway stays at
+`.*`: it decides which clients get `X-Forwarded-*` headers sent to the services, not the client
+address.
+
 ### Service Targets
 
 Service targets are defined at the top of `config/gateway.yml`:

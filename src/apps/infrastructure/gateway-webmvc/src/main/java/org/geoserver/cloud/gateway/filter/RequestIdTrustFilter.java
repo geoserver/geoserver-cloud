@@ -8,8 +8,6 @@ import static org.geoserver.cloud.logging.mdc.config.HttpRequestMdcConfigPropert
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletRequestWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,8 +15,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.regex.Pattern;
-import org.jspecify.annotations.Nullable;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -30,7 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * hides the request id headers unless the request comes from a trusted proxy. The gateway then creates its own id.
  *
  * <p>The check uses the address of the connection, as seen by the servlet container, and not the remote address of the
- * request. The remote address may come from the {@code X-Forwarded-For} header.
+ * request, see {@link TrustedProxies#isTrustedConnection}.
  *
  * <p>It must run before the {@link org.geoserver.cloud.logging.mdc.servlet.HttpRequestMdcFilter}, ordered at
  * {@code HIGHEST_PRECEDENCE + 2}: that filter reads the request id headers to fill the MDC.
@@ -40,39 +36,20 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class RequestIdTrustFilter extends OncePerRequestFilter {
 
-    private final @Nullable Pattern trustedProxies;
+    private final TrustedProxies trustedProxies;
 
-    /** @param trustedProxies the addresses of the trusted proxies, or {@code null} to trust no proxy */
-    public RequestIdTrustFilter(@Nullable Pattern trustedProxies) {
+    public RequestIdTrustFilter(TrustedProxies trustedProxies) {
         this.trustedProxies = trustedProxies;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        if (isFromTrustedProxy(request)) {
+        if (trustedProxies.isTrustedConnection(request)) {
             chain.doFilter(request, response);
         } else {
             chain.doFilter(new RequestIdHeadersHidingRequest(request), response);
         }
-    }
-
-    private boolean isFromTrustedProxy(HttpServletRequest request) {
-        if (trustedProxies == null) {
-            return false;
-        }
-        String connectionAddress = connectionAddress(request);
-        return connectionAddress != null
-                && trustedProxies.matcher(connectionAddress).matches();
-    }
-
-    /** The remote address of the request created by the servlet container, under the wrappers added by filters */
-    private static String connectionAddress(ServletRequest request) {
-        ServletRequest containerRequest = request;
-        while (containerRequest instanceof ServletRequestWrapper wrapper) {
-            containerRequest = wrapper.getRequest();
-        }
-        return containerRequest.getRemoteAddr();
     }
 
     /** Hides the request id headers from the next filters, and from the requests proxied to the services */
