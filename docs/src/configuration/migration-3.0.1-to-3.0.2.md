@@ -109,5 +109,7 @@ Behind a reverse proxy or a Kubernetes ingress controller, set the new
 `geoserver.gateway.trusted-proxies` setting to a regular expression matching
 its addresses. Otherwise, the logs, the control-flow rules and the brute force
 prevention of the services see the proxy address as the client address of the
-requests. See [Client address behind a reverse
+requests. This is a setting of GeoServer Cloud's gateway, distinct from
+`spring.cloud.gateway.server.webmvc.trusted-proxies`, which stays `.*`. See
+[Client address behind a reverse
 proxy](index.md#client-address-behind-a-reverse-proxy).

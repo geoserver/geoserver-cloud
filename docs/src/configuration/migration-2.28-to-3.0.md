@@ -117,11 +117,11 @@ GeoServer Cloud 3.0.0 replaces the default gateway implementation from Spring Cl
         for-enabled: true
     ```
 
-3. **Trusted proxies** are required for X-Forwarded header processing:
+3. **Trusted proxies** are required for X-Forwarded header processing. Keep the setting at `.*`: it decides which clients get `X-Forwarded-*` headers sent to the services. The client address and the request ID are decided by `geoserver.gateway.trusted-proxies` instead, see [Migrating from 3.0.1 to 3.0.2](migration-3.0.1-to-3.0.2.md#client-address-behind-a-reverse-proxy).
 
     ```yaml
     spring.cloud.gateway.server.webmvc:
-      trusted-proxies: ".*"  # restrict in production
+      trusted-proxies: ".*"
     ```
 
 #### Using the deprecated WebFlux gateway
