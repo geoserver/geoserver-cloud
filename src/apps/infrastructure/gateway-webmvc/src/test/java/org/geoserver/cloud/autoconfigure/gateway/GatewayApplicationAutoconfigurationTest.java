@@ -8,10 +8,12 @@ package org.geoserver.cloud.autoconfigure.gateway;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
+import org.geoserver.cloud.gateway.filter.ClientAddressFilter;
 import org.geoserver.cloud.gateway.filter.FormPostCharacterEncodingFilter;
 import org.geoserver.cloud.gateway.filter.GeoServerGatewayFilterFunctions;
 import org.geoserver.cloud.gateway.filter.RequestIdHeadersFilter;
 import org.geoserver.cloud.gateway.filter.RequestIdTrustFilter;
+import org.geoserver.cloud.gateway.filter.TrustedProxies;
 import org.geoserver.cloud.gateway.predicate.GeoServerGatewayRequestPredicates;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -33,6 +35,8 @@ class GatewayApplicationAutoconfigurationTest {
                 .hasSingleBean(FormPostCharacterEncodingFilter.class)
                 .hasSingleBean(RequestIdHeadersFilter.class)
                 .hasSingleBean(RequestIdTrustFilter.class)
+                .hasSingleBean(ClientAddressFilter.class)
+                .hasSingleBean(TrustedProxies.class)
                 .hasSingleBean(CorsFilter.class));
     }
 
@@ -78,19 +82,29 @@ class GatewayApplicationAutoconfigurationTest {
     }
 
     @Test
-    void requestId_trustsNoProxyByDefault() {
+    void trustedProxies_noneByDefault() {
         runner.run(context -> {
-            RequestIdConfigurationProperties props = context.getBean(RequestIdConfigurationProperties.class);
+            GatewayConfigurationProperties props = context.getBean(GatewayConfigurationProperties.class);
             assertThat(props.getTrustedProxies()).isNull();
+            assertThat(context.getBean(TrustedProxies.class).isTrusted("127.0.0.1"))
+                    .isFalse();
         });
     }
 
     @Test
-    void requestId_trustedProxies() {
+    void trustedProxies_fromRequestIdProperty() {
         runner.withPropertyValues("geoserver.gateway.request-id.trusted-proxies=10\\.0\\.0\\.\\d+")
+                .run(context -> assertThat(context.getBean(TrustedProxies.class).isTrusted("10.0.0.5"))
+                        .isTrue());
+    }
+
+    @Test
+    void trustedProxies_fromProperty() {
+        runner.withPropertyValues("geoserver.gateway.trusted-proxies=10\\.0\\.0\\.\\d+")
                 .run(context -> {
-                    RequestIdConfigurationProperties props = context.getBean(RequestIdConfigurationProperties.class);
-                    assertThat(props.getTrustedProxies().pattern()).isEqualTo("10\\.0\\.0\\.\\d+");
+                    TrustedProxies trustedProxies = context.getBean(TrustedProxies.class);
+                    assertThat(trustedProxies.isTrusted("10.0.0.5")).isTrue();
+                    assertThat(trustedProxies.isTrusted("192.168.1.10")).isFalse();
                 });
     }
 

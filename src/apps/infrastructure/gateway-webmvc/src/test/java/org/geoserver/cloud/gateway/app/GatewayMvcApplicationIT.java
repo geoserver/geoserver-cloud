@@ -12,6 +12,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -27,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -41,6 +43,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @ActiveProfiles("test")
 @AutoConfigureTestRestTemplate
 @Testcontainers(disabledWithoutDocker = true)
+// Trusted proxies: an address unused by the tests, which send their requests from 127.0.0.1
+@TestPropertySource(properties = "geoserver.gateway.trusted-proxies=10\\.9\\.8\\.7")
 class GatewayMvcApplicationIT {
 
     @SuppressWarnings("resource")
@@ -71,9 +75,6 @@ class GatewayMvcApplicationIT {
         registry.add(r2 + ".id", () -> "dead-backend");
         registry.add(r2 + ".uri", () -> "http://localhost:1"); // port 1: always refused
         registry.add(r2 + ".predicates[0]", () -> "Path=/dead/**");
-
-        // Request ids: a trusted proxy address unused by the tests, which send their requests from 127.0.0.1
-        registry.add("geoserver.gateway.request-id.trusted-proxies", () -> "10\\.9\\.8\\.7");
 
         // CORS configuration
         registry.add(
@@ -200,12 +201,57 @@ class GatewayMvcApplicationIT {
         assertThat(echoedHeader(echoedRequest, "X-Request-ID")).isNotEqualTo("client-request-id");
     }
 
+    // --- Client address tests ---
+    // The gateway sends the client address to the services in X-Forwarded-For. It reads the client address from the
+    // X-Forwarded-For header of the request only when a trusted proxy sent the request.
+
+    @Test
+    void clientAddress_connectionAddress() {
+        ResponseEntity<String> response = testRestTemplate.getForEntity("/echo/test", String.class);
+
+        assertThat(echoedHeader(response.getBody(), "X-Forwarded-For")).isEqualTo("127.0.0.1");
+    }
+
+    @Test
+    void clientAddress_ignoresForwardedFor() {
+        String echoedRequest = getEchoWithHeaders(Map.of("X-Forwarded-For", "6.6.6.6"));
+
+        assertThat(echoedHeader(echoedRequest, "X-Forwarded-For")).isEqualTo("127.0.0.1");
+    }
+
+    /** The tests send their requests from 127.0.0.1. With that address trusted, the gateway honors their headers. */
+    @Nested
+    @TestPropertySource(properties = "geoserver.gateway.trusted-proxies=127\\.0\\.0\\.1")
+    class FromTrustedProxy {
+
+        @Autowired
+        TestRestTemplate trustedRestTemplate;
+
+        @Test
+        void clientAddress_fromForwardedFor() {
+            String echoedRequest = getEchoWithHeaders(trustedRestTemplate, Map.of("X-Forwarded-For", "6.6.6.6"));
+
+            assertThat(echoedHeader(echoedRequest, "X-Forwarded-For")).isEqualTo("6.6.6.6");
+        }
+
+        @Test
+        void requestId_fromProxy() {
+            String echoedRequest = getEchoWithHeaders(trustedRestTemplate, Map.of("X-Request-ID", "proxy-request-id"));
+
+            assertThat(echoedHeader(echoedRequest, "X-Request-ID")).isEqualTo("proxy-request-id");
+        }
+    }
+
     private String getEchoWithHeaders(Map<String, String> headers) {
+        return getEchoWithHeaders(testRestTemplate, headers);
+    }
+
+    private static String getEchoWithHeaders(TestRestTemplate restTemplate, Map<String, String> headers) {
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setAll(headers);
         HttpEntity<?> entity = new HttpEntity<>(requestHeaders);
 
-        ResponseEntity<String> response = testRestTemplate.exchange("/echo/test", HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange("/echo/test", HttpMethod.GET, entity, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         return response.getBody();

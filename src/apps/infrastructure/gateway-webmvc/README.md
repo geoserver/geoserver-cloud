@@ -20,6 +20,7 @@ Replaces the previous WebFlux-based (reactive) gateway starting with GeoServer C
 - Custom route predicates: `RegExpQuery` (regex matching on query parameter name and value)
 - CORS support via `globalcors` configuration
 - `X-Forwarded-*` header propagation for reverse proxy deployments
+- Client address resolved from the trusted proxies, like Tomcat's remote IP valve (`geoserver.gateway.trusted-proxies`)
 - Prometheus metrics and health check endpoints
 
 ## Configuration

@@ -86,16 +86,28 @@ and the logs of both show the same ID for a request.
 
 A proxy in front of the gateway, like Envoy, can set its own ID in the
 `X-Request-ID` header. The gateway keeps this ID if the address of the proxy
-matches the new `geoserver.gateway.request-id.trusted-proxies` setting, a
-regular expression. Otherwise, it creates its own ID. If your proxy sets the
-ID, add its address to the setting:
+matches the new `geoserver.gateway.trusted-proxies` setting, a regular
+expression. Otherwise, it creates its own ID. If your proxy sets the ID, add
+its address to the setting:
 
 ```yaml
 geoserver:
   gateway:
-    request-id:
-      trusted-proxies: 10\.0\.0\.\d+
+    trusted-proxies: 10\.0\.0\.\d+
 ```
 
 See [Write JSON logs](../user-guide/logging.md#write-json-logs) for the format
 of the IDs.
+
+## Client address behind a reverse proxy
+
+The gateway resolves the client address of the requests in the same way as
+Tomcat's remote IP valve, and tells it to the services in the
+`X-Forwarded-For` header. It reads the `X-Forwarded-For` header of a request
+only when a trusted proxy sent the request, and trusts no proxy by default.
+Behind a reverse proxy or a Kubernetes ingress controller, set the new
+`geoserver.gateway.trusted-proxies` setting to a regular expression matching
+its addresses. Otherwise, the logs, the control-flow rules and the brute force
+prevention of the services see the proxy address as the client address of the
+requests. See [Client address behind a reverse
+proxy](index.md#client-address-behind-a-reverse-proxy).

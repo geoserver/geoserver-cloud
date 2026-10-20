@@ -20,7 +20,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 class RequestIdTrustFilterTest {
 
-    private static final Pattern TRUSTED_PROXIES = Pattern.compile("10\\.0\\.0\\.\\d+");
+    private static final TrustedProxies TRUSTED_PROXIES = TrustedProxies.of(Pattern.compile("10\\.0\\.0\\.\\d+"));
 
     private final RequestIdTrustFilter filter = new RequestIdTrustFilter(TRUSTED_PROXIES);
 
@@ -45,7 +45,7 @@ class RequestIdTrustFilterTest {
 
     @Test
     void trustsNoProxyByDefault() throws Exception {
-        RequestIdTrustFilter defaultFilter = new RequestIdTrustFilter(null);
+        RequestIdTrustFilter defaultFilter = new RequestIdTrustFilter(TrustedProxies.none());
 
         HttpServletRequest filtered = filter(defaultFilter, requestFrom("10.0.0.5"));
 

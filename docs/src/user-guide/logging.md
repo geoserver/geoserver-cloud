@@ -219,20 +219,22 @@ The gateway creates the request ID, and sends it to the service in the
 `X-Request-ID` header. A proxy in front of the gateway, like Envoy, can set
 its own ID in the same header, to follow a request in its own logs too. The
 gateway accepts this ID only from the trusted proxies, matched by the regular
-expression of `geoserver.gateway.request-id.trusted-proxies`:
+expression of `geoserver.gateway.trusted-proxies`:
 
 ```yaml
 geoserver:
   gateway:
-    request-id:
-      trusted-proxies: 10\.0\.0\.\d+
+    trusted-proxies: 10\.0\.0\.\d+
 ```
 
 The gateway ignores the ID sent by other clients, and creates its own. The
 expression must match the address of the proxy, as seen by the gateway. The
 gateway does not read the `X-Forwarded-For` header for this check. List a
 proxy only if it sets the ID of each request itself, instead of forwarding the
-ID received from its clients. By default, the gateway trusts no proxy.
+ID received from its clients. By default, the gateway trusts no proxy. The
+same setting selects the proxies trusted to tell the client address of the
+requests, see [Client address behind a reverse
+proxy](../configuration/index.md#client-address-behind-a-reverse-proxy).
 
 The gateway and the services ignore an ID longer than 64 characters, or with
 characters other than letters, digits, `-`, `_`, and `.`.
