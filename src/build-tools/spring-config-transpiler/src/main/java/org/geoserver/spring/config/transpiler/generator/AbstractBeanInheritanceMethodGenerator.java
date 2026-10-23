@@ -183,8 +183,9 @@ public class AbstractBeanInheritanceMethodGenerator extends AbstractBeanMethodGe
         addInheritedAnnotations(methodBuilder, parentBean, childBean);
 
         // Resolve the target constructor once for the merged args
-        Constructor<?> targetConstructor =
-                Reflections.resolveTargetConstructor(beanContext.getResolvedBeanClass(), mergedConstructorArgs);
+        Class<?> beanClass = beanContext.getResolvedBeanClass();
+        Constructor<?> targetConstructor = Reflections.resolveTargetConstructor(beanClass, mergedConstructorArgs);
+        BeanAccessibility.requirePublic(transpilationContext, beanContext.getBeanName(), beanClass, targetConstructor);
 
         // Collect all bean references for method parameters
         List<String> beanReferences = collectAllBeanReferences(mergedConstructorArgs);
@@ -383,7 +384,7 @@ public class AbstractBeanInheritanceMethodGenerator extends AbstractBeanMethodGe
                         || !constructorArgs.getGenericArgumentValues().isEmpty());
 
         // Add constructor exceptions to method signature
-        addExceptionsFromConstructor(methodBuilder, targetConstructor, false);
+        addExceptionsFromConstructor(methodBuilder, targetConstructor);
 
         if (hasConstructorArgs) {
             // Generate constructor call with merged arguments

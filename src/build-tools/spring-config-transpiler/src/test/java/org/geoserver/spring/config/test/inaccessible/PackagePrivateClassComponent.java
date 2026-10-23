@@ -2,13 +2,11 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.geoserver.spring.config.test.components;
+package org.geoserver.spring.config.test.inaccessible;
 
-/**
- * Package-private class used to verify that the transpiler emits a {@code @Bean} method whose return type is not the
- * bean class itself (which would be inaccessible from the generated configuration class's package) but its nearest
- * public ancestor.
- */
+import org.geoserver.spring.config.test.components.PublicAncestor;
+
+/** Package-private bean class: generated code in another package cannot instantiate it. */
 @SuppressWarnings("java:S2094") // empty class is intentional
 class PackagePrivateClassComponent extends PublicAncestor {
     PackagePrivateClassComponent() {}

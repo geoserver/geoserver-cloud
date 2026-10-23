@@ -120,12 +120,11 @@ public class SimpleBeanMethodGenerator extends AbstractBeanMethodGenerator {
             ClassName returnType,
             TranspilationContext transpilationContext) {
 
-        // Resolve constructor once upfront (no-arg for simple beans)
-        Constructor<?> constructor = Reflections.resolveTargetConstructor(beanContext.getResolvedBeanClass(), null);
-        boolean needsReflection = constructor != null && !Reflections.isPublic(constructor);
+        Class<?> beanClass = beanContext.getResolvedBeanClass();
+        Constructor<?> constructor = Reflections.resolveTargetConstructor(beanClass, null);
+        BeanAccessibility.requirePublic(transpilationContext, beanContext.getBeanName(), beanClass, constructor);
 
-        // Add constructor exceptions to method signature
-        addExceptionsFromConstructor(methodBuilder, constructor, needsReflection);
+        addExceptionsFromConstructor(methodBuilder, constructor);
 
         boolean hasProperties = beanContext.hasPropertyValues();
 
@@ -162,12 +161,7 @@ public class SimpleBeanMethodGenerator extends AbstractBeanMethodGenerator {
                 methodBuilder.addParameter(paramBuilder.build());
             }
 
-            // Create bean instance and set properties
-            if (needsReflection) {
-                generateReflectionConstructorCall(methodBuilder, beanClassName, returnType, "bean");
-            } else {
-                methodBuilder.addStatement("$T bean = new $T()", returnType, returnType);
-            }
+            methodBuilder.addStatement("$T bean = new $T()", returnType, returnType);
             // Pass the sanitized list — generatePropertySetters uses these as Java identifiers in the body.
             generatePropertySetters(
                     methodBuilder,
@@ -177,12 +171,7 @@ public class SimpleBeanMethodGenerator extends AbstractBeanMethodGenerator {
                     beanContext.getBeanName());
             methodBuilder.addStatement("return bean");
         } else {
-            // Simple case: no properties - direct instantiation
-            if (needsReflection) {
-                generateReflectionConstructorCall(methodBuilder, beanClassName, returnType, null);
-            } else {
-                methodBuilder.addStatement("return new $T()", returnType);
-            }
+            methodBuilder.addStatement("return new $T()", returnType);
         }
     }
 

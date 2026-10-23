@@ -140,6 +140,7 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
             this.beanClass = beanContext.getResolvedBeanClass();
             this.targetConstructor =
                     Reflections.resolveTargetConstructor(beanClass, beanDefinition.getConstructorArgumentValues());
+            BeanAccessibility.requirePublic(transpilationContext, beanName, beanClass, targetConstructor);
         }
 
         public MethodSpec generate() {
@@ -215,7 +216,7 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
         }
 
         private void addConstructorExceptions(MethodSpec.Builder methodBuilder) {
-            addExceptionsFromConstructor(methodBuilder, targetConstructor, true);
+            addExceptionsFromConstructor(methodBuilder, targetConstructor);
         }
 
         private void generateMethodBody(MethodSpec.Builder methodBuilder) {
@@ -473,9 +474,8 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
 
             if (constructorParams.isEmpty()) {
                 generateNoArgsConstructor(methodBuilder, hasProperties, returnType);
-            } else if (requiresReflectionBasedInstantiation(constructorParams)) {
-                generateReflectionBasedConstructorCall(methodBuilder, constructorParams, hasProperties);
             } else {
+                requireTargetConstructor(constructorParams);
                 generateRegularConstructorCall(methodBuilder, constructorParams, hasProperties, returnType);
             }
         }
@@ -613,56 +613,11 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
             return Character.toLowerCase(typeName.charAt(0)) + typeName.substring(1);
         }
 
-        /** Check if the target constructor requires reflection-based instantiation (non-public). */
-        private boolean requiresReflectionBasedInstantiation(List<ConstructorParameter> constructorParams) {
+        /** The constructor call with arguments needs the resolved constructor for its parameter types. */
+        private void requireTargetConstructor(List<ConstructorParameter> constructorParams) {
             if (targetConstructor == null) {
                 throw new IllegalStateException("No constructor found for %s with %d parameters"
                         .formatted(beanClassName, constructorParams.size()));
-            }
-            return !Reflections.isPublic(targetConstructor);
-        }
-
-        /** Generate reflection-based constructor call for protected/private constructors. */
-        private void generateReflectionBasedConstructorCall(
-                MethodSpec.Builder methodBuilder, List<ConstructorParameter> constructorParams, boolean hasProperties) {
-            ClassName returnType = getReturnType();
-
-            // Build parameter types array for getDeclaredConstructor
-            StringBuilder parameterTypes = new StringBuilder();
-            for (int i = 0; i < constructorParams.size(); i++) {
-                if (i > 0) {
-                    parameterTypes.append(", ");
-                }
-                parameterTypes.append(constructorParams.get(i).paramType).append(".class");
-            }
-
-            // Build parameter values for newInstance
-            StringBuilder parameterValues = new StringBuilder();
-            for (int i = 0; i < constructorParams.size(); i++) {
-                if (i > 0) {
-                    parameterValues.append(", ");
-                }
-                parameterValues.append(constructorParams.get(i).name);
-            }
-
-            // Generate reflection-based instantiation
-            String runtimeClassName = Reflections.convertToRuntimeClassName(beanClassName);
-            methodBuilder.addStatement(
-                    "java.lang.reflect.Constructor constructor = java.lang.Class.forName($S).getDeclaredConstructor($L)",
-                    runtimeClassName,
-                    parameterTypes.toString());
-            methodBuilder.addStatement("constructor.setAccessible(true)");
-
-            if (hasProperties) {
-                methodBuilder.addStatement(
-                        "$T bean = ($T) constructor.newInstance($L)",
-                        returnType,
-                        returnType,
-                        parameterValues.toString());
-                // Property setters and return statement will be added later
-            } else {
-                methodBuilder.addStatement(
-                        "return ($T) constructor.newInstance($L)", returnType, parameterValues.toString());
             }
         }
 
