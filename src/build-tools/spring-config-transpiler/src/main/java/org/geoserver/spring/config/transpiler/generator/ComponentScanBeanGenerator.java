@@ -203,7 +203,7 @@ public class ComponentScanBeanGenerator {
 
         // Resolve constructor
         Constructor<?> constructor = resolveConstructor(beanClass);
-        boolean needsReflection = constructor != null && !Reflections.isPublic(constructor);
+        BeanAccessibility.requirePublic(context, beanName, beanClass, constructor);
 
         ClassName returnType = ClassName.get(beanClass);
 
@@ -218,16 +218,13 @@ public class ComponentScanBeanGenerator {
                 basePackage,
                 xmlSources);
 
-        // Add checked exceptions from the constructor (or throws Exception for reflection)
-        addExceptionsFromConstructor(methodBuilder, constructor, needsReflection);
+        addExceptionsFromConstructor(methodBuilder, constructor);
 
         if (constructor != null && constructor.getParameterCount() > 0) {
             addConstructorParameters(methodBuilder, constructor);
         }
 
-        if (needsReflection) {
-            generateReflectionConstructorCall(methodBuilder, constructor, returnType);
-        } else if (constructor == null || constructor.getParameterCount() == 0) {
+        if (constructor == null || constructor.getParameterCount() == 0) {
             methodBuilder.addStatement("return new $T()", returnType);
         } else {
             methodBuilder.addStatement("return new $T($L)", returnType, buildParamNames(constructor));
@@ -299,49 +296,16 @@ public class ComponentScanBeanGenerator {
     }
 
     /**
-     * Add checked exceptions from the constructor to the method signature. For non-public constructors using
-     * reflection, adds {@code throws Exception} instead of the specific exception types. Mirrors
+     * Add the checked exceptions of the constructor to the method signature. Mirrors
      * {@link AbstractBeanMethodGenerator#addExceptionsFromConstructor}.
      */
-    private void addExceptionsFromConstructor(
-            MethodSpec.Builder methodBuilder, @Nullable Constructor<?> constructor, boolean reflectionBased) {
+    private void addExceptionsFromConstructor(MethodSpec.Builder methodBuilder, @Nullable Constructor<?> constructor) {
         if (constructor == null) {
             return;
         }
-        java.util.stream.Stream<Class<?>> exceptionTypes;
-        if (reflectionBased) {
-            exceptionTypes = java.util.stream.Stream.of(Exception.class);
-        } else {
-            exceptionTypes = java.util.stream.Stream.of(constructor.getExceptionTypes());
-        }
-        exceptionTypes
+        java.util.stream.Stream.of(constructor.getExceptionTypes())
                 .filter(e -> Exception.class.isAssignableFrom(e) && !RuntimeException.class.isAssignableFrom(e))
                 .map(ClassName::get)
                 .forEach(methodBuilder::addException);
-    }
-
-    private void generateReflectionConstructorCall(
-            MethodSpec.Builder methodBuilder, Constructor<?> constructor, ClassName returnType) {
-
-        Class<?>[] paramTypes = constructor.getParameterTypes();
-
-        // Build parameter types for getDeclaredConstructor
-        StringBuilder paramTypeClasses = new StringBuilder();
-        StringBuilder paramValues = new StringBuilder();
-        for (int i = 0; i < paramTypes.length; i++) {
-            if (i > 0) {
-                paramTypeClasses.append(", ");
-                paramValues.append(", ");
-            }
-            paramTypeClasses.append(Reflections.classToClassName(paramTypes[i])).append(".class");
-            paramValues.append(generateParameterName(paramTypes[i]));
-        }
-
-        methodBuilder.addStatement(
-                "java.lang.reflect.Constructor<?> constructor = $T.class.getDeclaredConstructor($L)",
-                returnType,
-                paramTypeClasses.toString());
-        methodBuilder.addStatement("constructor.setAccessible(true)");
-        methodBuilder.addStatement("return ($T) constructor.newInstance($L)", returnType, paramValues.toString());
     }
 }
