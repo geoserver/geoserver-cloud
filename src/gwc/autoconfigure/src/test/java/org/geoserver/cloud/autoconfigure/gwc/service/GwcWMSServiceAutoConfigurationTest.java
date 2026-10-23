@@ -48,4 +48,10 @@ class GwcWMSServiceAutoConfigurationTest {
                 .hasSingleBean(ImageDecoderContainer.class)
                 .hasSingleBean(ImageEncoderContainer.class));
     }
+
+    @Test
+    void disabledWhenGwcDisabled() {
+        runner.withPropertyValues("gwc.enabled=false", "gwc.services.wms=true")
+                .run(context -> assertThat(context).hasNotFailed().doesNotHaveBean("gwcServiceWMSTarget"));
+    }
 }
