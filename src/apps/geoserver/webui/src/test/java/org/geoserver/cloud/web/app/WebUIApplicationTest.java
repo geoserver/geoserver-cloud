@@ -21,15 +21,18 @@ import org.apache.wicket.util.tester.WicketTester;
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.core.WebUIContextInitializer;
 import org.geoserver.cloud.web.WicketTesters;
+import org.geoserver.wcs.web.WCSAdminPage;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.GeoServerHomePage;
 import org.geoserver.web.MenuPageInfo;
 import org.geoserver.web.ServicesPanel;
 import org.geoserver.web.admin.LogPage;
 import org.geoserver.web.wicket.WicketHierarchyPrinter;
+import org.geoserver.wps.web.WPSAdminPage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,7 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(
         properties = {
@@ -202,5 +206,24 @@ class WebUIApplicationTest {
         assertThat(context.containsBean("wmsConditionalBean")).isFalse();
         assertThat(context.containsBean("wpsConditionalBean")).isFalse();
         assertThat(context.containsBean("restConditionalBean")).isFalse();
+    }
+
+    /** A deployment without a wcs service hides the WCS pages and keeps the WPS ones. */
+    @Nested
+    @TestPropertySource(properties = "geoserver.web-ui.wcs.enabled=false")
+    class WcsPagesDisabled {
+
+        @Autowired
+        GeoServerApplication wcsPagesDisabledApp;
+
+        @Test
+        void noWcsAdminPageMenuEntry() {
+            List<MenuPageInfo> menuPages = wcsPagesDisabledApp.getBeansOfType(MenuPageInfo.class);
+
+            assertThat(menuPages)
+                    .extracting(MenuPageInfo::getComponentClass)
+                    .contains(WPSAdminPage.class)
+                    .doesNotContain(WCSAdminPage.class);
+        }
     }
 }
