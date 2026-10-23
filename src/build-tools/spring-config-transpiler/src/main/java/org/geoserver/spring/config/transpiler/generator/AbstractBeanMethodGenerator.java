@@ -510,6 +510,10 @@ public abstract class AbstractBeanMethodGenerator implements BeanMethodGenerator
      * itself is not public. {@code @Bean} method return/parameter types must be accessible from the generated
      * configuration class, which lives in a different package than Spring Security internals such as
      * {@code HttpSecurityConfiguration}.
+     *
+     * <p>The substitution serves beans produced by factory methods and factory beans; their declared type can be a
+     * non-public implementation. A bean instantiated by generated code is rejected by {@link BeanAccessibility} when
+     * its class is not public, whatever return type this method chose for it.
      */
     protected ClassName toAccessibleClassName(String typeName) {
         try {
@@ -595,34 +599,6 @@ public abstract class AbstractBeanMethodGenerator implements BeanMethodGenerator
             return constructor.getParameterTypes()[paramIndex];
         }
         throw new IllegalStateException("Unable to resolve constructor parameter type for index " + paramIndex);
-    }
-    /**
-     * Generate reflection-based constructor instantiation for no-argument constructors. This handles protected/private
-     * constructors that can't be called directly.
-     *
-     * @param methodBuilder the method builder to add statements to
-     * @param beanClassName the fully qualified class name
-     * @param returnType the return type for casting
-     * @param variableName the variable name to create ("bean" for properties, null for direct return)
-     */
-    protected void generateReflectionConstructorCall(
-            MethodSpec.Builder methodBuilder, String beanClassName, ClassName returnType, String variableName) {
-
-        methodBuilder.addStatement(
-                "java.lang.reflect.Constructor constructor = java.lang.Class.forName($S).getDeclaredConstructor()",
-                beanClassName);
-        methodBuilder.addStatement("constructor.setAccessible(true)");
-
-        if (variableName != null) {
-            // Create variable for property setting
-            methodBuilder.addStatement("$T $L = ($T) constructor.newInstance()", returnType, variableName, returnType);
-        } else {
-            // Direct return
-            methodBuilder.addStatement("return ($T) constructor.newInstance()", returnType);
-        }
-
-        // Add exception to method signature for reflection
-        methodBuilder.addException(ClassName.get(Exception.class));
     }
 
     /**
@@ -1204,22 +1180,13 @@ public abstract class AbstractBeanMethodGenerator implements BeanMethodGenerator
         }
     }
 
-    /**
-     * Add checked exceptions from a pre-resolved constructor to the method signature. If the constructor is non-public
-     * and {@code reflectionBased} is true, adds a generic {@code throws Exception} instead.
-     */
+    /** Add the checked exceptions of a pre-resolved constructor to the method signature. */
     protected void addExceptionsFromConstructor(
-            MethodSpec.Builder methodBuilder, @Nullable Constructor<?> constructor, boolean reflectionBased) {
+            MethodSpec.Builder methodBuilder, @Nullable Constructor<?> constructor) {
         if (constructor == null) {
             return;
         }
-        Stream<Class<?>> exceptionTypes;
-        if (reflectionBased && !Reflections.isPublic(constructor)) {
-            exceptionTypes = Stream.of(Exception.class);
-        } else {
-            exceptionTypes = Stream.of(constructor.getExceptionTypes());
-        }
-        exceptionTypes
+        Stream.of(constructor.getExceptionTypes())
                 .filter(e -> Exception.class.isAssignableFrom(e) && !RuntimeException.class.isAssignableFrom(e))
                 .map(ClassName::get)
                 .forEach(methodBuilder::addException);

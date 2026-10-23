@@ -14,16 +14,18 @@ import org.springframework.context.annotation.Import;
  *
  * <p>Excludes webui components.
  *
- * @see org.geoserver.cog.COGConfiguration_Generated
+ * @see COGConfiguration_Generated
  * @see COGWebUIConfiguration
  */
 @Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-cog-.*!/applicationContext.xml",
-        // Use org.geoserver.cog as target package because CogEncryptedFieldsProvider is
-        // package private
-        targetPackage = "org.geoserver.cog",
-        publicAccess = true,
-        excludes = {"COGGeoTIFFExclusionFilter", "CogGeotiffStorePanel", "CogSettingsPanel"})
-@Import(org.geoserver.cog.COGConfiguration_Generated.class)
+        excludes = {
+            "COGGeoTIFFExclusionFilter",
+            "CogGeotiffStorePanel",
+            "CogSettingsPanel",
+            // package-private class, excluded until geoserver/geoserver#10133 is in the GeoServer build
+            "cogEncryptedFieldsProvider"
+        })
+@Import(COGConfiguration_Generated.class)
 public class COGConfiguration {}

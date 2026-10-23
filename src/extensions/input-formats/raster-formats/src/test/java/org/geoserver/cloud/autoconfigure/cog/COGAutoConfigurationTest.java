@@ -58,11 +58,9 @@ class COGAutoConfigurationTest {
     }
 
     private String[] nonWebuiBeanNames() {
+        // cogEncryptedFieldsProvider is excluded until geoserver/geoserver#10133 is in the GeoServer build
         return new String[] {
-            "coverageReaderInputObjectCogConverter",
-            "cogSettingsInitializer",
-            "cogSettingsXStreamInitializer",
-            "cogEncryptedFieldsProvider"
+            "coverageReaderInputObjectCogConverter", "cogSettingsInitializer", "cogSettingsXStreamInitializer"
         };
     }
 

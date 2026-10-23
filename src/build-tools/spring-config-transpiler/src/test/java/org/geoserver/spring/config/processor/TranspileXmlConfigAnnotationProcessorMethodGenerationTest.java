@@ -5,6 +5,7 @@
 package org.geoserver.spring.config.processor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -37,6 +38,7 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.spring.config.transpiler.context.TranspilationContext;
 import org.geoserver.spring.config.transpiler.generator.ComponentScanBeanGenerator;
+import org.geoserver.spring.config.transpiler.generator.InaccessibleBeanException;
 import org.geoserver.spring.config.transpiler.generator.Reflections;
 import org.geoserver.spring.config.transpiler.xml.XmlBeanDefinitionParser;
 import org.junit.Assume;
@@ -180,6 +182,23 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
         final String xml =
                 """
                 <bean id="xmlSecurityProvider" class="org.geoserver.security.xml.XMLSecurityProvider"/>
+                """;
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.security.xml.XMLSecurityProvider xmlSecurityProvider() {
+                  return new org.geoserver.security.xml.XMLSecurityProvider();
+                }
+                """;
+        testBeanMethodGeneneration("xmlSecurityProvider", xml, expectedJavaCode);
+    }
+
+    // gs-cog declares its EncryptedFieldsProvider bean with a leading space in the class attribute
+    @Test
+    void testClassNameWithLeadingSpace() {
+        final String xml =
+                """
+                <bean id="xmlSecurityProvider" class=" org.geoserver.security.xml.XMLSecurityProvider"/>
                 """;
         final String expectedJavaCode =
                 """
@@ -575,29 +594,53 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
     }
 
     /**
-     * Regression: when a bean's declared class is package-private, the generated {@code @Bean} method must declare its
-     * return type as the nearest public ancestor. Otherwise the generated code does not compile from a configuration
-     * class in a different package.
+     * A bean class that is not public fails the transpilation: generated code cannot instantiate it without reflection,
+     * and the class must be made public upstream. The message names the bean, the class and the fix.
      */
     @Test
     void testBeanWithPackagePrivateClass() {
         final String xml =
                 """
                 <bean id="packagePrivateBean"
-                      class="org.geoserver.spring.config.test.components.PackagePrivateClassComponent"/>
+                      class="org.geoserver.spring.config.test.inaccessible.PackagePrivateClassComponent"/>
                 """;
 
-        final String expectedJavaCode =
+        assertThatThrownBy(() -> BeanMethodGeneratorTestUtils.generateBeanMethodFromXml("packagePrivateBean", xml))
+                .isInstanceOf(InaccessibleBeanException.class)
+                .hasMessageContaining("'packagePrivateBean'")
+                .hasMessageContaining("org.geoserver.spring.config.test.inaccessible.PackagePrivateClassComponent")
+                .hasMessageContaining("public");
+    }
+
+    @Test
+    void testPackagePrivateConstructor() {
+        final String xml =
                 """
-                @org.springframework.context.annotation.Bean
-                org.geoserver.spring.config.test.components.PublicAncestor packagePrivateBean() throws java.lang.Exception {
-                  java.lang.reflect.Constructor constructor = java.lang.Class.forName("org.geoserver.spring.config.test.components.PackagePrivateClassComponent").getDeclaredConstructor();
-                  constructor.setAccessible(true);
-                  return (org.geoserver.spring.config.test.components.PublicAncestor) constructor.newInstance();
-                }
+                <bean id="packagePrivateConstructorBean"
+                      class="org.geoserver.spring.config.test.inaccessible.PackagePrivateConstructorComponent"/>
                 """;
 
-        testBeanMethodGeneneration("packagePrivateBean", xml, expectedJavaCode);
+        assertThatThrownBy(() ->
+                        BeanMethodGeneratorTestUtils.generateBeanMethodFromXml("packagePrivateConstructorBean", xml))
+                .isInstanceOf(InaccessibleBeanException.class)
+                .hasMessageContaining("'packagePrivateConstructorBean'")
+                .hasMessageContaining("constructor");
+    }
+
+    @Test
+    void testPackagePrivateArgConstructor() {
+        final String xml =
+                """
+                <bean id="argConstructorBean"
+                      class="org.geoserver.spring.config.test.inaccessible.PackagePrivateArgConstructorComponent">
+                    <constructor-arg value="name"/>
+                </bean>
+                """;
+
+        assertThatThrownBy(() -> BeanMethodGeneratorTestUtils.generateBeanMethodFromXml("argConstructorBean", xml))
+                .isInstanceOf(InaccessibleBeanException.class)
+                .hasMessageContaining("'argConstructorBean'")
+                .hasMessageContaining("constructor");
     }
 
     /**
@@ -2156,31 +2199,18 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
         assertBeanMethod(method).compilesSuccessfully().isEquivalentTo(expectedJavaCode);
     }
 
-    /** Tests that a component with a package-private no-arg constructor uses reflection-based instantiation. */
+    /** A scanned component with a package-private constructor fails the transpilation like an XML bean does. */
     @Test
     void testComponentScanGeneratePackagePrivateConstructor() {
         String xml =
                 """
-                <context:component-scan base-package="org.geoserver.spring.config.test.components"/>
+                <context:component-scan base-package="org.geoserver.spring.config.test.inaccessible"/>
                 """;
 
-        TypeSpec typeSpec = generateComponentScannedBeans(xml);
-        assertThat(typeSpec).isNotNull();
-
-        MethodSpec method = findMethod(typeSpec, "packagePrivateConstructorComponent");
-
-        String expectedJavaCode =
-                """
-                @org.springframework.context.annotation.Bean
-                org.geoserver.spring.config.test.components.PackagePrivateConstructorComponent packagePrivateConstructorComponent(
-                    ) throws java.lang.Exception {
-                  java.lang.reflect.Constructor<?> constructor = org.geoserver.spring.config.test.components.PackagePrivateConstructorComponent.class.getDeclaredConstructor();
-                  constructor.setAccessible(true);
-                  return (org.geoserver.spring.config.test.components.PackagePrivateConstructorComponent) constructor.newInstance();
-                }
-                """;
-
-        assertBeanMethod(method).compilesSuccessfully().isEquivalentTo(expectedJavaCode);
+        assertThatThrownBy(() -> generateComponentScannedBeans(xml))
+                .isInstanceOf(InaccessibleBeanException.class)
+                .hasMessageContaining("'packagePrivateConstructorComponent'")
+                .hasMessageContaining("constructor");
     }
 
     /** Tests that abstract classes and interfaces are excluded from component scan generation. */
