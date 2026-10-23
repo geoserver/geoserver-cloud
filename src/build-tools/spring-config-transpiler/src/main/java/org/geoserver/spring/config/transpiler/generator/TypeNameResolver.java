@@ -17,6 +17,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import lombok.experimental.UtilityClass;
 import org.geoserver.spring.config.transpiler.context.TranspilationContext;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -114,7 +115,7 @@ class TypeNameResolver {
      */
     public static TypeResolutionResult resolveBeanReturnType(
             BeanDefinition beanDefinition, TranspilationContext context) {
-        String beanClassName = beanDefinition.getBeanClassName();
+        String beanClassName = trimToNull(beanDefinition.getBeanClassName());
 
         // Check for static factory method FIRST (before plain beanClassName resolution)
         if (beanDefinition.getFactoryMethodName() != null && beanClassName != null) {
@@ -122,7 +123,7 @@ class TypeNameResolver {
         }
 
         // Try direct bean class name
-        if (beanClassName != null && !beanClassName.trim().isEmpty()) {
+        if (beanClassName != null) {
             return resolveTypeName(beanClassName, context);
         }
 
@@ -178,12 +179,13 @@ class TypeNameResolver {
     /**
      * Resolve a type name using the annotation processor's type system.
      *
-     * @param typeName the fully qualified type name
+     * @param rawTypeName the fully qualified type name, surrounding whitespace is ignored
      * @param context the transpilation context
      * @return resolved type information
      */
-    public static TypeResolutionResult resolveTypeName(String typeName, TranspilationContext context) {
-        if (typeName == null || typeName.trim().isEmpty()) {
+    public static TypeResolutionResult resolveTypeName(String rawTypeName, TranspilationContext context) {
+        final String typeName = trimToNull(rawTypeName);
+        if (typeName == null) {
             return TypeResolutionResult.unresolved(JAVA_LANG_OBJECT);
         }
 
@@ -485,6 +487,17 @@ class TypeNameResolver {
         }
 
         return null; // No transformation found
+    }
+
+    /**
+     * Trims a type name, returning {@code null} for a blank one. Spring trims the class attribute of a bean element,
+     * but type names from other XML attributes reach the resolver as written.
+     */
+    private static @Nullable String trimToNull(@Nullable String typeName) {
+        if (typeName == null || typeName.isBlank()) {
+            return null;
+        }
+        return typeName.trim();
     }
 
     /** Check if a string looks like a valid Java class name. */

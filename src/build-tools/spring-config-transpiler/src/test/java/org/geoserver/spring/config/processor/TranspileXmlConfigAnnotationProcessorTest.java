@@ -765,6 +765,32 @@ class TranspileXmlConfigAnnotationProcessorTest {
         CompilationSubject.assertThat(compilation).failed();
     }
 
+    // the error must reach the compiler output, where a downstream build of a GeoServer PR shows it
+    @Test
+    void testPackagePrivateBeanFails() {
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.springframework.context.annotation.Configuration;
+
+                @Configuration
+                @TranspileXmlConfig(locations = "classpath:test-package-private-bean.xml")
+                public class PackagePrivateBeanConfiguration {
+                }
+                """;
+
+        JavaFileObject source =
+                JavaFileObjects.forSourceString("com.example.PackagePrivateBeanConfiguration", sourceCode);
+
+        Compilation compilation = compilerWithProcessor().compile(source);
+
+        CompilationSubject.assertThat(compilation).failed();
+        CompilationSubject.assertThat(compilation)
+                .hadErrorContaining("org.geoserver.spring.config.test.inaccessible.PackagePrivateClassComponent");
+    }
+
     /**
      * Tests error handling for missing JAR pattern resources.
      *

@@ -139,10 +139,12 @@ public class Reflections {
      * <p>The transpiler only reads signatures, assignability and identity from the classes it loads. Initializing them
      * is both unnecessary and harmful: a static initializer runs application code at annotation-processing time, and
      * that code reaches for runtime services the annotation processor classpath does not provide.
+     *
+     * <p>Surrounding whitespace in {@code className} is ignored.
      */
     public Class<?> loadForInspection(String className) throws ClassNotFoundException {
         boolean initialize = false;
-        return Class.forName(className, initialize, Reflections.class.getClassLoader());
+        return Class.forName(className.trim(), initialize, Reflections.class.getClassLoader());
     }
 
     /**
@@ -153,9 +155,10 @@ public class Reflections {
         // Convert any inner class dot notation to dollar notation
         // This handles cases like "org.geoserver.wps.ppio.GeoJSONPPIO.Geometries"
         // to "org.geoserver.wps.ppio.GeoJSONPPIO$Geometries"
-        String[] parts = beanClassName.split("\\.");
+        String className = beanClassName.trim();
+        String[] parts = className.split("\\.");
         if (parts.length < 2) {
-            return beanClassName; // No package or simple class name
+            return className; // No package or simple class name
         }
 
         // Try to detect if this might be an inner class by checking if any part
