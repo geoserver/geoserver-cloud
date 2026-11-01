@@ -24,11 +24,11 @@
     <!-- Project version management       -->
     <!-- ================================ -->
     <spring-cloud.version>2025.1.3</spring-cloud.version>
-    <spring-boot.version>4.1.1</spring-boot.version>
+    <spring-boot.version>4.1.2</spring-boot.version>
     <!-- match upstream geoserver dependencies -->
-    <spring.version>7.0.9</spring.version>
-    <spring.security.version>7.1.1</spring.security.version>
-    <spring-integration.version>7.1.1</spring-integration.version>
+    <spring.version>7.0.10</spring.version>
+    <spring.security.version>7.1.2</spring.security.version>
+    <spring-integration.version>7.1.2</spring-integration.version>
 
     <gs.version>3.1.0-CLOUD-SNAPSHOT</gs.version>
     <gt.version>36-SNAPSHOT</gt.version>
@@ -37,8 +37,8 @@
     <cloud-dependencies-bom.version>1.1.0</cloud-dependencies-bom.version>
     <tileverse-geoserver.version>3.1-SNAPSHOT</tileverse-geoserver.version>
     <tileverse.version>2.1.0</tileverse.version>
-    <jackson.version>3.2.3</jackson.version>
-    <jackson2.version>2.22.2</jackson2.version>
+    <jackson.version>3.2.4</jackson.version>
+    <jackson2.version>2.22.4</jackson2.version>
 
     <!-- default target java version, submodules may override -->
     <java.version>25</java.version>
@@ -47,9 +47,11 @@
 
     <!-- dependency versions -->
     <postgresql.version>42.7.13</postgresql.version>
-    <httpclient5.version>5.6.3</httpclient5.version>
+    <httpclient5.version>5.6.5</httpclient5.version>
+    <httpcore5.version>5.4.4</httpcore5.version>
+    <asm.version>9.11.1</asm.version>
     <!--
-     pinned ahead of the 5.30.0 managed by spring-boot-dependencies 4.1.1. Remove this
+     pinned ahead of the 5.30.0 managed by spring-boot-dependencies 4.1.2. Remove this
      property and the matching dependencyManagement entry once the managed version catches up.
     -->
     <rabbit-amqp-client.version>5.35.0</rabbit-amqp-client.version>
@@ -187,7 +189,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>33.5.0-jre</version>
+        <version>33.7.2-jre</version>
       </dependency>
       <dependency>
         <groupId>com.google.errorprone</groupId>
@@ -1205,7 +1207,85 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
 -->
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>9.7.1</version>
+            <version>${asm.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
+            <version>${asm.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <version>${asm.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
+            <version>${asm.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.20</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.23.0</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.15.0</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>3.0.0</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+            <version>2.1.4</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <version>2.1.5</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.5</version>
+          </dependency>
+          <dependency>
+            <!-- match jaxb-core and txw2 from spring-boot-dependencies -->
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.9</version>
+          </dependency>
+          <dependency>
+            <!-- version required by httpclient5 -->
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5</artifactId>
+            <version>${httpcore5.version}</version>
+          </dependency>
+          <dependency>
+            <!-- version required by httpclient5 -->
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5-h2</artifactId>
+            <version>${httpcore5.version}</version>
           </dependency>
           <dependency>
             <!--
