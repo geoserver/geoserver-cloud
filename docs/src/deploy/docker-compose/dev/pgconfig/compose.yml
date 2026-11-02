@@ -118,7 +118,7 @@ services:
           memory: 4G
 
   acl:
-    image: geoservercloud/geoserver-acl:3.0.3
+    image: geoservercloud/geoserver-acl:3.0.4
     user: "1000:1000"
     depends_on:
       geoserverdb:
