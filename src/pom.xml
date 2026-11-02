@@ -24,21 +24,21 @@
     <!-- Project version management       -->
     <!-- ================================ -->
     <spring-cloud.version>2025.1.3</spring-cloud.version>
-    <spring-boot.version>4.1.1</spring-boot.version>
+    <spring-boot.version>4.1.2</spring-boot.version>
     <!-- match upstream geoserver dependencies -->
-    <spring.version>7.0.9</spring.version>
-    <spring.security.version>7.1.1</spring.security.version>
-    <spring-integration.version>7.1.1</spring-integration.version>
+    <spring.version>7.0.10</spring.version>
+    <spring.security.version>7.1.2</spring.security.version>
+    <spring-integration.version>7.1.2</spring-integration.version>
 
-    <gs.version>3.0.2-CLOUD-SNAPSHOT</gs.version>
+    <gs.version>3.0.3-CLOUD-SNAPSHOT</gs.version>
     <gt.version>35-SNAPSHOT</gt.version>
-    <wicket.version>10.11.0</wicket.version>
+    <wicket.version>10.12.0</wicket.version>
     <acl.version>3.0.4</acl.version>
     <cloud-dependencies-bom.version>1.1.0</cloud-dependencies-bom.version>
-    <tileverse-geoserver.version>3.0.2</tileverse-geoserver.version>
+    <tileverse-geoserver.version>3.0-SNAPSHOT</tileverse-geoserver.version>
     <tileverse.version>2.1.0</tileverse.version>
-    <jackson.version>3.2.3</jackson.version>
-    <jackson2.version>2.22.2</jackson2.version>
+    <jackson.version>3.2.4</jackson.version>
+    <jackson2.version>2.22.4</jackson2.version>
 
     <!-- default target java version, submodules may override -->
     <java.version>25</java.version>
@@ -47,13 +47,15 @@
 
     <!-- dependency versions -->
     <postgresql.version>42.7.13</postgresql.version>
-    <httpclient5.version>5.6.3</httpclient5.version>
+    <httpclient5.version>5.6.5</httpclient5.version>
+    <httpcore5.version>5.4.4</httpcore5.version>
+    <asm.version>9.11.1</asm.version>
     <!--
-     pinned ahead of the 5.30.0 managed by spring-boot-dependencies 4.1.1. Remove this
+     pinned ahead of the 5.30.0 managed by spring-boot-dependencies 4.1.2. Remove this
      property and the matching dependencyManagement entry once the managed version catches up.
     -->
     <rabbit-amqp-client.version>5.35.0</rabbit-amqp-client.version>
-    <lombok.version>1.18.42</lombok.version>
+    <lombok.version>1.18.48</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <testcontainers.version>2.0.4</testcontainers.version>
     <fork.javac>false</fork.javac>
@@ -187,7 +189,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>33.5.0-jre</version>
+        <version>33.7.2-jre</version>
       </dependency>
       <dependency>
         <groupId>com.google.errorprone</groupId>
@@ -1205,30 +1207,131 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
 -->
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>9.7.1</version>
+            <version>${asm.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
+            <version>${asm.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <version>${asm.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
+            <version>${asm.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.20</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.23.0</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.15.0</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>3.0.0</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+            <version>2.1.4</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <version>2.1.5</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.5</version>
+          </dependency>
+          <dependency>
+            <!-- match jaxb-core and txw2 from spring-boot-dependencies -->
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.9</version>
+          </dependency>
+          <dependency>
+            <!--
+[ERROR] Dependency convergence error for org.apache.wicket:wicket-core:jar:10.12.0. Paths to dependency are:
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.3-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.3-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.apache.wicket:wicket-core:jar:10.12.0:provided
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.3-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.0.3-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.wicketstuff:wicketstuff-select2:jar:10.12.0:provided
+[ERROR]       +-de.agilecoders.wicket.webjars:wicket-webjars:jar:4.0.15:provided
+[ERROR]         +-org.apache.wicket:wicket-core:jar:10.11.0:provided
+-->
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-core</artifactId>
+            <version>${wicket.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match wicket.version, GeoServer manages 10.11.0 -->
+            <groupId>org.wicketstuff</groupId>
+            <artifactId>wicketstuff-select2</artifactId>
+            <version>10.12.0</version>
+          </dependency>
+          <dependency>
+            <!-- version required by httpclient5 -->
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5</artifactId>
+            <version>${httpcore5.version}</version>
+          </dependency>
+          <dependency>
+            <!-- version required by httpclient5 -->
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5-h2</artifactId>
+            <version>${httpcore5.version}</version>
           </dependency>
           <dependency>
             <!--
 [ERROR] Dependency convergence error for com.fasterxml.woodstox:woodstox-core:jar:7.0.0. Paths to dependency are:
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.2-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.2-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.0.2-SNAPSHOT:compile
-[ERROR]       +-org.geoserver.community:gs-cog-google:jar:3.0.2-CLOUD-SNAPSHOT:compile
-[ERROR]         +-it.geosolutions.imageio-ext:imageio-ext-cog-rangereader-gs:jar:2.1.3:compile
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.1.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.community:gs-cog-google:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]         +-it.geosolutions.imageio-ext:imageio-ext-cog-rangereader-gs:jar:2.1-SNAPSHOT:compile
 [ERROR]           +-com.google.cloud:google-cloud-storage:jar:2.73.0:compile
 [ERROR]             +-com.fasterxml.woodstox:woodstox-core:jar:7.0.0:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.2-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-app-schema:jar:3.0.2-SNAPSHOT:compile
-[ERROR]     +-org.geoserver:gs-main:jar:3.0.2-CLOUD-SNAPSHOT:compile
-[ERROR]       +-org.geoserver:gs-ows:jar:3.0.2-CLOUD-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-app-schema:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver:gs-main:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-org.geoserver:gs-ows:jar:3.1.0-CLOUD-SNAPSHOT:compile
 [ERROR]         +-tools.jackson.dataformat:jackson-dataformat-xml:jar:3.2.2:compile
 [ERROR]           +-com.fasterxml.woodstox:woodstox-core:jar:7.2.1:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.2-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-ogcapi-features:jar:3.0.2-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-ogcapi-core:jar:3.0.2-SNAPSHOT:compile
-[ERROR]       +-org.geoserver.extension:gs-ogcapi-core:jar:3.0.2-CLOUD-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-ogcapi-features:jar:3.1.0-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-ogcapi-core:jar:3.1.0-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.extension:gs-ogcapi-core:jar:3.1.0-CLOUD-SNAPSHOT:compile
 [ERROR]         +-com.fasterxml.woodstox:woodstox-core:jar:7.3.0:compile
 -->
             <groupId>com.fasterxml.woodstox</groupId>
@@ -1238,22 +1341,22 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
           <dependency>
             <!--
 [ERROR] Dependency convergence error for org.codehaus.woodstox:stax2-api:jar:4.2.2. Paths to dependency are:
-[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-tileverse-parquetry:jar:3.0.2-SNAPSHOT
-[ERROR]   +-io.tileverse.geoserver:tileverse-geoserver-parquetry:jar:3.0-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-tileverse-parquetry:jar:3.1.0-SNAPSHOT
+[ERROR]   +-io.tileverse.geoserver:tileverse-geoserver-parquetry:jar:3.1-SNAPSHOT:compile
 [ERROR]     +-io.tileverse.storage:tileverse-storage-all:jar:2.1-SNAPSHOT:runtime
 [ERROR]       +-io.tileverse.storage:tileverse-storage-gcs:jar:2.1-SNAPSHOT:runtime
 [ERROR]         +-com.google.cloud:google-cloud-storage:jar:2.73.0:runtime
 [ERROR]           +-org.codehaus.woodstox:stax2-api:jar:4.2.2:runtime
 [ERROR] and
-[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-tileverse-parquetry:jar:3.0.2-SNAPSHOT
-[ERROR]   +-org.geoserver:gs-main:jar:3.0.2-CLOUD-SNAPSHOT:compile
-[ERROR]     +-org.geoserver:gs-ows:jar:3.0.2-CLOUD-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-tileverse-parquetry:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver:gs-main:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-org.geoserver:gs-ows:jar:3.1.0-CLOUD-SNAPSHOT:compile
 [ERROR]       +-tools.jackson.dataformat:jackson-dataformat-xml:jar:3.2.2:compile
 [ERROR]         +-org.codehaus.woodstox:stax2-api:jar:4.3.0:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-tileverse-parquetry:jar:3.0.2-SNAPSHOT
-[ERROR]   +-org.geoserver:gs-main:jar:3.0.2-CLOUD-SNAPSHOT:compile
-[ERROR]     +-org.geoserver:gs-ows:jar:3.0.2-CLOUD-SNAPSHOT:compile
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-tileverse-parquetry:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver:gs-main:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-org.geoserver:gs-ows:jar:3.1.0-CLOUD-SNAPSHOT:compile
 [ERROR]       +-tools.jackson.dataformat:jackson-dataformat-xml:jar:3.2.2:compile
 [ERROR]         +-com.fasterxml.woodstox:woodstox-core:jar:7.3.0:compile
 [ERROR]           +-org.codehaus.woodstox:stax2-api:jar:4.3.1:compile
@@ -1321,17 +1424,17 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
           </dependency>
           <dependency>
             <!--
-[ERROR] Dependency convergence error for io.tileverse.geoserver:tileverse-geoserver-storage-web:jar:3.0-SNAPSHOT. Paths to dependency are:
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.2-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.2-SNAPSHOT:compile
-[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-formats:jar:3.0.2-SNAPSHOT:compile
-[ERROR]       +-org.geoserver.community:gs-pmtiles-store:jar:3.0.2-CLOUD-SNAPSHOT:compile
-[ERROR]         +-io.tileverse.geoserver:tileverse-geoserver-storage-web:jar:3.0-SNAPSHOT:compile
+[ERROR] Dependency convergence error for io.tileverse.geoserver:tileverse-geoserver-storage-web:jar:3.0.2. Paths to dependency are:
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.3-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud:gs-cloud-starter-input-formats:jar:3.0.3-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud.extensions:gs-cloud-extension-vector-formats:jar:3.0.3-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.community:gs-pmtiles-store:jar:3.0.3-CLOUD-SNAPSHOT:compile
+[ERROR]         +-io.tileverse.geoserver:tileverse-geoserver-storage-web:jar:3.0.2:compile
 [ERROR] and
-[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.2-SNAPSHOT
-[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-tileverse-parquetry:jar:3.0.2-SNAPSHOT:compile
-[ERROR]     +-io.tileverse.geoserver:tileverse-geoserver-parquetry:jar:3.0.2:compile
-[ERROR]       +-io.tileverse.geoserver:tileverse-geoserver-storage-web:jar:3.0.2:compile
+[ERROR] +-org.geoserver.cloud:gs-cloud-starter-extensions:jar:3.0.3-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.extensions:gs-cloud-extension-tileverse-parquetry:jar:3.0.3-SNAPSHOT:compile
+[ERROR]     +-io.tileverse.geoserver:tileverse-geoserver-parquetry:jar:3.0-SNAPSHOT:compile
+[ERROR]       +-io.tileverse.geoserver:tileverse-geoserver-storage-web:jar:3.0-SNAPSHOT:compile
 -->
             <groupId>io.tileverse.geoserver</groupId>
             <artifactId>tileverse-geoserver-storage-web</artifactId>
