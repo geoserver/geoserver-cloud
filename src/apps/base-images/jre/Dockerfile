@@ -5,6 +5,7 @@ LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 # default JVM parameters https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/envvars002.html
 # to add JVM parameters use the JAVA_OPTS env variable preferrably
 ENV DEFAULT_JAVA_TOOL_OPTIONS="\
+--enable-preview \
 --add-opens=java.base/java.lang=ALL-UNNAMED \
 --add-opens=java.base/java.util=ALL-UNNAMED \
 --add-opens=java.base/java.lang.reflect=ALL-UNNAMED \
@@ -14,6 +15,7 @@ ENV DEFAULT_JAVA_TOOL_OPTIONS="\
 --add-opens=java.desktop/sun.java2d.pipe=ALL-UNNAMED \
 --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED \
 --add-opens=java.net.http/jdk.internal.net.http=ALL-UNNAMED \
+--enable-native-access=ALL-UNNAMED \
 -Djava.awt.headless=true \
 -XX:MaxRAMPercentage=80 \
 -XX:InitialRAMPercentage=30 \
