@@ -32,7 +32,7 @@
 
     <gs.version>3.1.0-CLOUD-SNAPSHOT</gs.version>
     <gt.version>36-SNAPSHOT</gt.version>
-    <wicket.version>10.11.0</wicket.version>
+    <wicket.version>10.12.0</wicket.version>
     <acl.version>3.0.4</acl.version>
     <cloud-dependencies-bom.version>1.1.0</cloud-dependencies-bom.version>
     <tileverse-geoserver.version>3.1-SNAPSHOT</tileverse-geoserver.version>
@@ -55,7 +55,7 @@
      property and the matching dependencyManagement entry once the managed version catches up.
     -->
     <rabbit-amqp-client.version>5.35.0</rabbit-amqp-client.version>
-    <lombok.version>1.18.42</lombok.version>
+    <lombok.version>1.18.48</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <testcontainers.version>2.0.4</testcontainers.version>
     <fork.javac>false</fork.javac>
@@ -1274,6 +1274,29 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
             <version>4.0.9</version>
+          </dependency>
+          <dependency>
+            <!--
+[ERROR] Dependency convergence error for org.apache.wicket:wicket-core:jar:10.12.0. Paths to dependency are:
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.1.0-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.apache.wicket:wicket-core:jar:10.12.0:provided
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.extensions:gs-cloud-extension-raster-formats:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver.web:gs-web-core:jar:3.1.0-CLOUD-SNAPSHOT:provided
+[ERROR]     +-org.wicketstuff:wicketstuff-select2:jar:10.12.0:provided
+[ERROR]       +-de.agilecoders.wicket.webjars:wicket-webjars:jar:4.0.15:provided
+[ERROR]         +-org.apache.wicket:wicket-core:jar:10.11.0:provided
+-->
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-core</artifactId>
+            <version>${wicket.version}</version>
+          </dependency>
+          <dependency>
+            <!-- match wicket.version, GeoServer manages 10.11.0 -->
+            <groupId>org.wicketstuff</groupId>
+            <artifactId>wicketstuff-select2</artifactId>
+            <version>10.12.0</version>
           </dependency>
           <dependency>
             <!-- version required by httpclient5 -->
