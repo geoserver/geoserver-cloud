@@ -1,0 +1,4 @@
+org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry.ParquetryAutoConfiguration
+org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry.ParquetryWebComponentsAutoConfiguration
+org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry.ParquetryGeoParquetOutputFormatAutoConfiguration
+org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry.ParquetryArrowIpcOutputFormatAutoConfiguration

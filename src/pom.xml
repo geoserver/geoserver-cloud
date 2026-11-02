@@ -92,6 +92,7 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <!-- gt-pmtiles and the parquetry plugin must agree on the tileverse version -->
         <groupId>io.tileverse</groupId>
         <artifactId>tileverse-bom</artifactId>
         <version>${tileverse.version}</version>
@@ -99,7 +100,6 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <!-- the tileverse-storage aware store edit panels: provider selector, per-backend parameters, widgets -->
         <groupId>io.tileverse.geoserver</groupId>
         <artifactId>tileverse-geoserver-storage-web</artifactId>
         <version>${tileverse-geoserver.version}</version>
@@ -819,6 +819,11 @@
         <artifactId>gs-pmtiles-store</artifactId>
         <version>${gs.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.tileverse.geoserver</groupId>
+        <artifactId>tileverse-geoserver-parquetry</artifactId>
+        <version>${tileverse-geoserver.version}</version>
+      </dependency>
       <!-- GeoServer Cloud Extensions -->
       <dependency>
         <groupId>org.geoserver.cloud.extensions</groupId>
@@ -1223,7 +1228,7 @@
                 <forkCount>2</forkCount>
                 <reuseForks>false</reuseForks>
                 <trimStackTrace>false</trimStackTrace>
-                <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED  --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</argLine>
+                <argLine>--enable-preview --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED  --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</argLine>
                 <systemPropertyVariables>
                   <!-- remove when it's not necessary anymore for Java 25 -->
                   <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
@@ -1240,7 +1245,7 @@
           <configuration>
             <reuseForks>false</reuseForks>
             <forkCount>1C</forkCount>
-            <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED  --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</argLine>
+            <argLine>--enable-preview --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED  --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</argLine>
             <systemPropertyVariables>
               <!-- remove when it's not necessary anymore for Java 25 -->
               <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
@@ -1348,6 +1353,12 @@
       </activation>
       <dependencyManagement>
         <dependencies>
+          <dependency>
+            <!-- gt-flatgeobuf brings 24.12.23, parquetry's arrow-format brings 25.2.10 -->
+            <groupId>com.google.flatbuffers</groupId>
+            <artifactId>flatbuffers-java</artifactId>
+            <version>25.2.10</version>
+          </dependency>
           <dependency>
             <!-- gwc-aws-s3 pins 1.12.261, whose aws-java-sdk-core still depends on
                  software.amazon.ion:ion-java 1.0.2, a groupId that no longer receives releases
@@ -1645,7 +1656,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <argLine>--add-exports=java.desktop/sun.awt.image=ALL-UNNAMED 
+              <argLine>--enable-preview --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED 
 				--add-opens=java.base/java.lang=ALL-UNNAMED 
 				--add-opens=java.base/java.util=ALL-UNNAMED 
 				--add-opens=java.base/java.lang.reflect=ALL-UNNAMED 
@@ -1663,7 +1674,7 @@
               <reuseForks>false</reuseForks>
               <forkCount>1C</forkCount>
               <trimStackTrace>false</trimStackTrace>
-              <argLine>--add-exports=java.desktop/sun.awt.image=ALL-UNNAMED 
+              <argLine>--enable-preview --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED 
 				--add-opens=java.base/java.lang=ALL-UNNAMED 
 				--add-opens=java.base/java.util=ALL-UNNAMED 
 				--add-opens=java.base/java.lang.reflect=ALL-UNNAMED 
