@@ -33,7 +33,7 @@
     <gs.version>3.0.2-CLOUD</gs.version>
     <gt.version>35.2</gt.version>
     <wicket.version>10.11.0</wicket.version>
-    <acl.version>3.0.3</acl.version>
+    <acl.version>3.0.4</acl.version>
     <cloud-dependencies-bom.version>1.1.0</cloud-dependencies-bom.version>
     <tileverse-geoserver.version>3.0.2</tileverse-geoserver.version>
     <tileverse.version>2.1.0</tileverse.version>
