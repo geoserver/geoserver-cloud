@@ -11,6 +11,8 @@
 
   <properties>
     <spring-boot.version>3.4.3</spring-boot.version>
+    <!-- override parent pom.xml's 1.2.x, the logback version managed by spring-boot:3.4.3 -->
+    <logback.version>1.5.16</logback.version>
   </properties>
 
   <dependencyManagement>
