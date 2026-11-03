@@ -35,7 +35,8 @@
     <gs.version>2.28.6-CLOUD</gs.version>
     <gt.version>34.6</gt.version>
     <wicket.version>9.23.0</wicket.version>
-    <acl.version>2.4.0</acl.version>
+    <acl.version>2.4.2</acl.version>
+    <caffeine.version>3.3.1</caffeine.version>
     <postgresql.version>42.7.13</postgresql.version>
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
@@ -147,6 +148,11 @@
         <version>${acl.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>${caffeine.version}</version>
       </dependency>
       <dependency>
         <groupId>org.projectlombok</groupId>
@@ -1495,6 +1501,25 @@
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>4.13.2</version>
+          </dependency>
+          <dependency>
+            <!--
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:2.28.7-SNAPSHOT
+[ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:2.28.7-SNAPSHOT:compile
+[ERROR]     +-org.geoserver.cloud:gs-cloud-starter-catalog-backend:jar:2.28.7-SNAPSHOT:compile
+[ERROR]       +-org.geoserver.cloud.catalog.backend:gs-cloud-catalog-backend-jdbcconfig:jar:2.28.7-SNAPSHOT:compile
+[ERROR]         +-org.postgresql:postgresql:jar:42.7.13:compile
+[ERROR]           +-org.checkerframework:checker-qual:jar:3.55.1:runtime
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-blobstores:jar:2.28.7-SNAPSHOT
+[ERROR]   +-org.geoserver.community:gs-gwc-gcs-blob:jar:2.28.6-SNAPSHOT:compile
+[ERROR]     +-org.geowebcache:gwc-gcs-blob:jar:1.28-SNAPSHOT:compile
+[ERROR]       +-com.google.cloud:google-cloud-storage:jar:2.73.0:compile
+[ERROR]         +-org.checkerframework:checker-qual:jar:3.49.0:compile
+          -->
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>3.55.1</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
