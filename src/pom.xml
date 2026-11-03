@@ -24,7 +24,7 @@
     <!-- Project version management       -->
     <!-- ================================ -->
     <spring-cloud.version>2025.1.3</spring-cloud.version>
-    <spring-boot.version>4.1.1</spring-boot.version>
+    <spring-boot.version>4.1.2</spring-boot.version>
     <!-- match upstream geoserver dependencies -->
     <spring.version>7.0.9</spring.version>
     <spring.security.version>7.1.1</spring.security.version>
@@ -38,7 +38,7 @@
     <tileverse-geoserver.version>3.0.2</tileverse-geoserver.version>
     <tileverse.version>2.1.0</tileverse.version>
     <jackson.version>3.2.3</jackson.version>
-    <jackson2.version>2.22.2</jackson2.version>
+    <jackson2.version>2.22.4</jackson2.version>
 
     <!-- default target java version, submodules may override -->
     <java.version>25</java.version>
@@ -49,7 +49,7 @@
     <postgresql.version>42.7.13</postgresql.version>
     <httpclient5.version>5.6.3</httpclient5.version>
     <!--
-     pinned ahead of the 5.30.0 managed by spring-boot-dependencies 4.1.1. Remove this
+     pinned ahead of the 5.30.0 managed by spring-boot-dependencies 4.1.2. Remove this
      property and the matching dependencyManagement entry once the managed version catches up.
     -->
     <rabbit-amqp-client.version>5.35.0</rabbit-amqp-client.version>
@@ -187,7 +187,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>33.5.0-jre</version>
+        <version>33.7.2-jre</version>
       </dependency>
       <dependency>
         <groupId>com.google.errorprone</groupId>
