@@ -1,6 +1,6 @@
 # GeoServer Cloud Helm example: pgconfig
 
-This chart deploys GeoServer Cloud 3.0.2 with the `pgconfig` catalog backend.
+This chart deploys GeoServer Cloud 3.0.2.1 with the `pgconfig` catalog backend.
 It wraps the [camptocamp/helm-geoserver-cloud](https://github.com/camptocamp/helm-geoserver-cloud)
 chart and adds PostgreSQL and RabbitMQ.
 [Example - pgconfig](example-pgconfig.md) explains each step.
