@@ -341,6 +341,21 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
         return findOne(select("WHERE name = ? ORDER BY id"), clazz, name);
     }
 
+    /**
+     * Finds the objects of the given type with the given ids in one query, and runs no query for empty ids.
+     *
+     * <p>The ids go as one array parameter. The SQL text is then the same for any number of ids, and the limit on the
+     * number of bind parameters of a statement does not apply. The caller must close the returned stream.
+     */
+    public <U extends T> Stream<U> findAllById(@NonNull List<String> ids, @NonNull Class<U> type) {
+        if (ids.isEmpty()) {
+            return Stream.empty();
+        }
+        String query = select("WHERE id = ANY(?)");
+        // cast to Object because varargs would spread the array into one parameter per id
+        return queryForStream(type, query, (Object) ids.toArray(String[]::new));
+    }
+
     protected Optional<T> findOne(@NonNull String query, Object... args) {
         return findOne(query, getContentType(), args);
     }

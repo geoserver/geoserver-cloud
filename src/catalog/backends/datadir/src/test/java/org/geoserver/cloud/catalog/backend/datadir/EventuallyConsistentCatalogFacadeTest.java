@@ -5,19 +5,24 @@
 
 package org.geoserver.cloud.catalog.backend.datadir;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -27,6 +32,7 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -555,6 +561,79 @@ class EventuallyConsistentCatalogFacadeTest {
             assertSame(layerGroup, result);
             verify(subject, times(2)).getLayerGroup("group-id");
             verify(tracker, times(1)).forceResolve();
+        }
+
+        @Test
+        void getPublished_RetriesWhenNotConverged() {
+            // Given: catalog is not converged
+            when(tracker.isConverged()).thenReturn(false);
+
+            LayerGroupInfo layerGroup = mock(LayerGroupInfo.class);
+            when(subject.getLayer("group-id")).thenReturn(null);
+            when(subject.getLayerGroup("group-id")).thenReturn(null).thenReturn(layerGroup);
+
+            mockWebRequest();
+
+            // When: the group arrives after the first attempt
+            PublishedInfo result = facade.getPublished("group-id");
+
+            // Then: retries and finds it
+            assertSame(layerGroup, result);
+            verify(tracker, times(1)).forceResolve();
+        }
+
+        @Test
+        void findAllPublished_RetriesWhenNotConverged() {
+            when(tracker.isConverged()).thenReturn(false);
+
+            LayerGroupInfo layerGroup = mock(LayerGroupInfo.class);
+            List<String> ids = List.of("group-id");
+            when(subject.findAllById(ids, PublishedInfo.class)).thenReturn(Stream.empty());
+            when(subject.getLayer("group-id")).thenReturn(null);
+            when(subject.getLayerGroup("group-id")).thenReturn(null).thenReturn(layerGroup);
+
+            mockWebRequest();
+
+            List<PublishedInfo> result =
+                    facade.findAllById(ids, PublishedInfo.class).toList();
+
+            assertThat(result).containsExactly(layerGroup);
+            verify(tracker, times(1)).forceResolve();
+        }
+
+        @Test
+        void findAllStyles_RetriesWhenNotConverged() {
+            when(tracker.isConverged()).thenReturn(false);
+
+            StyleInfo style = mock(StyleInfo.class);
+            List<String> ids = List.of("style-id");
+            when(subject.findAllById(ids, StyleInfo.class)).thenReturn(Stream.empty());
+            when(subject.getStyle("style-id")).thenReturn(null).thenReturn(style);
+
+            mockWebRequest();
+
+            List<StyleInfo> result = facade.findAllById(ids, StyleInfo.class).toList();
+
+            assertThat(result).containsExactly(style);
+            verify(tracker, times(1)).forceResolve();
+        }
+
+        @Test
+        void findAllById_FoundIdsNotRetried() {
+            when(tracker.isConverged()).thenReturn(false);
+
+            StyleInfo style = mock(StyleInfo.class);
+            when(style.getId()).thenReturn("style-id");
+            List<String> ids = List.of("style-id");
+            when(subject.findAllById(ids, StyleInfo.class)).thenReturn(Stream.of(style));
+
+            mockWebRequest();
+
+            List<StyleInfo> result = facade.findAllById(ids, StyleInfo.class).toList();
+
+            assertThat(result).containsExactly(style);
+            verify(subject, never()).getStyle(any());
+            verify(tracker, never()).forceResolve();
         }
 
         @Test

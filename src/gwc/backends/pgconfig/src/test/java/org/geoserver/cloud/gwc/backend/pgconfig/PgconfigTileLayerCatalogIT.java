@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.DataStoreInfo;
@@ -139,6 +140,26 @@ class PgconfigTileLayerCatalogIT {
     }
 
     @Test
+    void tileLayerHasAltStyles() {
+        LayerInfo layerInfo = support.layerInfo();
+        Catalog catalog = support.getFaker().catalog();
+        StyleInfo s2 = addStyle(catalog);
+        StyleInfo s3 = addStyle(catalog);
+        LayerInfo layer = catalog.getLayer(layerInfo.getId());
+        layer.getStyles().add(s2);
+        layer.getStyles().add(s3);
+        catalog.save(layer);
+        tlCatalog.addLayer(support.geoServerTileLayer(catalog.getLayer(layerInfo.getId())));
+
+        TileLayer found = tlCatalog.getLayer(layerInfo.prefixedName()).orElseThrow();
+        LayerInfo published = (LayerInfo) ((GeoServerTileLayer) found).getPublishedInfo();
+        Set<String> expected = Set.of(s2.getName(), s3.getName());
+        Set<String> actual =
+                published.getStyles().stream().map(StyleInfo::getName).collect(Collectors.toSet());
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
     void testMultipleLayers() {
         assertThat(tlCatalog.getLayerNames()).isEmpty();
 
@@ -194,5 +215,11 @@ class PgconfigTileLayerCatalogIT {
                 .peek(tlCatalog::addLayer)
                 .map(GeoServerTileLayer::getName)
                 .toList();
+    }
+
+    private StyleInfo addStyle(Catalog catalog) {
+        StyleInfo style = support.getFaker().styleInfo();
+        catalog.add(style);
+        return style;
     }
 }

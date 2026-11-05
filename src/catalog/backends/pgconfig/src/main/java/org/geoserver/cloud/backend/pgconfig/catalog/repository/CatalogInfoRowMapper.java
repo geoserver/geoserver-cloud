@@ -6,6 +6,7 @@
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.UncheckedIOException;
 import java.sql.ResultSet;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.AttributeTypeInfo;
@@ -40,6 +42,31 @@ import org.springframework.jdbc.core.RowMapper;
 public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMapper<T> {
 
     protected static final ObjectMapper objectMapper = PgconfigObjectMapper.newObjectMapper();
+
+    /**
+     * Selects the alternate styles of a layer as a JSON array of {@code {"style": ..., "workspace": ...}}, or NULL when
+     * the row is not a layer or has none. Returning them in the layer row saves one query per alternate style. Reads
+     * the {@code "styles.id"} array of {@code publishedinfos_mat} and finds each style by its primary key.
+     */
+    static final String ALTERNATE_STYLES_COLUMN =
+            """
+            CASE WHEN "@type" = 'LayerInfo' AND cardinality("styles.id") > 0 THEN (\
+            SELECT jsonb_agg(jsonb_build_object('style', s.style, 'workspace', s.workspace)) \
+            FROM styleinfos s WHERE s.id = ANY("styles.id")\
+            ) END AS "alternateStyles"\
+            """;
+
+    /**
+     * Same result as {@link #ALTERNATE_STYLES_COLUMN}, reading the layer JSON because {@code tilelayers_mat} has no
+     * {@code "styles.id"} column.
+     */
+    public static final String ALTERNATE_STYLES_FROM_JSON_COLUMN =
+            """
+            CASE WHEN "@type" = 'LayerInfo' AND jsonb_array_length(publishedinfo -> 'styles') > 0 THEN (\
+            SELECT jsonb_agg(jsonb_build_object('style', s.style, 'workspace', s.workspace)) \
+            FROM styleinfos s WHERE s.id IN (SELECT jsonb_array_elements_text(publishedinfo -> 'styles'))\
+            ) END AS "alternateStyles"\
+            """;
 
     /**
      * Columns required by {@link #mapNamespace(ResultSet)}
@@ -114,10 +141,12 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
      * store            | jsonb    |
      * namespace        | jsonb    |
      * defaultStyle     | jsonb    |
+     * alternateStyles  | jsonb    |
      * }</pre>
      */
     static final String PUBLISHEDINFO_BUILD_COLUMNS =
-            "\"@type\", publishedinfo, workspace, resource, store, namespace, \"defaultStyle\"";
+            "\"@type\", publishedinfo, workspace, resource, store, namespace, \"defaultStyle\", "
+                    + ALTERNATE_STYLES_COLUMN;
 
     /**
      * Columns required by {@link #mapLayer(ResultSet)}
@@ -131,10 +160,12 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
      * workspace        | jsonb    |
      * namespace        | jsonb    |
      * defaultStyle     | jsonb    |
+     * alternateStyles  | jsonb    |
      * }</pre>
      */
     static final String LAYERINFO_BUILD_COLUMNS =
-            "\"@type\", publishedinfo, resource, store, workspace, namespace, \"defaultStyle\"";
+            "\"@type\", publishedinfo, resource, store, workspace, namespace, \"defaultStyle\", "
+                    + ALTERNATE_STYLES_COLUMN;
 
     /**
      * Columns required by {@link #mapLayerGroup(ResultSet)}
@@ -390,6 +421,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
      * store            | jsonb    |
      * namespace        | jsonb    |
      * defaultStyle     | jsonb    |
+     * alternateStyles  | jsonb    |
      * }</pre>
      *
      * @see #mapLayer(ResultSet)
@@ -417,6 +449,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
      * workspace        | jsonb    |
      * namespace        | jsonb    |
      * defaultStyle     | jsonb    |
+     * alternateStyles  | jsonb    |
      * }</pre>
      */
     LayerInfo mapLayer(ResultSet rs) {
@@ -429,18 +462,55 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         if (null != layer) {
             setResource(layer, rs);
             setDefaultStyle(layer, rs);
-            setStyles(layer);
+            setStyles(layer, rs);
         }
         return layer;
     }
 
-    private void setStyles(LayerInfo layer) {
+    private void setStyles(LayerInfo layer, ResultSet rs) {
         LayerInfoImpl li = (LayerInfoImpl) ModificationProxy.unwrap(layer);
-        List<StyleInfo> styles = li.getStyles().stream()
-                .map(StyleInfo::getId)
-                .map(this::loadStyle)
-                .toList();
-        li.setStyles(new HashSet<>(styles));
+        Set<StyleInfo> styles = new HashSet<>();
+        for (JsonNode entry : readAlternateStyles(rs)) {
+            styles.add(resolveAlternateStyle(entry));
+        }
+        li.setStyles(styles);
+    }
+
+    /** Reads the {@code alternateStyles} column, as an empty array when it is NULL. */
+    private JsonNode readAlternateStyles(ResultSet rs) {
+        String encoded;
+        try {
+            encoded = rs.getString("alternateStyles");
+        } catch (SQLException e) {
+            throw UncheckedSqlException.of(e);
+        }
+        if (null == encoded) {
+            return objectMapper.createArrayNode();
+        }
+        try {
+            return objectMapper.readTree(encoded);
+        } catch (JsonProcessingException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /** Decodes the style of an entry only when the row mapper has not cached it yet. */
+    private StyleInfo resolveAlternateStyle(JsonNode entry) {
+        String id = entry.path("style").path("id").asText();
+        return resolveCached(id, StyleInfo.class, styleId -> decodeAlternateStyle(entry));
+    }
+
+    private StyleInfo decodeAlternateStyle(JsonNode entry) {
+        try {
+            StyleInfo style = objectMapper.treeToValue(entry.get("style"), StyleInfo.class);
+            JsonNode workspace = entry.get("workspace");
+            if (null != workspace && !workspace.isNull()) {
+                style.setWorkspace(objectMapper.treeToValue(workspace, WorkspaceInfo.class));
+            }
+            return style;
+        } catch (JsonProcessingException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**

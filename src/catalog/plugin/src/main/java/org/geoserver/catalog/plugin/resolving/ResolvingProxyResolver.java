@@ -407,28 +407,43 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
      * @return The resolved {@link LayerGroupInfo}.
      */
     protected LayerGroupInfo resolveInternal(LayerGroupInfo lg) {
+        Map<String, PublishedInfo> members =
+                proxyUtils.loadAllById(ProxyUtils.referencedIds(lg.getLayers()), PublishedInfo.class);
         for (int i = 0; i < lg.getLayers().size(); i++) {
             PublishedInfo l = lg.getLayers().get(i);
             if (l != null) {
-                lg.getLayers().set(i, resolve(l));
+                lg.getLayers().set(i, resolveEntry(members, l));
             }
         }
 
+        Map<String, StyleInfo> styles =
+                proxyUtils.loadAllById(ProxyUtils.referencedIds(lg.getStyles()), StyleInfo.class);
         for (int i = 0; i < lg.getStyles().size(); i++) {
             StyleInfo s = lg.getStyles().get(i);
-            ResolvingProxy proxy = org.geoserver.catalog.impl.ProxyUtils.handler(s, ResolvingProxy.class);
-            StyleInfo resolved = s;
-            if (proxy != null && !StringUtils.hasLength(proxy.getRef())) {
-                resolved = null;
-            } else if (s != null) {
-                resolved = resolve(s);
-            }
-            lg.getStyles().set(i, resolved);
+            lg.getStyles().set(i, resolveStyleEntry(styles, s));
         }
         lg.setWorkspace(resolve(lg.getWorkspace()));
         lg.setRootLayer(resolve(lg.getRootLayer()));
         lg.setRootLayerStyle(resolve(lg.getRootLayerStyle()));
         return lg;
+    }
+
+    /** Takes the entry from the bulk lookup results, or resolves it on its own when they do not hold it. */
+    private <I extends Info> I resolveEntry(Map<String, I> found, I entry) {
+        I bulkResult = ProxyUtils.findReferenced(found, entry);
+        if (bulkResult != null) {
+            return bulkResult;
+        }
+        return resolve(entry);
+    }
+
+    /** Resolves a style entry like {@link #resolveEntry}, except that a proxy with an empty reference becomes null. */
+    private StyleInfo resolveStyleEntry(Map<String, StyleInfo> styles, StyleInfo s) {
+        ResolvingProxy proxy = org.geoserver.catalog.impl.ProxyUtils.handler(s, ResolvingProxy.class);
+        if (proxy != null && !StringUtils.hasLength(proxy.getRef())) {
+            return null;
+        }
+        return resolveEntry(styles, s);
     }
 
     /**

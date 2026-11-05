@@ -10,10 +10,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +41,7 @@ import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.impl.StoreInfoImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
@@ -47,6 +51,7 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.security.decorators.SecuredFeatureTypeInfo;
 import org.geoserver.security.decorators.SecuredLayerInfo;
 import org.geotools.util.decorate.AbstractDecorator;
+import org.springframework.util.StringUtils;
 
 /**
  * A utility class for resolving {@link Info} objects and {@link Patch} properties within a GeoServer
@@ -376,12 +381,7 @@ public class ProxyUtils {
         // (as opposed
         // to a concrete LayerInfo or LayerGroupInfo) it does nothing.
         if (info instanceof PublishedInfo) {
-            PublishedInfo l =
-                    ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(info.getId(), LayerInfo.class));
-            if (null == l) {
-                l = ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(info.getId(), LayerGroupInfo.class));
-            }
-            return (T) l;
+            return (T) resolvePublished(actualCatalog, info.getId());
         }
         T resolved = ResolvingProxy.resolve(actualCatalog, info);
         if (resolved == null) {
@@ -389,6 +389,29 @@ public class ProxyUtils {
             resolved = info;
         }
         return resolved;
+    }
+
+    /**
+     * Resolves a reference to a layer or layer group by id, with a single lookup when the catalog is a
+     * {@link CatalogPlugin}.
+     *
+     * <p>Looking the id up as a layer, then as a layer name, then as a layer group costs three lookups that find
+     * nothing before the one that finds a nested layer group. The by-name lookup remains as a fallback for references
+     * holding a name.
+     */
+    private PublishedInfo resolvePublished(Catalog actualCatalog, String id) {
+        if (actualCatalog instanceof CatalogPlugin plugin) {
+            PublishedInfo found = plugin.getPublished(id, PublishedInfo.class);
+            if (found != null) {
+                // the outbound resolver wraps the result, and a proxy must not be stored in a shared graph
+                return ModificationProxy.unwrap(found);
+            }
+        }
+        PublishedInfo layer = ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(id, LayerInfo.class));
+        if (null == layer) {
+            return ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(id, LayerGroupInfo.class));
+        }
+        return layer;
     }
 
     /**
@@ -491,21 +514,91 @@ public class ProxyUtils {
     protected LayerGroupInfo resolveInternal(LayerGroupInfo layerGroup) {
         LayerGroupInfoImpl lg = (LayerGroupInfoImpl) layerGroup;
 
+        Map<String, PublishedInfo> members = loadAllById(referencedIds(lg.getLayers()), PublishedInfo.class);
         for (int i = 0; i < lg.getLayers().size(); i++) {
             PublishedInfo l = lg.getLayers().get(i);
             if (l != null) {
-                lg.getLayers().set(i, resolve(l));
+                lg.getLayers().set(i, resolveEntry(members, l));
             }
         }
 
+        Map<String, StyleInfo> styles = loadAllById(referencedIds(lg.getStyles()), StyleInfo.class);
         for (int i = 0; i < lg.getStyles().size(); i++) {
             StyleInfo s = lg.getStyles().get(i);
             if (s != null) {
-                lg.getStyles().set(i, resolve(s));
+                lg.getStyles().set(i, resolveEntry(styles, s));
             }
         }
         lg.setWorkspace(resolve(lg.getWorkspace()));
         return lg;
+    }
+
+    /**
+     * Collects the ids of the {@link ResolvingProxy} entries in a list of references.
+     *
+     * <p>Null entries, entries that are not proxies, and proxies with an empty reference are skipped.
+     *
+     * @param refs the references of a layer group, such as its members or styles; may contain nulls
+     * @return the distinct referenced ids, never null
+     */
+    static List<String> referencedIds(List<? extends Info> refs) {
+        Set<String> ids = new LinkedHashSet<>();
+        for (Info ref : refs) {
+            String id = referencedId(ref);
+            if (id != null) {
+                ids.add(id);
+            }
+        }
+        return List.copyOf(ids);
+    }
+
+    /**
+     * Loads the objects of a type by id in one call.
+     *
+     * <p>Returns an empty map if the catalog is not a {@link CatalogPlugin} or {@code ids} is empty. The values are
+     * unwrapped because the outbound resolver of the facade wraps them in a {@link ModificationProxy}, and a proxy must
+     * not be stored in a shared graph.
+     *
+     * @return the objects found, keyed by id
+     */
+    <T extends CatalogInfo> Map<String, T> loadAllById(List<String> ids, Class<T> type) {
+        if (ids.isEmpty() || !(getCatalog() instanceof CatalogPlugin plugin)) {
+            return Map.of();
+        }
+        try (Stream<T> found = plugin.findAllById(ids, type)) {
+            Stream<T> unwrapped = found.map(ModificationProxy::unwrap);
+            return unwrapped.collect(Collectors.toMap(CatalogInfo::getId, Function.identity()));
+        }
+    }
+
+    /** Takes the entry from the bulk lookup results, or resolves it on its own when they do not hold it. */
+    private <T extends Info> T resolveEntry(Map<String, T> found, T entry) {
+        T bulkResult = findReferenced(found, entry);
+        if (bulkResult != null) {
+            return bulkResult;
+        }
+        return resolve(entry);
+    }
+
+    /**
+     * Finds the object referenced by a {@link ResolvingProxy} entry among bulk lookup results.
+     *
+     * @return the object, or null if {@code ref} is not a proxy or the lookup did not find it
+     */
+    static <T extends Info> T findReferenced(Map<String, T> found, Info ref) {
+        String id = referencedId(ref);
+        if (id == null) {
+            return null;
+        }
+        return found.get(id);
+    }
+
+    private static String referencedId(Info ref) {
+        ResolvingProxy proxy = org.geoserver.catalog.impl.ProxyUtils.handler(ref, ResolvingProxy.class);
+        if (proxy == null || !StringUtils.hasLength(proxy.getRef())) {
+            return null;
+        }
+        return proxy.getRef();
     }
 
     /**

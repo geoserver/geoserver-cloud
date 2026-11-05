@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -410,6 +412,122 @@ class CachingCatalogFacadeTest {
         lenient.when(resource.getNamespace()).thenReturn(namespace);
         lenient.when(namespace.getPrefix()).thenReturn(nsPrefix);
         return layer;
+    }
+
+    @Test
+    void getPublishedHitsCachedLayer() {
+        facade = new CachingCatalogFacade(subject);
+        LayerInfo layer = stubLayer("topp", "roads");
+        when(subject.getLayer(layer.getId())).thenReturn(layer);
+        facade.getLayer(layer.getId());
+
+        assertThat(facade.getPublished(layer.getId())).isSameAs(layer);
+        verify(subject, never()).getPublished(any());
+    }
+
+    @Test
+    void getPublishedHitsCachedGroup() {
+        facade = new CachingCatalogFacade(subject);
+        LayerGroupInfo group = stub(LayerGroupInfo.class);
+        String id = group.getId();
+        facade.getLayerGroup(id);
+
+        assertThat(facade.getPublished(id)).isSameAs(group);
+        verify(subject, never()).getPublished(any());
+    }
+
+    @Test
+    void getPublishedCachesGroup() {
+        facade = new CachingCatalogFacade(subject);
+        LayerGroupInfo group = stub(LayerGroupInfo.class);
+        String id = group.getId();
+        when(subject.getPublished(id)).thenReturn(group);
+
+        facade.getPublished(id);
+
+        assertThat(facade.getLayerGroup(id)).isSameAs(group);
+        verify(subject, times(1)).getPublished(id);
+        verify(subject, never()).getLayerGroup(any());
+    }
+
+    @Test
+    void findAllByIdLoadsMissesOnce() {
+        facade = new CachingCatalogFacade(subject);
+        LayerInfo layer = stubLayer("topp", "roads");
+        String layerId = layer.getId();
+        LayerGroupInfo group = stub(LayerGroupInfo.class);
+        String groupId = group.getId();
+        when(subject.getLayer(layerId)).thenReturn(layer);
+        facade.getLayer(layerId);
+        when(subject.findAllById(List.of(groupId), PublishedInfo.class)).thenAnswer(call -> Stream.of(group));
+
+        List<String> ids = List.of(layerId, groupId);
+        assertThat(findAll(ids, PublishedInfo.class)).containsExactlyInAnyOrder(layer, group);
+        assertThat(findAll(ids, PublishedInfo.class)).containsExactlyInAnyOrder(layer, group);
+        verify(subject, times(1)).findAllById(List.of(groupId), PublishedInfo.class);
+    }
+
+    @Test
+    void findAllByIdHitsCachedGroup() {
+        facade = new CachingCatalogFacade(subject);
+        LayerGroupInfo group = stub(LayerGroupInfo.class);
+        String id = group.getId();
+        facade.getLayerGroup(id);
+
+        assertThat(findAll(List.of(id), PublishedInfo.class)).containsExactly(group);
+        verify(subject, never()).findAllById(any(), any());
+    }
+
+    @Test
+    void findAllStylesCachesMisses() {
+        facade = new CachingCatalogFacade(subject);
+        StyleInfo style = stub(StyleInfo.class);
+        String id = style.getId();
+        when(subject.findAllById(List.of(id), StyleInfo.class)).thenAnswer(call -> Stream.of(style));
+
+        findAll(List.of(id), StyleInfo.class);
+        findAll(List.of(id), StyleInfo.class);
+
+        verify(subject, times(1)).findAllById(List.of(id), StyleInfo.class);
+    }
+
+    @Test
+    void findAllStylesHitsCache() {
+        facade = new CachingCatalogFacade(subject);
+        StyleInfo style = stub(StyleInfo.class);
+        String id = style.getId();
+        when(subject.getStyle(id)).thenReturn(style);
+        facade.getStyle(id);
+
+        assertThat(findAll(List.of(id), StyleInfo.class)).containsExactly(style);
+        verify(subject, never()).findAllById(any(), any());
+    }
+
+    @Test
+    // stores have no id key of their own type in the cache
+    void findAllStoresPassThrough() {
+        facade = new CachingCatalogFacade(subject);
+        DataStoreInfo store = stub(DataStoreInfo.class);
+        List<String> ids = List.of(store.getId());
+        when(subject.findAllById(ids, DataStoreInfo.class)).thenAnswer(call -> Stream.of(store));
+
+        assertThat(findAll(ids, DataStoreInfo.class)).containsExactly(store);
+        assertThat(findAll(ids, DataStoreInfo.class)).containsExactly(store);
+        verify(subject, times(2)).findAllById(ids, DataStoreInfo.class);
+    }
+
+    private <T extends CatalogInfo> List<T> findAll(List<String> ids, Class<T> type) {
+        try (Stream<T> found = facade.findAllById(ids, type)) {
+            return found.toList();
+        }
+    }
+
+    @Test
+    void getPublishedMissNotCached() {
+        facade = new CachingCatalogFacade(subject);
+        facade.getPublished("x");
+        facade.getPublished("x");
+        verify(subject, times(2)).getPublished("x");
     }
 
     @Test
