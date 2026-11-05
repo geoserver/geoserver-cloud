@@ -5,6 +5,7 @@
 
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.List;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.CatalogInfo;
@@ -12,6 +13,7 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -67,6 +69,18 @@ public class ForwardingExtendedCatalogFacade extends ForwardingCatalogFacade imp
     @Override
     public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
         return asExtendedFacade().query(query);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public PublishedInfo getPublished(@NonNull String id) {
+        return asExtendedFacade().getPublished(id);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        return asExtendedFacade().findAllById(ids, type);
     }
 
     /**
