@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog;
 
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
@@ -123,8 +124,10 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
     private void setOutboundResolver() {
         UnaryOperator<CatalogInfo> resolvingFunction = resolvingFunction(this::getCatalog);
 
-        super.repositories.all().stream()
-                .map(PgconfigCatalogInfoRepository.class::cast)
+        // The published infos repository answers getPublished, findAllById and the listings of published infos.
+        // Its groups must resolve their members like the layer group repository does.
+        Stream<?> repos = Stream.concat(super.repositories.all().stream(), Stream.of(publishedInfoReadOnlyRepo));
+        repos.map(PgconfigCatalogInfoRepository.class::cast)
                 .forEach(repo -> repo.setOutboundResolver(resolvingFunction));
     }
 
@@ -146,6 +149,23 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
     @Override
     public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(T info) {
         return repositories.repositoryFor(info);
+    }
+
+    /** Looks the id up in the published infos view, in one query instead of one per type. */
+    @Override
+    public PublishedInfo getPublished(@NonNull String id) {
+        return publishedInfoReadOnlyRepo.findById(id).orElse(null);
+    }
+
+    /** Looks the ids up with one query. A {@link PublishedInfo} lookup reads the published infos view. */
+    @Override
+    public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        if (CatalogInfo.class.equals(type)) {
+            // no repository holds all the types
+            return super.findAllById(ids, type);
+        }
+        PgconfigCatalogInfoRepository<T> repository = repository(type);
+        return repository.findAllById(ids, type);
     }
 
     /**

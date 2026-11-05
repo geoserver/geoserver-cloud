@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import lombok.NonNull;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -19,6 +20,7 @@ import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -311,6 +313,33 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
     @Override
     public LayerGroupInfo getLayerGroup(String id) {
         return enforceLayerGroupIsolation(facade.getLayerGroup(id));
+    }
+
+    /**
+     * Retrieves a layer or layer group by id, enforcing isolation.
+     *
+     * @param id The id of the published object; must not be null.
+     * @return The {@link PublishedInfo} if visible, or null if not found or isolated.
+     */
+    @Override
+    public PublishedInfo getPublished(@NonNull String id) {
+        return enforceIsolation(asExtendedFacade().getPublished(id));
+    }
+
+    /**
+     * Retrieves objects by id, enforcing isolation like {@link #query(Query)}.
+     *
+     * @param <T> The type of {@link CatalogInfo} to retrieve.
+     * @param ids The ids to look up; must not be null.
+     * @param type The interface type of the objects; must not be null.
+     * @return A {@link Stream} of the visible objects found; never null.
+     */
+    @Override
+    public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        return asExtendedFacade()
+                .findAllById(ids, type)
+                .map(this::enforceIsolation)
+                .filter(Objects::nonNull);
     }
 
     /**

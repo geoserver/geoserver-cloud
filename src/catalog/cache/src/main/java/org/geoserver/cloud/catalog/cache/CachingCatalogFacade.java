@@ -12,8 +12,12 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.STYLE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.WORKSPACE;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -21,6 +25,7 @@ import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -45,6 +50,18 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
 
     /** Name of the cache used as key to acquire it through {@link CacheManager#getCache(String)} */
     static final String CACHE_NAME = "gs-catalog";
+
+    /**
+     * The id keys used by the single-id getters, by type, in lookup order. A published object is cached under the layer
+     * key or the layer group key.
+     */
+    private static final Map<Class<? extends CatalogInfo>, List<ConfigInfoType>> ID_KEY_TYPES = Map.of(
+            PublishedInfo.class, List.of(LAYER, LAYERGROUP),
+            LayerInfo.class, List.of(LAYER),
+            LayerGroupInfo.class, List.of(LAYERGROUP),
+            StyleInfo.class, List.of(STYLE),
+            WorkspaceInfo.class, List.of(WORKSPACE),
+            NamespaceInfo.class, List.of(NAMESPACE));
 
     private final CachingCatalogFacadeContainmentSupport support;
 
@@ -216,6 +233,51 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     @Override
     public LayerInfo getLayer(@NonNull String id) {
         return support.get(id(id, LAYER), () -> super.getLayer(id));
+    }
+
+    @Override
+    public @Nullable PublishedInfo getPublished(@NonNull String id) {
+        PublishedInfo cached = peekById(id, PublishedInfo.class);
+        if (cached != null) {
+            return cached;
+        }
+        return support.loadIntoCache(() -> super.getPublished(id));
+    }
+
+    /**
+     * Answers from the cache, and asks the wrapped facade once for the ids not cached. Types not cached by id go
+     * straight to the wrapped facade.
+     */
+    @Override
+    public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        if (!ID_KEY_TYPES.containsKey(type)) {
+            return super.findAllById(ids, type);
+        }
+        List<T> found = new ArrayList<>();
+        List<String> missing = new ArrayList<>();
+        for (String id : new LinkedHashSet<>(ids)) {
+            T cached = peekById(id, type);
+            if (cached == null) {
+                missing.add(id);
+            } else {
+                found.add(cached);
+            }
+        }
+        if (!missing.isEmpty()) {
+            found.addAll(support.loadAllIntoCache(() -> super.findAllById(missing, type)));
+        }
+        return found.stream();
+    }
+
+    /** Returns the object cached under one of the id keys of {@code type}. Never loads. */
+    private <T extends CatalogInfo> @Nullable T peekById(String id, Class<T> type) {
+        for (ConfigInfoType keyType : ID_KEY_TYPES.get(type)) {
+            CatalogInfo cached = support.peek(id(id, keyType));
+            if (cached != null) {
+                return type.cast(cached);
+            }
+        }
+        return null;
     }
 
     /**
