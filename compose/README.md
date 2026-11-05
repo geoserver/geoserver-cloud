@@ -72,6 +72,26 @@ The monitoring setup automatically discovers all service instances via Eureka an
 
 Configuration files are organized in the `monitoring/` directory. See [monitoring/MONITORING.md](monitoring/MONITORING.md) for detailed documentation.
 
+## Slow Database Network with Toxiproxy
+
+To reproduce a slow network between the GeoServer services and the catalog database, add the `toxiproxy.yml` overlay file to the PostgreSQL backend:
+
+```bash
+./pgconfig -f toxiproxy.yml up -d
+```
+
+The services connect to the database through [Toxiproxy](https://github.com/Shopify/toxiproxy). Its API listens on http://localhost:8474 and adds or removes toxics at runtime:
+
+```bash
+# add 5 ms of latency to the responses of the database
+curl -XPOST localhost:8474/proxies/pgconfig/toxics -d \
+  '{"name":"latency","type":"latency","stream":"downstream","attributes":{"latency":5,"jitter":0}}'
+# remove it
+curl -XDELETE localhost:8474/proxies/pgconfig/toxics/latency
+```
+
+Toxics live in the memory of Toxiproxy: set them again after it restarts. The header of `toxiproxy.yml` also shows how to limit the bandwidth, and how to turn off the catalog cache of the wms service.
+
 ## Debugging from an IDE
 
 For debugging a specific service from your IDE while the rest of the cluster runs in Docker, use the `localports.yml` compose file. This file exposes the discovery and config service ports, allowing your local application to join the cluster.
