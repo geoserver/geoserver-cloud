@@ -661,6 +661,16 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-sec-oidc-core</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-sec-oidc-web</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-app-schema-core</artifactId>
         <version>${gs.version}</version>
         <exclusions>
@@ -1096,6 +1106,12 @@
       </activation>
       <dependencyManagement>
         <dependencies>
+          <dependency>
+            <!-- Keep GeoServer's OIDC Nimbus version aligned with Spring Security. -->
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>10.10</version>
+          </dependency>
           <dependency>
             <!--
 [ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.1.0-SNAPSHOT
