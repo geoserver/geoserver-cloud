@@ -86,7 +86,7 @@ additional-stuff: &additional-stuff
     spring:
       # the default image tags of the chart lag behind GeoServer Cloud releases
       image:
-        tag: '3.0.2'
+        tag: '3.0.2.1'
       env:
         <<: *env-override
       volumeMounts:

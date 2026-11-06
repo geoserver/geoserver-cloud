@@ -1,2 +1,3 @@
 org.geoserver.cloud.autoconfigure.gateway.GatewayApplicationAutoconfiguration
 org.geoserver.cloud.autoconfigure.gateway.GatewayProxyExchangeAutoConfiguration
+org.geoserver.cloud.autoconfigure.gateway.GatewaySecurityFallbackConfiguration

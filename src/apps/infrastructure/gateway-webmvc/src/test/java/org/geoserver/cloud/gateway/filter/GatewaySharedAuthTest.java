@@ -17,6 +17,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
@@ -33,12 +34,19 @@ import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.BadJwtException;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -54,12 +62,17 @@ import org.springframework.test.context.DynamicPropertySource;
         webEnvironment = WebEnvironment.RANDOM_PORT,
         properties = {
             "geoserver.security.gateway-shared-auth.enabled=true",
+            "geoserver.extension.security.gateway-bearer-auth.enabled=true",
+            "geoserver.extension.security.gateway-bearer-auth.issuer-uri=https://issuer.example.test",
+            "geoserver.extension.security.gateway-bearer-auth.audience=geoserver-cloud-test",
+            "geoserver.extension.security.gateway-bearer-auth.role-mappings.test-reader=PRIVATE_READER",
             "logging.level.org.geoserver.cloud.security.gateway.sharedauth=trace"
         })
 @ActiveProfiles("test")
 @AutoConfigureTestRestTemplate
 @WireMockTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Import(GatewaySharedAuthTest.TestJwtDecoderConfiguration.class)
 class GatewaySharedAuthTest {
     // stub mappings in JSON format, see https://wiremock.org/docs/stubbing/
 
@@ -151,6 +164,29 @@ class GatewaySharedAuthTest {
 
     /** saved in {@link #setUpWireMock}, to be used on {@link #registerRoutes} */
     private static WireMockRuntimeInfo wmRuntimeInfo;
+
+    @TestConfiguration(proxyBeanMethods = false)
+    static class TestJwtDecoderConfiguration {
+
+        @Bean
+        @Primary
+        JwtDecoder testJwtDecoder() {
+            return token -> {
+                if (!"valid-test-token".equals(token)) {
+                    throw new BadJwtException("Invalid test token");
+                }
+                return Jwt.withTokenValue(token)
+                        .header("alg", "RS256")
+                        .claim("iss", "https://issuer.example.test")
+                        .claim("aud", List.of("geoserver-cloud-test"))
+                        .claim("preferred_username", "bearer-user")
+                        .claim(
+                                "resource_access",
+                                Map.of("gs-client", Map.of("roles", List.of("test-reader", "unmapped-role"))))
+                        .build();
+            };
+        }
+    }
 
     /**
      * Set up stub requests for the wiremock server. WireMock is running on a random port, so this method saves
@@ -374,6 +410,38 @@ class GatewaySharedAuthTest {
         assertThat(responseHeaders.get("x-gsc-roles"))
                 .as("SharedAuth filter should have removed the x-gsc-roles response header")
                 .isNull();
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("valid bearer token is mapped and forwarded as trusted GeoServer identity")
+    void validBearerTokenIsMappedAndForwarded(WireMockRuntimeInfo runtimeInfo) {
+        ResponseEntity<String> response = getCapabilities("Authorization", "Bearer valid-test-token");
+        assertThat(response.getHeaders().getFirst("x-gsc-username")).isNull();
+        assertThat(response.getHeaders().getFirst("x-gsc-roles")).isNull();
+        assertThat(getJSessionIdCookie(response.getHeaders())).isNull();
+        assertThat(response.getHeaders().getCacheControl()).contains("no-store");
+
+        LoggedRequest request =
+                runtimeInfo.getWireMock().getServeEvents().getFirst().getRequest();
+        com.github.tomakehurst.wiremock.http.HttpHeaders headers = request.getHeaders();
+        assertThat(headers.getHeader("x-gsc-username").getValues()).containsExactly("bearer-user");
+        assertThat(headers.getHeader("x-gsc-roles").getValues()).containsExactly("ROLE_PRIVATE_READER");
+        assertThat(headers.getHeader("Authorization").getValues()).allMatch(String::isBlank);
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("invalid bearer token is rejected before reaching a service")
+    void invalidBearerTokenIsRejected(WireMockRuntimeInfo runtimeInfo) {
+        ResponseEntity<String> response = testRestTemplate.exchange(
+                getcapabilities,
+                HttpMethod.GET,
+                withHeaders("Authorization", "Bearer invalid-test-token"),
+                String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(runtimeInfo.getWireMock().getServeEvents()).isEmpty();
     }
 
     /** Returns the JSESSIONID cookie value from the response, or {@code null} if not present. */

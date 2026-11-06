@@ -57,6 +57,45 @@ filters:
 
 Can be disabled with `geoserver.security.gateway-shared-auth.enabled=false`.
 
+### OIDC Bearer tokens
+
+The gateway can validate OIDC JWT access tokens and pass the verified identity to GeoServer Cloud services through
+`SharedAuth`. Enable it only on the gateway. The gateway validates the issuer, signature, time claims, and required
+audience, maps the configured username and roles claims, removes client-supplied `x-gsc-*` headers, and does not forward
+the raw Bearer token to backend services.
+
+```yaml
+geoserver:
+  extension:
+    security:
+      gateway-bearer-auth:
+        enabled: true
+        issuer-uri: https://keycloak.example/realms/geonode
+        audience: geoserver-cloud
+        username-claim: preferred_username
+        roles-claim: resource_access.geoserver-cloud.roles
+        role-prefix: ROLE_
+        role-mappings:
+          data-reader: PRIVATE_READER
+          data-editor: PRIVATE_EDITOR
+```
+
+Use the issuer URI and audience that the identity provider puts in the access token. `roles-claim` is a dot-separated
+path through nested JWT claims. Only roles listed in `role-mappings` are accepted; map them to GeoServer roles assigned
+in `security/role` and used by `security/layers.properties`. Do not map ordinary users to `ADMIN` or
+`ROLE_ADMINISTRATOR`. The configured role mapping is an authorization boundary, so do not accept role names directly
+from a client-controlled claim without an explicit allowlist.
+
+Requests with a Bearer header must contain a valid token and are forwarded with the mapped identity. Requests without a
+Bearer header retain the existing public-resource and WebUI session behavior. Keep `SharedAuth` on every route to a
+GeoServer service; the default routes in `config/gateway.yml` already include it for WFS, OGC API Features, WMS, WCS,
+WPS, REST, GWC, and WebUI. The optional ACL route has its own authentication/authorization setup.
+
+GeoWebCache has a separate data-security switch. Enable **GeoWebCache Data Security** in the GWC configuration before
+serving private layers through WMTS, TMS, or cached WMS. Without it, cached tiles may be served without evaluating the
+current user's layer permissions. Test both a permitted and denied user against uncached WMS/WFS requests and cached
+WMTS/TMS requests after enabling it.
+
 ### SecureHeaders
 
 Adds security-related HTTP response headers (`X-Frame-Options`, `X-Content-Type-Options`,
