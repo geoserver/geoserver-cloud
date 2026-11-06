@@ -70,6 +70,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-security-gateway-bearer-auth</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
         <artifactId>gs-cloud-extension-security-gateway-shared-auth</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -184,6 +189,11 @@
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-starter-catalog-backend</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-gateway-security</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

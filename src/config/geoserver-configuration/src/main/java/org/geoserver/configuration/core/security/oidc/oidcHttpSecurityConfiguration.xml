@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+  <bean id="oidcObjectPostProcessorConfiguration"
+        class="org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration" />
+  <bean id="oidcAuthenticationConfiguration"
+        class="org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration" />
+  <bean id="oidcHttpSecurityConfiguration"
+        class="org.springframework.security.config.annotation.web.configuration.HttpSecurityConfiguration"
+        depends-on="contentNegotiationStrategy,oidcObjectPostProcessorConfiguration,oidcAuthenticationConfiguration" />
+  <bean id="oauth2LoginAuthenticationProvider"
+        class="org.geoserver.security.oauth2.login.GeoServerOAuth2LoginAuthenticationProvider"
+        depends-on="oidcHttpSecurityConfiguration"
+        lazy-init="true">
+    <constructor-arg ref="authenticationManager" />
+  </bean>
+</beans>

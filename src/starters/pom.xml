@@ -18,6 +18,7 @@
     <module>extensions</module>
     <module>webmvc</module>
     <module>security</module>
+    <module>gateway-security</module>
     <module>observability</module>
   </modules>
   <dependencies>

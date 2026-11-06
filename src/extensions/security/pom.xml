@@ -12,6 +12,7 @@
   <modules>
     <module>auth-key</module>
     <module>environment-admin-auth</module>
+    <module>gateway-bearer-auth</module>
     <module>gateway-shared-auth</module>
     <module>geoserver-acl</module>
     <module>jdbc</module>
