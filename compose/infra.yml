@@ -15,8 +15,6 @@ services:
     volumes:
       - ./pg_entrypoint:/docker-entrypoint-initdb.d:ro
       - geodatabase_data:/var/lib/postgresql/data
-    ports:
-      - 6432:5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U geoserver"]
       interval: 30s
@@ -38,9 +36,6 @@ services:
     volumes:
       - $PWD/../config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:Z
     #  - rabbitmq_data:/var/lib/rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     deploy:
       resources:
         limits:
