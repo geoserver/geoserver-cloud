@@ -2,6 +2,13 @@
 # for example, when running the gateway through the IDE 
 # Port numbers match the ones in the `local` spring profile used for development.
 services:
+  geodatabase:
+    ports:
+      - 6432:5432
+  rabbitmq:
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   config:
     ports:
       - 8888:8080 # not needed in production, exposed for local development
