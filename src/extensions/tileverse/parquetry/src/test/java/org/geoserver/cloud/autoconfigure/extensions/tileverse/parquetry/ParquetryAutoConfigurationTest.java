@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.tileverse.parquetry.geotools.parquet.GeoParquetDataStoreFactory;
+import org.geoserver.config.impl.GeoServerLifecycleHandler;
 import org.geoserver.platform.ModuleStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -84,13 +85,26 @@ class ParquetryAutoConfigurationTest {
     }
 
     @Test
+    void registersTheCachesReset() {
+        contextRunner.run(context -> assertThat(context).hasNotFailed().hasSingleBean(GeoServerLifecycleHandler.class));
+    }
+
+    @Test
+    void noCachesResetWithParquetOff() {
+        contextRunner
+                .withPropertyValues(PREFIX + ".parquet.enabled=false")
+                .run(context -> assertThat(context).hasNotFailed().doesNotHaveBean(GeoServerLifecycleHandler.class));
+    }
+
+    @Test
     void backsOffWithoutParquetryClasses() {
         contextRunner
                 .withClassLoader(new FilteredClassLoader(GeoParquetDataStoreFactory.class))
                 .run(context -> assertThat(context)
                         .hasNotFailed()
                         .doesNotHaveBean("parquetryExtension")
-                        .doesNotHaveBean(ParquetryConfigProperties.class));
+                        .doesNotHaveBean(ParquetryConfigProperties.class)
+                        .doesNotHaveBean(GeoServerLifecycleHandler.class));
     }
 
     private void assertModuleStatusEnabled(AssertableApplicationContext context, boolean enabled) {
