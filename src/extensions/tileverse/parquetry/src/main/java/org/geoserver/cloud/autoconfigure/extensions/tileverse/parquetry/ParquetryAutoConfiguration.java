@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry;
 
+import io.tileverse.geoserver.parquetry.config.ParquetryCachesConfiguration;
 import io.tileverse.parquetry.geotools.parquet.GeoParquetDataStoreFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServer;
@@ -13,6 +14,8 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Auto-configuration for the Parquetry plugin extension: binds {@link ParquetryConfigProperties} and reports the
@@ -24,12 +27,15 @@ import org.springframework.context.annotation.Bean;
  * Datastore availability itself is controlled by the {@code geotools.data.filtering} configuration through the factory
  * display name "Parquet", and by {@link ParquetryContextInitializer}.
  *
+ * <p>While the "Parquet" datastore is on, {@link CachesConfiguration} clears the plugin's caches on a GeoServer reset.
+ *
  * @since 3.1.0
  */
 @AutoConfiguration
 @ConditionalOnGeoServer
 @ConditionalOnClass(GeoParquetDataStoreFactory.class)
 @EnableConfigurationProperties(ParquetryConfigProperties.class)
+@Import(ParquetryAutoConfiguration.CachesConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.tileverse.parquetry")
 public class ParquetryAutoConfiguration {
 
@@ -44,4 +50,10 @@ public class ParquetryAutoConfiguration {
         log.info("Parquetry extension {}", enabled ? "enabled" : "disabled");
         return module;
     }
+
+    /** Clears the caches of the "Parquet" datastore when GeoServer resets, in each service, not only the WebUI. */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnParquetryParquet
+    @Import(ParquetryCachesConfiguration.class)
+    static class CachesConfiguration {}
 }

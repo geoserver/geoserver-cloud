@@ -43,6 +43,10 @@ switch is on and at least one feature is on. Each enabled feature adds its own s
 plugin: `gs-parquetry-geoparquet` (WebUI only), `gs-parquetry-wfs-geoparquet` and
 `gs-parquetry-wfs-arrow-ipc`.
 
+While the "Parquet" datastore is on, resetting or reloading GeoServer clears the parquetry caches
+in each service: a file replaced in place is then read afresh, without waiting for its cached
+entries to expire.
+
 ## Stac-GeoParquet and Iceberg datastores
 
 `parquetry-geotools` also provides Stac-GeoParquet and Apache Iceberg
