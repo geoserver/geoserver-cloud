@@ -846,7 +846,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         }
 
         @Override
-        public Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
+        public Optional<StyleInfo> findByNameAndWorkspaceIsNull(String name) {
             requireNonNull(name);
             return findByName(new NameImpl(null, name), StyleInfo.class);
         }

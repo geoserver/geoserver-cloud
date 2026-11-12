@@ -6,7 +6,7 @@ Dependency graph:
                       (pluggable-catalog-support) -----> [gs-main]
                                     ^
                                     |
- (catalog-event-bus) <-------- (catalog-backend-starter) ------> (catalog-cache)
+ (catalog-event-bus) <-------- (catalog-backend-starter)
                                  /  |           \
                                 /   |            \
                                /    |             \
@@ -32,16 +32,8 @@ Provides spring atuo-configuration for several catalog back-ends. Namely: tradit
  
  depends on: 
   * gs-cloud-catalog-events
-  * gs-cloud-catalog-cache
   * gs-cloud-catalog-backend-datadir
   * gs-cloud-catalog-backend-pgconfig
-
-## catalog-cache
-
-Based on `spring-boot-starter-cache`, decorates the application catalog's backend repositories to cache `CatalogInfo` objects and `ResourceStore` files. Listens to `RemoteCatalogEvent` and `RemoteResourceChangeEvent` notifications to evict entries from the spring cache. The spring cache can be any of the spring-cache [supported providers](https://docs.spring.io/spring-boot/docs/1.3.0.M1/reference/html/boot-features-caching.html#_supported_cache_providers).
-
- depends on: 
-  * catalog-event-bus
 
 # Common configuration properties
 The following configuration properties apply to all *GeoServer* microservices (i.e. not edge services):

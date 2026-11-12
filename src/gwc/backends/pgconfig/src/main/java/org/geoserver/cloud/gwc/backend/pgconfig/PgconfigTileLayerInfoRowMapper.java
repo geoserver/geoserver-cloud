@@ -37,7 +37,7 @@ class PgconfigTileLayerInfoRowMapper implements RowMapper<TileLayerInfo> {
      *  publishedinfo   | jsonb    |
      *  defaultStyle    | jsonb    |
      *  tilelayer       | jsonb    |
-     *  alternateStyles | jsonb    |
+     *  styles          | jsonb    |
      *
      * }</pre>
      */

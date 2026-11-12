@@ -6,7 +6,9 @@
 package org.geoserver.cloud.event.bus;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
+import java.time.Duration;
 import java.util.function.Consumer;
 import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
 import org.geoserver.cloud.event.lifecycle.ReloadEvent;
@@ -22,6 +24,15 @@ class LifecycleRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
     static void handleGsExtensions() {
         GeoServerExtensions gse = new GeoServerExtensions();
         gse.setApplicationContext(remoteAppContext);
+    }
+
+    // the consumer of the bus subscribes to its queue at startup
+    @Test
+    void startupResumesRemoteEvents() {
+        BusEventCollector remoteEvents = remoteAppContext.getBean(BusEventCollector.class);
+
+        await().atMost(Duration.ofSeconds(10))
+                .until(() -> !remoteEvents.resumed().isEmpty());
     }
 
     @Test

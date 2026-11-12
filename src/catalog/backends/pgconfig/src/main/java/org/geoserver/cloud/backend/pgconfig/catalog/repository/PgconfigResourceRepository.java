@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.NonNull;
@@ -15,6 +16,8 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
+import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /** @since 1.4 */
@@ -42,9 +45,9 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
 
     @Override
     public <R extends ResourceInfo> R update(@NonNull R value, @NonNull Patch patch) {
-        Optional<ResourceInfo> oldResource = super.findById(value.getId());
+        ResourceInfo oldResource = findCurrent(value.getId());
         R patched = super.update(value, patch);
-        updateLayer(oldResource.orElseThrow(), patched);
+        updateLayer(oldResource, patched);
         return patched;
     }
 
@@ -67,6 +70,12 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
     @Override
     public <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
             @NonNull String name, @NonNull NamespaceInfo namespace, @NonNull Class<T> clazz) {
+        List<CacheKey> keys = nameKeys(CatalogInfoKeys.prefixedName(namespace, name), clazz);
+        return findByKeys(keys, clazz, () -> queryByNameAndNamespace(name, namespace, clazz));
+    }
+
+    private <T extends ResourceInfo> Optional<T> queryByNameAndNamespace(
+            String name, NamespaceInfo namespace, Class<T> clazz) {
         String query = select("""
                 WHERE "namespace.id" = ? AND name = ?
                 """);

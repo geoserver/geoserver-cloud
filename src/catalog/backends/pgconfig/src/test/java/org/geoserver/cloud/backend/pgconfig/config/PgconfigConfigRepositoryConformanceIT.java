@@ -12,15 +12,23 @@ package org.geoserver.cloud.backend.pgconfig.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Duration;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
+import org.geoserver.cloud.backend.pgconfig.cache.ZstdCodec;
+import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
 import org.geoserver.config.ServiceInfo;
+import org.geoserver.config.plugin.GeoServerImpl;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.parallel.Execution;
@@ -28,7 +36,12 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/** @since 1.4 */
+/**
+ * The conformance suite of the configuration over the pgconfig repository with the configuration cache, and without it
+ * ({@link WithoutCache}).
+ *
+ * @since 1.4
+ */
 @Testcontainers(disabledWithoutDocker = true)
 @Execution(value = ExecutionMode.CONCURRENT)
 class PgconfigConfigRepositoryConformanceIT extends GeoServerConfigConformanceTest {
@@ -39,16 +52,42 @@ class PgconfigConfigRepositoryConformanceIT extends GeoServerConfigConformanceTe
     @RegisterExtension
     PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
 
+    private ZstdCodec codec;
+
     @Override
     @BeforeEach
     public void setUp() {
         super.setUp();
     }
 
+    @AfterEach
+    void closeCodec() {
+        if (codec != null) {
+            codec.close();
+        }
+    }
+
+    /** Mirrors the backend configuration: the workspaces of settings and services come from the catalog facade. */
     protected @Override GeoServer createGeoServer() {
         PgconfigBackendBuilder builder = new PgconfigBackendBuilder(db.getDataSource());
         Catalog catalog = builder.createCatalog();
-        return builder.createGeoServer(catalog);
+        PgconfigConfigRepository repository = new PgconfigConfigRepository(db.getTemplate());
+        repository.setEntityCache(newEntityCache());
+        PgconfigGeoServerFacade facade = new PgconfigGeoServerFacade(repository);
+        PgconfigCatalogFacade catalogFacade = new PgconfigCatalogFacade(db.getTemplate());
+        facade.setWorkspaceResolver(ResolvingProxyResolver.of(catalogFacade));
+        GeoServerImpl geoServer = new GeoServerImpl(facade);
+        geoServer.setCatalog(catalog);
+        return geoServer;
+    }
+
+    /** The configuration cache as the backend configures it, initialized as after the loader ran. */
+    private EntityCache newEntityCache() {
+        codec = ZstdCodec.withBundledDictionary(ZstdCodec.DEFAULT_LEVEL);
+        long maximumWeight = 16L * 1024 * 1024;
+        EntityCache cache = new EntityCache("gs-config", maximumWeight, Duration.ofSeconds(30), codec);
+        cache.setInitialized(true);
+        return cache;
     }
 
     @Test
@@ -75,5 +114,20 @@ class PgconfigConfigRepositoryConformanceIT extends GeoServerConfigConformanceTe
 
         assertThat(ex.getMessage())
                 .contains("service with name 'TEST-OWS' already exists in workspace 'TEST-WORKSPACE-1'");
+    }
+
+    /**
+     * The suite over a repository without a cache, as with the cache disabled. The repository reads the same way while
+     * the cache is suspended, and within a transaction on its data source.
+     */
+    @Nested
+    class WithoutCache extends GeoServerConfigConformanceTest {
+
+        @Override
+        protected GeoServer createGeoServer() {
+            PgconfigBackendBuilder builder = new PgconfigBackendBuilder(db.getDataSource());
+            Catalog catalog = builder.createCatalog();
+            return builder.createGeoServer(catalog);
+        }
     }
 }

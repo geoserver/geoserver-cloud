@@ -28,7 +28,6 @@ geoserver:
 spring.config.activate.on-profile: pgconfigjndi
 
 geoserver:
-  catalog.caching.enabled: true
   backend:
     pgconfig:
       enabled: true

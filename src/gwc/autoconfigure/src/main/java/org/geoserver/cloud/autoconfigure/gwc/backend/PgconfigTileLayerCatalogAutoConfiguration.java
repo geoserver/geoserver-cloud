@@ -31,8 +31,10 @@ import org.geowebcache.grid.GridSetBroker;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.cache.autoconfigure.CacheAutoConfiguration;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,11 +48,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @since 1.7
  * @see ConditionalOnPgconfigBackendEnabled
  */
-@AutoConfiguration(after = PgconfigDataSourceAutoConfiguration.class)
+@AutoConfiguration(after = PgconfigDataSourceAutoConfiguration.class, before = CacheAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnClass(PgconfigTileLayerCatalog.class)
 @ConditionalOnGeoWebCacheEnabled
 @ConditionalOnPgconfigBackendEnabled
+// Spring Boot creates a CacheManager only when caching is enabled before CacheAutoConfiguration.
+// The tile layer name cache needs that CacheManager.
+@EnableCaching
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.backend")
 public class PgconfigTileLayerCatalogAutoConfiguration {
 

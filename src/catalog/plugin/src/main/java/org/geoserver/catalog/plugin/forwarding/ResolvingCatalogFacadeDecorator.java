@@ -207,7 +207,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      */
     @Override
     public <T extends CatalogInfo> T add(@NonNull T info) {
-        return super.add(resolveInbound(info));
+        return resolveOutbound(super.add(resolveInbound(info)));
     }
 
     /**

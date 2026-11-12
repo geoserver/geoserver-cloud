@@ -83,11 +83,7 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
      * @throws IllegalArgumentException if {@code facade} is already an {@link ExtendedCatalogFacade}.
      */
     public CatalogFacadeExtensionAdapter(CatalogFacade facade) {
-        super(facade);
-        if (facade instanceof ExtendedCatalogFacade) {
-            throw new IllegalArgumentException("facade is already an ExtendedCatalogFacade");
-        }
-
+        super(requireNotExtended(facade));
         updateToSaveBridge.consume(WorkspaceInfo.class, facade::save);
         updateToSaveBridge.consume(NamespaceInfo.class, facade::save);
         updateToSaveBridge.consume(StoreInfo.class, facade::save);
@@ -101,6 +97,15 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
         if (currentCatalog != null) {
             setCatalog(currentCatalog);
         }
+    }
+
+    // Runs inside the super(...) call so the check precedes the super constructor without a flexible constructor body,
+    // which the checkstyle grammar cannot parse.
+    private static CatalogFacade requireNotExtended(CatalogFacade facade) {
+        if (facade instanceof ExtendedCatalogFacade) {
+            throw new IllegalArgumentException("facade is already an ExtendedCatalogFacade");
+        }
+        return facade;
     }
 
     /**
