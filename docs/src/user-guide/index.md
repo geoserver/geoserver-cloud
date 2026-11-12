@@ -12,6 +12,9 @@ Available guides:
 - [Logging](logging.md): select a logging profile for all the service
   instances from the web UI or the REST API, define your own profiles,
   change the log output, and write JSON logs.
+- [OpenID Connect login and Bearer tokens](openid-connect.md): sign users in
+  to the web UI with an OpenID Connect provider, and accept the access tokens
+  of API clients in the services.
 - [ImageMosaics through the REST API](imagemosaic-rest-api.md): publish an
   ImageMosaic of Cloud Optimized GeoTIFFs stored on object storage, using the
   same REST API calls that work against vanilla GeoServer.

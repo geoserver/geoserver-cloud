@@ -70,6 +70,7 @@ Only a curated selection of the extensive [GeoServer extensions](http://geoserve
     * LDAP Security
     * Key Authentication
     * GeoNode Authentication
+    * OpenID Connect
 * **Cartography**:
     * CSS Styling
     * MBStyle Styling

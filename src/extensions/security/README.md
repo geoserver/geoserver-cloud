@@ -7,12 +7,14 @@ This module provides auto-configuration for various GeoServer security extension
 The following security extensions are available:
 
 - **GeoNode OAuth2**: Authentication with GeoNode OAuth2 provider
+- **OpenID Connect**: Browser login and Bearer token authentication with OpenID Connect / OAuth2 providers, enabled by default
 
 ## Configuration
 
 Each security extension has its own configuration properties. See the individual extension READMEs for details:
 
 - [GeoNode OAuth2](geonode-oauth2/README.md)
+- [OpenID Connect](oidc/README.md)
 
 ## Implementation Details
 

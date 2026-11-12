@@ -662,6 +662,16 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-sec-oidc-core</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-sec-oidc-web</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-app-schema-core</artifactId>
         <version>${gs.version}</version>
         <exclusions>
@@ -1274,6 +1284,12 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
             <version>4.0.5</version>
+          </dependency>
+          <dependency>
+            <!-- match upstream geoserver, Spring Security 7.1 declares 10.9.1 -->
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>10.10</version>
           </dependency>
           <dependency>
             <!-- match jaxb-core and txw2 from spring-boot-dependencies -->
