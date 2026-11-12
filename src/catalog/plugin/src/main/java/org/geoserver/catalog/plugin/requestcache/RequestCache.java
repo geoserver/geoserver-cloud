@@ -7,6 +7,7 @@ package org.geoserver.catalog.plugin.requestcache;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
@@ -36,6 +37,10 @@ import org.jspecify.annotations.Nullable;
  * <p>A change made through another service instance is seen by the next lookup of the request: the lookup finds the
  * {@link RemoteChangeCounter} moved, and empties the cache once. The references already resolved inside the objects
  * held by the request keep their copy.
+ *
+ * <p>The cache also remembers the objects whose references were resolved by the catalog, see
+ * {@link #markResolved(Object)}. The same instance comes back from each lookup of the request, and its references stay
+ * resolved: the catalog walks them once.
  */
 public final class RequestCache {
 
@@ -51,6 +56,10 @@ public final class RequestCache {
     private static final long NO_MAXIMUM_AGE = Long.MAX_VALUE;
 
     private final Map<Object, Object> entries = new ConcurrentHashMap<>();
+
+    /** The objects marked by {@link #markResolved(Object)}, compared by identity. */
+    private final Set<Identity> resolved = ConcurrentHashMap.newKeySet();
+
     private final int maxEntries;
     private final AtomicBoolean killed = new AtomicBoolean();
 
@@ -216,6 +225,45 @@ public final class RequestCache {
         return entries.size() >= maxEntries;
     }
 
+    /**
+     * Marks the object as having its references resolved for this request, and returns whether it was not marked
+     * before. The catalog resolves the references of an object before returning it, and skips the objects marked
+     * already: the request holds one instance of each object, and a lookup returns the same instance again with its
+     * references in place.
+     *
+     * <p>Objects are compared by identity: a fresh decode of a cached object is another instance, and its references
+     * are not resolved. The marks are dropped with the entries, and the cache marks at most {@code maxEntries} objects.
+     * A full cache keeps answering for the marked objects and marks no more. A dead cache marks nothing and answers
+     * true: the caller resolves the references each time.
+     */
+    public boolean markResolved(Object object) {
+        if (isDead()) {
+            return true;
+        }
+        followRemoteChanges();
+        Identity identity = new Identity(object);
+        if (resolved.contains(identity)) {
+            return false;
+        }
+        if (resolved.size() >= maxEntries) {
+            return true;
+        }
+        return resolved.add(identity);
+    }
+
+    /** An object compared by identity, as a key of the set of resolved objects. */
+    private record Identity(Object object) {
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Identity identity && identity.object == object;
+        }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(object);
+        }
+    }
+
     /** Removes the keys. Writes evict the keys of the changed objects: the request then sees its own writes. */
     public void evict(Object... keys) {
         for (Object key : keys) {
@@ -260,9 +308,11 @@ public final class RequestCache {
 
     /**
      * Removes the entries one key at a time: each removal gives back its share of the budget once, even while another
-     * thread puts or drops entries.
+     * thread puts or drops entries. The marks of the resolved objects go with the entries: the next lookups return
+     * fresh instances.
      */
     private void dropAll() {
+        resolved.clear();
         for (Object key : entries.keySet()) {
             drop(key);
         }
