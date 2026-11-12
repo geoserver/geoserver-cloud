@@ -8,18 +8,24 @@ package org.geoserver.cloud.event.bus;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.config.GeoServer;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
 import org.geoserver.platform.config.UpdateSequence;
 import org.junit.jupiter.api.Test;
+import org.springframework.amqp.rabbit.listener.ConsumeOkEvent;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.context.annotation.UserConfigurations;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.bus.BusAutoConfiguration;
 import org.springframework.cloud.bus.BusBridge;
 import org.springframework.cloud.bus.ServiceMatcher;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 
 /** @since 1.0 */
 class RemoteGeoServerEventsConfigurationTest {
@@ -47,6 +53,26 @@ class RemoteGeoServerEventsConfigurationTest {
             assertThat(context).hasSingleBean(InfoEventResolver.class);
             assertThat(context).hasSingleBean(RemoteGeoServerEventMapper.class);
             assertThat(context).hasSingleBean(RemoteGeoServerEventBridge.class);
+            assertThat(context).hasSingleBean(RemoteEventsResumedPublisher.class);
         });
+    }
+
+    @Test
+    void subscriptionResumesEvents() {
+        List<RemoteEventsResumed> resumed = new ArrayList<>();
+        ApplicationListener<PayloadApplicationEvent<RemoteEventsResumed>> recorder =
+                ApplicationListener.forPayload(resumed::add);
+        runner.withBean("resumedRecorder", ApplicationListener.class, () -> recorder)
+                .run(context -> {
+                    context.publishEvent(new ConsumeOkEvent(this, "geoserver.anonymous.queue", "consumer-1"));
+
+                    assertThat(resumed).containsExactly(new RemoteEventsResumed("geoserver.anonymous.queue"));
+                });
+    }
+
+    @Test
+    void noPublisherWithoutRabbit() {
+        runner.withClassLoader(new FilteredClassLoader(ConsumeOkEvent.class))
+                .run(context -> assertThat(context).doesNotHaveBean(RemoteEventsResumedPublisher.class));
     }
 }

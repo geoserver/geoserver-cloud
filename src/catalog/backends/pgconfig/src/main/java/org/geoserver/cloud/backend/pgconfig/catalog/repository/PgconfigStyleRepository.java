@@ -5,12 +5,15 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
+import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
+import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /** @since 1.4 */
@@ -46,12 +49,16 @@ public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<Style
     }
 
     @Override
-    public Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name) {
-        return findOne(select("WHERE \"workspace.id\" IS NULL AND name = ?"), name);
+    public Optional<StyleInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
+        List<CacheKey> keys = globalNameKeys(name, StyleInfo.class);
+        return findByKeys(
+                keys, StyleInfo.class, () -> findOne(select("WHERE \"workspace.id\" IS NULL AND name = ?"), name));
     }
 
     @Override
     public Optional<StyleInfo> findByNameAndWorkspace(@NonNull String name, @NonNull WorkspaceInfo workspace) {
-        return findOne(select("WHERE \"workspace.id\" = ? AND name = ?"), workspace.getId(), name);
+        String query = select("WHERE \"workspace.id\" = ? AND name = ?");
+        List<CacheKey> keys = nameKeys(CatalogInfoKeys.prefixedName(workspace, name), StyleInfo.class);
+        return findByKeys(keys, StyleInfo.class, () -> findOne(query, workspace.getId(), name));
     }
 }

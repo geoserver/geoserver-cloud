@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -49,6 +50,8 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
 
     protected GeoServer geoServer;
 
+    private UnaryOperator<WorkspaceInfo> workspaceResolver = this::resolveThroughCatalog;
+
     public RepositoryGeoServerFacadeImpl() {
         this(new MemoryConfigRepository());
     }
@@ -56,6 +59,14 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     public RepositoryGeoServerFacadeImpl(ConfigRepository repository) {
         Objects.requireNonNull(repository);
         this.repository = repository;
+    }
+
+    /**
+     * Sets how the workspace of the settings and services read from the repository is resolved, when they hold it as a
+     * proxy. The default looks it up in the catalog of the {@link GeoServer} instance.
+     */
+    public void setWorkspaceResolver(UnaryOperator<WorkspaceInfo> workspaceResolver) {
+        this.workspaceResolver = requireNonNull(workspaceResolver);
     }
 
     @Override
@@ -319,13 +330,10 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
             return null;
         }
         WorkspaceInfo workspace = service.getWorkspace();
-        GeoServer gs = getGeoServer();
         if (workspace instanceof Proxy) {
-            Catalog catalog = gs.getCatalog();
-            WorkspaceInfo resolved = ResolvingProxy.resolve(catalog, workspace);
-            service.setWorkspace(resolved);
+            service.setWorkspace(workspaceResolver.apply(workspace));
         }
-        service.setGeoServer(gs);
+        service.setGeoServer(getGeoServer());
         OwsUtils.resolveCollections(service);
         return service;
     }
@@ -336,12 +344,14 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         }
         WorkspaceInfo workspace = settings.getWorkspace();
         if (workspace instanceof Proxy) {
-            GeoServer gs = getGeoServer();
-            Catalog catalog = gs.getCatalog();
-            WorkspaceInfo resolved = ResolvingProxy.resolve(catalog, workspace);
-            settings.setWorkspace(resolved);
+            settings.setWorkspace(workspaceResolver.apply(workspace));
         }
         return settings;
+    }
+
+    private WorkspaceInfo resolveThroughCatalog(WorkspaceInfo workspace) {
+        Catalog catalog = getGeoServer().getCatalog();
+        return ResolvingProxy.resolve(catalog, workspace);
     }
 
     @Override

@@ -15,8 +15,9 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.geoserver.catalog.plugin.resolving.ProxyUtils;
+import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
+import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 /** @since 1.4 */
 public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepository<LayerGroupInfo>
@@ -32,58 +33,55 @@ public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepositor
         return CatalogInfoRowMapper.LAYERGROUPINFO_BUILD_COLUMNS;
     }
 
+    /** The lookups of one group also select its members. */
     @Override
-    protected final RowMapper<LayerGroupInfo> newRowMapper() {
+    protected String getLookupColumns() {
+        return CatalogInfoRowMapper.LAYERGROUPINFO_WITH_MEMBERS_COLUMNS;
+    }
+
+    @Override
+    protected final CatalogInfoRowMapper<LayerGroupInfo> newRowMapper() {
         return CatalogInfoRowMapper.<LayerGroupInfo>newInstance().setStyleLoader(styleRepo::findById);
     }
 
     @Override
     public Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
-        String sql =
+        String predicate =
                 """
-                SELECT "@type", publishedinfo, workspace \
-                FROM %s \
                 WHERE "@type" = 'LayerGroupInfo' AND "workspace.id" IS NULL AND name = ?
-                """
-                        .formatted(getQueryTable());
-        return findOne(sql, name);
+                """;
+        List<CacheKey> keys = globalNameKeys(name, LayerGroupInfo.class);
+        return findByKeys(keys, LayerGroupInfo.class, () -> findOne(selectForLookup(predicate), name));
     }
 
     @Override
     public Optional<LayerGroupInfo> findByNameAndWorkspace(@NonNull String name, @NonNull WorkspaceInfo workspace) {
-
-        String sql =
+        String predicate =
                 """
-                SELECT "@type", publishedinfo, workspace \
-                FROM %s \
                 WHERE "@type" = 'LayerGroupInfo' AND "workspace.id" = ? AND name = ?
-                """
-                        .formatted(getQueryTable());
-        return findOne(sql, workspace.getId(), name);
+                """;
+        String prefixedName = CatalogInfoKeys.prefixedName(workspace, name);
+        List<CacheKey> keys = nameKeys(prefixedName, LayerGroupInfo.class);
+        return findByKeys(
+                keys, LayerGroupInfo.class, () -> findOne(selectForLookup(predicate), workspace.getId(), name));
     }
 
     @Override
     public Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
-        String sql =
+        String predicate =
                 """
-                SELECT "@type", publishedinfo, workspace \
-                FROM %s \
                 WHERE "@type" = 'LayerGroupInfo' AND "workspace.id" IS NULL
-                """
-                        .formatted(getQueryTable());
-        return super.queryForStream(sql);
+                """;
+        return super.queryForStream(select(predicate));
     }
 
     @Override
     public Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
-        String sql =
+        String predicate =
                 """
-                SELECT "@type", publishedinfo, workspace \
-                FROM %s \
                 WHERE "@type" = 'LayerGroupInfo' AND "workspace.id" = ?
-                """
-                        .formatted(getQueryTable());
-        return super.queryForStream(sql, workspace.getId());
+                """;
+        return super.queryForStream(select(predicate), workspace.getId());
     }
 
     @Override

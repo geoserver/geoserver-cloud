@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.NonNull;
@@ -14,9 +15,10 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 import org.geoserver.catalog.plugin.Query;
+import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
+import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
 import org.geotools.api.filter.Filter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 /** @since 1.4 */
 public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<LayerInfo> implements LayerRepository {
@@ -32,12 +34,37 @@ public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<Lay
     }
 
     @Override
-    protected final RowMapper<LayerInfo> newRowMapper() {
+    protected final CatalogInfoRowMapper<LayerInfo> newRowMapper() {
         return CatalogInfoRowMapper.<LayerInfo>newInstance().setStyleLoader(styleRepo::findById);
     }
 
+    /**
+     * Finds a layer by its prefixed name, or by its local name. With a cache, the name is a {@code NAME} key: it holds
+     * the id of the layer with that prefixed name, or a miss when no layer has the name, prefixed or local.
+     */
     @Override
     public Optional<LayerInfo> findOneByName(@NonNull String possiblyPrefixedName) {
+        List<CacheKey> keys = nameKeys(possiblyPrefixedName, LayerInfo.class);
+        return findByKeys(keys, LayerInfo.class, () -> findByPrefixedOrLocalName(possiblyPrefixedName));
+    }
+
+    /**
+     * A layer has the name of its resource. The resource is read from the cache by id, with a decode and no query: the
+     * row of the layer put it there with the layer. The {@code NAME} entry of the resource would check nothing: the
+     * same row writes it with the {@code NAME} entry of the layer, and both go stale together. A resource absent from
+     * the cache cannot confirm the name, and the lookup queries the database.
+     */
+    @Override
+    protected boolean hasName(LayerInfo layer, String prefixedName) {
+        ResourceInfo resource = layer.getResource();
+        if (null == resource) {
+            return false;
+        }
+        Optional<ResourceInfo> cached = findCached(resource.getId(), ResourceInfo.class);
+        return cached.isPresent() && CatalogInfoKeys.hasName(cached.get(), prefixedName);
+    }
+
+    private Optional<LayerInfo> findByPrefixedOrLocalName(String possiblyPrefixedName) {
         String sql =
                 """
                 SELECT %s \

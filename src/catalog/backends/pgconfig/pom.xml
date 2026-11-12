@@ -20,11 +20,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud.catalog</groupId>
-      <artifactId>gs-cloud-catalog-cache</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
     </dependency>
@@ -65,6 +60,10 @@
       <artifactId>caffeine</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.github.luben</groupId>
+      <artifactId>zstd-jni</artifactId>
+    </dependency>
+    <dependency>
       <!-- to access gwc-core transitively without having to specify the gwc version -->
       <!-- required to implement a TileLayerCatalog postgres backend -->
       <groupId>org.geoserver</groupId>
@@ -74,6 +73,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- the consumer of the event bus reports its subscriptions to its queue, see EntityCacheBusListener -->
+      <groupId>org.springframework.amqp</groupId>
+      <artifactId>spring-rabbit</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>

@@ -23,7 +23,10 @@ import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.LayerInfoImpl;
+import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
+import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
+import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
 import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
 import org.geoserver.gwc.GWC;
@@ -67,7 +70,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
         this.repository = repository;
         this.gridsetBroker = gridsetBroker;
 
-        UnaryOperator<PublishedInfo> resolve = PgconfigCatalogFacade.resolvingFunction(catalog);
+        UnaryOperator<PublishedInfo> resolve = resolveThroughCatalog(catalog);
         UnaryOperator<PublishedInfo> proxify = ModificationProxyDecorator::wrap;
         this.publishedResolver = resolve.andThen(proxify)::apply;
         this.defaultsProvider = defaultsProvider;
@@ -81,6 +84,17 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
             @NonNull GWCConfigPersister defaultsProvider) {
 
         this(new PgconfigTileLayerInfoRepository(new JdbcTemplate(dataSource)), gridsets, catalog, defaultsProvider);
+    }
+
+    /**
+     * Resolves the references of the published object of a tile layer through the GeoServer catalog. A tile layer holds
+     * the object as the catalog returns it.
+     */
+    private static UnaryOperator<PublishedInfo> resolveThroughCatalog(Supplier<Catalog> catalog) {
+        UnaryOperator<PublishedInfo> catalogProperty = CatalogPropertyResolver.of(catalog);
+        UnaryOperator<PublishedInfo> references = ResolvingProxyResolver.of(catalog);
+        UnaryOperator<PublishedInfo> collections = CollectionPropertiesInitializer.instance();
+        return catalogProperty.andThen(references).andThen(collections)::apply;
     }
 
     @Override

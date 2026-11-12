@@ -14,7 +14,7 @@
 #   curl -XDELETE localhost:8474/proxies/pgconfig/toxics/latency
 #   curl -XDELETE localhost:8474/proxies/pgconfig/toxics/bandwidth
 #
-# WMS_CATALOG_CACHING=false turns off the catalog cache of the wms service.
+# WMS_CATALOG_CACHING=false turns off the caches of the pgconfig backend in the wms service.
 
 services:
   toxiproxy:
@@ -44,7 +44,7 @@ services:
     environment:
       PGCONFIG_HOST: toxiproxy
       # local variables win over the config server because it sets override-system-properties: false
-      GEOSERVER_CATALOG_CACHING_ENABLED: ${WMS_CATALOG_CACHING:-true}
+      GEOSERVER_BACKEND_PGCONFIG_CACHE_ENABLED: ${WMS_CATALOG_CACHING:-true}
     depends_on:
       toxiproxy:
         condition: service_healthy

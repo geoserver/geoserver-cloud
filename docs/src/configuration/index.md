@@ -50,6 +50,50 @@ This is what makes it possible to create a mosaic store with `PUT .../coveragest
 
 A complete worked example, including incremental REST-driven adds and an externally managed PostGIS index populated outside GeoServer, is available at [`examples/cog-imagemosaic-pgconfig/`](https://github.com/geoserver/geoserver-cloud/tree/main/examples/cog-imagemosaic-pgconfig).
 
+## PgConfig backend: caches
+
+The `pgconfig` backend keeps data in memory to spare the database repeated queries. One cache works in each service instance. It is on by default and has a size bound.
+
+All properties below sit under `geoserver.backend.pgconfig.cache`.
+
+| Property | Default | Meaning |
+|----------|---------|---------|
+| `enabled` | `true` | Keeps catalog and configuration objects in the entity cache. |
+| `max-heap-percent` | `5` | Maximum size of the entity cache, in percent of the maximum heap. |
+| `compression` | `zstd` | How the entity cache stores objects: `zstd` or `none`. |
+| `miss-ttl` | `30s` | How long a lookup with no result is remembered. |
+| `listing-write-through` | `false` | Adds the objects read by catalog listings to the entity cache. A listing larger than the cache would push out the objects read most often. |
+
+Durations accept the usual Spring Boot forms, such as `30s` and `10m`. For example:
+
+```yaml
+geoserver:
+  backend:
+    pgconfig:
+      cache:
+        max-heap-percent: 5
+```
+
+### Entity cache
+
+The entity cache holds catalog and configuration objects as compressed bytes. The requests of a service instance share it. Local changes and changes made through other instances, received on the event bus, remove the affected entries. An entry does not expire on a timer. It stays until an event removes it, until a reset or a reload of GeoServer empties the cache, until the event bus reconnects, or until the memory bound pushes it out. A lookup that finds nothing is remembered for `miss-ttl`. A configuration that still sets `entry-ttl` starts normally: the setting is ignored. The cache never grows past `max-heap-percent` of the heap.
+
+Changes written to the pgconfig tables by another program than GeoServer Cloud are not supported. They show after a reset through the `restconfig` service or after a reconnection of the event bus.
+
+### Sizing
+
+A catalog of 580 layers takes less than 1 MB in the entity cache. With `zstd` and its shipped dictionary, the stored bytes are 6 to 10 times smaller than the JSON.
+
+### Metrics
+
+The Prometheus actuator endpoint exposes the caches.
+
+- The catalog cache and the configuration cache are named `gs-catalog` and `gs-config`. Their series are the Caffeine cache metrics, such as `cache_gets_total` and `cache_evictions_total`, and `cache_weight_bytes`. They have the tags `cache` and `name` with the cache name, and `cache_manager="pgconfig"`.
+
+### Removed property
+
+The `geoserver.catalog.caching.enabled` property has no effect. The pgconfig caches replace the optional catalog cache of the services. `geoserver.backend.pgconfig.cache.enabled` turns it on or off. A service started with the old property logs a warning that names the new one, whatever the old value. With the Compose overlay `compose/toxiproxy.yml`, `WMS_CATALOG_CACHING=false` sets `GEOSERVER_BACKEND_PGCONFIG_CACHE_ENABLED=false` for the `wms` service.
+
 ## GeoServer configuration properties
 
 ## HTTP proxy for cascaded OWS (WMS/WMTS/WFS) Stores

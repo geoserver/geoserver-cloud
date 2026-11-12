@@ -18,7 +18,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
@@ -51,6 +50,7 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.security.decorators.SecuredFeatureTypeInfo;
 import org.geoserver.security.decorators.SecuredLayerInfo;
 import org.geotools.util.decorate.AbstractDecorator;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
@@ -61,7 +61,8 @@ import org.springframework.util.StringUtils;
  * {@link ResolvingProxy} references with actual catalog instances, managing nested collections, and determining whether
  * objects should be encoded as references in a {@link Patch}. It uses a catalog supplier and an optional
  * {@link GeoServer} configuration to fetch resolved instances, supporting both catalog entities (e.g.,
- * {@link StoreInfo}) and configuration objects (e.g., {@link ServiceInfo}).
+ * {@link StoreInfo}) and configuration objects (e.g., {@link ServiceInfo}). {@link ResolvingProxyResolver} may instead
+ * have it look catalog references up in a facade, with a {@link FacadeReferenceLookup}.
  *
  * <p>Key features:
  *
@@ -91,7 +92,6 @@ import org.springframework.util.StringUtils;
  * @see Patch
  */
 @Slf4j(topic = "org.geoserver.catalog.plugin.resolving")
-@RequiredArgsConstructor
 public class ProxyUtils {
     /**
      * Types that shall be encoded as {@link InfoReference reference} instead of as a full value object when coming as a
@@ -113,10 +113,34 @@ public class ProxyUtils {
             GeoServerInfo.class, //
             ServiceInfo.class);
 
-    private final @NonNull Supplier<Catalog> catalog;
+    private final @Nullable Supplier<Catalog> catalog;
     private final @NonNull Optional<GeoServer> config;
 
+    /** Looks catalog references up in a facade instead of the catalog, when not null. */
+    private final @Nullable FacadeReferenceLookup facadeLookup;
+
     private boolean failOnNotFound = false;
+
+    /**
+     * Resolves catalog references through the catalog, and configuration references through the {@link GeoServer}
+     * configuration, if present.
+     */
+    public ProxyUtils(@NonNull Supplier<Catalog> catalog, @NonNull Optional<GeoServer> config) {
+        this.catalog = catalog;
+        this.config = config;
+        this.facadeLookup = null;
+    }
+
+    /**
+     * Resolves catalog references through a facade instead of the catalog, and leaves configuration references
+     * unresolved. An object found for a reference comes back as the facade returns it: {@link ResolvingProxyResolver}
+     * resolves its own references.
+     */
+    ProxyUtils(@NonNull FacadeReferenceLookup facadeLookup) {
+        this.catalog = null;
+        this.config = Optional.empty();
+        this.facadeLookup = facadeLookup;
+    }
 
     /**
      * Configures whether unresolved proxy references should throw an exception.
@@ -252,10 +276,10 @@ public class ProxyUtils {
      * {@link #failOnMissingReference(boolean)} is false; otherwise, throws an exception.
      *
      * <p>Resolved references are returned as raw implementations, never wrapped in {@link ModificationProxy}: they get
-     * stored into materialized object graphs that may be shared across threads (e.g. by the catalog caching facade),
-     * and a live proxy inside such a graph is both mutated by reader threads and Java-serialized along with its
-     * unsynchronized state maps by {@code ModificationProxyCloner}, corrupting the stream under concurrency. This
-     * matches upstream {@code org.geoserver.catalog.impl.ResolvingProxyResolver}, which unwraps likewise.
+     * stored into materialized object graphs that may be shared across threads, and a live proxy inside such a graph is
+     * both mutated by reader threads and Java-serialized along with its unsynchronized state maps by
+     * {@code ModificationProxyCloner}, corrupting the stream under concurrency. This matches upstream
+     * {@code org.geoserver.catalog.impl.ResolvingProxyResolver}, which unwraps likewise.
      *
      * @param <T> The type of {@link Info}.
      * @param unresolved The {@link Info} object to resolve; may be null.
@@ -364,7 +388,7 @@ public class ProxyUtils {
     }
 
     /**
-     * Resolves a {@link CatalogInfo} proxy using the catalog.
+     * Resolves a {@link CatalogInfo} proxy using the catalog, or the facade of the {@link FacadeReferenceLookup}.
      *
      * <p>Handles special case for {@link PublishedInfo} to try both {@link LayerInfo} and {@link LayerGroupInfo}
      * resolutions due to a known {@link ResolvingProxy} limitation.
@@ -375,6 +399,9 @@ public class ProxyUtils {
      */
     @SuppressWarnings("unchecked")
     private <T extends Info> T resolveCatalogInfo(final T info) {
+        if (facadeLookup != null) {
+            return findInFacade(info);
+        }
         Catalog actualCatalog = getCatalog();
         // Workaround for a bug in ResolvingProxy.resolve(), if info is a PublishedInfo
         // (as opposed
@@ -388,6 +415,15 @@ public class ProxyUtils {
             resolved = info;
         }
         return resolved;
+    }
+
+    /** Looks a reference up in the facade, and keeps the proxy if the facade does not hold the object. */
+    private <T extends Info> T findInFacade(T info) {
+        T found = facadeLookup.resolve(info);
+        if (found == null) {
+            return info;
+        }
+        return found;
     }
 
     /**
@@ -552,16 +588,27 @@ public class ProxyUtils {
     }
 
     /**
-     * Loads the objects of a type by id in one call.
-     *
-     * <p>Returns an empty map if the catalog is not a {@link CatalogPlugin} or {@code ids} is empty. The values are
-     * unwrapped because the outbound resolver of the facade wraps them in a {@link ModificationProxy}, and a proxy must
-     * not be stored in a shared graph.
+     * Loads the objects of a type by id in one call, to the facade if there is one, to the catalog otherwise.
      *
      * @return the objects found, keyed by id
      */
     <T extends CatalogInfo> Map<String, T> loadAllById(List<String> ids, Class<T> type) {
-        if (ids.isEmpty() || !(getCatalog() instanceof CatalogPlugin plugin)) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        if (facadeLookup != null) {
+            return facadeLookup.findAllById(ids, type);
+        }
+        return loadAllFromCatalog(ids, type);
+    }
+
+    /**
+     * Returns an empty map if the catalog is not a {@link CatalogPlugin}. The values are unwrapped because the outbound
+     * resolver of the catalog facade wraps them in a {@link ModificationProxy}, and a proxy must not be stored in a
+     * shared graph.
+     */
+    private <T extends CatalogInfo> Map<String, T> loadAllFromCatalog(List<String> ids, Class<T> type) {
+        if (!(getCatalog() instanceof CatalogPlugin plugin)) {
             return Map.of();
         }
         try (Stream<T> found = plugin.findAllById(ids, type)) {

@@ -1,0 +1,8 @@
+{
+  "groups": [
+    {
+      "name": "geoserver.backend.pgconfig.cache.request",
+      "description": "The cache of decoded objects, private to one request."
+    }
+  ]
+}

@@ -6,12 +6,15 @@
 package org.geoserver.cloud.backend.pgconfig.catalog;
 
 import java.io.File;
+import java.time.Duration;
 import javax.sql.DataSource;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogConformanceTest;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.CatalogPluginStyleResourcePersister;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
+import org.geoserver.cloud.backend.pgconfig.cache.ZstdCodec;
 import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
@@ -20,6 +23,7 @@ import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendProperties;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerResourceLoader;
 import org.geotools.util.logging.Logging;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -44,6 +48,8 @@ class PgconfigCatalogBackendConformanceIT extends CatalogConformanceTest {
     @RegisterExtension
     PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
 
+    private ZstdCodec codec;
+
     @Override
     protected CatalogImpl createCatalog(File cacheDirectory) {
         JdbcTemplate template = db.getTemplate();
@@ -59,11 +65,29 @@ class PgconfigCatalogBackendConformanceIT extends CatalogConformanceTest {
                 PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
 
         PgconfigGeoServerResourceLoader resourceLoader = new PgconfigGeoServerResourceLoader(resourceStore);
-        CatalogPlugin catalog = new PgconfigBackendBuilder(db.getDataSource()).createCatalog();
+        CatalogPlugin catalog = new CatalogPlugin();
+        PgconfigCatalogFacade facade = new PgconfigCatalogFacade(template, newEntityCache());
+        catalog.setFacade(PgconfigBackendBuilder.resolving(facade));
         catalog.setResourceLoader(resourceLoader);
         final boolean backupSldFiles = false;
         catalog.addListener(new CatalogPluginStyleResourcePersister(catalog, backupSldFiles));
         return catalog;
+    }
+
+    /** The cache as the backend configures it by default, initialized as after the catalog loader ran. */
+    private EntityCache newEntityCache() {
+        codec = ZstdCodec.withBundledDictionary(ZstdCodec.DEFAULT_LEVEL);
+        long maximumWeight = EntityCache.maximumWeightFor(5);
+        EntityCache cache = new EntityCache("gs-catalog", maximumWeight, Duration.ofSeconds(30), codec);
+        cache.setInitialized(true);
+        return cache;
+    }
+
+    @AfterEach
+    void closeCodec() {
+        if (codec != null) {
+            codec.close();
+        }
     }
 
     private JdbcLockRegistry pgconfigLockRegistry() {

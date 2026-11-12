@@ -42,4 +42,10 @@ public abstract class PgconfigPublishedInfoRepository<P extends PublishedInfo>
         }
         return filter;
     }
+
+    /** {@code publishedinfos_mat} holds layers and groups, whatever the type of this repository. */
+    @Override
+    protected boolean filtersByType(Class<?> clazz) {
+        return !clazz.isAssignableFrom(PublishedInfo.class);
+    }
 }

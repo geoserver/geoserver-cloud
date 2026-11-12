@@ -12,6 +12,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
@@ -40,7 +41,19 @@ public class PgconfigBackendBuilder {
 
     public ExtendedCatalogFacade createCatalogFacade() {
         JdbcTemplate template = new JdbcTemplate(dataSource);
-        return new PgconfigCatalogFacade(template);
+        return resolving(new PgconfigCatalogFacade(template));
+    }
+
+    /**
+     * Returns the facade to give to the catalog: a decorator of {@code facade}, resolving the references of its objects
+     * through it and initializing their null collections, see {@link PgconfigCatalogFacade#referenceResolver}.
+     * {@link CatalogPlugin} adds workspace isolation above this decorator. A layer then reaches isolation with its
+     * store and workspace resolved, and the lookups of its references do not go through isolation.
+     */
+    public static ResolvingCatalogFacadeDecorator resolving(@NonNull ExtendedCatalogFacade facade) {
+        ResolvingCatalogFacadeDecorator resolving = new ResolvingCatalogFacadeDecorator(facade);
+        resolving.setOutboundResolver(PgconfigCatalogFacade.referenceResolver(facade));
+        return resolving;
     }
 
     public <C extends CatalogImpl> C initCatalog(C catalog) {

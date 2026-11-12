@@ -5,14 +5,28 @@
 
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.locking.LockProviderGeoServerConfigurationLock;
+import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheBusListener;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheEventListener;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheLifecycle;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheMetrics;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheProperties;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCodec;
+import org.geoserver.cloud.backend.pgconfig.cache.NoopCodec;
+import org.geoserver.cloud.backend.pgconfig.cache.ZstdCodec;
+import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigConfigRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigUpdateSequence;
@@ -26,8 +40,11 @@ import org.geoserver.cloud.config.catalog.backend.core.RawCatalogCustomizer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.DatabaseMigrationConfiguration.Migrations;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.resource.LockProvider;
+import org.springframework.amqp.rabbit.listener.ConsumeOkEvent;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
@@ -60,9 +77,12 @@ import org.springframework.util.StringUtils;
  * <h2>Storage Architecture</h2>
  *
  * <ul>
- *   <li><b>Catalog</b> - PostgreSQL-backed catalog facade ({@link PgconfigBackendBuilder})
+ *   <li><b>Catalog</b> - PostgreSQL-backed catalog facade ({@link PgconfigCatalogFacade}), with a cache of the objects
+ *       read by the facade ({@link EntityCache}, {@code gs-catalog}).
  *   <li><b>Configuration</b> - PostgreSQL repository ({@link PgconfigConfigRepository},
- *       {@link PgconfigGeoServerFacade})
+ *       {@link PgconfigGeoServerFacade}), with a cache of its own ({@code gs-config}). The caches evict the objects
+ *       changed by other service instances ({@link EntityCacheEventListener}), and are suspended while GeoServer
+ *       reloads ({@link EntityCacheLifecycle}).
  *   <li><b>Resources</b> - Hybrid storage with PostgreSQL backend and local filesystem cache
  *       ({@link PgconfigResourceStore})
  *   <li><b>Locking</b> - Database-backed distributed locks via Spring Integration JDBC locks ({@link JdbcLockRegistry})
@@ -119,9 +139,11 @@ import org.springframework.util.StringUtils;
  * @see JdbcLockRegistry
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(PgconfigBackendProperties.class)
+@EnableConfigurationProperties({PgconfigBackendProperties.class, EntityCacheProperties.class})
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgconfig")
 public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer {
+
+    private static final long CONFIG_CACHE_MAXIMUM_WEIGHT = 16L * 1024 * 1024;
 
     /**
      * Constructs the PostgreSQL backend configuration.
@@ -138,9 +160,139 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
                 migrations);
     }
 
+    /**
+     * The catalog facade on the database, with the catalog cache unless
+     * {@code geoserver.backend.pgconfig.cache.enabled} is false. Its objects hold their references as proxies, resolved
+     * by the {@code catalogFacade} bean.
+     */
     @Bean
-    ExtendedCatalogFacade catalogFacade(@Qualifier("pgconfigDataSource") DataSource dataSource) {
-        return new PgconfigBackendBuilder(dataSource).createCatalogFacade();
+    PgconfigCatalogFacade pgconfigCatalogFacade(
+            @Qualifier("pgconfigDataSource") DataSource dataSource,
+            @Qualifier("pgconfigCatalogEntityCache") ObjectProvider<EntityCache> catalogCache,
+            EntityCacheProperties cacheProperties) {
+        JdbcTemplate template = new JdbcTemplate(dataSource);
+        PgconfigCatalogFacade facade = new PgconfigCatalogFacade(template, catalogCache.getIfAvailable());
+        facade.setListingWriteThrough(cacheProperties.isListingWriteThrough());
+        return facade;
+    }
+
+    /**
+     * The facade given to the catalog. It resolves the references of the objects of the pgconfig facade through that
+     * facade, below the workspace isolation added by the catalog, see {@link PgconfigBackendBuilder#resolving}.
+     */
+    @Bean("catalogFacade")
+    ExtendedCatalogFacade pgconfigResolvingCatalogFacade(
+            @Qualifier("pgconfigCatalogFacade") PgconfigCatalogFacade facade) {
+        return PgconfigBackendBuilder.resolving(facade);
+    }
+
+    /**
+     * The cache of the catalog objects read by the repositories, named {@code gs-catalog} in the metrics. Its size is
+     * bounded by a share of the heap.
+     */
+    @Bean
+    @ConditionalOnPgconfigCacheEnabled
+    EntityCache pgconfigCatalogEntityCache(
+            EntityCacheProperties cacheProperties, @Qualifier("pgconfigCatalogCacheCodec") EntityCodec codec) {
+        long maximumWeight = EntityCache.maximumWeightFor(cacheProperties.getMaxHeapPercent());
+        return new EntityCache("gs-catalog", maximumWeight, cacheProperties.getMissTtl(), codec);
+    }
+
+    /**
+     * The cache of the configuration objects read by the configuration repository, named {@code gs-config} in the
+     * metrics. The configuration objects have a cache of their own: the catalog objects cannot push them out. They are
+     * few: their cache takes 1% of the heap, 16 MiB at most.
+     */
+    @Bean
+    @ConditionalOnPgconfigCacheEnabled
+    EntityCache pgconfigConfigEntityCache(
+            EntityCacheProperties cacheProperties, @Qualifier("pgconfigCatalogCacheCodec") EntityCodec codec) {
+        long maximumWeight = configCacheMaximumWeight(EntityCache.maximumWeightFor(1));
+        return new EntityCache("gs-config", maximumWeight, cacheProperties.getMissTtl(), codec);
+    }
+
+    /** The maximum weight of the configuration cache: a share of the heap, and 16 MiB at most. */
+    static long configCacheMaximumWeight(long heapShare) {
+        return Math.min(heapShare, CONFIG_CACHE_MAXIMUM_WEIGHT);
+    }
+
+    /**
+     * The codec of the cached objects, chosen by {@code geoserver.backend.pgconfig.cache.compression}. Spring closes
+     * the zstd codec at shutdown to free its native memory.
+     */
+    @Bean
+    @ConditionalOnPgconfigCacheEnabled
+    EntityCodec pgconfigCatalogCacheCodec(EntityCacheProperties cacheProperties) {
+        return switch (cacheProperties.getCompression()) {
+            case NONE -> new NoopCodec();
+            case ZSTD -> zstdOrUncompressed(() -> ZstdCodec.withBundledDictionary(ZstdCodec.DEFAULT_LEVEL));
+        };
+    }
+
+    /**
+     * Returns the zstd codec, or no compression if zstd does not load: the backend must start on a platform without the
+     * native library of zstd.
+     */
+    static EntityCodec zstdOrUncompressed(Supplier<EntityCodec> zstd) {
+        try {
+            return zstd.get();
+        } catch (LinkageError | IllegalStateException e) {
+            log.warn(
+                    "geoserver.backend.pgconfig.cache.compression is zstd, but zstd is not available. The cache keeps the objects uncompressed. {}",
+                    e.toString());
+            return new NoopCodec();
+        }
+    }
+
+    /**
+     * Registers the metrics of the caches. A nested class keeps the Micrometer types out of the methods of the outer
+     * configuration: Spring reads those methods, and fails on a type missing from the classpath.
+     */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(MeterRegistry.class)
+    @ConditionalOnPgconfigCacheEnabled
+    static class EntityCacheMetricsConfiguration {
+
+        @Bean
+        EntityCacheMetrics pgconfigCatalogEntityCacheMetrics(
+                @Qualifier("pgconfigCatalogEntityCache") EntityCache catalogCache) {
+            return new EntityCacheMetrics(catalogCache);
+        }
+
+        @Bean
+        EntityCacheMetrics pgconfigConfigEntityCacheMetrics(
+                @Qualifier("pgconfigConfigEntityCache") EntityCache configCache) {
+            return new EntityCacheMetrics(configCache);
+        }
+    }
+
+    /** Evicts the entries of the caches made stale by the changes of other service instances. */
+    @Bean
+    @ConditionalOnPgconfigCacheEnabled
+    EntityCacheEventListener pgconfigEntityCacheEventListener(List<EntityCache> caches) {
+        return new EntityCacheEventListener(caches);
+    }
+
+    /** Suspends the caches while GeoServer reloads its configuration, and resumes them once it is loaded. */
+    @Bean
+    @ConditionalOnPgconfigCacheEnabled
+    EntityCacheLifecycle pgconfigEntityCacheLifecycle(List<EntityCache> caches) {
+        return new EntityCacheLifecycle(caches);
+    }
+
+    /**
+     * Empties the caches when the consumer of the event bus subscribes to its queue. A nested class keeps the Spring
+     * AMQP types out of the methods of the outer configuration, as for the metrics.
+     */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(ConsumeOkEvent.class)
+    @ConditionalOnPgconfigCacheEnabled
+    static class EntityCacheBusConfiguration {
+
+        @Bean
+        EntityCacheBusListener pgconfigEntityCacheBusListener(List<EntityCache> caches) {
+            return new EntityCacheBusListener(caches);
+        }
     }
 
     @Bean(name = "pcconfigJdbcTemplate")
@@ -168,14 +320,30 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         return new PgconfigGeoServerLoader(resourceLoader, configurationLock);
     }
 
+    /**
+     * The configuration repository, with the configuration cache unless
+     * {@code geoserver.backend.pgconfig.cache.enabled} is false.
+     */
     @Bean
-    PgconfigConfigRepository configRepository(@Qualifier("pcconfigJdbcTemplate") JdbcTemplate template) {
-        return new PgconfigConfigRepository(template);
+    PgconfigConfigRepository configRepository(
+            @Qualifier("pcconfigJdbcTemplate") JdbcTemplate template,
+            @Qualifier("pgconfigConfigEntityCache") ObjectProvider<EntityCache> configCache) {
+        PgconfigConfigRepository repository = new PgconfigConfigRepository(template);
+        repository.setEntityCache(configCache.getIfAvailable());
+        return repository;
     }
 
+    /**
+     * The configuration facade. It looks the workspaces of settings and services up in the pgconfig catalog facade,
+     * like the references of the catalog objects.
+     */
     @Bean
-    PgconfigGeoServerFacade geoserverFacade(PgconfigConfigRepository configRepository) {
-        return new PgconfigGeoServerFacade(configRepository);
+    PgconfigGeoServerFacade geoserverFacade(
+            PgconfigConfigRepository configRepository,
+            @Qualifier("pgconfigCatalogFacade") PgconfigCatalogFacade catalogFacade) {
+        PgconfigGeoServerFacade facade = new PgconfigGeoServerFacade(configRepository);
+        facade.setWorkspaceResolver(ResolvingProxyResolver.of(catalogFacade));
+        return facade;
     }
 
     /**

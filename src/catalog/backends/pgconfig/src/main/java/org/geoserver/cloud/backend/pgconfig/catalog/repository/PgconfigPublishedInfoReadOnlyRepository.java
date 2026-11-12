@@ -9,7 +9,6 @@ import lombok.NonNull;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 public class PgconfigPublishedInfoReadOnlyRepository extends PgconfigPublishedInfoRepository<PublishedInfo> {
 
@@ -25,7 +24,7 @@ public class PgconfigPublishedInfoReadOnlyRepository extends PgconfigPublishedIn
     }
 
     @Override
-    protected final RowMapper<PublishedInfo> newRowMapper() {
+    protected final CatalogInfoRowMapper<PublishedInfo> newRowMapper() {
         return CatalogInfoRowMapper.<PublishedInfo>newInstance().setStyleLoader(styleRepo::findById);
     }
 

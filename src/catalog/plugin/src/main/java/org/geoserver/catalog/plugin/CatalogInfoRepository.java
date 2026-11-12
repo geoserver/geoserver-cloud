@@ -501,7 +501,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
          * @return An {@link Optional} containing the matching style, or empty if not found.
          * @throws NullPointerException if {@code name} is null.
          */
-        Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name);
+        Optional<StyleInfo> findByNameAndWorkspaceIsNull(@NonNull String name);
 
         /**
          * Finds a style by name and workspace.
