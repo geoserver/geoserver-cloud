@@ -17,8 +17,10 @@ import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
-import org.geoserver.cloud.gwc.backend.pgconfig.CachingTileLayerInfoRepository;
+import org.geoserver.cloud.gwc.backend.pgconfig.BuiltTileLayerCache;
 import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerCatalog;
+import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerEventListener;
+import org.geoserver.cloud.gwc.backend.pgconfig.RequestCachingTileLayerInfoRepository;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfoRepository;
 import org.geoserver.cloud.gwc.repository.CachingTileLayerCatalog;
 import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
@@ -44,6 +46,8 @@ import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.assertj.AssertableWebApplicationContext;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Configuration;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -71,10 +75,7 @@ class PgconfigTileLayerCatalogAutoConfigurationIT {
                         PgconfigBackendAutoConfiguration.class,
                         PgconfigDataSourceAutoConfiguration.class,
                         PgconfigTransactionManagerAutoConfiguration.class,
-                        PgconfigMigrationAutoConfiguration.class,
-                        CacheAutoConfiguration.class))
-                // as set for the services by geoserver_spring_boot_profiles.yml
-                .withPropertyValues("spring.cache.type=caffeine");
+                        PgconfigMigrationAutoConfiguration.class));
         runner = db.withJdbcUrlConfig(runner);
     }
 
@@ -116,13 +117,53 @@ class PgconfigTileLayerCatalogAutoConfigurationIT {
     }
 
     @Test
-    void tileLayerNamesUseCacheManager() {
+    void settingsCachedPerRequest() {
         runner.run(context -> {
-            assertThat(context).hasNotFailed().hasSingleBean(CacheManager.class);
+            assertThat(context).hasNotFailed().hasBean("pgconfigCatalogEntityCache");
             assertThat(context.getBean(TileLayerInfoRepository.class))
-                    .isInstanceOf(CachingTileLayerInfoRepository.class);
-            assertThat(context.getBean(CacheManager.class).getCacheNames())
-                    .contains(CachingTileLayerInfoRepository.CACHE_NAME);
+                    .isInstanceOf(RequestCachingTileLayerInfoRepository.class);
+        });
+    }
+
+    // the tile layer settings are then read from the database once per request
+    @Test
+    void startsWithoutEntityCache() {
+        runner.withPropertyValues("geoserver.backend.pgconfig.cache.enabled=false")
+                .run(context -> {
+                    assertThat(context).hasNotFailed().doesNotHaveBean("pgconfigCatalogEntityCache");
+                    assertThat(context.getBean(TileLayerInfoRepository.class))
+                            .isInstanceOf(RequestCachingTileLayerInfoRepository.class);
+                    assertThat(context)
+                            .hasSingleBean(BuiltTileLayerCache.class)
+                            .hasSingleBean(PgconfigTileLayerEventListener.class)
+                            .doesNotHaveBean("pgconfigBuiltTileLayerCacheMetrics");
+                });
+    }
+
+    @Test
+    void tileLayerEventListenerRegistered() {
+        runner.run(context -> {
+            assertThat(context).hasNotFailed().hasSingleBean(PgconfigTileLayerEventListener.class);
+        });
+    }
+
+    // the services declare a static list of cache names: the manager returns null for any other name
+    @Test
+    void startsWithStaticCacheNames() {
+        runner.withConfiguration(AutoConfigurations.of(CacheAutoConfiguration.class))
+                .withUserConfiguration(CachingEnabled.class)
+                .withPropertyValues("spring.cache.type=caffeine", "spring.cache.cache-names=unrelated")
+                .run(context -> {
+                    assertThat(context).hasNotFailed().hasSingleBean(CacheManager.class);
+                    assertThat(context).hasSingleBean(PgconfigTileLayerEventListener.class);
+                });
+    }
+
+    @Test
+    void builtTileLayersRegistered() {
+        runner.run(context -> {
+            assertThat(context).hasNotFailed().hasSingleBean(BuiltTileLayerCache.class);
+            assertThat(context).hasBean("pgconfigBuiltTileLayerCacheMetrics");
         });
     }
 
@@ -163,6 +204,10 @@ class PgconfigTileLayerCatalogAutoConfigurationIT {
             assertDefaultTileLayerCatalogConfigurationPresent(context);
         });
     }
+
+    @Configuration(proxyBeanMethods = false)
+    @EnableCaching
+    static class CachingEnabled {}
 
     private void assertDefaultTileLayerCatalogConfigurationAbsent(AssertableWebApplicationContext context) {
 

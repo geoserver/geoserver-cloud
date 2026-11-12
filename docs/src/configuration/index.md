@@ -52,16 +52,17 @@ A complete worked example, including incremental REST-driven adds and an externa
 
 ## PgConfig backend: caches
 
-The `pgconfig` backend keeps data in memory to spare the database repeated queries. Three caches work in each service instance. They are on by default and have a size bound.
+The `pgconfig` backend keeps data in memory to spare the database repeated queries. Three caches work in each service instance, and the services running GWC (`gwc`, `wms`, `webui` and `restconfig`) add a fourth for built tile layers. They are on by default and have a size bound. The bound of the tile layers counts tile layers, not bytes: a kept tile layer takes about 15 KiB for a layer and about 100 KiB for a group of 30 layers, as measured on a lab catalog.
 
 All properties below sit under `geoserver.backend.pgconfig.cache`.
 
 | Property | Default | Meaning |
 |----------|---------|---------|
-| `enabled` | `true` | Keeps catalog and configuration objects in the entity cache. |
+| `enabled` | `true` | Keeps catalog and configuration objects in the entity cache. With `false`, GWC reads each tile layer and its settings from the database on each tile request, with two to four statements per tile request. |
 | `max-heap-percent` | `5` | Maximum size of the entity cache, in percent of the maximum heap. |
 | `compression` | `zstd` | How the entity cache stores objects: `zstd` or `none`. |
 | `miss-ttl` | `30s` | How long a lookup with no result is remembered. |
+| `tile-layers` | `1000` | Number of GWC tile layers kept built by each instance of a service running GWC, for tile requests. `0` turns this off. |
 | `listing-write-through` | `false` | Adds the objects read by catalog listings to the entity cache. A listing larger than the cache would push out the objects read most often. |
 | `request.enabled` | `true` | Keeps the decoded objects of a request until the request ends. |
 | `request.max-entries` | `8000` | Maximum number of objects kept for one request. |
@@ -85,7 +86,11 @@ geoserver:
 
 The entity cache holds catalog and configuration objects as compressed bytes. The requests of a service instance share it. Local changes and changes made through other instances, received on the event bus, remove the affected entries. An entry does not expire on a timer. It stays until an event removes it, until a reset or a reload of GeoServer empties the cache, until the event bus reconnects, or until the memory bound pushes it out. A lookup that finds nothing is remembered for `miss-ttl`. A configuration that still sets `entry-ttl` starts normally: the setting is ignored. The cache never grows past `max-heap-percent` of the heap.
 
-Layer groups are loaded in pages ahead of their first use. The load runs at start-up, on a reload, when the event bus reconnects, and once the cache serves again after a reset or a reload. It fills at most half of the cache, and the other half stays for the objects read by requests. Only the services running the layer group containment cache (`geoserver.security.layergroup-containmentcache=true`, set to true in `config/geoserver.yml` for the `wms`, `gwc` and `webui` services) load the groups. The other services read them on demand.
+The GWC settings of a layer or layer group are kept in the entity cache next to the layer or group.
+
+Layer groups are loaded in pages ahead of their first use. The load runs at start-up, on a reload, when the event bus reconnects, and once the cache serves again after a reset or a reload. It fills at most half of the cache, and the other half stays for the objects read by requests. Only the services running the layer group containment cache (`geoserver.security.layergroup-containmentcache=true`, set to true in `config/geoserver.yml` for the `wms`, `gwc` and `webui` services) load the groups. The other services read them on demand. A catalog listing made by GWC also puts at most half of the cache.
+
+The services running GWC (`gwc`, `wms`, `webui` and `restconfig`) also keep the tile layers built by their lookups, up to `tile-layers`, so that a tile request does not decode and build its tile layer again. The requests share a kept tile layer. It is dropped when the catalog changes (any removal of entries from the entity cache), after a GWC configuration, gridset, tile layer or blob store event, a reset, a reload or a reconnection of the event bus.
 
 Changes written to the pgconfig tables by another program than GeoServer Cloud are not supported. They show after a reset through the `restconfig` service or after a reconnection of the event bus.
 

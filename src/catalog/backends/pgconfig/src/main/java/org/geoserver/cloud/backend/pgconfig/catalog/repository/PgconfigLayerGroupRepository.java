@@ -27,6 +27,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepository<LayerGroupInfo>
         implements LayerGroupRepository {
 
+    private static final String COLUMNS_WITH_TILE_LAYER =
+            CatalogInfoRowMapper.LAYERGROUPINFO_BUILD_COLUMNS + ", " + CatalogInfoRowMapper.TILE_LAYER_COLUMN;
+
+    private static final String COLUMNS_WITH_MEMBERS_AND_TILE_LAYER =
+            CatalogInfoRowMapper.LAYERGROUPINFO_WITH_MEMBERS_COLUMNS + ", " + CatalogInfoRowMapper.TILE_LAYER_COLUMN;
+
     /** The most groups read by one query of {@link #warmUp(BooleanSupplier, PutBudget)}. */
     static final int WARM_UP_PAGE_SIZE = 100;
 
@@ -43,10 +49,16 @@ public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepositor
         return CatalogInfoRowMapper.LAYERGROUPINFO_BUILD_COLUMNS;
     }
 
-    /** The lookups of one group also select its members. */
+    /** The lookups of one group also select its members and its GWC settings. */
     @Override
     protected String getLookupColumns() {
-        return CatalogInfoRowMapper.LAYERGROUPINFO_WITH_MEMBERS_COLUMNS;
+        return COLUMNS_WITH_MEMBERS_AND_TILE_LAYER;
+    }
+
+    /** The bulk lookups by id also select the GWC settings of the groups, and not their members. */
+    @Override
+    protected String getBulkColumns() {
+        return COLUMNS_WITH_TILE_LAYER;
     }
 
     @Override

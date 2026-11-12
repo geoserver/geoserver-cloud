@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
@@ -181,6 +182,22 @@ public final class RequestCacheScope {
     public static Runnable onClose(Consumer<RequestCache> listener) {
         CLOSE_LISTENERS.add(listener);
         return () -> CLOSE_LISTENERS.remove(listener);
+    }
+
+    /**
+     * Runs an action with no cache bound to this thread, then binds the cache of this thread again, even if the action
+     * fails. The lookups of the action return objects of their own, as outside a request. An object kept beyond the
+     * request, for example by a cache shared by the requests, must be such an object: a save in the request commits its
+     * changes into the objects held by the cache of the request.
+     */
+    public static <T> T withoutCache(Supplier<T> action) {
+        RequestCache bound = CURRENT.get();
+        CURRENT.remove();
+        try {
+            return action.get();
+        } finally {
+            apply(bound);
+        }
     }
 
     /**

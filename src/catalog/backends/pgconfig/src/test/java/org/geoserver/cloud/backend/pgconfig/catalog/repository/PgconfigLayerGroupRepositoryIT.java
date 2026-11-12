@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.ResultSet;
@@ -149,6 +150,23 @@ class PgconfigLayerGroupRepositoryIT {
         assertThat(template.columns()).contains("styles").doesNotContain("members");
     }
 
+    // the three lookups select different columns: with the members by id and by name, without them in bulk
+    @Test
+    void groupLookupBringsTileLayer() {
+        db.getTemplate()
+                .update("UPDATE publishedinfo SET tilelayer = ?::jsonb WHERE id = ?", "{\"enabled\":true}", parentId);
+        WorkspaceInfo wsa = catalog.getWorkspaceByName("wsa");
+        CacheEntry expected = CacheEntry.tileLayer(parentId, "{\"enabled\": true}".getBytes(UTF_8));
+
+        List<CacheEntry> byId = tileLayersRead(() -> repository.findById(parentId));
+        List<CacheEntry> byName = tileLayersRead(() -> repository.findByNameAndWorkspace("parent", wsa));
+        List<CacheEntry> inBulk = tileLayersRead(() -> findAllById(parentId));
+
+        assertThat(byId).containsExactly(expected);
+        assertThat(byName).containsExactly(expected);
+        assertThat(inBulk).containsExactly(expected);
+    }
+
     // a layer and no group has the name, and a layer row lacks the columns of a group row
     @Test
     void findFirstByNameSkipsLayers() {
@@ -282,6 +300,23 @@ class PgconfigLayerGroupRepositoryIT {
             previous = group;
         }
         return ids;
+    }
+
+    /** The tile layer entries of the rows read by a lookup. */
+    private List<CacheEntry> tileLayersRead(Runnable lookup) {
+        int before = template.entries().size();
+        lookup.run();
+        List<CacheEntry> read =
+                template.entries().subList(before, template.entries().size());
+        return read.stream()
+                .filter(entry -> entry.key().kind() == Kind.TILE_LAYER)
+                .toList();
+    }
+
+    private List<LayerGroupInfo> findAllById(String id) {
+        try (Stream<LayerGroupInfo> groups = repository.findAllById(List.of(id), LayerGroupInfo.class)) {
+            return groups.toList();
+        }
     }
 
     private List<LayerGroupInfo> listGroups() {

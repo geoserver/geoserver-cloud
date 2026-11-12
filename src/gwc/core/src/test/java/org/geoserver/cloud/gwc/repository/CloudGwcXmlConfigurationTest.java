@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
+import org.geoserver.cloud.gwc.event.EventListenerContext;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.event.GridsetEvent;
 import org.geowebcache.GeoWebCacheException;
@@ -40,6 +41,8 @@ import org.geowebcache.util.ApplicationContextProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.context.event.EventListener;
+import org.springframework.context.support.GenericApplicationContext;
 
 /** @since 1.0 */
 class CloudGwcXmlConfigurationTest {
@@ -247,6 +250,21 @@ class CloudGwcXmlConfigurationTest {
         assertFalse(local.getGridSet(gridset.getName()).isPresent());
     }
 
+    // a listener of the same event, registered before the configuration, finds the change applied
+    @Test
+    void remoteGridsetAppliedFirst() throws Exception {
+        GridSet gridset = defaultGridsets.worldEpsg4326x2();
+        CloudGwcXmlConfiguration remote = createStubConfig();
+        remote.addGridSet(gridset);
+        GridsetReader reader = new GridsetReader(config, gridset.getName());
+
+        try (GenericApplicationContext context = EventListenerContext.of(reader, config)) {
+            context.publishEvent(new GridsetEvent(remote, CREATED, gridset.getName()));
+        }
+
+        assertTrue(reader.found, "the gridset added through the other instance");
+    }
+
     @Test
     void testOnBlobStoreEvent_Created() throws Exception {
         final CloudGwcXmlConfiguration local = this.config;
@@ -395,5 +413,25 @@ class CloudGwcXmlConfigurationTest {
         assertEquals(expected.getEventType(), captured.getEventType());
         assertEquals(expected.getId(), captured.getId());
         return (E) captured;
+    }
+
+    /** Reads whether a gridset exists when it receives a gridset event. */
+    static final class GridsetReader {
+
+        private final CloudGwcXmlConfiguration config;
+
+        private final String gridsetName;
+
+        private boolean found;
+
+        GridsetReader(CloudGwcXmlConfiguration config, String gridsetName) {
+            this.config = config;
+            this.gridsetName = gridsetName;
+        }
+
+        @EventListener(GridsetEvent.class)
+        public void onGridsetEvent() {
+            found = config.getGridSet(gridsetName).isPresent();
+        }
     }
 }

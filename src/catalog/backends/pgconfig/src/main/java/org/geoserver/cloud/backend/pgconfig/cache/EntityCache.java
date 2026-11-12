@@ -361,6 +361,11 @@ public class EntityCache implements ClearableCache {
         this.initialized = initialized;
     }
 
+    /** Whether the catalog loader has initialized the catalog, see {@link #setInitialized(boolean)}. */
+    public boolean isInitialized() {
+        return initialized;
+    }
+
     /**
      * Suspends the cache, for example while the catalog reloads. A suspended cache answers {@link Lookup.Absent Absent}
      * to lookups and ignores puts. Evictions still apply. The entries stored before the suspension stay, and answer

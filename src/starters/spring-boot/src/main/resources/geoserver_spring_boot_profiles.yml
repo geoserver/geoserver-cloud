@@ -27,7 +27,7 @@ spring:
     # Required for GeoServer initialization
     allow-bean-definition-overriding: true
     allow-circular-references: true
-  # the CacheManager holds the caches of the tile layer catalog, PMTiles and GeoServer ACL
+  # the CacheManager holds the caches of PMTiles and GeoServer ACL
   cache:
     type: caffeine
     caffeine:

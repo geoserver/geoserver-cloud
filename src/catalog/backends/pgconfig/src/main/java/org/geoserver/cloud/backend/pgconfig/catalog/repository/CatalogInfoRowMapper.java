@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -110,6 +111,21 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
             ) END AS members\
             """
                     .formatted(MEMBER_STYLES);
+
+    /** The label of {@link #TILE_LAYER_COLUMN} in a result set. */
+    private static final String TILE_LAYER_LABEL = "tilelayer";
+
+    /**
+     * Selects the GWC settings of a layer or group: the JSON of its tile layer, or NULL if it has none. The lookups of
+     * layers and groups select it, by id, by name and in bulk, and {@link #decompose(ResultSet)} keeps it next to the
+     * object. Listings do not select it.
+     *
+     * <p>The settings come from {@code tilelayers_mat}, a plain table with one row per tile layer. Its primary key
+     * answers each row with one index probe. The same subquery on {@code publishedinfo} would probe the parent table
+     * and both of its child tables. Like {@link #MEMBERS_COLUMN}, the subquery names the outer table in full.
+     */
+    public static final String TILE_LAYER_COLUMN =
+            "(SELECT t.tilelayer FROM tilelayers_mat t WHERE t.id = publishedinfos_mat.id) AS " + TILE_LAYER_LABEL;
 
     /**
      * Columns required by {@link #mapNamespace(ResultSet)}
@@ -644,9 +660,13 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
      * style of a layer may belong to another workspace than the one in the row. An object without a workspace gets none
      * if its name holds a colon, see {@link CatalogInfoKeys#globalName(String)}.
      *
+     * <p>A layer or group row also gives a {@code TILE_LAYER} entry with the GWC settings of its object, from the
+     * {@link #TILE_LAYER_COLUMN}: the JSON of its tile layer, or an empty entry if it has none. The entry holds the
+     * JSON as the row returns it: the catalog does not parse the settings, only GWC reads them.
+     *
      * <p>An embedded object gives its entries once per result set: the rows of a listing share their workspace,
-     * namespace, store and styles. The {@code members} aggregate is read only if the result set has it: listings do not
-     * select it.
+     * namespace, store and styles. The {@code members} aggregate and the GWC settings are read only if the result set
+     * has their columns: listings do not select them.
      *
      * @return the entries of the row, one per key, the {@code ENTITY} entry of the object of the row first. Empty if
      *     the row does not hold its object.
@@ -655,19 +675,24 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         final String type = rs.getString("@type");
         String[] columns = objectColumns(type);
         Map<String, RowObject> objects = readObjects(rs, columns);
-        if (!objects.containsKey(columns[0])) {
+        RowObject rowObject = objects.get(columns[0]);
+        if (null == rowObject) {
             return List.of();
         }
         RowEntries entries = new RowEntries(rowsRead(rs).returnedKeys);
         entries.add(objects);
         switch (type) {
-            case "LayerInfo" -> entries.addStyles(readStyles(rs));
+            case "LayerInfo" -> {
+                entries.addStyles(readStyles(rs));
+                addTileLayer(entries, rowObject, rs);
+            }
             case "LayerGroupInfo" -> {
                 entries.addStyles(readStyles(rs));
                 entries.addMembers(readMembers(rs));
+                addTileLayer(entries, rowObject, rs);
             }
             default -> {
-                // the other types have no styles or members in their rows
+                // the other types have no styles, members or GWC settings in their rows
             }
         }
         return entries.toList();
@@ -717,23 +742,29 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
 
     /** Reads the {@code members} aggregate of a group row, as an empty array if it is NULL or not selected. */
     private JsonNode readMembers(ResultSet rs) throws SQLException {
-        String encoded = hasMembersColumn(rs) ? rs.getString("members") : null;
+        String encoded = hasColumn(rs, "members") ? rs.getString("members") : null;
         if (null == encoded) {
             return objectMapper.createArrayNode();
         }
         return objectMapper.readTree(encoded);
     }
 
-    /**
-     * Whether the result set has a {@code members} column, checked once per result set. The check runs for the group
-     * rows of a listing, and asking the driver for a missing column throws.
-     */
-    private boolean hasMembersColumn(ResultSet rs) throws SQLException {
-        RowsRead rows = rowsRead(rs);
-        if (null == rows.membersColumn) {
-            rows.membersColumn = hasColumn(rs.getMetaData(), "members");
+    /** Adds the GWC settings of the layer or group of the row, if the result set has their column. */
+    private void addTileLayer(RowEntries entries, RowObject published, ResultSet rs) throws SQLException {
+        if (!hasColumn(rs, TILE_LAYER_LABEL)) {
+            return;
         }
-        return rows.membersColumn;
+        String json = rs.getString(TILE_LAYER_LABEL);
+        byte[] utf8 = null == json ? null : json.getBytes(UTF_8);
+        entries.addTileLayer(published.id(), utf8);
+    }
+
+    /**
+     * Whether the result set has a column, read from its metadata once per result set. The check runs for the rows of a
+     * listing, and asking the driver for a missing column throws.
+     */
+    private boolean hasColumn(ResultSet rs, String label) throws SQLException {
+        return rowsRead(rs).hasColumn(label);
     }
 
     /** What the mapper knows of the rows split so far from the result set, starting over with a new result set. */
@@ -744,15 +775,6 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         return rowsRead;
     }
 
-    private static boolean hasColumn(ResultSetMetaData metadata, String label) throws SQLException {
-        for (int column = 1; column <= metadata.getColumnCount(); column++) {
-            if (label.equalsIgnoreCase(metadata.getColumnLabel(column))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /** The rows split from one result set by {@link #decompose(ResultSet)}. */
     private static final class RowsRead {
 
@@ -761,11 +783,27 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         /** The {@code ENTITY} keys of the objects returned for the rows split so far. */
         private final Set<CacheKey> returnedKeys = new HashSet<>();
 
-        /** Whether the result set has a {@code members} column, null until a group row asks. */
-        private @Nullable Boolean membersColumn;
+        /** The column labels of the result set in lower case, null until a row asks for one. */
+        private @Nullable Set<String> columnLabels;
 
         RowsRead(ResultSet resultSet) {
             this.resultSet = resultSet;
+        }
+
+        boolean hasColumn(String label) throws SQLException {
+            if (null == columnLabels) {
+                columnLabels = readLabels(resultSet.getMetaData());
+            }
+            return columnLabels.contains(label.toLowerCase(Locale.ROOT));
+        }
+
+        private static Set<String> readLabels(ResultSetMetaData metadata) throws SQLException {
+            Set<String> labels = new HashSet<>();
+            for (int column = 1; column <= metadata.getColumnCount(); column++) {
+                String label = metadata.getColumnLabel(column);
+                labels.add(label.toLowerCase(Locale.ROOT));
+            }
+            return labels;
         }
     }
 
@@ -798,6 +836,12 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
                 add(nestedObjects(member, PUBLISHED_OBJECTS));
                 addStyles(member.path("styles"));
             }
+        }
+
+        /** Adds the GWC settings of a layer or group, see {@link CacheEntry#tileLayer(String, byte[])}. */
+        void addTileLayer(String publishedId, byte @Nullable [] json) {
+            CacheEntry entry = CacheEntry.tileLayer(publishedId, json);
+            byKey.put(entry.key(), entry);
         }
 
         /**

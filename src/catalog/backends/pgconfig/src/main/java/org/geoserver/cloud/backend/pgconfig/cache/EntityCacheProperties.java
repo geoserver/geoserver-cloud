@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration of the caches of the pgconfig backend: the entity cache, shared by the requests of a service instance,
- * the request cache, private to one request, and the cache of the resource store.
+ * the request cache, private to one request, the cache of the resource store, and the cache of built GWC tile layers.
  */
 @Data
 @ConfigurationProperties("geoserver.backend.pgconfig.cache")
@@ -33,6 +33,15 @@ public class EntityCacheProperties {
      * would push out the objects read most often.
      */
     private boolean listingWriteThrough;
+
+    /**
+     * The number of built GWC tile layers kept by a service instance. 0 keeps none: lookups build their tile layers.
+     *
+     * <p>The bound counts tile layers, not bytes. A kept tile layer holds a decoded copy of its layer or group, with
+     * the members and their references. Measured on a lab catalog, a tile layer takes about 15 KiB for a layer and
+     * about 100 KiB for a group of 30 layers. A thousand kept groups of that size take about 100 MiB.
+     */
+    private int tileLayers = 1_000;
 
     /** The cache of decoded objects, private to one request. */
     private Request request = new Request();
