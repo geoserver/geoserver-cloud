@@ -15,6 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.locking.LockProviderGeoServerConfigurationLock;
+import org.geoserver.catalog.plugin.requestcache.RemoteChangeCounter;
+import org.geoserver.catalog.plugin.requestcache.RequestCacheBudget;
+import org.geoserver.catalog.plugin.requestcache.RequestCacheThreadLocalTransfer;
+import org.geoserver.catalog.plugin.requestcache.RequestCachingGeoServerFacade;
 import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
@@ -25,6 +29,7 @@ import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheMetrics;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheProperties;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCodec;
 import org.geoserver.cloud.backend.pgconfig.cache.NoopCodec;
+import org.geoserver.cloud.backend.pgconfig.cache.RequestCacheEventListener;
 import org.geoserver.cloud.backend.pgconfig.cache.ZstdCodec;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigConfigRepository;
@@ -38,6 +43,7 @@ import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.core.RawCatalogCustomizer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.DatabaseMigrationConfiguration.Migrations;
+import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.resource.LockProvider;
 import org.springframework.amqp.rabbit.listener.ConsumeOkEvent;
@@ -47,6 +53,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -83,6 +90,9 @@ import org.springframework.util.StringUtils;
  *       {@link PgconfigGeoServerFacade}), with a cache of its own ({@code gs-config}). The caches evict the objects
  *       changed by other service instances ({@link EntityCacheEventListener}), and are suspended while GeoServer
  *       reloads ({@link EntityCacheLifecycle}).
+ *   <li><b>Request cache</b> - the catalog and configuration objects looked up by a request, kept until it ends
+ *       ({@link RequestCacheFilter}): the request decodes each object once, and resolves the references of a catalog
+ *       object once. The caches of the requests in flight share one budget of entries ({@link RequestCacheBudget}).
  *   <li><b>Resources</b> - Hybrid storage with PostgreSQL backend and local filesystem cache
  *       ({@link PgconfigResourceStore})
  *   <li><b>Locking</b> - Database-backed distributed locks via Spring Integration JDBC locks ({@link JdbcLockRegistry})
@@ -146,6 +156,12 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     private static final long CONFIG_CACHE_MAXIMUM_WEIGHT = 16L * 1024 * 1024;
 
     /**
+     * The order of the filter opening the cache of a request: before the filter of Spring Security at -100 and the
+     * GeoServer filters from 1 to 5, as their security checks look catalog objects up.
+     */
+    private static final int REQUEST_CACHE_FILTER_ORDER = -1000;
+
+    /**
      * Constructs the PostgreSQL backend configuration.
      *
      * <p>The {@link Migrations} parameter ensures that database schema initialization has completed before this
@@ -173,14 +189,29 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         JdbcTemplate template = new JdbcTemplate(dataSource);
         PgconfigCatalogFacade facade = new PgconfigCatalogFacade(template, catalogCache.getIfAvailable());
         facade.setListingWriteThrough(cacheProperties.isListingWriteThrough());
+        facade.setRequestCacheMaxEntries(cacheProperties.getRequest().getMaxEntries());
         return facade;
     }
 
     /**
-     * The facade given to the catalog. It resolves the references of the objects of the pgconfig facade through that
-     * facade, below the workspace isolation added by the catalog, see {@link PgconfigBackendBuilder#resolving}.
+     * The facade given to the catalog: the cache of the request, over a decorator resolving the references of the
+     * objects below the workspace isolation added by the catalog, over the pgconfig facade. The request keeps the
+     * objects resolved, and the decorator and the repositories look the references up through the cache of the request,
+     * see {@link PgconfigBackendBuilder#requestCaching}.
      */
     @Bean("catalogFacade")
+    @ConditionalOnPgconfigRequestCacheEnabled
+    ExtendedCatalogFacade pgconfigRequestCachingCatalogFacade(
+            @Qualifier("pgconfigCatalogFacade") PgconfigCatalogFacade facade) {
+        return PgconfigBackendBuilder.requestCaching(facade);
+    }
+
+    /**
+     * The facade given to the catalog if {@code geoserver.backend.pgconfig.cache.request.enabled} is false: the
+     * decorator of {@link PgconfigBackendBuilder#resolving}, directly over the pgconfig facade.
+     */
+    @Bean("catalogFacade")
+    @ConditionalOnPgconfigRequestCacheDisabled
     ExtendedCatalogFacade pgconfigResolvingCatalogFacade(
             @Qualifier("pgconfigCatalogFacade") PgconfigCatalogFacade facade) {
         return PgconfigBackendBuilder.resolving(facade);
@@ -295,6 +326,69 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         }
     }
 
+    /**
+     * Opens the cache of each request, before the filters of Spring Security and GeoServer: their security checks look
+     * catalog objects up. A forward or an include runs within the scope of its request.
+     */
+    @Bean
+    @ConditionalOnPgconfigRequestCacheEnabled
+    FilterRegistrationBean<RequestCacheFilter> pgconfigRequestCacheFilter(EntityCacheProperties cacheProperties) {
+        int maxEntries = cacheProperties.getRequest().getMaxEntries();
+        RequestCacheFilter filter = new RequestCacheFilter(maxEntries);
+        FilterRegistrationBean<RequestCacheFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setName("pgconfigRequestCacheFilter");
+        registration.addUrlPatterns("/*");
+        registration.setOrder(REQUEST_CACHE_FILTER_ORDER);
+        return registration;
+    }
+
+    /**
+     * Sets the budget of entries shared by the request caches of the JVM. The bean is the budget of the JVM, see
+     * {@link RequestCacheBudget#shared()}: the caches are opened by static scopes, outside the application context.
+     */
+    @Bean
+    @ConditionalOnPgconfigRequestCacheEnabled
+    RequestCacheBudget pgconfigRequestCacheBudget(EntityCacheProperties cacheProperties) {
+        RequestCacheBudget budget = RequestCacheBudget.shared();
+        budget.setMaxTotalEntries(cacheProperties.getRequest().getMaxTotalEntries());
+        return budget;
+    }
+
+    /**
+     * Tells the request caches in flight about the changes made through other service instances. The caches follow
+     * {@link RemoteChangeCounter#shared()}, as they share the budget of the JVM.
+     */
+    @Bean
+    @ConditionalOnPgconfigRequestCacheEnabled
+    RequestCacheEventListener pgconfigRequestCacheEventListener() {
+        return new RequestCacheEventListener(RemoteChangeCounter.shared());
+    }
+
+    /**
+     * Hands the cache of a request to the worker threads of the request, such as the WMS rendering threads. GeoServer
+     * collects the transfers from the beans of the application context.
+     */
+    @Bean
+    @ConditionalOnPgconfigRequestCacheEnabled
+    RequestCacheThreadLocalTransfer pgconfigRequestCacheTransfer() {
+        return new RequestCacheThreadLocalTransfer();
+    }
+
+    /**
+     * Registers the counts of the request caches. A nested class keeps the Micrometer types out of the methods of the
+     * outer configuration, as for the entity caches.
+     */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(MeterRegistry.class)
+    @ConditionalOnPgconfigRequestCacheEnabled
+    static class RequestCacheMetricsConfiguration {
+
+        @Bean
+        RequestCacheMetrics pgconfigRequestCacheMetrics() {
+            return new RequestCacheMetrics();
+        }
+    }
+
     @Bean(name = "pcconfigJdbcTemplate")
     JdbcTemplate pcconfigJdbcTemplate(@Qualifier("pgconfigDataSource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
@@ -305,11 +399,17 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
+    /**
+     * The update sequence, on the configuration facade without the cache of the request. Its transaction must read the
+     * global settings from the database: a copy read earlier by the request would miss a change made by another service
+     * instance, and saving the new value from that copy would undo the change.
+     */
     @Primary
     @Bean
     @DependsOnDatabaseInitialization
     PgconfigUpdateSequence updateSequence(
-            PgconfigGeoServerFacade geoserverFacade, @Qualifier("pgconfigDataSource") DataSource dataSource) {
+            @Qualifier("pgconfigGeoServerFacade") PgconfigGeoServerFacade geoserverFacade,
+            @Qualifier("pgconfigDataSource") DataSource dataSource) {
         return new PgconfigUpdateSequence(dataSource, geoserverFacade);
     }
 
@@ -334,15 +434,34 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     }
 
     /**
-     * The configuration facade. It looks the workspaces of settings and services up in the pgconfig catalog facade,
-     * like the references of the catalog objects.
+     * The configuration facade on the database. It looks the workspaces of settings and services up in the pgconfig
+     * catalog facade, like the references of the catalog objects.
      */
     @Bean
-    PgconfigGeoServerFacade geoserverFacade(
+    PgconfigGeoServerFacade pgconfigGeoServerFacade(
             PgconfigConfigRepository configRepository,
             @Qualifier("pgconfigCatalogFacade") PgconfigCatalogFacade catalogFacade) {
         PgconfigGeoServerFacade facade = new PgconfigGeoServerFacade(configRepository);
         facade.setWorkspaceResolver(ResolvingProxyResolver.of(catalogFacade));
+        return facade;
+    }
+
+    /** The configuration facade given to GeoServer: the cache of the request, over the pgconfig facade. */
+    @Bean("geoserverFacade")
+    @ConditionalOnPgconfigRequestCacheEnabled
+    GeoServerFacade pgconfigRequestCachingGeoServerFacade(
+            @Qualifier("pgconfigGeoServerFacade") PgconfigGeoServerFacade facade) {
+        return new RequestCachingGeoServerFacade(facade);
+    }
+
+    /**
+     * The configuration facade given to GeoServer if {@code geoserver.backend.pgconfig.cache.request.enabled} is false:
+     * the pgconfig facade itself, under a second bean name.
+     */
+    @Bean("geoserverFacade")
+    @ConditionalOnPgconfigRequestCacheDisabled
+    GeoServerFacade pgconfigGeoServerFacadeWithoutRequestCache(
+            @Qualifier("pgconfigGeoServerFacade") PgconfigGeoServerFacade facade) {
         return facade;
     }
 

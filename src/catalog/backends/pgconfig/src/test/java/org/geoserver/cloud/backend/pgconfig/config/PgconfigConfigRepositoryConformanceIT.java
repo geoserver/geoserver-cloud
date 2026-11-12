@@ -13,8 +13,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.requestcache.RequestCacheScope;
+import org.geoserver.catalog.plugin.requestcache.RequestCachingGeoServerFacade;
 import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
@@ -24,6 +28,7 @@ import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
+import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -52,7 +57,8 @@ class PgconfigConfigRepositoryConformanceIT extends GeoServerConfigConformanceTe
     @RegisterExtension
     PgconfigTestDatabaseSupport db = new PgconfigTestDatabaseSupport(container);
 
-    private ZstdCodec codec;
+    /** The codecs of the caches of a test: a nested suite also runs the setup of this class, and opens two. */
+    private final List<ZstdCodec> codecs = new ArrayList<>();
 
     @Override
     @BeforeEach
@@ -61,21 +67,28 @@ class PgconfigConfigRepositoryConformanceIT extends GeoServerConfigConformanceTe
     }
 
     @AfterEach
-    void closeCodec() {
-        if (codec != null) {
-            codec.close();
-        }
+    void closeCodecs() {
+        codecs.forEach(ZstdCodec::close);
+        codecs.clear();
     }
 
     /** Mirrors the backend configuration: the workspaces of settings and services come from the catalog facade. */
     protected @Override GeoServer createGeoServer() {
-        PgconfigBackendBuilder builder = new PgconfigBackendBuilder(db.getDataSource());
-        Catalog catalog = builder.createCatalog();
+        return newGeoServer(newPgconfigFacade());
+    }
+
+    private PgconfigGeoServerFacade newPgconfigFacade() {
         PgconfigConfigRepository repository = new PgconfigConfigRepository(db.getTemplate());
         repository.setEntityCache(newEntityCache());
         PgconfigGeoServerFacade facade = new PgconfigGeoServerFacade(repository);
         PgconfigCatalogFacade catalogFacade = new PgconfigCatalogFacade(db.getTemplate());
         facade.setWorkspaceResolver(ResolvingProxyResolver.of(catalogFacade));
+        return facade;
+    }
+
+    private GeoServer newGeoServer(GeoServerFacade facade) {
+        PgconfigBackendBuilder builder = new PgconfigBackendBuilder(db.getDataSource());
+        Catalog catalog = builder.createCatalog();
         GeoServerImpl geoServer = new GeoServerImpl(facade);
         geoServer.setCatalog(catalog);
         return geoServer;
@@ -83,7 +96,8 @@ class PgconfigConfigRepositoryConformanceIT extends GeoServerConfigConformanceTe
 
     /** The configuration cache as the backend configures it, initialized as after the loader ran. */
     private EntityCache newEntityCache() {
-        codec = ZstdCodec.withBundledDictionary(ZstdCodec.DEFAULT_LEVEL);
+        ZstdCodec codec = ZstdCodec.withBundledDictionary(ZstdCodec.DEFAULT_LEVEL);
+        codecs.add(codec);
         long maximumWeight = 16L * 1024 * 1024;
         EntityCache cache = new EntityCache("gs-config", maximumWeight, Duration.ofSeconds(30), codec);
         cache.setInitialized(true);
@@ -114,6 +128,31 @@ class PgconfigConfigRepositoryConformanceIT extends GeoServerConfigConformanceTe
 
         assertThat(ex.getMessage())
                 .contains("service with name 'TEST-OWS' already exists in workspace 'TEST-WORKSPACE-1'");
+    }
+
+    /**
+     * The suite through the cache of a request, as the backend configuration builds the configuration facade. Each test
+     * runs within one request scope, as a request of the REST API or of the web UI reads and writes the configuration.
+     */
+    @Nested
+    class WithinRequest extends GeoServerConfigConformanceTest {
+
+        @Override
+        protected GeoServer createGeoServer() {
+            PgconfigGeoServerFacade facade = newPgconfigFacade();
+            RequestCachingGeoServerFacade requestCaching = new RequestCachingGeoServerFacade(facade);
+            return newGeoServer(requestCaching);
+        }
+
+        @BeforeEach
+        void openRequest() {
+            RequestCacheScope.open(RequestCacheScope.DEFAULT_MAX_ENTRIES);
+        }
+
+        @AfterEach
+        void closeRequest() {
+            RequestCacheScope.close();
+        }
     }
 
     /**

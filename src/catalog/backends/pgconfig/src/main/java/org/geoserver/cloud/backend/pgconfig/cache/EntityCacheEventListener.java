@@ -60,7 +60,8 @@ import org.springframework.core.annotation.Order;
  * other listeners, and an empty cache holds nothing stale.
  *
  * <p>The listener runs after the listeners of the highest precedence. One of them cleans the resource pool up after a
- * remote removal, and reads the removed object: the cache may still hold it.
+ * remote removal, and reads the removed object: the cache may still hold it. The cleanup of the resource pool after a
+ * remote change runs after this listener and after {@link RequestCacheEventListener}.
  */
 @Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.cache")
 public class EntityCacheEventListener {

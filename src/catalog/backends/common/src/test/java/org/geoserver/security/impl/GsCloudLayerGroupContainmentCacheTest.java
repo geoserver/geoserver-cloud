@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +22,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,11 +47,15 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.NamespaceInfoImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.requestcache.RequestCache;
+import org.geoserver.catalog.plugin.requestcache.RequestCacheScope;
+import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.data.test.MockData;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.security.impl.LayerGroupContainmentCache.LayerGroupSummary;
 import org.geotools.api.feature.type.Name;
+import org.geotools.api.filter.Filter;
 import org.geotools.data.property.PropertyDataStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -251,6 +257,32 @@ class GsCloudLayerGroupContainmentCacheTest {
         layerGroupContainmentCache.buildTask.orTimeout(2, TimeUnit.SECONDS).join();
 
         assertEquals(2, layerGroupContainmentCache.groupCache.size());
+    }
+
+    // the groups share their members: the build looks each member up once
+    @Test
+    void buildRunsInItsOwnScope() {
+        Catalog rawCatalog = mock(Catalog.class);
+        List<RequestCache> buildCaches = new ArrayList<>();
+        List<Boolean> liveDuringBuild = new ArrayList<>();
+        when(rawCatalog.list(LayerGroupInfo.class, Filter.INCLUDE)).thenAnswer(invocation -> {
+            RequestCache current = RequestCacheScope.current();
+            buildCaches.add(current);
+            liveDuringBuild.add(current != null && !current.isDead());
+            return CloseableIteratorAdapter.empty();
+        });
+        GsCloudLayerGroupContainmentCache layerGroupContainmentCache =
+                new GsCloudLayerGroupContainmentCache(rawCatalog);
+        ContextRefreshedEvent contextRefreshedEvent = mock(ContextRefreshedEvent.class);
+        WebApplicationContext context = mock(WebApplicationContext.class);
+        when(contextRefreshedEvent.getApplicationContext()).thenReturn(context);
+
+        layerGroupContainmentCache.setApplicationContext(context);
+        layerGroupContainmentCache.onApplicationEvent(contextRefreshedEvent);
+        layerGroupContainmentCache.buildTask.orTimeout(2, TimeUnit.SECONDS).join();
+
+        assertEquals(List.of(true), liveDuringBuild);
+        assertTrue(buildCaches.getFirst().isDead());
     }
 
     @Test

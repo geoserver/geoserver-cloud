@@ -35,6 +35,16 @@ public class PgConfigTestContainer extends PostgreSQLContainer {
         super(System.getProperty(IMAGE_PROPERTY, DEFAULT_IMAGE));
     }
 
+    /**
+     * Sets the maximum number of connections of the database, 100 by default. Tests starting application contexts at
+     * the same time need more: the pool of each context opens 10 connections. Keeps the {@code fsync=off} option of the
+     * default command.
+     */
+    public PgConfigTestContainer withMaxConnections(int maxConnections) {
+        setCommand("postgres", "-c", "fsync=off", "-c", "max_connections=" + maxConnections);
+        return this;
+    }
+
     @SuppressWarnings("unchecked")
     public <R extends AbstractApplicationContextRunner<?, ?, ?>> R withJdbcUrlConfig(R runner) {
         String url = getJdbcUrl();

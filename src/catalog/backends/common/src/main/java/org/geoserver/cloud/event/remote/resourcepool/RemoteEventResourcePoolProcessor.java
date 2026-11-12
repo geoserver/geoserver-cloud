@@ -34,6 +34,18 @@ import org.springframework.core.annotation.Order;
 @Slf4j(topic = "org.geoserver.cloud.event.remote.resourcepool")
 public class RemoteEventResourcePoolProcessor {
 
+    /**
+     * The order of the cleanup after a remote change. It runs after the listeners of the backend dropping the changed
+     * object from its caches, and after the request caches in flight learn about the change: on pgconfig,
+     * {@code HIGHEST_PRECEDENCE + 10} and {@code + 11}. A request looking the object up before the cleanup then reads
+     * the changed object, and cannot put a resource built from the old one back into the pool. The cleanup reads the
+     * object by id, and the pool clears its entries by id.
+     *
+     * <p>The cleanup after a removal runs first, at {@code HIGHEST_PRECEDENCE}: it reads the removed object, which only
+     * the caches of the backend still hold.
+     */
+    public static final int CLEANUP_AFTER_CHANGE_ORDER = Ordered.HIGHEST_PRECEDENCE + 20;
+
     private Catalog rawCatalog;
 
     /**
@@ -57,7 +69,7 @@ public class RemoteEventResourcePoolProcessor {
     }
 
     @EventListener(CatalogInfoModified.class)
-    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @Order(CLEANUP_AFTER_CHANGE_ORDER)
     public void onCatalogRemoteModifyEvent(CatalogInfoModified event) {
         event.remote()
                 .ifPresentOrElse(this::evictFromResourcePool, () -> log.trace("Ignoring event from self: {}", event));
