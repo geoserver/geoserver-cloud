@@ -11,7 +11,10 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.LAYER;
 import java.time.Duration;
 import java.util.List;
 import org.geoserver.cloud.backend.pgconfig.cache.Lookup.Absent;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceRow;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceStoreCache;
 import org.geoserver.cloud.event.bus.RemoteEventsResumed;
+import org.geoserver.platform.resource.Resource.Type;
 import org.junit.jupiter.api.Test;
 
 class EntityCacheBusListenerTest {
@@ -31,6 +34,18 @@ class EntityCacheBusListenerTest {
         listener.onRemoteEventsResumed(new RemoteEventsResumed("geoserver.anonymous.queue"));
 
         assertThat(caches).allMatch(cache -> cache.lookup(KEY) instanceof Absent, "empty");
+    }
+
+    @Test
+    void subscriptionClearsResourceIndex() {
+        ResourceRow root = new ResourceRow(0, 0, Type.DIRECTORY, "", 0, 0);
+        ResourceStoreCache index = new ResourceStoreCache("gs-resources", () -> List.of(root), ONE_MIB);
+        index.find("");
+        EntityCacheBusListener listener = new EntityCacheBusListener(List.of(index));
+
+        listener.onRemoteEventsResumed(new RemoteEventsResumed("geoserver.anonymous.queue"));
+
+        assertThat(index.size()).isZero();
     }
 
     private static EntityCache newCache(String name) {

@@ -17,7 +17,6 @@
     <dependency>
       <groupId>org.geoserver.cloud.catalog</groupId>
       <artifactId>gs-cloud-events</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

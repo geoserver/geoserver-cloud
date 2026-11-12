@@ -34,7 +34,7 @@ public final class CacheAccess {
 
     /** Whether reads go through the cache: it is not suspended, and no transaction runs on the data source. */
     public boolean inUse() {
-        return !cache.isSuspended() && !inTransaction();
+        return !cache.isSuspended() && !inTransaction(dataSource);
     }
 
     /** Evicts the keys made stale by a write, once the write commits. */
@@ -62,7 +62,7 @@ public final class CacheAccess {
      * source. That connection stays in auto-commit mode: its statements commit at once, and are not part of a
      * transaction.
      */
-    private boolean inTransaction() {
+    public static boolean inTransaction(@NonNull DataSource dataSource) {
         if (!TransactionSynchronizationManager.isActualTransactionActive()) {
             return false;
         }
@@ -87,7 +87,7 @@ public final class CacheAccess {
      * the previous row afterwards, and its put would pass the epoch check.
      */
     private void afterWrite(Runnable eviction) {
-        if (inTransaction() && TransactionSynchronizationManager.isSynchronizationActive()) {
+        if (inTransaction(dataSource) && TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCompletion(int status) {

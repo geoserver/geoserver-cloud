@@ -196,12 +196,12 @@ class PgconfigResource implements Resource {
 
     @Override
     public void addListener(ResourceListener listener) {
-        // no-op
+        store.getResourceNotificationDispatcher().addListener(path(), listener);
     }
 
     @Override
     public void removeListener(ResourceListener listener) {
-        // no-op
+        store.getResourceNotificationDispatcher().removeListener(path(), listener);
     }
 
     /**

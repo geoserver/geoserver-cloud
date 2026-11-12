@@ -15,8 +15,8 @@ import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
 import lombok.NonNull;
 
 /**
- * Registers the statistics of an {@link EntityCache} with Micrometer: the meters of {@link CaffeineCacheMetrics}, such
- * as {@code cache.gets}, and a {@code cache.weight} gauge in bytes.
+ * Registers the statistics of an {@link EntityCache}, or of another Caffeine cache bounded by weight, with Micrometer:
+ * the meters of {@link CaffeineCacheMetrics}, such as {@code cache.gets}, and a {@code cache.weight} gauge in bytes.
  *
  * <p>The meters have the names and tag keys used by Spring Boot for the caches of a cache manager, for the dashboards
  * built on those: {@code cache} and {@code name} hold the name of the cache, and {@code cache.manager} holds
@@ -35,23 +35,36 @@ public class EntityCacheMetrics implements MeterBinder {
     private static final String CACHE_MANAGER_TAG = "cache.manager";
     private static final String CACHE_MANAGER = "pgconfig";
 
-    private final EntityCache cache;
+    private final String name;
+    private final Cache<?, ?> caffeine;
 
     public EntityCacheMetrics(@NonNull EntityCache cache) {
-        this.cache = cache;
+        this(cache.name(), cache.caffeine());
+    }
+
+    /** @param caffeine a cache built with a maximum weight, as required by the {@code cache.weight} gauge */
+    public EntityCacheMetrics(@NonNull String name, @NonNull Cache<?, ?> caffeine) {
+        this.name = name;
+        this.caffeine = caffeine;
+    }
+
+    /** Returns the tags of a gauge of a cache: the tags given to the meters of {@link CaffeineCacheMetrics}. */
+    public static Tags gaugeTags(@NonNull String name) {
+        return cacheManagerTags(name).and("cache", name);
+    }
+
+    // CaffeineCacheMetrics adds the cache tag
+    private static Tags cacheManagerTags(String name) {
+        return Tags.of(CACHE_MANAGER_TAG, CACHE_MANAGER, "name", name);
     }
 
     @Override
     public void bindTo(MeterRegistry registry) {
-        String name = cache.name();
-        Cache<CacheKey, byte[]> caffeine = cache.caffeine();
-        Tags tags = Tags.of(CACHE_MANAGER_TAG, CACHE_MANAGER, "name", name);
-        CaffeineCacheMetrics.monitor(registry, caffeine, name, tags);
-        Tags gaugeTags = tags.and("cache", name);
-        registerWeightGauge(registry, caffeine, gaugeTags);
+        CaffeineCacheMetrics.monitor(registry, caffeine, name, cacheManagerTags(name));
+        registerWeightGauge(registry, caffeine, gaugeTags(name));
     }
 
-    private static void registerWeightGauge(MeterRegistry registry, Cache<CacheKey, byte[]> caffeine, Tags tags) {
+    private static void registerWeightGauge(MeterRegistry registry, Cache<?, ?> caffeine, Tags tags) {
         Gauge.builder("cache.weight", caffeine, EntityCacheMetrics::weightedSize)
                 .description("Size of the cached entries: the stored bytes plus an estimate for the keys")
                 .baseUnit(BaseUnits.BYTES)
@@ -59,10 +72,10 @@ public class EntityCacheMetrics implements MeterBinder {
                 .register(registry);
     }
 
-    // Present because the entity cache is bounded by weight
-    private static long weightedSize(Cache<CacheKey, byte[]> caffeine) {
-        Policy<CacheKey, byte[]> policy = caffeine.policy();
-        Policy.Eviction<CacheKey, byte[]> eviction = policy.eviction().orElseThrow();
+    // Present because the cache is bounded by weight
+    private static long weightedSize(Cache<?, ?> caffeine) {
+        Policy<?, ?> policy = caffeine.policy();
+        Policy.Eviction<?, ?> eviction = policy.eviction().orElseThrow();
         return eviction.weightedSize().orElseThrow();
     }
 }

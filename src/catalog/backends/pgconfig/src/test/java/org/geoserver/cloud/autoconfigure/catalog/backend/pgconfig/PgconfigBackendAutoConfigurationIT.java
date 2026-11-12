@@ -38,7 +38,6 @@ import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAu
 import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
 import org.geoserver.cloud.backend.pgconfig.cache.ConfigInfoKeys;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
-import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheBusListener;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheEventListener;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheLifecycle;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheMetrics;
@@ -54,6 +53,9 @@ import org.geoserver.cloud.backend.pgconfig.config.PgconfigConfigRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigUpdateSequence;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
+import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceChangeListener;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerLoader;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerResourceLoader;
@@ -62,11 +64,14 @@ import org.geoserver.cloud.config.catalog.backend.pgconfig.RequestCacheMetrics;
 import org.geoserver.cloud.event.bus.RemoteEventsResumed;
 import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.resource.ResourceChanged;
+import org.geoserver.cloud.event.resource.ResourceChanged.Kind;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.impl.GsCloudLayerGroupContainmentCache;
 import org.geoserver.wms.WMSInfo;
@@ -319,7 +324,7 @@ class PgconfigBackendAutoConfigurationIT {
                     .hasBean("pgconfigCatalogEntityCacheMetrics")
                     .hasSingleBean(EntityCacheEventListener.class)
                     .hasSingleBean(EntityCacheLifecycle.class)
-                    .hasSingleBean(EntityCacheBusListener.class)
+                    .hasBean("pgconfigEntityCacheBusListener")
                     .getBean("pgconfigCatalogCacheCodec")
                     .isInstanceOf(ZstdCodec.class);
             EntityCache cache = context.getBean("pgconfigCatalogEntityCache", EntityCache.class);
@@ -559,7 +564,94 @@ class PgconfigBackendAutoConfigurationIT {
                         .doesNotHaveBean(EntityCacheEventListener.class)
                         .doesNotHaveBean(EntityCacheLifecycle.class)
                         .doesNotHaveBean(PgconfigLayerGroupWarmUp.class)
-                        .doesNotHaveBean(EntityCacheBusListener.class));
+                        .doesNotHaveBean("pgconfigEntityCacheBusListener"));
+    }
+
+    @Test
+    void resourceCacheIsWired() {
+        runner.run(context -> {
+            assertThat(context)
+                    .hasNotFailed()
+                    .hasSingleBean(ResourceStoreCache.class)
+                    .hasBean("pgconfigResourceStoreCacheMetrics")
+                    .hasBean("pgconfigResourceStoreCacheBusListener")
+                    .hasSingleBean(ResourceChangeListener.class);
+            ResourceStoreCache cache = context.getBean(ResourceStoreCache.class);
+            PgconfigResourceStore store = context.getBean("resourceStoreImpl", PgconfigResourceStore.class);
+
+            store.get("styles");
+
+            assertThat(cache.name()).isEqualTo("gs-resources");
+            assertThat(cache.size()).isPositive();
+        });
+    }
+
+    @Test
+    void busSubscriptionClearsIndex() {
+        runner.run(context -> {
+            ResourceStoreCache cache = context.getBean(ResourceStoreCache.class);
+            context.getBean("resourceStoreImpl", PgconfigResourceStore.class).get("styles");
+
+            context.publishEvent(new RemoteEventsResumed("geoserver.anonymous.queue"));
+
+            assertThat(cache.size()).isZero();
+        });
+    }
+
+    // the listener refreshes the index through the transactional proxy of the store, without clearing it
+    @Test
+    void remoteResourceRefreshesIndex() {
+        runner.run(context -> {
+            ResourceStoreCache cache = context.getBean(ResourceStoreCache.class);
+            context.getBean("resourceStoreImpl", PgconfigResourceStore.class).get("styles");
+            String path = "%s.sld".formatted(UUID.randomUUID());
+            insertBehindStore(context.getBean("pcconfigJdbcTemplate", JdbcTemplate.class), path);
+            ResourceChanged created = ResourceChanged.createLocal(path, Kind.CREATED, Type.RESOURCE, 0L, List.of());
+            created.setRemote(true);
+
+            context.publishEvent(created);
+
+            assertThat(cache.size()).isPositive();
+            assertThat(cache.find(path)).isPresent();
+        });
+    }
+
+    private void insertBehindStore(JdbcTemplate template, String path) {
+        String sql =
+                """
+                INSERT INTO resourcestore (parentid, path, "type", content)
+                VALUES (0, ?, 'RESOURCE', ?)
+                """;
+        template.update(sql, path, "<sld/>".getBytes(UTF_8));
+    }
+
+    @Test
+    void disabledResourceCacheHasNoBean() {
+        runner.withPropertyValues("geoserver.backend.pgconfig.cache.resources.enabled=false")
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .hasBean("resourceStoreImpl")
+                        .hasBean("pgconfigCatalogEntityCache")
+                        .doesNotHaveBean(ResourceStoreCache.class)
+                        .doesNotHaveBean("pgconfigResourceStoreCacheMetrics")
+                        .doesNotHaveBean("pgconfigResourceStoreCacheBusListener"));
+    }
+
+    // the listener tells the listeners of this instance about remote changes, with or without the cache
+    @Test
+    void disabledResourceCacheKeepsListener() {
+        runner.withPropertyValues("geoserver.backend.pgconfig.cache.resources.enabled=false")
+                .run(context -> assertThat(context).hasNotFailed().hasSingleBean(ResourceChangeListener.class));
+    }
+
+    // the switch reads 1 as true, as the switch of the request cache does
+    @Test
+    void resourceCacheEnabledByOne() {
+        runner.withPropertyValues("geoserver.backend.pgconfig.cache.resources.enabled=1")
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .hasSingleBean(ResourceStoreCache.class)
+                        .hasBean("pgconfigResourceStoreCacheBusListener"));
     }
 
     // micrometer is an optional dependency of the module
