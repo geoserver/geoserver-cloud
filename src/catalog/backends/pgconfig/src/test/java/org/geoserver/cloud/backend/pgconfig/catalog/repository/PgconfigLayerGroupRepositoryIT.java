@@ -9,11 +9,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 import javax.sql.DataSource;
 import org.geoserver.catalog.CatalogFactory;
@@ -29,10 +31,18 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.cache.CacheEntry;
+import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
 import org.geoserver.cloud.backend.pgconfig.cache.CacheKey.Kind;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheWeight;
+import org.geoserver.cloud.backend.pgconfig.cache.NoopCodec;
+import org.geoserver.cloud.backend.pgconfig.cache.PutBudget;
+import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
+import org.geoserver.cloud.backend.pgconfig.support.DecodeCounter;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.backend.pgconfig.support.StatementCounter;
+import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +57,12 @@ import tools.jackson.databind.ObjectMapper;
 class PgconfigLayerGroupRepositoryIT {
 
     private static final ObjectMapper JSON = PgconfigObjectMapper.newObjectMapper();
+
+    // Large enough to hold the groups of a test without evicting any
+    private static final long SIXTEEN_MIB = 16L * 1024 * 1024;
+
+    // A few groups: the first row of a page brings the members and their references, about 10 KB, the next rows 1 KB
+    private static final long SMALL_BUDGET = 16L * 1024;
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();
@@ -139,6 +155,133 @@ class PgconfigLayerGroupRepositoryIT {
         Optional<LayerGroupInfo> found = repository.findFirstByName("l1", LayerGroupInfo.class);
 
         assertThat(found).isEmpty();
+    }
+
+    // the catalog resolves the members of each group: they come from the cache too
+    @Test
+    void warmUpMakesLookupsHits() {
+        List<String> ids = addGroups(250);
+        CachedCatalog cached = cachedCatalog();
+        counter.reset();
+        DecodeCounter decodes = new DecodeCounter();
+
+        int put = cached.groups().warmUp(() -> false, PutBudget.unlimited());
+        int warmUpStatements = counter.count();
+        long warmUpDecodes = decodes.count();
+        counter.reset();
+        List<LayerGroupInfo> found =
+                ids.stream().map(cached.catalog()::getLayerGroup).toList();
+
+        // the 250 groups and the two of the fixture, in pages of 100
+        assertThat(put).isEqualTo(252);
+        assertThat(warmUpStatements).isEqualTo(3);
+        assertThat(warmUpDecodes).isZero();
+        assertThat(found).hasSize(250).doesNotContainNull();
+        assertThat(counter.count()).isZero();
+    }
+
+    @Test
+    void warmUpStopsAtBudget() {
+        addGroups(50);
+        List<String> ids = allGroupIds();
+        CachedCatalog cached = cachedCatalog();
+        long heaviestRow = heaviestRow(cached, ids);
+
+        int put = cached.groups().warmUp(() -> false, new PutBudget(SMALL_BUDGET));
+        long weight = EntityCacheWeight.of(cached.cache());
+        List<String> absent =
+                ids.stream().filter(id -> !isCached(cached.cache(), id)).toList();
+        counter.reset();
+        absent.forEach(id -> cached.groups().findById(id));
+
+        assertThat(put).isPositive().isLessThan(ids.size());
+        assertThat(weight).isLessThanOrEqualTo(SMALL_BUDGET + heaviestRow);
+        assertThat(absent).isNotEmpty();
+        assertThat(counter.count()).isEqualTo(absent.size());
+    }
+
+    // a build cancelled once the first page is read
+    @Test
+    void warmUpStopsWhenCancelled() {
+        addGroups(150);
+        CachedCatalog cached = cachedCatalog();
+        counter.reset();
+        BooleanSupplier cancelledAfterFirstPage = () -> counter.count() > 0;
+
+        int put = cached.groups().warmUp(cancelledAfterFirstPage, PutBudget.unlimited());
+
+        assertThat(put).isEqualTo(PgconfigLayerGroupRepository.WARM_UP_PAGE_SIZE);
+        assertThat(counter.count()).isOne();
+    }
+
+    // a reload suspends the cache, and a suspended cache ignores puts
+    @Test
+    void warmUpSkippedWhileSuspended() {
+        CachedCatalog cached = cachedCatalog();
+        cached.cache().setSuspended(true);
+        counter.reset();
+
+        int put = cached.groups().warmUp(() -> false, PutBudget.unlimited());
+
+        assertThat(put).isZero();
+        assertThat(counter.count()).isZero();
+    }
+
+    /** A catalog with an entity cache on the database of the test, and the group repository of its facade. */
+    private record CachedCatalog(CatalogPlugin catalog, PgconfigLayerGroupRepository groups, EntityCache cache) {}
+
+    private CachedCatalog cachedCatalog() {
+        EntityCache cache = new EntityCache("gs-catalog", SIXTEEN_MIB, Duration.ofSeconds(30), new NoopCodec());
+        cache.setInitialized(true);
+        PgconfigCatalogFacade facade = new PgconfigCatalogFacade(new JdbcTemplate(counter.dataSource()), cache);
+        CatalogPlugin cachedCatalog = new CatalogPlugin();
+        cachedCatalog.setFacade(PgconfigBackendBuilder.resolving(facade));
+        PgconfigLayerGroupRepository groups = facade.repository(LayerGroupInfo.class);
+        return new CachedCatalog(cachedCatalog, groups, cache);
+    }
+
+    /**
+     * The most weight put by the lookup of one group by id, each lookup into an emptied cache. A row of the warm-up
+     * puts at most the entries of the lookup of its group: the rows of a page share the entries of their references.
+     */
+    private static long heaviestRow(CachedCatalog cached, List<String> ids) {
+        long heaviest = 0;
+        for (String id : ids) {
+            cached.cache().clear();
+            cached.groups().findById(id);
+            heaviest = Math.max(heaviest, EntityCacheWeight.of(cached.cache()));
+        }
+        cached.cache().clear();
+        return heaviest;
+    }
+
+    private static boolean isCached(EntityCache cache, String groupId) {
+        return cache.contains(CacheKey.entity(ConfigInfoType.LAYERGROUP, groupId));
+    }
+
+    private List<String> allGroupIds() {
+        return catalog.getLayerGroups().stream().map(LayerGroupInfo::getId).toList();
+    }
+
+    /**
+     * Adds groups named group-000 and up in wsa, each holding l1 and l2. Every tenth group also holds the group added
+     * before it.
+     */
+    private List<String> addGroups(int count) {
+        LayerInfo l1 = catalog.getLayerByName("wsa:l1");
+        LayerInfo l2 = catalog.getLayerByName("wsa:l2");
+        List<String> ids = new ArrayList<>();
+        LayerGroupInfo previous = null;
+        for (int i = 0; i < count; i++) {
+            List<PublishedInfo> members = new ArrayList<>(List.of(l1, l2));
+            if (i % 10 == 9) {
+                members.add(previous);
+            }
+            LayerGroupInfo group = addGroup("group-%03d".formatted(i), members);
+            ids.add(group.getId());
+            previous = group;
+        }
+        return ids;
     }
 
     private List<LayerGroupInfo> listGroups() {

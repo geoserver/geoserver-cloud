@@ -7,12 +7,14 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +23,7 @@ import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
@@ -31,6 +34,7 @@ import org.geoserver.catalog.plugin.requestcache.RequestCacheScope;
 import org.geoserver.catalog.plugin.requestcache.RequestCacheThreadLocalTransfer;
 import org.geoserver.catalog.plugin.requestcache.RequestCachingCatalogFacade;
 import org.geoserver.catalog.plugin.requestcache.RequestCachingGeoServerFacade;
+import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration;
 import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
 import org.geoserver.cloud.backend.pgconfig.cache.ConfigInfoKeys;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
@@ -45,6 +49,7 @@ import org.geoserver.cloud.backend.pgconfig.cache.NoopCodec;
 import org.geoserver.cloud.backend.pgconfig.cache.RequestCacheEventListener;
 import org.geoserver.cloud.backend.pgconfig.cache.ZstdCodec;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
+import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigLayerGroupWarmUp;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigConfigRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigUpdateSequence;
@@ -54,6 +59,7 @@ import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerLoad
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerResourceLoader;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.RequestCacheFilter;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.RequestCacheMetrics;
+import org.geoserver.cloud.event.bus.RemoteEventsResumed;
 import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.GeoServer;
@@ -62,6 +68,7 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.security.GeoServerSecurityManager;
+import org.geoserver.security.impl.GsCloudLayerGroupContainmentCache;
 import org.geoserver.wms.WMSInfo;
 import org.geoserver.wms.WMSInfoImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,9 +78,9 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceAccessMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.api.parallel.ResourceLockTarget;
-import org.springframework.amqp.rabbit.listener.ConsumeOkEvent;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
+import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
@@ -451,10 +458,80 @@ class PgconfigBackendAutoConfigurationIT {
             CacheKey key = CacheKey.entity(ConfigInfoType.WORKSPACE, "ws-1");
             cache.put(key, "{}".getBytes(UTF_8), cache.epoch());
 
-            context.publishEvent(new ConsumeOkEvent(this, "geoserver.anonymous.queue", "consumer-1"));
+            context.publishEvent(new RemoteEventsResumed("geoserver.anonymous.queue"));
 
             assertThat(cache.lookup(key)).isInstanceOf(Lookup.Absent.class);
         });
+    }
+
+    // the build of the containment cache runs the warm-up before it lists the groups
+    @Test
+    void containmentBuildWarmsUpGroups() {
+        runner.withPropertyValues("geoserver.security.layergroup-containmentcache=true")
+                .withConfiguration(AutoConfigurations.of(GeoServerBackendAutoConfiguration.class))
+                // the GeoServer bean of the core configuration takes the secured catalog, absent from this context
+                .withBean("catalog", Catalog.class, () -> mock(Catalog.class))
+                .run(context -> {
+                    assertThat(context)
+                            .hasNotFailed()
+                            .hasSingleBean(PgconfigLayerGroupWarmUp.class)
+                            .getBean("layerGroupContainmentCache")
+                            .isInstanceOf(GsCloudLayerGroupContainmentCache.class);
+                    EntityCache cache = context.getBean("pgconfigCatalogEntityCache", EntityCache.class);
+                    CacheKey groupKey = addGroup(context.getBean(PgconfigCatalogFacade.class));
+
+                    // empties the entity cache, then builds the containment cache again
+                    context.publishEvent(new RemoteEventsResumed("geoserver.anonymous.queue"));
+
+                    await().atMost(Duration.ofSeconds(10)).until(() -> cache.contains(groupKey));
+                });
+    }
+
+    // a reset empties the entity cache, and the warm-up loads the groups again in the background
+    @Test
+    void resetWarmsUpGroups() {
+        runner.withPropertyValues("geoserver.security.layergroup-containmentcache=true")
+                .run(context -> {
+                    EntityCache cache = context.getBean("pgconfigCatalogEntityCache", EntityCache.class);
+                    CacheKey groupKey = addGroup(context.getBean(PgconfigCatalogFacade.class));
+
+                    context.getBean(EntityCacheLifecycle.class).onReset();
+
+                    await().atMost(Duration.ofSeconds(10)).until(() -> cache.contains(groupKey));
+                });
+    }
+
+    // the services without the containment cache, such as wfs, do not load the groups
+    @Test
+    void noWarmUpByDefault() {
+        runner.run(this::assertNoWarmUp);
+    }
+
+    @Test
+    void noWarmUpWithContainmentOff() {
+        runner.withPropertyValues("geoserver.security.layergroup-containmentcache=false")
+                .run(this::assertNoWarmUp);
+    }
+
+    /** Asserts that the context has no warm-up of the groups, and that a reset leaves a group out of the cache. */
+    private void assertNoWarmUp(AssertableApplicationContext context) {
+        assertThat(context).hasNotFailed().doesNotHaveBean(PgconfigLayerGroupWarmUp.class);
+        EntityCache cache = context.getBean("pgconfigCatalogEntityCache", EntityCache.class);
+        CacheKey groupKey = addGroup(context.getBean(PgconfigCatalogFacade.class));
+
+        context.getBean(EntityCacheLifecycle.class).onReset();
+
+        // the warm-up after a reset puts a group within milliseconds
+        await().during(Duration.ofSeconds(1)).atMost(Duration.ofSeconds(2)).until(() -> !cache.contains(groupKey));
+    }
+
+    /** Adds a group without members, and returns its key in the entity cache. */
+    private CacheKey addGroup(ExtendedCatalogFacade facade) {
+        LayerGroupInfoImpl group = new LayerGroupInfoImpl();
+        group.setId("LayerGroupInfo-" + UUID.randomUUID());
+        group.setName("lg-" + UUID.randomUUID());
+        facade.add(group);
+        return CacheKey.entity(ConfigInfoType.LAYERGROUP, group.getId());
     }
 
     @Test
@@ -466,9 +543,12 @@ class PgconfigBackendAutoConfigurationIT {
                         .isInstanceOf(NoopCodec.class));
     }
 
+    // the containment cache on: without the entity cache, it gets no warm-up of the groups
     @Test
     void disabledCacheHasNoBean() {
-        runner.withPropertyValues("geoserver.backend.pgconfig.cache.enabled=false")
+        runner.withPropertyValues(
+                        "geoserver.backend.pgconfig.cache.enabled=false",
+                        "geoserver.security.layergroup-containmentcache=true")
                 .run(context -> assertThat(context)
                         .hasNotFailed()
                         .hasSingleBean(PgconfigCatalogFacade.class)
@@ -478,6 +558,7 @@ class PgconfigBackendAutoConfigurationIT {
                         .doesNotHaveBean(EntityCacheMetrics.class)
                         .doesNotHaveBean(EntityCacheEventListener.class)
                         .doesNotHaveBean(EntityCacheLifecycle.class)
+                        .doesNotHaveBean(PgconfigLayerGroupWarmUp.class)
                         .doesNotHaveBean(EntityCacheBusListener.class));
     }
 
@@ -491,15 +572,5 @@ class PgconfigBackendAutoConfigurationIT {
                 .hasSingleBean(RequestCacheThreadLocalTransfer.class)
                 .doesNotHaveBean(EntityCacheMetrics.class)
                 .doesNotHaveBean(RequestCacheMetrics.class));
-    }
-
-    // Spring AMQP is an optional dependency of the module
-    @Test
-    void startsWithoutSpringRabbit() {
-        runner.withClassLoader(new FilteredClassLoader(ConsumeOkEvent.class)).run(context -> assertThat(context)
-                .hasNotFailed()
-                .hasSingleBean(EntityCacheEventListener.class)
-                .hasSingleBean(EntityCacheLifecycle.class)
-                .doesNotHaveBean(EntityCacheBusListener.class));
     }
 }

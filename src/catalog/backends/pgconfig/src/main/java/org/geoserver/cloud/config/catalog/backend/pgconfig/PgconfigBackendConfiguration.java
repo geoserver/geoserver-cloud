@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
+import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.locking.LockProviderGeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.requestcache.RemoteChangeCounter;
@@ -32,6 +33,8 @@ import org.geoserver.cloud.backend.pgconfig.cache.NoopCodec;
 import org.geoserver.cloud.backend.pgconfig.cache.RequestCacheEventListener;
 import org.geoserver.cloud.backend.pgconfig.cache.ZstdCodec;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
+import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigLayerGroupWarmUp;
+import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigLayerGroupRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigConfigRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigUpdateSequence;
@@ -46,11 +49,11 @@ import org.geoserver.cloud.config.catalog.backend.pgconfig.DatabaseMigrationConf
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.resource.LockProvider;
-import org.springframework.amqp.rabbit.listener.ConsumeOkEvent;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -85,7 +88,8 @@ import org.springframework.util.StringUtils;
  *
  * <ul>
  *   <li><b>Catalog</b> - PostgreSQL-backed catalog facade ({@link PgconfigCatalogFacade}), with a cache of the objects
- *       read by the facade ({@link EntityCache}, {@code gs-catalog}).
+ *       read by the facade ({@link EntityCache}, {@code gs-catalog}). The services running the layer group containment
+ *       cache load the layer groups into the cache ahead of their lookups ({@link PgconfigLayerGroupWarmUp}).
  *   <li><b>Configuration</b> - PostgreSQL repository ({@link PgconfigConfigRepository},
  *       {@link PgconfigGeoServerFacade}), with a cache of its own ({@code gs-config}). The caches evict the objects
  *       changed by other service instances ({@link EntityCacheEventListener}), and are suspended while GeoServer
@@ -304,26 +308,46 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         return new EntityCacheEventListener(caches);
     }
 
-    /** Suspends the caches while GeoServer reloads its configuration, and resumes them once it is loaded. */
+    /**
+     * Suspends the caches while GeoServer reloads its configuration, and resumes them once it is loaded. If the service
+     * runs the layer group containment cache, the layer groups are loaded again in the background once the caches serve
+     * again after a reset or a reload.
+     */
     @Bean
     @ConditionalOnPgconfigCacheEnabled
-    EntityCacheLifecycle pgconfigEntityCacheLifecycle(List<EntityCache> caches) {
-        return new EntityCacheLifecycle(caches);
+    EntityCacheLifecycle pgconfigEntityCacheLifecycle(
+            List<EntityCache> caches, ObjectProvider<PgconfigLayerGroupWarmUp> groupWarmUp) {
+        EntityCacheLifecycle lifecycle = new EntityCacheLifecycle(caches);
+        groupWarmUp.ifAvailable(warmUp -> lifecycle.setAfterServingAgain(warmUp::warmUpInBackground));
+        return lifecycle;
     }
 
     /**
-     * Empties the caches when the consumer of the event bus subscribes to its queue. A nested class keeps the Spring
-     * AMQP types out of the methods of the outer configuration, as for the metrics.
+     * Loads the layer groups and their members into the catalog cache, ahead of the lookups of the access checks. The
+     * layer group containment cache runs it before each build, as a {@code LayerGroupWarmUp} bean.
+     *
+     * <p>Its property condition is a copy of the condition of the containment cache bean of
+     * {@code CoreBackendConfiguration}, and must stay equal to it. The services without the containment cache, such as
+     * WFS, do not look up the groups containing a layer, and do not load the groups.
      */
-    @Configuration(proxyBeanMethods = false)
-    @ConditionalOnClass(ConsumeOkEvent.class)
+    @Bean
     @ConditionalOnPgconfigCacheEnabled
-    static class EntityCacheBusConfiguration {
+    @ConditionalOnProperty(
+            name = "geoserver.security.layergroup-containmentcache",
+            havingValue = "true",
+            matchIfMissing = false)
+    PgconfigLayerGroupWarmUp pgconfigLayerGroupWarmUp(
+            @Qualifier("pgconfigCatalogFacade") PgconfigCatalogFacade facade,
+            @Qualifier("pgconfigCatalogEntityCache") EntityCache catalogCache) {
+        PgconfigLayerGroupRepository groups = facade.repository(LayerGroupInfo.class);
+        return new PgconfigLayerGroupWarmUp(groups, catalogCache);
+    }
 
-        @Bean
-        EntityCacheBusListener pgconfigEntityCacheBusListener(List<EntityCache> caches) {
-            return new EntityCacheBusListener(caches);
-        }
+    /** Empties the entity caches when the events of the other service instances reach this one again. */
+    @Bean
+    @ConditionalOnPgconfigCacheEnabled
+    EntityCacheBusListener pgconfigEntityCacheBusListener(List<EntityCache> caches) {
+        return new EntityCacheBusListener(caches);
     }
 
     /**

@@ -38,6 +38,7 @@ import org.geoserver.cloud.backend.pgconfig.cache.CacheKey.Kind;
 import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
 import org.geoserver.cloud.backend.pgconfig.cache.Lookup;
+import org.geoserver.cloud.backend.pgconfig.cache.PutBudget;
 import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgconfigQueryBuilder;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geotools.api.filter.Filter;
@@ -45,6 +46,7 @@ import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
 import org.jspecify.annotations.Nullable;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import tools.jackson.databind.ObjectMapper;
 
@@ -725,11 +727,40 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
     }
 
     /**
+     * Runs a query and puts the entries of its rows in the cache, without decoding their objects: for a reader loading
+     * objects ahead of their lookups. The puts take the epoch read before the query, and honor the {@link PutBudget}
+     * bound to the thread. Each row then goes to the handler. Runs nothing if no cache is in use.
+     */
+    protected void putRows(String sql, RowPutHandler handler, Object... args) {
+        if (!cacheInUse()) {
+            return;
+        }
+        long epochSeen = cache.epoch();
+        CatalogInfoRowMapper<T> rowMapper = newRowMapper();
+        RowCallbackHandler putRow = rs -> {
+            boolean stored = cache.putRowOnly(rowMapper, rs, epochSeen);
+            handler.rowPut(rs, stored);
+        };
+        template.query(sql, putRow, args);
+    }
+
+    /** Receives the rows of {@link PgconfigCatalogInfoRepository#putRows}, once their entries are put. */
+    @FunctionalInterface
+    protected interface RowPutHandler {
+
+        /**
+         * @param rs the result set, at the row
+         * @param stored whether the cache stored the entry of the object of the row
+         */
+        void rowPut(ResultSet rs, boolean stored) throws SQLException;
+    }
+
+    /**
      * Whether lookups go through the cache: there is one, it is not suspended, and no transaction runs on the data
      * source, see {@link CacheAccess#inUse()}. A lookup through a suspended cache would read each reference of the
      * object with a query of its own, while the mapping of rows without the cache reads them with the object.
      */
-    private boolean cacheInUse() {
+    protected final boolean cacheInUse() {
         return null != cache && cache.inUse();
     }
 
@@ -775,7 +806,8 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
         return selectColumns(getLookupColumns(), predicate);
     }
 
-    private String selectColumns(String columns, String predicate) {
+    /** The SQL selecting the columns from the query table, with the predicate and the clauses after it. */
+    protected final String selectColumns(String columns, String predicate) {
         String queryTable = getQueryTable();
         if (null == predicate) {
             predicate = "";

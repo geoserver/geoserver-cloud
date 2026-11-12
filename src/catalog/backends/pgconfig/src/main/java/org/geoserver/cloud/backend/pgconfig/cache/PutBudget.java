@@ -53,6 +53,11 @@ public final class PutBudget {
         charged.addAndGet(weight);
     }
 
+    /** The weight charged so far, in bytes. */
+    public long charged() {
+        return charged.get();
+    }
+
     /**
      * Binds this budget to the calling thread, replacing the one bound before. Closing the binding restores the budget
      * found when it was opened.

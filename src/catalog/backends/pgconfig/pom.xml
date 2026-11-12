@@ -76,12 +76,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <!-- the consumer of the event bus reports its subscriptions to its queue, see EntityCacheBusListener -->
-      <groupId>org.springframework.amqp</groupId>
-      <artifactId>spring-rabbit</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>

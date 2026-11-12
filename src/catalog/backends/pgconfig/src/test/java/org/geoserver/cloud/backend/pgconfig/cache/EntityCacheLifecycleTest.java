@@ -10,6 +10,7 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.LAYER;
 import static org.mockito.Mockito.mock;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import org.geoserver.cloud.backend.pgconfig.cache.Lookup.Miss;
 import org.geoserver.config.GeoServer;
@@ -27,6 +28,7 @@ class EntityCacheLifecycleTest {
     private final List<EntityCache> caches = List.of(catalogCache, configCache);
     private final EntityCacheLifecycle lifecycle = new EntityCacheLifecycle(caches);
     private final GeoServer geoServer = mock(GeoServer.class);
+    private final List<StateSeen> statesSeen = new ArrayList<>();
 
     // a suspended cache keeps the entries stored before: the suspension empties it
     @Test
@@ -104,6 +106,41 @@ class EntityCacheLifecycleTest {
         lifecycle.onDispose();
 
         assertThat(caches).allMatch(EntityCacheLifecycleTest::isEmpty, "empty");
+    }
+
+    // a warm-up run by the listener must find the caches emptied, and serving: a suspended cache ignores puts
+    @Test
+    void resetRunsListenerAfterClear() {
+        lifecycle.setAfterServingAgain(this::recordStates);
+        putEntries();
+
+        lifecycle.onReset();
+
+        assertThat(statesSeen).containsExactly(servingEmpty("gs-catalog"), servingEmpty("gs-config"));
+    }
+
+    @Test
+    void reloadRunsListenerAfterResume() {
+        lifecycle.setAfterServingAgain(this::recordStates);
+        putEntries();
+
+        lifecycle.beforeReload();
+        lifecycle.onReload();
+
+        assertThat(statesSeen).containsExactly(servingEmpty("gs-catalog"), servingEmpty("gs-config"));
+    }
+
+    /** What the listener of {@link EntityCacheLifecycle#setAfterServingAgain} saw of a cache. */
+    private record StateSeen(String cache, boolean empty, boolean suspended) {}
+
+    private void recordStates() {
+        for (EntityCache cache : caches) {
+            statesSeen.add(new StateSeen(cache.name(), isEmpty(cache), cache.isSuspended()));
+        }
+    }
+
+    private static StateSeen servingEmpty(String cache) {
+        return new StateSeen(cache, true, false);
     }
 
     private void putEntries() {

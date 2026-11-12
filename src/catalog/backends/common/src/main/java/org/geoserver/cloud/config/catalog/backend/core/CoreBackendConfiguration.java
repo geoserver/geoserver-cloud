@@ -25,6 +25,7 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.ResourceStoreFactory;
 import org.geoserver.security.impl.GsCloudLayerGroupContainmentCache;
 import org.geoserver.security.impl.LayerGroupContainmentCache;
+import org.geoserver.security.impl.LayerGroupWarmUp;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -126,17 +127,20 @@ public class CoreBackendConfiguration {
             name = "geoserver.security.layergroup-containmentcache",
             havingValue = "true",
             matchIfMissing = false)
-    LayerGroupContainmentCache enabledLayerGroupContainmentCache(@Qualifier("rawCatalog") Catalog rawCatalog) {
+    LayerGroupContainmentCache enabledLayerGroupContainmentCache(
+            @Qualifier("rawCatalog") Catalog rawCatalog, ObjectProvider<LayerGroupWarmUp> warmUp) {
 
         log.info("using {}", GsCloudLayerGroupContainmentCache.class.getSimpleName());
-        return new GsCloudLayerGroupContainmentCache(rawCatalog);
+        GsCloudLayerGroupContainmentCache cache = new GsCloudLayerGroupContainmentCache(rawCatalog);
+        cache.setWarmUp(warmUp.getIfAvailable(() -> LayerGroupWarmUp.NONE));
+        return cache;
     }
 
     /**
      * The default {@link LayerGroupContainmentCache} is a no-op, matches if the config property
      * {@code geoserver.security.layergroup-containmentcache=false} or is not specified
      *
-     * @see #enabledLayerGroupContainmentCache(Catalog)
+     * @see #enabledLayerGroupContainmentCache(Catalog, ObjectProvider)
      */
     @Bean(name = "layerGroupContainmentCache")
     @ConditionalOnProperty(

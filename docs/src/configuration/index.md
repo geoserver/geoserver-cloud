@@ -83,6 +83,8 @@ geoserver:
 
 The entity cache holds catalog and configuration objects as compressed bytes. The requests of a service instance share it. Local changes and changes made through other instances, received on the event bus, remove the affected entries. An entry does not expire on a timer. It stays until an event removes it, until a reset or a reload of GeoServer empties the cache, until the event bus reconnects, or until the memory bound pushes it out. A lookup that finds nothing is remembered for `miss-ttl`. A configuration that still sets `entry-ttl` starts normally: the setting is ignored. The cache never grows past `max-heap-percent` of the heap.
 
+Layer groups are loaded in pages ahead of their first use. The load runs at start-up, on a reload, when the event bus reconnects, and once the cache serves again after a reset or a reload. It fills at most half of the cache, and the other half stays for the objects read by requests. Only the services running the layer group containment cache (`geoserver.security.layergroup-containmentcache=true`, set to true in `config/geoserver.yml` for the `wms`, `gwc` and `webui` services) load the groups. The other services read them on demand.
+
 Changes written to the pgconfig tables by another program than GeoServer Cloud are not supported. They show after a reset through the `restconfig` service or after a reconnection of the event bus.
 
 ### Request cache

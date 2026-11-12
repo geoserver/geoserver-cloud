@@ -18,7 +18,8 @@ import org.geoserver.config.impl.GeoServerLifecycleHandler;
  * are suspended and emptied, and the repositories read the database as without a cache. GeoServer calls
  * {@link #initialize(GeoServer)} once it has loaded its configuration, at startup and after a reload, and
  * {@link #onReload()} at the end of a reload, failed or not: the caches are emptied and serve lookups again. A reset of
- * GeoServer and its disposal empty the caches.
+ * GeoServer and its disposal empty the caches. A task can run once the caches serve again after a reset or a reload,
+ * see {@link #setAfterServingAgain(Runnable)}.
  *
  * <p>A cache keeps no misses until the first {@link #initialize(GeoServer)}: a miss kept while the configuration loads
  * would make two instances starting on an empty database both create the default objects.
@@ -28,8 +29,22 @@ public class EntityCacheLifecycle implements GeoServerReinitializer, GeoServerLi
 
     private final List<EntityCache> caches;
 
+    private volatile Runnable afterServingAgain = () -> {};
+
     public EntityCacheLifecycle(@NonNull List<EntityCache> caches) {
         this.caches = List.copyOf(caches);
+    }
+
+    /**
+     * Sets the task run once the caches serve again after a reset or a reload: at the end of {@link #onReset()} and of
+     * {@link #onReload()}. The caches are then empty and not suspended: they keep what the task puts, such as the
+     * objects loaded by a warm-up.
+     *
+     * <p>The task also runs at the end of the reset called by {@code GeoServerImpl.reload()} between
+     * {@link #beforeReload()} and {@link #onReload()}. The caches are suspended then, and a warm-up returns at once.
+     */
+    public void setAfterServingAgain(@NonNull Runnable listener) {
+        this.afterServingAgain = listener;
     }
 
     @Override
@@ -51,11 +66,13 @@ public class EntityCacheLifecycle implements GeoServerReinitializer, GeoServerLi
     @Override
     public void onReload() {
         resume("onReload");
+        afterServingAgain.run();
     }
 
     @Override
     public void onReset() {
         clear("onReset");
+        afterServingAgain.run();
     }
 
     @Override
