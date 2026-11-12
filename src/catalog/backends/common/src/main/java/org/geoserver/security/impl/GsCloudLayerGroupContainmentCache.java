@@ -506,6 +506,9 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
     /**
      * Copies the name, the workspace and the mode of the group to its summary, and gives the summary the members of the
      * group. The summary keeps its containers: a change of the group does not change the groups containing it.
+     *
+     * <p>The event thread writes the fields of the summary in place. They are plain fields of the upstream class, and a
+     * request may read an old value for a moment.
      */
     private static void updateSummary(Containment maps, LayerGroupSummary summary, LayerGroupInfo group) {
         Set<String> memberResources = memberResourceIds(group);

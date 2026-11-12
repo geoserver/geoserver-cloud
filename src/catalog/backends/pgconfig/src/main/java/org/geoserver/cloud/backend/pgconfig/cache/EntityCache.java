@@ -45,7 +45,7 @@ import org.geoserver.cloud.backend.pgconfig.cache.CacheKey.Kind;
  *
  * <p>{@link EntityCacheMetrics} registers the statistics of the cache with Micrometer.
  */
-public class EntityCache {
+public class EntityCache implements ClearableCache {
 
     // An estimate of the memory used by a key and its entry in the cache, beyond the stored bytes
     private static final int KEY_WEIGHT = 64;
@@ -106,6 +106,7 @@ public class EntityCache {
     }
 
     /** Returns the name of the cache in the metrics, such as {@code gs-catalog}. */
+    @Override
     public String name() {
         return name;
     }
@@ -343,6 +344,7 @@ public class EntityCache {
     }
 
     /** Empties the cache, and increments the {@link #epoch()} before and after the removal. */
+    @Override
     public void clear() {
         moveEpoch();
         entries.invalidateAll();

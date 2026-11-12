@@ -7,15 +7,18 @@ package org.geoserver.cloud.backend.pgconfig.resource;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.NonNull;
@@ -87,23 +90,37 @@ public class FileSystemResourceStoreCache implements DisposableBean {
     }
 
     /**
+     * Whether the local copy of a file exists, and the rule of {@code needsDump} keeps it for a row of the given mtime.
+     * A directory at the path of the copy is not a copy, whatever its mtime. A path refused by the disk, such as a name
+     * too long for it, has no copy: the write of the copy then fails on its own.
+     */
+    public boolean isCurrent(@NonNull String resourcePath, long mtime) {
+        BasicFileAttributes copy;
+        // a single read, false on a failure as with Files.exists: a copy deleted between two reads would throw
+        try {
+            copy = Files.readAttributes(localPath(resourcePath), BasicFileAttributes.class);
+        } catch (IOException _) {
+            return false;
+        }
+        long copyMtime = copy.lastModifiedTime().toMillis();
+        return copy.isRegularFile() && !needsDump(resourcePath, copyMtime, mtime);
+    }
+
+    /**
      * Ensures the local cache file for a resource exists and holds current content, dumping it from the database row
      * when needed.
      *
      * <p>A file with no local cache copy yet is always dumped: there is no risk of overwriting unsynced local work
-     * because there was no local file to begin with. {@link #ensureFileExists(PgconfigResource)} would otherwise create
-     * an empty placeholder stamped with the current time, which the no-clobber check below would then mistake for a
-     * file newer than the database row, permanently leaving it empty.
+     * because there was no local file to begin with.
      *
      * @return the path to the up to date local cache file
      */
-    private Path dumpIfNeeded(PgconfigResource resource) throws IOException {
-        final boolean existedLocally = Files.exists(toPath(resource));
-        final Path path = ensureFileExists(resource);
-        if (!existedLocally || needsDump(resource.path(), getLastmodified(path), resource.lastmodified())) {
+    private Path dumpIfNeeded(PgconfigResource resource) {
+        Preconditions.checkArgument(resource.isFile());
+        if (!isCurrent(resource.path(), resource.lastmodified())) {
             dump(resource);
         }
-        return path;
+        return toPath(resource);
     }
 
     /**
@@ -120,21 +137,6 @@ public class FileSystemResourceStoreCache implements DisposableBean {
             return resourceMtime > fileMtime;
         }
         return fileMtime != resourceMtime;
-    }
-
-    private long getLastmodified(final Path path) throws IOException {
-        BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
-        return attr.lastModifiedTime().toMillis();
-    }
-
-    public Path ensureFileExists(PgconfigResource resource) throws IOException {
-        Preconditions.checkArgument(resource.isFile());
-        Path path = toPath(resource);
-        if (!Files.exists(path)) {
-            ensureDirectoryExists(path.getParent());
-            Files.createFile(path);
-        }
-        return path;
     }
 
     @SneakyThrows
@@ -165,10 +167,50 @@ public class FileSystemResourceStoreCache implements DisposableBean {
 
     @SneakyThrows
     public Path dump(PgconfigResource resource, InputStream in) {
-        Path file = ensureFileExists(resource);
-        Files.copy(in, file, StandardCopyOption.REPLACE_EXISTING);
-        Files.setLastModifiedTime(file, FileTime.fromMillis(resource.lastmodified()));
-        return file;
+        Preconditions.checkArgument(resource.isFile());
+        return replaceCopy(toPath(resource), resource.lastmodified(), in);
+    }
+
+    /** Writes the local copy of a file, stamped with the mtime of its row. */
+    public Path write(@NonNull String resourcePath, long mtime, @NonNull byte[] content) throws IOException {
+        return replaceCopy(localPath(resourcePath), mtime, new ByteArrayInputStream(content));
+    }
+
+    /**
+     * Replaces a local copy with a file written next to it and stamped with the mtime of its row. The move over the
+     * copy is atomic: a reader of the previous copy keeps reading it, and no reader sees a copy half written.
+     */
+    private Path replaceCopy(Path copy, long mtime, InputStream content) throws IOException {
+        Path directory = ensureDirectoryExists(copy.getParent());
+        Path written = directory.resolve(".%s.tmp".formatted(UUID.randomUUID()));
+        try {
+            Files.copy(content, written);
+            Files.setLastModifiedTime(written, FileTime.fromMillis(mtime));
+            deleteEmptyDirectory(copy);
+            moveOver(written, copy);
+        } finally {
+            Files.deleteIfExists(written);
+        }
+        return copy;
+    }
+
+    /**
+     * Deletes an empty directory at the path of a copy: a directory resource replaced by a file of the same path can
+     * leave one in the local copies. A directory with files is not deleted, and the copy fails.
+     */
+    private static void deleteEmptyDirectory(Path copy) throws IOException {
+        if (Files.isDirectory(copy)) {
+            Files.deleteIfExists(copy);
+        }
+    }
+
+    // On a file system without atomic moves, a plain move replaces the copy, and a reader can miss it for a moment
+    private static void moveOver(Path written, Path copy) throws IOException {
+        try {
+            Files.move(written, copy, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException _) {
+            Files.move(written, copy, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 
     public void updateAll(List<Resource> list) {

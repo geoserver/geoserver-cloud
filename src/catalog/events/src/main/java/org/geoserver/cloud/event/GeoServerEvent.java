@@ -17,6 +17,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
+import org.geoserver.cloud.event.resource.ResourceChanged;
 import org.geoserver.cloud.event.security.RolesChanged;
 import org.geoserver.cloud.event.security.UsersAndGroupsChanged;
 import org.geoserver.config.GeoServerInfo;
@@ -30,7 +31,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
     @JsonSubTypes.Type(value = UpdateSequenceEvent.class),
     @JsonSubTypes.Type(value = LifecycleEvent.class),
     @JsonSubTypes.Type(value = UsersAndGroupsChanged.class),
-    @JsonSubTypes.Type(value = RolesChanged.class)
+    @JsonSubTypes.Type(value = RolesChanged.class),
+    @JsonSubTypes.Type(value = ResourceChanged.class)
 })
 @SuppressWarnings("serial")
 public abstract class GeoServerEvent implements Serializable {

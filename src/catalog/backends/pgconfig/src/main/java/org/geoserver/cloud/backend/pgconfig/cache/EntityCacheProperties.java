@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration of the caches of the pgconfig backend: the entity cache, shared by the requests of a service instance,
- * and the request cache, private to one request.
+ * the request cache, private to one request, and the cache of the resource store.
  */
 @Data
 @ConfigurationProperties("geoserver.backend.pgconfig.cache")
@@ -37,6 +37,9 @@ public class EntityCacheProperties {
     /** The cache of decoded objects, private to one request. */
     private Request request = new Request();
 
+    /** The index of the resource store and the content read from it. */
+    private Resources resources = new Resources();
+
     public enum Compression {
         /** zstd with a dictionary trained on catalog objects. */
         ZSTD,
@@ -62,5 +65,22 @@ public class EntityCacheProperties {
          * Past it, the requests look objects up without keeping them, as past the maximum of one request.
          */
         private int maxTotalEntries = 100_000;
+    }
+
+    /**
+     * Configuration of the cache of the resource store. The index is loaded on first use and after a clear of the
+     * caches. A content read stays until a change or the memory bound removes it.
+     */
+    @Data
+    public static class Resources {
+
+        /**
+         * Whether the paths of the resource store are kept in memory, loaded in one query, with the content of the
+         * files read.
+         */
+        private boolean enabled = true;
+
+        /** Maximum size of the content kept, in percent of the maximum heap, and 64 MiB at most. */
+        private int maxHeapPercent = 1;
     }
 }

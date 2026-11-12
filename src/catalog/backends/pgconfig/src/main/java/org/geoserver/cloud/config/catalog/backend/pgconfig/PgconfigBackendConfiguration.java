@@ -43,6 +43,12 @@ import org.geoserver.cloud.backend.pgconfig.resource.DbBackedFileSynchronizer;
 import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceChangeListener;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceChangePublisher;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceRow;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceStoreCache;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceStoreCacheMetrics;
+import org.geoserver.cloud.backend.pgconfig.resource.SynchronizedResourceNotificationDispatcher;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.core.RawCatalogCustomizer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.DatabaseMigrationConfiguration.Migrations;
@@ -57,6 +63,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -158,6 +165,8 @@ import org.springframework.util.StringUtils;
 public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer {
 
     private static final long CONFIG_CACHE_MAXIMUM_WEIGHT = 16L * 1024 * 1024;
+
+    private static final long RESOURCE_CONTENT_MAXIMUM_WEIGHT = 64L * 1024 * 1024;
 
     /**
      * The order of the filter opening the cache of a request: before the filter of Spring Security at -100 and the
@@ -280,24 +289,51 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     }
 
     /**
+     * The index of the resource store and the content read from it, named {@code gs-resources} in the metrics. The
+     * index is loaded on first use and after a clear of the caches. The content takes 1% of the heap by default, 64 MiB
+     * at most. GeoServer clears the cache on a reload of its configuration, as a lifecycle handler.
+     */
+    @Bean
+    @ConditionalOnPgconfigResourceCacheEnabled
+    ResourceStoreCache pgconfigResourceStoreCache(
+            @Qualifier("pcconfigJdbcTemplate") JdbcTemplate template, EntityCacheProperties cacheProperties) {
+        int heapPercent = cacheProperties.getResources().getMaxHeapPercent();
+        long contentMaximumWeight = resourceContentMaximumWeight(EntityCache.maximumWeightFor(heapPercent));
+        Supplier<List<ResourceRow>> loader = PgconfigResourceStore.indexLoader(template);
+        return new ResourceStoreCache("gs-resources", loader, contentMaximumWeight);
+    }
+
+    /** The maximum weight of the content of the resource store cache: a share of the heap, and 64 MiB at most. */
+    static long resourceContentMaximumWeight(long heapShare) {
+        return Math.min(heapShare, RESOURCE_CONTENT_MAXIMUM_WEIGHT);
+    }
+
+    /**
      * Registers the metrics of the caches. A nested class keeps the Micrometer types out of the methods of the outer
      * configuration: Spring reads those methods, and fails on a type missing from the classpath.
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(MeterRegistry.class)
-    @ConditionalOnPgconfigCacheEnabled
     static class EntityCacheMetricsConfiguration {
 
         @Bean
+        @ConditionalOnPgconfigCacheEnabled
         EntityCacheMetrics pgconfigCatalogEntityCacheMetrics(
                 @Qualifier("pgconfigCatalogEntityCache") EntityCache catalogCache) {
             return new EntityCacheMetrics(catalogCache);
         }
 
         @Bean
+        @ConditionalOnPgconfigCacheEnabled
         EntityCacheMetrics pgconfigConfigEntityCacheMetrics(
                 @Qualifier("pgconfigConfigEntityCache") EntityCache configCache) {
             return new EntityCacheMetrics(configCache);
+        }
+
+        @Bean
+        @ConditionalOnPgconfigResourceCacheEnabled
+        ResourceStoreCacheMetrics pgconfigResourceStoreCacheMetrics(ResourceStoreCache resourceStoreCache) {
+            return new ResourceStoreCacheMetrics(resourceStoreCache);
         }
     }
 
@@ -348,6 +384,13 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     @ConditionalOnPgconfigCacheEnabled
     EntityCacheBusListener pgconfigEntityCacheBusListener(List<EntityCache> caches) {
         return new EntityCacheBusListener(caches);
+    }
+
+    /** Empties the resource store index when the events of the other service instances reach this one again. */
+    @Bean
+    @ConditionalOnPgconfigResourceCacheEnabled
+    EntityCacheBusListener pgconfigResourceStoreCacheBusListener(ResourceStoreCache resourceStoreCache) {
+        return new EntityCacheBusListener(List.of(resourceStoreCache));
     }
 
     /**
@@ -490,7 +533,8 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     }
 
     /**
-     * Creates the {@link PgconfigResourceStore} bean.
+     * Creates the {@link PgconfigResourceStore} bean, reading its rows from the {@link ResourceStoreCache} unless
+     * {@code geoserver.backend.pgconfig.cache.resources.enabled} is false.
      *
      * <p>The return type is the concrete class rather than the {@link org.geoserver.platform.resource.ResourceStore
      * ResourceStore} interface because {@link PgconfigGeoServerResourceLoader} needs access to
@@ -506,20 +550,28 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     @Bean
     PgconfigResourceStore resourceStoreImpl(
             @Qualifier("pgconfigLockProvider") LockProvider lockProvider,
-            FileSystemResourceStoreCache resourceStoreCache,
+            FileSystemResourceStoreCache localCopies,
             @Qualifier("pcconfigJdbcTemplate") JdbcTemplate template,
-            PgconfigBackendProperties configProperties) {
+            PgconfigBackendProperties configProperties,
+            @Qualifier("pgconfigTransactionManager") PlatformTransactionManager transactionManager,
+            ApplicationEventPublisher eventPublisher,
+            ObjectProvider<ResourceStoreCache> index) {
 
         log.debug("Creating ResourceStore {}", PgconfigResourceStore.class.getSimpleName());
         Predicate<String> localOnlyFilter = PgconfigResourceStore.defaultIgnoredResources();
         Predicate<String> dbBackedFilePatterns =
                 PgconfigResourceStore.antPathMatcher(configProperties.getDbBackedFilePatterns());
+        ResourceChangePublisher changePublisher = new ResourceChangePublisher(
+                new SynchronizedResourceNotificationDispatcher(), eventPublisher::publishEvent);
         return new PgconfigResourceStore(
-                resourceStoreCache,
+                localCopies,
                 template,
                 (PgconfigLockProvider) lockProvider,
                 localOnlyFilter,
-                dbBackedFilePatterns);
+                dbBackedFilePatterns,
+                transactionManager,
+                changePublisher,
+                index.getIfAvailable());
     }
 
     @Bean
@@ -537,8 +589,19 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     @Bean
     DbBackedFileSynchronizer pgconfigDbBackedFileSynchronizer(
             @Qualifier("resourceStoreImpl") PgconfigResourceStore resourceStore,
-            FileSystemResourceStoreCache resourceStoreCache) {
-        return new DbBackedFileSynchronizer(resourceStore, resourceStoreCache);
+            FileSystemResourceStoreCache localCopies) {
+        return new DbBackedFileSynchronizer(resourceStore, localCopies);
+    }
+
+    /**
+     * Applies the resource changes made through other instances to the caches of this instance, and tells its resource
+     * listeners. Without the resource cache, it still removes the local copies of deleted resources.
+     */
+    @Bean
+    ResourceChangeListener pgconfigResourceChangeListener(
+            @Qualifier("resourceStoreImpl") PgconfigResourceStore resourceStore,
+            FileSystemResourceStoreCache localCopies) {
+        return new ResourceChangeListener(resourceStore, localCopies);
     }
 
     /**

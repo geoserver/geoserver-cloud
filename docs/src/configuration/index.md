@@ -52,7 +52,7 @@ A complete worked example, including incremental REST-driven adds and an externa
 
 ## PgConfig backend: caches
 
-The `pgconfig` backend keeps data in memory to spare the database repeated queries. Two caches work in each service instance. They are on by default and have a size bound.
+The `pgconfig` backend keeps data in memory to spare the database repeated queries. Three caches work in each service instance. They are on by default and have a size bound.
 
 All properties below sit under `geoserver.backend.pgconfig.cache`.
 
@@ -66,6 +66,8 @@ All properties below sit under `geoserver.backend.pgconfig.cache`.
 | `request.enabled` | `true` | Keeps the decoded objects of a request until the request ends. |
 | `request.max-entries` | `8000` | Maximum number of objects kept for one request. |
 | `request.max-total-entries` | `100000` | Maximum number of objects kept for the requests in flight together, in one service instance. |
+| `resources.enabled` | `true` | Keeps the paths of the resource store, and the content of the files read, in memory. |
+| `resources.max-heap-percent` | `1` | Maximum size of the file content kept, in percent of the maximum heap, and 64 MiB at most. |
 
 Durations accept the usual Spring Boot forms, such as `30s` and `10m`. For example:
 
@@ -91,21 +93,30 @@ Changes written to the pgconfig tables by another program than GeoServer Cloud a
 
 The request cache decodes each object once per request. A request keeps at most `request.max-entries` objects. The requests in flight together keep at most `request.max-total-entries` objects in a service instance. Past these limits, a request still works: it looks objects up without keeping them.
 
+### Resource store cache
+
+The resource store holds files such as styles and templates. The cache loads the paths of the whole store in one query, and a path missing from the index is missing from the store. The index is loaded at first use and again after a clear: when the event bus reconnects, and when GeoServer resets. The content of the files is kept once read, within `resources.max-heap-percent` of the heap and 64 MiB at most.
+
+The first read of a file in a styles folder (`styles` at the root, or `workspaces/<workspace>/styles`) writes the missing or outdated files of that folder to the pod's disk, in one query. This spares a GetCapabilities on a new pod one query per style file. If those files add up to more than 16 MB, they are read one by one. Subfolders of a styles folder load file by file.
+
+Changes made through another instance are applied through the event bus. Changes made outside the store, by another program or by an instance without the events, are found at the next load of the index. That load updates the index, drops the kept content of the changed files, and tells the listeners of the service instance about the changed paths. For example, GeoServer then parses a changed style again.
+
 ### Sizing
 
-A catalog of 580 layers takes less than 1 MB in the entity cache. With `zstd` and its shipped dictionary, the stored bytes are 6 to 10 times smaller than the JSON. A decoded object takes about 2 KB in the request cache. The default of 8000 objects per request is twice the number read by a request on a catalog of 580 layers.
+A catalog of 580 layers takes less than 1 MB in the entity cache. With `zstd` and its shipped dictionary, the stored bytes are 6 to 10 times smaller than the JSON. A decoded object takes about 2 KB in the request cache. The default of 8000 objects per request is twice the number read by a request on a catalog of 580 layers. The resource store index takes about 200 bytes per row. A catalog of 100,000 layers with one style per layer has about 100,000 rows. The file content is bounded by `resources.max-heap-percent`, 1 percent of the heap by default and 64 MiB at most.
 
 ### Metrics
 
 The Prometheus actuator endpoint exposes the caches.
 
-- The catalog cache and the configuration cache are named `gs-catalog` and `gs-config`. Their series are the Caffeine cache metrics, such as `cache_gets_total` and `cache_evictions_total`, and `cache_weight_bytes`. They have the tags `cache` and `name` with the cache name, and `cache_manager="pgconfig"`.
+- The catalog cache, the configuration cache and the resource store cache are named `gs-catalog`, `gs-config` and `gs-resources`. Their series are the Caffeine cache metrics, such as `cache_gets_total` and `cache_evictions_total`, and `cache_weight_bytes`. They have the tags `cache` and `name` with the cache name, and `cache_manager="pgconfig"`.
+- `resourcestore_index_rows` is the number of rows in the resource store index.
 - `catalog_request_cache_lookups_total` counts the lookups in the request caches, with `result="hit"` or `result="miss"`. `catalog_request_cache_rejected_total` counts the objects not kept because a request cache was full or closed, or because the requests in flight held their `request.max-total-entries`. A request adds its counts when it ends.
 - `catalog_request_cache_entries` is the number of objects held by the requests in flight together, against `request.max-total-entries`.
 
 ### Removed property
 
-The `geoserver.catalog.caching.enabled` property has no effect. The pgconfig caches replace the optional catalog cache of the services. `geoserver.backend.pgconfig.cache.enabled` turns the entity cache on or off, and `request.enabled` controls the request cache. A service started with the old property logs a warning that names the new one, whatever the old value. With the Compose overlay `compose/toxiproxy.yml`, `WMS_CATALOG_CACHING=false` sets `GEOSERVER_BACKEND_PGCONFIG_CACHE_ENABLED=false` for the `wms` service.
+The `geoserver.catalog.caching.enabled` property has no effect. The pgconfig caches replace the optional catalog cache of the services. `geoserver.backend.pgconfig.cache.enabled` turns the entity cache on or off, and `request.enabled` and `resources.enabled` control the two other caches. A service started with the old property logs a warning that names the new one, whatever the old value. With the Compose overlay `compose/toxiproxy.yml`, `WMS_CATALOG_CACHING=false` sets `GEOSERVER_BACKEND_PGCONFIG_CACHE_ENABLED=false` for the `wms` service.
 
 ## GeoServer configuration properties
 

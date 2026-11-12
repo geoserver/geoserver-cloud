@@ -23,10 +23,12 @@ import org.geoserver.cloud.backend.pgconfig.cache.ZstdCodec;
 import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceChangePublisher;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendProperties;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerResourceLoader;
+import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.geotools.util.logging.Logging;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -75,7 +77,9 @@ class PgconfigCatalogBackendConformanceIT extends CatalogConformanceTest {
                 template,
                 lockProvider,
                 PgconfigResourceStore.defaultIgnoredResources(),
-                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
+                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()),
+                new DataSourceTransactionManager(db.getDataSource()),
+                new ResourceChangePublisher(new SimpleResourceNotificationDispatcher(), event -> {}));
 
         PgconfigGeoServerResourceLoader resourceLoader = new PgconfigGeoServerResourceLoader(resourceStore);
         CatalogPlugin catalog = new CatalogPlugin();

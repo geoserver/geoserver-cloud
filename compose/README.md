@@ -90,7 +90,7 @@ curl -XPOST localhost:8474/proxies/pgconfig/toxics -d \
 curl -XDELETE localhost:8474/proxies/pgconfig/toxics/latency
 ```
 
-Toxics live in the memory of Toxiproxy: set them again after it restarts. The header of `toxiproxy.yml` also shows how to limit the bandwidth, and how to turn off the caches of the pgconfig backend in the wms service.
+Toxics live in the memory of Toxiproxy: set them again after it restarts. The header of `toxiproxy.yml` also shows how to limit the bandwidth, and how to turn off the entity cache of the pgconfig backend in the wms service. The request cache and the resource store cache stay on.
 
 ## Debugging from an IDE
 

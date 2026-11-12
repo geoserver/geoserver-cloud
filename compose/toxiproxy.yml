@@ -14,7 +14,8 @@
 #   curl -XDELETE localhost:8474/proxies/pgconfig/toxics/latency
 #   curl -XDELETE localhost:8474/proxies/pgconfig/toxics/bandwidth
 #
-# WMS_CATALOG_CACHING=false turns off the caches of the pgconfig backend in the wms service.
+# WMS_CATALOG_CACHING=false turns off the entity cache of the pgconfig backend in the wms service, through
+# geoserver.backend.pgconfig.cache.enabled. The request cache and the resource store cache stay on.
 
 services:
   toxiproxy:

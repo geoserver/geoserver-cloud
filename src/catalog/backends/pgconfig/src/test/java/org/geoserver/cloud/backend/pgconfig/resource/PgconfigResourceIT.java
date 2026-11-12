@@ -10,6 +10,8 @@ import static org.geoserver.platform.resource.Resource.Type.RESOURCE;
 import static org.geoserver.platform.resource.Resource.Type.UNDEFINED;
 import static org.geoserver.platform.resource.ResourceMatchers.directory;
 import static org.geoserver.platform.resource.ResourceMatchers.undefined;
+import static org.geoserver.platform.resource.ResourceNotification.Kind.ENTRY_CREATE;
+import static org.geoserver.platform.resource.ResourceNotification.Kind.ENTRY_MODIFY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,16 +26,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.sql.DataSource;
@@ -41,9 +47,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendProperties;
+import org.geoserver.cloud.event.GeoServerEvent;
+import org.geoserver.cloud.event.resource.ResourceChanged;
+import org.geoserver.cloud.event.resource.ResourceChanged.Change;
+import org.geoserver.cloud.event.resource.ResourceChanged.Kind;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
+import org.geoserver.platform.resource.ResourceNotification;
+import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -57,6 +69,7 @@ import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -76,6 +89,10 @@ class PgconfigResourceIT {
 
     private PgconfigResourceStore store;
     private File cacheDirectory;
+    private DataSourceTransactionManager transactionManager;
+
+    private final List<ResourceChanged> events = new ArrayList<>();
+    private Consumer<ResourceChanged> onPublish = event -> {};
 
     static Stream<String> testPaths() {
         return Stream.of(
@@ -106,13 +123,35 @@ class PgconfigResourceIT {
         FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(
                 cacheDirectory.toPath(),
                 PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
+        transactionManager = new DataSourceTransactionManager(db.getDataSource());
+        ResourceChangePublisher changePublisher =
+                new ResourceChangePublisher(new SimpleResourceNotificationDispatcher(), this::published);
         store = new PgconfigResourceStore(
                 cache,
                 template,
                 lockProvider,
                 PgconfigResourceStore.defaultIgnoredResources(),
-                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
+                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()),
+                transactionManager,
+                changePublisher,
+                newIndex(template));
         setupTestData(template);
+    }
+
+    /** Returns the index of the store under test, or null for a store reading the database on each lookup. */
+    protected ResourceStoreCache newIndex(JdbcTemplate template) {
+        return null;
+    }
+
+    /** Called once a test changed rows with SQL, as another program would. The store reads the database. */
+    protected void rowsChangedBehindStore() {
+        // nothing to load again
+    }
+
+    private void published(GeoServerEvent event) {
+        ResourceChanged change = (ResourceChanged) event;
+        events.add(change);
+        onPublish.accept(change);
     }
 
     private void setupTestData(JdbcTemplate template) throws Exception {
@@ -221,6 +260,22 @@ class PgconfigResourceIT {
             Resource old = store.get(oldPath);
             assertThat(old, is(undefined()));
         }
+    }
+
+    // another instance wrote the target between its lookup and the rename, as when several instances start at once
+    @Test
+    void renameReplacesTargetWrittenBehindStore() throws IOException {
+        write("gwc-gs.xml.tmp", "new");
+        Resource target = store.get("gwc-gs.xml");
+        assertThat(target, is(undefined()));
+        String sql = "INSERT INTO resourcestore (parentid, path, \"type\", content) VALUES (0, ?, 'RESOURCE', ?)";
+        db.getTemplate().update(sql, "gwc-gs.xml", "old".getBytes(StandardCharsets.UTF_8));
+
+        boolean renamed = store.get("gwc-gs.xml.tmp").renameTo(target);
+
+        assertTrue(renamed);
+        assertFalse(rowExists("gwc-gs.xml.tmp"));
+        assertEquals("new", new String(store.get("gwc-gs.xml").getContents(), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -522,6 +577,7 @@ class PgconfigResourceIT {
         // Delete the resource from the database directly
         JdbcTemplate template = db.getTemplate();
         template.update("DELETE FROM resourcestore WHERE path = ?", path);
+        rowsChangedBehindStore();
 
         // Initial access to resource should still return the cached state
         assertEquals(RESOURCE, resource.getType());
@@ -579,6 +635,7 @@ class PgconfigResourceIT {
                 "UPDATE resourcestore SET content = ?, mtime = timezone('UTC'::text, now()) WHERE path = ?",
                 updatedContent,
                 path);
+        rowsChangedBehindStore();
 
         // Force resource state refresh by using reflection to set lastChecked to past
         java.lang.reflect.Field lastCheckedField = resource.getClass().getDeclaredField("lastChecked");
@@ -629,6 +686,128 @@ class PgconfigResourceIT {
         assertTrue(file.isFile());
         String fileContent = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
         assertEquals("test password", fileContent);
+    }
+
+    @Test
+    void outRollsBackCreatedParents() {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+
+        transaction.executeWithoutResult(status -> {
+            write("a/b/c.txt", "c");
+            status.setRollbackOnly();
+        });
+
+        assertFalse(rowExists("a"));
+        assertFalse(rowExists("a/b"));
+        assertFalse(rowExists("a/b/c.txt"));
+        assertFalse(new File(cacheDirectory, "a/b/c.txt").exists());
+        assertThat(events, empty());
+    }
+
+    @Test
+    void outPublishesAfterCommit() {
+        List<Boolean> visibleWhenPublished = new ArrayList<>();
+        onPublish = event -> visibleWhenPublished.add(visibleToAnotherConnection(event.getPath()));
+
+        write("x/y.txt", "y");
+
+        assertEquals(List.of("CREATED DIRECTORY x", "CREATED RESOURCE x/y.txt"), summaries(events));
+        assertEquals(List.of(true, true), visibleWhenPublished);
+    }
+
+    @Test
+    void deleteListsDescendants() {
+        write("d/e/f.txt", "f");
+        events.clear();
+
+        assertTrue(store.get("d").delete());
+
+        assertEquals(List.of("DELETED DIRECTORY d"), summaries(events));
+        Set<Change> expected = Set.of(new Change("d/e", Kind.DELETED), new Change("d/e/f.txt", Kind.DELETED));
+        assertEquals(expected, Set.copyOf(events.get(0).getChanges()));
+    }
+
+    @Test
+    void renamePublishesDeleteAndCreate() {
+        write("m/n.txt", "n");
+        events.clear();
+
+        assertTrue(store.get("m/n.txt").renameTo(store.get("o/p.txt")));
+
+        // the move creates the target directory first
+        List<String> expected = List.of("CREATED DIRECTORY o", "DELETED RESOURCE m/n.txt", "CREATED RESOURCE o/p.txt");
+        assertEquals(expected, summaries(events));
+    }
+
+    // an underscore matches any character in a SQL LIKE pattern
+    @Test
+    void renameKeepsSimilarSiblings() {
+        write("workspaces/ws_1/a.txt", "a");
+        write("workspaces/ws21/b.txt", "b");
+        events.clear();
+
+        assertTrue(store.get("workspaces/ws_1").renameTo(store.get("workspaces/renamed")));
+
+        assertTrue(rowExists("workspaces/ws21/b.txt"));
+        assertTrue(rowExists("workspaces/renamed/a.txt"));
+        assertFalse(rowExists("workspaces/renamed/b.txt"));
+        List<String> expected = List.of("DELETED DIRECTORY workspaces/ws_1", "CREATED DIRECTORY workspaces/renamed");
+        assertEquals(expected, summaries(events));
+        assertEquals(
+                List.of(new Change("workspaces/ws_1/a.txt", Kind.DELETED)),
+                events.get(0).getChanges());
+        assertEquals(
+                List.of(new Change("workspaces/renamed/a.txt", Kind.CREATED)),
+                events.get(1).getChanges());
+    }
+
+    @Test
+    void listenerNotifiedOnLocalWrite() {
+        List<ResourceNotification.Kind> fileNotifications = new ArrayList<>();
+        List<ResourceNotification.Kind> directoryNotifications = new ArrayList<>();
+        store.get("s/t.sld").addListener(notification -> fileNotifications.add(notification.getKind()));
+        store.get("s").addListener(notification -> directoryNotifications.add(notification.getKind()));
+
+        write("s/t.sld", "1");
+        write("s/t.sld", "2");
+
+        assertEquals(List.of(ENTRY_CREATE, ENTRY_MODIFY), fileNotifications);
+        // the first write creates the directory, then each write of the file modifies it
+        assertEquals(List.of(ENTRY_CREATE, ENTRY_MODIFY, ENTRY_MODIFY), directoryNotifications);
+    }
+
+    private void write(String path, String contents) {
+        try (OutputStream out = store.get(path).out()) {
+            out.write(contents.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private boolean rowExists(String path) {
+        String sql = "SELECT count(*) FROM resourcestore WHERE path = ?";
+        Integer count = db.getTemplate().queryForObject(sql, Integer.class, path);
+        return count != null && count > 0;
+    }
+
+    private boolean visibleToAnotherConnection(String path) {
+        String sql = "SELECT count(*) FROM resourcestore WHERE path = ?";
+        try (Connection connection = db.getDataSource().getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, path);
+            try (ResultSet result = statement.executeQuery()) {
+                result.next();
+                return result.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static List<String> summaries(List<ResourceChanged> changes) {
+        return changes.stream()
+                .map(change -> change.getKind() + " " + change.getType() + " " + change.getPath())
+                .toList();
     }
 
     private static File newFolder(File root, String... subDirs) throws IOException {

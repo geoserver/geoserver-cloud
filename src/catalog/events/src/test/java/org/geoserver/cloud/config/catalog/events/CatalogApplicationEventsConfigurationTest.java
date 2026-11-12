@@ -20,6 +20,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
@@ -189,6 +190,22 @@ class CatalogApplicationEventsConfigurationTest {
         listener.start();
 
         testRemove(testData.layerGroup1, catalog::remove, CatalogInfoRemoved.class);
+    }
+
+    // a style saved without changes, as after a PUT of its SLD, still reaches the other instances
+    @Test
+    void savedStyleWithoutChangesIsPublished() {
+        listener.stop();
+        testData.addObjects();
+        listener.start();
+        listener.clear();
+
+        StyleInfo style = catalog.getStyle(testData.style1.getId());
+        catalog.save(style);
+
+        CatalogInfoModified event = listener.expectOne(CatalogInfoModified.class);
+        assertThat(event.getObjectId()).isEqualTo(style.getId());
+        assertThat(event.getObjectType()).isEqualTo(ConfigInfoType.STYLE);
     }
 
     @Test

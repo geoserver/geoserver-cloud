@@ -13,8 +13,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 /**
- * Empties the entity caches when the events of the other service instances reach this one again: at startup, and after
- * a lost connection to the event bus.
+ * Empties caches of the pgconfig backend, such as the entity caches, when the events of the other service instances
+ * reach this one again: at startup, and after a lost connection to the event bus.
  *
  * <p>The events sent while the consumer of the bus was away are lost, and the entries made stale by them would stay
  * until another event or a clear removes them. The caches are emptied before the other listeners of
@@ -23,19 +23,19 @@ import org.springframework.core.annotation.Order;
 @Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.cache")
 public class EntityCacheBusListener {
 
-    private final List<EntityCache> caches;
+    private final List<ClearableCache> caches;
 
-    public EntityCacheBusListener(@NonNull List<EntityCache> caches) {
+    public EntityCacheBusListener(@NonNull List<? extends ClearableCache> caches) {
         this.caches = List.copyOf(caches);
     }
 
     @EventListener(RemoteEventsResumed.class)
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public void onRemoteEventsResumed(RemoteEventsResumed event) {
-        for (EntityCache cache : caches) {
+        for (ClearableCache cache : caches) {
             cache.clear();
         }
-        List<String> names = caches.stream().map(EntityCache::name).toList();
+        List<String> names = caches.stream().map(ClearableCache::name).toList();
         log.info("Cleared the caches {}: a consumer subscribed to the queue {}", names, event.queue());
     }
 }

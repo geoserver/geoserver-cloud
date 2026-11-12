@@ -3,6 +3,10 @@
     {
       "name": "geoserver.backend.pgconfig.cache.request",
       "description": "The cache of decoded objects, private to one request."
+    },
+    {
+      "name": "geoserver.backend.pgconfig.cache.resources",
+      "description": "The index of the resource store and the content read from it."
     }
   ]
 }
