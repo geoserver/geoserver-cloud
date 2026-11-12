@@ -52,7 +52,7 @@ A complete worked example, including incremental REST-driven adds and an externa
 
 ## PgConfig backend: caches
 
-The `pgconfig` backend keeps data in memory to spare the database repeated queries. One cache works in each service instance. It is on by default and has a size bound.
+The `pgconfig` backend keeps data in memory to spare the database repeated queries. Two caches work in each service instance. They are on by default and have a size bound.
 
 All properties below sit under `geoserver.backend.pgconfig.cache`.
 
@@ -63,6 +63,9 @@ All properties below sit under `geoserver.backend.pgconfig.cache`.
 | `compression` | `zstd` | How the entity cache stores objects: `zstd` or `none`. |
 | `miss-ttl` | `30s` | How long a lookup with no result is remembered. |
 | `listing-write-through` | `false` | Adds the objects read by catalog listings to the entity cache. A listing larger than the cache would push out the objects read most often. |
+| `request.enabled` | `true` | Keeps the decoded objects of a request until the request ends. |
+| `request.max-entries` | `8000` | Maximum number of objects kept for one request. |
+| `request.max-total-entries` | `100000` | Maximum number of objects kept for the requests in flight together, in one service instance. |
 
 Durations accept the usual Spring Boot forms, such as `30s` and `10m`. For example:
 
@@ -72,6 +75,8 @@ geoserver:
     pgconfig:
       cache:
         max-heap-percent: 5
+        request:
+          max-entries: 8000
 ```
 
 ### Entity cache
@@ -80,19 +85,25 @@ The entity cache holds catalog and configuration objects as compressed bytes. Th
 
 Changes written to the pgconfig tables by another program than GeoServer Cloud are not supported. They show after a reset through the `restconfig` service or after a reconnection of the event bus.
 
+### Request cache
+
+The request cache decodes each object once per request. A request keeps at most `request.max-entries` objects. The requests in flight together keep at most `request.max-total-entries` objects in a service instance. Past these limits, a request still works: it looks objects up without keeping them.
+
 ### Sizing
 
-A catalog of 580 layers takes less than 1 MB in the entity cache. With `zstd` and its shipped dictionary, the stored bytes are 6 to 10 times smaller than the JSON.
+A catalog of 580 layers takes less than 1 MB in the entity cache. With `zstd` and its shipped dictionary, the stored bytes are 6 to 10 times smaller than the JSON. A decoded object takes about 2 KB in the request cache. The default of 8000 objects per request is twice the number read by a request on a catalog of 580 layers.
 
 ### Metrics
 
 The Prometheus actuator endpoint exposes the caches.
 
 - The catalog cache and the configuration cache are named `gs-catalog` and `gs-config`. Their series are the Caffeine cache metrics, such as `cache_gets_total` and `cache_evictions_total`, and `cache_weight_bytes`. They have the tags `cache` and `name` with the cache name, and `cache_manager="pgconfig"`.
+- `catalog_request_cache_lookups_total` counts the lookups in the request caches, with `result="hit"` or `result="miss"`. `catalog_request_cache_rejected_total` counts the objects not kept because a request cache was full or closed, or because the requests in flight held their `request.max-total-entries`. A request adds its counts when it ends.
+- `catalog_request_cache_entries` is the number of objects held by the requests in flight together, against `request.max-total-entries`.
 
 ### Removed property
 
-The `geoserver.catalog.caching.enabled` property has no effect. The pgconfig caches replace the optional catalog cache of the services. `geoserver.backend.pgconfig.cache.enabled` turns it on or off. A service started with the old property logs a warning that names the new one, whatever the old value. With the Compose overlay `compose/toxiproxy.yml`, `WMS_CATALOG_CACHING=false` sets `GEOSERVER_BACKEND_PGCONFIG_CACHE_ENABLED=false` for the `wms` service.
+The `geoserver.catalog.caching.enabled` property has no effect. The pgconfig caches replace the optional catalog cache of the services. `geoserver.backend.pgconfig.cache.enabled` turns the entity cache on or off, and `request.enabled` controls the request cache. A service started with the old property logs a warning that names the new one, whatever the old value. With the Compose overlay `compose/toxiproxy.yml`, `WMS_CATALOG_CACHING=false` sets `GEOSERVER_BACKEND_PGCONFIG_CACHE_ENABLED=false` for the `wms` service.
 
 ## GeoServer configuration properties
 

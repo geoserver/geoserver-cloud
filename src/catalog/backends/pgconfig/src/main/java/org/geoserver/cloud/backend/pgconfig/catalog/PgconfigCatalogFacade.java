@@ -21,6 +21,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.catalog.plugin.RepositoryCatalogFacadeImpl;
+import org.geoserver.catalog.plugin.requestcache.RequestCacheScope;
 import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
 import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
@@ -51,10 +52,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * repositories.
  *
  * <p>The objects of this facade are raw: a reference to another object is a {@link ResolvingProxy} holding its id,
- * unless the row of the object brought the referenced object too. The catalog gets this facade decorated by
- * {@link PgconfigBackendBuilder#resolving}: the decorator resolves the references through this facade, below workspace
- * isolation. A listing evaluating part of its filter in memory resolves its objects the same way first, see
- * {@link #referenceResolver(ExtendedCatalogFacade)}.
+ * unless the row of the object brought the referenced object too. The catalog gets this facade under a decorator
+ * resolving the references below workspace isolation, see {@link PgconfigBackendBuilder#resolving}. A listing
+ * evaluating part of its filter in memory resolves its objects first, see {@link #setReferenceResolver}. Without the
+ * cache of the request, the decorator and the listings look the references up in this facade. With it, they look them
+ * up through the cache of the request while the thread has one, see {@link PgconfigBackendBuilder#requestCaching}. A
+ * listing outside a request opens a cache of its own, see {@link #query(Query)}.
  *
  * <p>This class overrides specific methods from {@link RepositoryCatalogFacadeImpl} to utilize the
  * {@link PgconfigPublishedInfoReadOnlyRepository} directly for counting and querying {@link PublishedInfo} objects.
@@ -78,6 +81,8 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
      * @see #queryPublishedInfo(Query)
      */
     private PgconfigPublishedInfoReadOnlyRepository publishedInfoReadOnlyRepo;
+
+    private int requestCacheMaxEntries = RequestCacheScope.DEFAULT_MAX_ENTRIES;
 
     public PgconfigCatalogFacade(@NonNull JdbcTemplate template) {
         this(template, null);
@@ -130,9 +135,27 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
         return references.andThen(collections)::apply;
     }
 
+    /**
+     * Sets the function resolving the references of the objects of a listing, before the repositories evaluate the part
+     * of its filter not translated to SQL. The default function resolves them through this facade, see
+     * {@link #referenceResolver(ExtendedCatalogFacade)}. The chain with the cache of the request gives the resolver of
+     * its decorator, see {@link PgconfigBackendBuilder#requestCaching}.
+     */
+    public void setReferenceResolver(@NonNull UnaryOperator<CatalogInfo> resolver) {
+        allRepositories().forEach(repository -> repository.setReferenceResolver(resolver));
+    }
+
     /** Sets whether listings add their objects to the cache. Off by default. */
     public void setListingWriteThrough(boolean listingWriteThrough) {
         allRepositories().forEach(repository -> repository.setListingWriteThrough(listingWriteThrough));
+    }
+
+    /**
+     * Sets the size of the cache opened by a listing outside a request, see {@link #query(Query)}.
+     * {@link RequestCacheScope#DEFAULT_MAX_ENTRIES} by default.
+     */
+    public void setRequestCacheMaxEntries(int maxEntries) {
+        this.requestCacheMaxEntries = maxEntries;
     }
 
     /**
@@ -179,7 +202,12 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
         return publishedInfoReadOnlyRepo.findById(id).orElse(null);
     }
 
-    /** Looks the ids up with one query. A {@link PublishedInfo} lookup reads the published infos view. */
+    /**
+     * Looks the ids up with one query, and reads its rows before returning. The resolving decorator above resolves each
+     * object before it reads the next one, and an open query would hold its connection meanwhile: one more connection
+     * per level of nested groups. The list holds one object per id at most. A {@link PublishedInfo} lookup reads the
+     * published infos view.
+     */
     @Override
     public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
         if (CatalogInfo.class.equals(type)) {
@@ -187,7 +215,31 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
             return super.findAllById(ids, type);
         }
         PgconfigCatalogInfoRepository<T> repository = repository(type);
-        return repository.findAllById(ids, type);
+        List<T> found;
+        try (Stream<T> rows = repository.findAllById(ids, type)) {
+            found = rows.toList();
+        }
+        return found.stream();
+    }
+
+    /**
+     * Opens a scope of {@link RequestCacheScope} for the listing if this thread has none, as for a listing outside a
+     * request, and closes it with the stream. With the cache of the request above, see
+     * {@link PgconfigBackendBuilder#requestCaching}, the scope keeps the objects looked up to resolve the references of
+     * the listed objects, for the decorator above and for the part of the filter evaluated in memory: the layers of a
+     * GWC seed share their stores and styles, and each one found by a lookup is decoded once per listing. The listed
+     * objects stay out of the scope.
+     */
+    @Override
+    public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+        Runnable closeScope = RequestCacheScope.openIfAbsent(requestCacheMaxEntries);
+        try {
+            Stream<T> listed = super.query(query);
+            return listed.onClose(closeScope);
+        } catch (RuntimeException e) {
+            closeScope.run();
+            throw e;
+        }
     }
 
     /**

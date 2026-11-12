@@ -470,6 +470,37 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
     }
 
+    /**
+     * Answers a prefixed name from the facade, and goes on to upstream when the facade has no answer. A backend can
+     * look a layer up by name. Upstream lists the layers of the resource instead: a query on backends without a cache
+     * for it.
+     *
+     * <p>The prefix is a namespace prefix for upstream. A backend may match it against the workspace of the store, and
+     * would answer another layer when the two differ. The answer of the facade is accepted only if the namespace of its
+     * resource has the prefix asked.
+     */
+    @Override
+    public LayerInfo getLayerByName(String name) {
+        int colon = name.indexOf(':');
+        if (colon == -1) {
+            return super.getLayerByName(name);
+        }
+        String prefix = name.substring(0, colon);
+        LayerInfo fromFacade = facade.getLayerByName(name);
+        if (hasNamespacePrefix(fromFacade, prefix)) {
+            return fromFacade;
+        }
+        return super.getLayerByName(name);
+    }
+
+    private boolean hasNamespacePrefix(LayerInfo layer, String prefix) {
+        if (layer == null || layer.getResource() == null) {
+            return false;
+        }
+        NamespaceInfo namespace = layer.getResource().getNamespace();
+        return namespace != null && prefix.equals(namespace.getPrefix());
+    }
+
     public static LayerInfo getLayerByName(Catalog catalog, String workspace, String resourceName) {
         ResourceInfo r = catalog.getResourceByName(workspace, resourceName, ResourceInfo.class);
         if (r == null) {

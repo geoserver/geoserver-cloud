@@ -34,6 +34,7 @@ import org.geoserver.catalog.event.CatalogPostModifyEvent;
 import org.geoserver.catalog.event.CatalogRemoveEvent;
 import org.geoserver.catalog.impl.LayerGroupStyleListener;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.requestcache.RequestCacheScope;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geotools.api.filter.Filter;
 import org.springframework.beans.BeansException;
@@ -112,7 +113,21 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
         if (!buildTask.isDone()) {
             abort = true;
         }
-        buildTask = CompletableFuture.runAsync(this::doBuildLayerGroupCaches);
+        buildTask = CompletableFuture.runAsync(this::buildInItsOwnScope);
+    }
+
+    /**
+     * Builds the caches within a scope of {@link RequestCacheScope}, opened on the thread of the build. On a backend
+     * with a request cache, the scope keeps the members looked up to resolve the listed groups: a group listed later
+     * finds the members of the earlier ones there.
+     */
+    private void buildInItsOwnScope() {
+        Runnable closeScope = RequestCacheScope.openIfAbsent(RequestCacheScope.DEFAULT_MAX_ENTRIES);
+        try {
+            doBuildLayerGroupCaches();
+        } finally {
+            closeScope.run();
+        }
     }
 
     private void doBuildLayerGroupCaches() {

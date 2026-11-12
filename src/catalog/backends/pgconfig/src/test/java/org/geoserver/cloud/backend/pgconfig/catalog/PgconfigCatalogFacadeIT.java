@@ -15,10 +15,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -38,6 +41,11 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
+import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogFacade;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
+import org.geoserver.catalog.plugin.requestcache.RequestCache;
+import org.geoserver.catalog.plugin.requestcache.RequestCacheScope;
+import org.geoserver.catalog.plugin.requestcache.RequestCachingCatalogFacade;
 import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
@@ -69,6 +77,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigCatalogFacadeIT {
+
+    private static final int REQUEST_CACHE_SIZE = 10_000;
 
     @Container
     static PgConfigTestContainer container = new PgConfigTestContainer();
@@ -104,6 +114,7 @@ class PgconfigCatalogFacadeIT {
     void endRequest() {
         LocalWorkspace.remove();
         Dispatcher.REQUEST.remove();
+        RequestCacheScope.close();
     }
 
     @Test
@@ -266,6 +277,90 @@ class PgconfigCatalogFacadeIT {
         assertThat(cached.getLayerByName("iso:roads")).isNotNull();
     }
 
+    // the lookup of a layer by its prefixed name reads the name key and the entities of the cache
+    @Test
+    void prefixedLayerNameNoQuery() {
+        CatalogPlugin cached = requestCachedCatalog();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        LayerInfo first = cached.getLayerByName("ws:l1");
+        RequestCacheScope.close();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        counter.reset();
+
+        LayerInfo second = cached.getLayerByName("ws:l1");
+
+        assertThat(second.getId()).isEqualTo(first.getId());
+        assertThat(counter.count()).isZero();
+    }
+
+    @Test
+    void bareNameUsesDefaultWorkspace() {
+        createWorkspace("ws2");
+        String inWs2 = addLayer("ws2", "l1").getId();
+        catalog.setDefaultWorkspace(catalog.getWorkspaceByName("ws2"));
+        CatalogPlugin cached = cachedCatalog();
+
+        LayerInfo found = cached.getLayerByName("l1");
+
+        assertThat(found.getId()).isEqualTo(inWs2).isNotEqualTo(layerId);
+    }
+
+    @Test
+    void isolatedPrefixedNameHidden() {
+        addIsolatedLayer();
+        CatalogPlugin cached = requestCachedCatalog();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        Dispatcher.REQUEST.set(new Request());
+
+        assertThat(cached.getLayerByName("iso:roads")).isNull();
+
+        LocalWorkspace.set(cached.getWorkspaceByName("iso"));
+        assertThat(cached.getLayerByName("iso:roads")).isNotNull();
+    }
+
+    // w1:x is the layer of the namespace w1, as upstream answers, not the layer of a store in the workspace w1
+    @Test
+    void prefixIsTheNamespace() {
+        createWorkspace("w1");
+        createWorkspace("w2");
+        String inNamespaceW1 = addLayerInNamespace("w2", "w1", "x").getId();
+        String inNamespaceW2 = addLayerInNamespace("w1", "w2", "x").getId();
+        CatalogPlugin cached = cachedCatalog();
+
+        LayerInfo byW1 = cached.getLayerByName("w1:x");
+        LayerInfo byW2 = cached.getLayerByName("w2:x");
+
+        LayerInfo warmW1 = cached.getLayerByName("w1:x");
+
+        assertThat(byW1.getId()).isEqualTo(inNamespaceW1);
+        assertThat(byW2.getId()).isEqualTo(inNamespaceW2);
+        assertThat(warmW1.getId()).isEqualTo(inNamespaceW1);
+    }
+
+    // the first lookup of a global request puts the layer of the isolated workspace in the cache of the request, below
+    // isolation, and isolation hides the cached layer
+    @Test
+    void isolatedLayerHiddenInRequest() {
+        String isolatedId = addIsolatedLayer().getId();
+        CatalogPlugin cached = requestCachedCatalog();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        Dispatcher.REQUEST.set(new Request());
+        List<String> listed = listNames(cached, LayerInfo.class, Filter.INCLUDE);
+        LayerInfo firstById = cached.getLayer(isolatedId);
+        DecodeCounter decodes = new DecodeCounter();
+
+        LayerInfo byId = cached.getLayer(isolatedId);
+        long decodedById = decodes.count();
+        LayerInfo byName = cached.getLayerByName("iso:roads");
+
+        assertThat(listed).contains("l1").doesNotContain("roads");
+        assertThat(firstById).isNull();
+        assertThat(byId).isNull();
+        // the cache of the request held the layer
+        assertThat(decodedById).isZero();
+        assertThat(byName).isNull();
+    }
+
     // the first lookup reads the database, the second the cache
     @Test
     void isolatedLayerHiddenById() {
@@ -356,6 +451,205 @@ class PgconfigCatalogFacadeIT {
         assertThat(decodes.count()).isEqualTo(distinctObjects);
     }
 
+    // the distinct objects: the group, its 10 layers and their resources, the store, workspace and namespace, 10 styles
+    @Test
+    void oneDecodePerObjectPerRequest() {
+        List<StyleInfo> styles = addStyles("shared", 10);
+        List<LayerInfo> layers = addLayersOnOneStore("shared", styles);
+        String sharedId = addGroup("shared", layers, styles).getId();
+        CatalogPlugin cached = requestCachedCatalog();
+        cached.getLayerGroup(sharedId);
+        counter.reset();
+        DecodeCounter decodes = new DecodeCounter();
+
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        cached.getLayerGroup(sharedId);
+        cached.getLayerGroup(sharedId);
+
+        int distinctObjects = 1 + 2 * layers.size() + 3 + styles.size();
+        assertThat(decodes.count()).isEqualTo(distinctObjects);
+        assertThat(counter.count()).isZero();
+    }
+
+    // the cache of the request keeps the group as the first lookup resolved it: a hit decodes and queries nothing
+    @Test
+    void hitSkipsResolution() {
+        List<StyleInfo> styles = addStyles("shared", 10);
+        List<LayerInfo> layers = addLayersOnOneStore("shared", styles);
+        String sharedId = addGroup("shared", layers, styles).getId();
+        CatalogPlugin cached = requestCachedCatalog();
+        AtomicInteger resolverPasses = countResolverPasses(cached);
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        cached.getLayerGroup(sharedId);
+        counter.reset();
+        DecodeCounter decodes = new DecodeCounter();
+        resolverPasses.set(0);
+
+        cached.getLayerGroup(sharedId);
+
+        assertThat(resolverPasses).hasValue(0);
+        assertThat(decodes.count()).isZero();
+        assertThat(counter.count()).isZero();
+    }
+
+    // the second group finds the layers, styles and store of the first one in the cache of the request
+    @Test
+    void sharedMembersDecodedOnce() {
+        List<StyleInfo> styles = addStyles("shared", 10);
+        List<LayerInfo> layers = addLayersOnOneStore("shared", styles);
+        String firstId = addGroup("first", layers, styles).getId();
+        String secondId = addGroup("second", layers, styles).getId();
+        CatalogPlugin cached = requestCachedCatalog();
+        cached.getLayerGroup(firstId);
+        cached.getLayerGroup(secondId);
+        counter.reset();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        cached.getLayerGroup(firstId);
+        DecodeCounter decodes = new DecodeCounter();
+
+        cached.getLayerGroup(secondId);
+
+        // the second group itself
+        assertThat(decodes.count()).isOne();
+        assertThat(counter.count()).isZero();
+    }
+
+    // the filter of the listing reads the members of the groups, and resolves them through the cache of the request
+    @Test
+    void inMemoryFilterUsesRequestCache() {
+        CatalogPlugin cached = requestCachedCatalog();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        List<String> listed = listNames(cached, LayerGroupInfo.class, firstMemberNamed("l1"));
+        DecodeCounter decodes = new DecodeCounter();
+
+        LayerInfo member = cached.getLayer(layerId);
+
+        assertThat(listed).containsExactly("g1");
+        assertThat(member).extracting(LayerInfo::getName).isEqualTo("l1");
+        assertThat(decodes.count()).isZero();
+    }
+
+    // outside a request, the references are looked up below the cache of the request, and one lookup shares them
+    @Test
+    void outsideRequestDecodesOnce() {
+        List<StyleInfo> styles = addStyles("shared", 10);
+        List<LayerInfo> layers = addLayersOnOneStore("shared", styles);
+        String sharedId = addGroup("shared", layers, styles).getId();
+        CatalogPlugin cached = requestCachedCatalog();
+        cached.getLayerGroup(sharedId);
+        counter.reset();
+        DecodeCounter decodes = new DecodeCounter();
+
+        cached.getLayerGroup(sharedId);
+
+        int distinctObjects = 1 + 2 * layers.size() + 3 + styles.size();
+        assertThat(decodes.count()).isEqualTo(distinctObjects);
+        assertThat(counter.count()).isZero();
+    }
+
+    // past the cap of the cache of the request, the references are looked up below it, and one lookup shares them
+    @Test
+    void fullCacheDecodesOncePerLookup() {
+        List<StyleInfo> styles = addStyles("shared", 10);
+        List<LayerInfo> layers = addLayersOnOneStore("shared", styles);
+        String sharedId = addGroup("shared", layers, styles).getId();
+        CatalogPlugin cached = requestCachedCatalog();
+        cached.getLayerGroup(sharedId);
+        RequestCacheScope.open(1);
+        RequestCache full = RequestCacheScope.current();
+        // a lookup finding nothing takes the one entry of the cache
+        cached.getWorkspaceByName("missing");
+        counter.reset();
+        DecodeCounter decodes = new DecodeCounter();
+
+        cached.getLayerGroup(sharedId);
+
+        int distinctObjects = 1 + 2 * layers.size() + 3 + styles.size();
+        assertThat(full.rejected()).isPositive();
+        assertThat(decodes.count()).isEqualTo(distinctObjects);
+        assertThat(counter.count()).isZero();
+    }
+
+    @Test
+    void secondLookupReturnsSameInstance() {
+        CatalogPlugin cached = requestCachedCatalog();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+
+        LayerInfo first = ModificationProxy.unwrap(cached.getLayer(layerId));
+        LayerInfo second = ModificationProxy.unwrap(cached.getLayer(layerId));
+
+        assertThat(second).isSameAs(first);
+    }
+
+    // the lookup of the old name was cached before the rename
+    @Test
+    void requestWriteVisibleInRequest() {
+        CatalogPlugin cached = requestCachedCatalog();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        cached.getLayerByName("ws:l1");
+
+        renameResource(cached, "ws:l1", "renamed");
+
+        LayerInfo byOldName = cached.getLayerByName("ws:l1");
+        LayerInfo byNewName = cached.getLayerByName("ws:renamed");
+        assertThat(byOldName).isNull();
+        assertThat(byNewName).extracting(LayerInfo::getId).isEqualTo(layerId);
+    }
+
+    // outside a request, as for a GWC seed, a listing opens a cache for itself and closes it with its stream
+    @Test
+    void listingOpensItsOwnScope() {
+        CatalogPlugin cached = requestCachedCatalog();
+        RequestCache listingCache;
+
+        try (CloseableIterator<LayerInfo> layers = cached.list(LayerInfo.class, Filter.INCLUDE)) {
+            layers.next();
+            listingCache = RequestCacheScope.current();
+            assertThat(listingCache).isNotNull();
+            assertThat(listingCache.isDead()).isFalse();
+        }
+
+        assertThat(listingCache.isDead()).isTrue();
+        assertThat(RequestCacheScope.current()).isNull();
+    }
+
+    // the listing does not cache the listed layer: the first lookup reads its row, and decodes the layer with the
+    // resource, store, workspace, namespace and style of the row
+    @Test
+    void listedLayerDecodedOnLookup() {
+        CatalogPlugin cached = requestCachedCatalog();
+
+        try (CloseableIterator<LayerInfo> layers = cached.list(LayerInfo.class, Filter.INCLUDE)) {
+            LayerInfo listed = ModificationProxy.unwrap(layers.next());
+            DecodeCounter decodes = new DecodeCounter();
+
+            LayerInfo found = ModificationProxy.unwrap(cached.getLayer(listed.getId()));
+            long decodedByFirstLookup = decodes.count();
+            decodes.reset();
+            LayerInfo again = ModificationProxy.unwrap(cached.getLayer(listed.getId()));
+
+            assertResolved(found);
+            assertThat(decodedByFirstLookup).isEqualTo(6);
+            assertThat(again).isSameAs(found);
+            assertThat(decodes.count()).isZero();
+        }
+    }
+
+    @Test
+    void listingKeepsRequestScope() {
+        CatalogPlugin cached = requestCachedCatalog();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        RequestCache requestCache = RequestCacheScope.current();
+
+        try (CloseableIterator<LayerInfo> layers = cached.list(LayerInfo.class, Filter.INCLUDE)) {
+            layers.next();
+            assertThat(RequestCacheScope.current()).isSameAs(requestCache);
+        }
+
+        assertThat(RequestCacheScope.current()).isSameAs(requestCache);
+        assertThat(requestCache.isDead()).isFalse();
+    }
+
     // 1 for the group row, 1 for the members of the group and of its style, 1 for the styles of both
     @Test
     void groupStylesArriveResolved() {
@@ -387,6 +681,62 @@ class PgconfigCatalogFacadeIT {
         assertThat(counter.count()).isEqualTo(2);
         LayerGroupInfo nested = (LayerGroupInfo) parent.getLayers().get(0);
         assertThat(nested.getLayers().get(0)).isSameAs(parent.getLayers().get(1));
+    }
+
+    // the parent lists l1 before the nested group, and the nested group finds the l1 resolved for the parent
+    @Test
+    void memberBeforeNestedDecodedOnce() {
+        LayerInfo l1 = catalog.getLayer(layerId);
+        LayerGroupInfo child = addGroup("child", List.of(l1));
+        String parentId = addGroup("parent", List.of(l1, child)).getId();
+        CatalogPlugin cached = requestCachedCatalog();
+        cached.getLayerGroup(parentId);
+        counter.reset();
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        DecodeCounter decodes = new DecodeCounter();
+
+        LayerGroupInfo parent = ModificationProxy.unwrap(cached.getLayerGroup(parentId));
+
+        LayerGroupInfo nested = (LayerGroupInfo) parent.getLayers().get(1);
+        // the parent, l1 with its resource, store, workspace, namespace and style, the nested group
+        assertThat(decodes.count()).isEqualTo(8);
+        assertThat(counter.count()).isZero();
+        assertThat(nested.getLayers().get(0)).isSameAs(parent.getLayers().get(0));
+    }
+
+    // the parent lists l1 after the nested group: the nested group decodes l1 first, and the request keeps that
+    // instance
+    @Test
+    void memberAfterNestedOneInstance() {
+        LayerInfo l1 = catalog.getLayer(layerId);
+        LayerGroupInfo child = addGroup("child", List.of(l1));
+        String parentId = addGroup("parent", List.of(child, l1)).getId();
+        CatalogPlugin cached = requestCachedCatalog();
+        cached.getLayerGroup(parentId);
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+
+        LayerGroupInfo parent = ModificationProxy.unwrap(cached.getLayerGroup(parentId));
+        LayerInfo kept = ModificationProxy.unwrap(cached.getLayer(layerId));
+
+        LayerGroupInfo nested = (LayerGroupInfo) parent.getLayers().get(0);
+        assertThat(nested.getLayers().get(0)).isSameAs(parent.getLayers().get(1));
+        assertThat(kept).isSameAs(parent.getLayers().get(1));
+    }
+
+    // without the entity cache, a query of members releases its connection before the members are resolved
+    @Test
+    void nestedGroupHoldsOneConnection() {
+        String containerId = addNestedGroups();
+        CatalogPlugin uncached = new CatalogPlugin();
+        PgconfigCatalogFacade facade = new PgconfigCatalogFacade(new JdbcTemplate(counter.dataSource()));
+        uncached.setFacade(PgconfigBackendBuilder.requestCaching(facade));
+        RequestCacheScope.open(REQUEST_CACHE_SIZE);
+        counter.reset();
+
+        LayerGroupInfo container = uncached.getLayerGroup(containerId);
+
+        assertThat(container.getLayers()).hasSize(3);
+        assertThat(counter.mostOpenConnections()).isOne();
     }
 
     // the 3 children share their members and their style: the first child loads them for the others
@@ -487,6 +837,48 @@ class PgconfigCatalogFacadeIT {
         return cached;
     }
 
+    /**
+     * A second catalog on the same database, with an entity cache and the cache of the request, as the backend
+     * configuration builds it.
+     */
+    private CatalogPlugin requestCachedCatalog() {
+        CatalogPlugin cached = new CatalogPlugin();
+        JdbcTemplate template = new JdbcTemplate(counter.dataSource());
+        PgconfigCatalogFacade facade = new PgconfigCatalogFacade(template, newEntityCache());
+        RequestCachingCatalogFacade requestCaching = PgconfigBackendBuilder.requestCaching(facade);
+        cached.setFacade(requestCaching);
+        return cached;
+    }
+
+    /** Wraps the outbound resolver of the pgconfig chain of the catalog with a counter of its calls. */
+    private static AtomicInteger countResolverPasses(CatalogPlugin target) {
+        ResolvingCatalogFacadeDecorator resolving = resolvingDecorator(target.getRawFacade());
+        UnaryOperator<CatalogInfo> resolver = resolving.getOutboundResolver();
+        AtomicInteger passes = new AtomicInteger();
+        resolving.setOutboundResolver(info -> {
+            passes.incrementAndGet();
+            return resolver.apply(info);
+        });
+        return passes;
+    }
+
+    /** The resolving decorator of a pgconfig chain, above or below the cache of the request. */
+    private static ResolvingCatalogFacadeDecorator resolvingDecorator(CatalogFacade chain) {
+        CatalogFacade facade = chain;
+        while (!(facade instanceof ResolvingCatalogFacadeDecorator)) {
+            ForwardingCatalogFacade forwarding = (ForwardingCatalogFacade) facade;
+            facade = forwarding.getSubject();
+        }
+        return (ResolvingCatalogFacadeDecorator) facade;
+    }
+
+    /** Renames a resource through the catalog: its layer takes the new name. */
+    private void renameResource(Catalog target, String prefixedName, String newName) {
+        FeatureTypeInfo resource = target.getResourceByName(prefixedName, FeatureTypeInfo.class);
+        resource.setName(newName);
+        target.save(resource);
+    }
+
     private static EntityCache newEntityCache() {
         EntityCache cache = new EntityCache("gs-catalog", 1024 * 1024, Duration.ofSeconds(30), new NoopCodec());
         cache.setInitialized(true);
@@ -517,14 +909,6 @@ class PgconfigCatalogFacadeIT {
         try (Stream<T> found = source.findAllById(ids, type)) {
             return found.toList();
         }
-    }
-
-    private List<String> addLayersFor(String prefix, int count) {
-        List<String> ids = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            ids.add(addLayer("%s-%d".formatted(prefix, i)).getId());
-        }
-        return ids;
     }
 
     /** Reads the layers through the chain of a caller, with an empty cache. */
@@ -619,6 +1003,19 @@ class PgconfigCatalogFacadeIT {
         return catalog.getLayerByName("%s:%s".formatted(workspaceName, name));
     }
 
+    /**
+     * Adds a layer of a feature type in the namespace {@code prefix}, on a store of the workspace {@code workspace}.
+     */
+    private LayerInfo addLayerInNamespace(String workspaceName, String prefix, String name) {
+        DataStoreInfo store = addStore(workspaceName, "%s-%s-store".formatted(prefix, name));
+        FeatureTypeInfo ft = addFeatureType(store, name, prefix);
+        LayerInfo layer = catalog.getFactory().createLayer();
+        layer.setResource(ft);
+        layer.setDefaultStyle(catalog.getStyleByName("s1"));
+        catalog.add(layer);
+        return catalog.getLayers(ft).get(0);
+    }
+
     private StyleInfo addStyle(String workspaceName, String name) {
         StyleInfo style = catalog.getFactory().createStyle();
         style.setName(name);
@@ -663,7 +1060,10 @@ class PgconfigCatalogFacadeIT {
 
     /** Adds a feature type in the namespace of the workspace of the store. */
     private FeatureTypeInfo addFeatureType(DataStoreInfo store, String name) {
-        String prefix = store.getWorkspace().getName();
+        return addFeatureType(store, name, store.getWorkspace().getName());
+    }
+
+    private FeatureTypeInfo addFeatureType(DataStoreInfo store, String name, String prefix) {
         FeatureTypeInfo ft = catalog.getFactory().createFeatureType();
         ft.setName(name);
         ft.setNativeName(name);
@@ -767,6 +1167,20 @@ class PgconfigCatalogFacadeIT {
 
     private Filter layersWithStyleOf(String workspaceName) {
         return workspaceNameIs(layer -> layer.getDefaultStyle().getWorkspace(), workspaceName);
+    }
+
+    /** Compares the name of the first member of a group, in memory: SQL cannot run a function written in Java. */
+    private Filter firstMemberNamed(String memberName) {
+        Expression nameOfFirstMember = new InternalVolatileFunction() {
+            @Override
+            public Object evaluate(Object info) {
+                LayerGroupInfo group = (LayerGroupInfo) info;
+                PublishedInfo first = group.getLayers().getFirst();
+                return first.getName();
+            }
+        };
+        FilterFactory factory = Predicates.factory;
+        return factory.equals(nameOfFirstMember, factory.literal(memberName));
     }
 
     /** Compares the name of a workspace read from a layer, in memory: SQL cannot run a function written in Java. */

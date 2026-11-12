@@ -51,7 +51,16 @@ public class EntityCacheProperties {
         /** Whether a request keeps its decoded objects until it ends. */
         private boolean enabled = true;
 
-        /** Maximum number of objects kept by the cache of one request. */
-        private int maxEntries = 10_000;
+        /**
+         * Maximum number of objects kept by the cache of one request. The request keeps the objects it looked up and
+         * the references it resolved, not the objects it listed.
+         */
+        private int maxEntries = 8_000;
+
+        /**
+         * Maximum number of objects kept by the caches of the requests in flight together, in one service instance.
+         * Past it, the requests look objects up without keeping them, as past the maximum of one request.
+         */
+        private int maxTotalEntries = 100_000;
     }
 }
