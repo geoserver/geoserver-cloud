@@ -8,6 +8,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.geoserver.cloud.event.info.ConfigInfoType.LAYER;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.micrometer.core.instrument.FunctionCounter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tags;
@@ -50,6 +52,20 @@ class EntityCacheMetricsTest {
 
         FunctionCounter puts = registry.get("cache.puts").tags(TAGS).functionCounter();
         assertThat(puts.count()).isEqualTo(2);
+    }
+
+    @Test
+    void noWeightGaugeForCountBound() {
+        Cache<String, String> counted =
+                Caffeine.newBuilder().maximumSize(10).recordStats().build();
+        EntityCacheMetrics metrics = new EntityCacheMetrics("counted", counted);
+
+        metrics.bindTo(registry);
+
+        assertThat(registry.find("cache.gets").tag("name", "counted").functionCounters())
+                .isNotEmpty();
+        assertThat(registry.find("cache.weight").tag("name", "counted").gauges())
+                .isEmpty();
     }
 
     private void bindMetrics() {

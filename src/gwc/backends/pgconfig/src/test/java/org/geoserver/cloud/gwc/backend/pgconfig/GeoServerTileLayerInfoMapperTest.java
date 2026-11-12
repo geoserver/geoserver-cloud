@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfo.ParamFilter;
 import org.geoserver.config.plugin.GeoServerImpl;
@@ -65,6 +66,22 @@ class GeoServerTileLayerInfoMapperTest {
     void testDefaults() {
         GeoServerTileLayerInfoImpl roundtripped = roundtripTest();
         assertThat(roundtripped).isEqualTo(info);
+    }
+
+    // the caller may change the info: the settings stay as they are
+    @Test
+    void toInfoNewPerCall() {
+        PublishedInfo layer = tileLayer.getPublishedInfo();
+        TileLayerInfo settings = mapper.map(info);
+
+        GeoServerTileLayerInfoImpl first = mapper.toInfo(settings, layer);
+        first.getGridSubsets().forEach(subset -> subset.setZoomStart(7));
+        first.setEnabled(!info.isEnabled());
+        GeoServerTileLayerInfoImpl second = mapper.toInfo(settings, layer);
+
+        assertThat(second).isNotSameAs(first).isEqualTo(info);
+        assertThat(second.getId()).isEqualTo(layer.getId());
+        assertThat(second.getName()).isEqualTo(layer.prefixedName());
     }
 
     @Test
@@ -231,6 +248,6 @@ class GeoServerTileLayerInfoMapperTest {
 
     private GeoServerTileLayerInfoImpl roundtripTest(GeoServerTileLayer layer) {
         TileLayerInfo pgInfo = mapper.map(layer);
-        return mapper.map(pgInfo);
+        return mapper.toInfo(pgInfo, layer.getPublishedInfo());
     }
 }

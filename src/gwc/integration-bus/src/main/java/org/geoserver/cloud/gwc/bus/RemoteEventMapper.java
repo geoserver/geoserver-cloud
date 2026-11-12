@@ -15,6 +15,7 @@ import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.ReportingPolicy;
 
@@ -45,18 +46,22 @@ interface RemoteEventMapper {
         };
     }
 
+    @Mapping(target = "remote", constant = "true")
     TileLayerEvent toLocal(RemoteTileLayerEvent remote, @Context Object source);
 
     RemoteTileLayerEvent toRemote(TileLayerEvent local, @Context Object source, @Context String originService);
 
+    @Mapping(target = "remote", constant = "true")
     GridsetEvent toLocal(RemoteGridsetEvent remote, @Context Object source);
 
     RemoteGridsetEvent toRemote(GridsetEvent local, @Context Object source, @Context String originService);
 
+    @Mapping(target = "remote", constant = "true")
     BlobStoreEvent toLocal(RemoteBlobStoreEvent remote, @Context Object source);
 
     RemoteBlobStoreEvent toRemote(BlobStoreEvent local, @Context Object source, @Context String originService);
 
+    @Mapping(target = "remote", constant = "true")
     ConfigChangeEvent toLocal(RemoteConfigChangeEvent remote, @Context Object source);
 
     RemoteConfigChangeEvent toRemote(ConfigChangeEvent local, @Context Object source, @Context String originService);

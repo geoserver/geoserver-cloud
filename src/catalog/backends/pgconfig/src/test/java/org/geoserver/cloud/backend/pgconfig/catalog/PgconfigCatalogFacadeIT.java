@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.geoserver.catalog.CatalogFacade.NO_WORKSPACE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.LAYER;
@@ -144,6 +145,24 @@ class PgconfigCatalogFacadeIT {
         List<PublishedInfo> found = findAll(ids, PublishedInfo.class);
         assertThat(found).extracting(PublishedInfo::getId).containsExactlyInAnyOrder(layerId, layer2Id, groupId);
         assertThat(counter.count()).isEqualTo(2);
+    }
+
+    // the rows bring the GWC settings of their layers and groups: empty for an object without tile layer
+    @Test
+    void bulkFetchBringsTileLayers() {
+        db.getTemplate()
+                .update("UPDATE publishedinfo SET tilelayer = ?::jsonb WHERE id = ?", "{\"enabled\":true}", layerId);
+        EntityCache cache = newEntityCache();
+        PgconfigCatalogFacade cold = new PgconfigCatalogFacade(new JdbcTemplate(counter.dataSource()), cache);
+        counter.reset();
+
+        List<PublishedInfo> found = findAll(cold, List.of(layerId, layer2Id, groupId), PublishedInfo.class);
+
+        assertThat(found).hasSize(3);
+        assertThat(counter.count()).isEqualTo(1);
+        assertThat(cachedTileLayer(cache, layerId)).isEqualTo("{\"enabled\": true}");
+        assertThat(cachedTileLayer(cache, layer2Id)).isEmpty();
+        assertThat(cachedTileLayer(cache, groupId)).isEmpty();
     }
 
     @Test
@@ -922,6 +941,14 @@ class PgconfigCatalogFacadeIT {
         return ids.stream()
                 .filter(id -> cache.contains(CacheKey.entity(LAYER, id)))
                 .count();
+    }
+
+    /** The JSON of the GWC settings of an object held by the cache, null if the cache does not hold them. */
+    private static @Nullable String cachedTileLayer(EntityCache cache, String id) {
+        if (cache.lookup(CacheKey.tileLayer(id)) instanceof Lookup.Hit hit) {
+            return new String(hit.json(), UTF_8);
+        }
+        return null;
     }
 
     private String nameOrNull(StyleInfo style) {

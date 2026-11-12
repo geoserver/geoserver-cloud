@@ -181,6 +181,14 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
     }
 
     /**
+     * The columns selected by {@link #findAllById(List, Class)}. They default to {@link #getReturnColumns()}. A
+     * repository may add columns left out of listings, as for {@link #getLookupColumns()}.
+     */
+    protected String getBulkColumns() {
+        return getReturnColumns();
+    }
+
+    /**
      * Creates a new {@link RowMapper}, potentially stateful, so a new one has to be created for each operation (e.g.
      * {@code find*} methods).
      */
@@ -551,7 +559,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
         if (cacheInUse()) {
             return findAllCached(ids, type);
         }
-        String query = select("WHERE id = ANY(?)");
+        String query = selectForBulk("WHERE id = ANY(?)");
         // cast to Object because varargs would spread the array into one parameter per id
         return queryForStream(type, query, (Object) ids.toArray(String[]::new));
     }
@@ -582,7 +590,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
         List<T> fetched;
         // cast to Object because varargs would spread the array into one parameter per id
         Object idsParameter = ids.toArray(String[]::new);
-        try (Stream<T> rows = template.queryForStream(select("WHERE id = ANY(?)"), rowMapper, idsParameter)) {
+        try (Stream<T> rows = template.queryForStream(selectForBulk("WHERE id = ANY(?)"), rowMapper, idsParameter)) {
             fetched = rows.filter(Objects::nonNull).toList();
         }
         cache.rememberMissing(ids, fetched, type, epochSeen);
@@ -804,6 +812,11 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
     /** Like {@link #select(String)}, with the columns of {@link #getLookupColumns()}. */
     protected String selectForLookup(String predicate) {
         return selectColumns(getLookupColumns(), predicate);
+    }
+
+    /** Like {@link #select(String)}, with the columns of {@link #getBulkColumns()}. */
+    private String selectForBulk(String predicate) {
+        return selectColumns(getBulkColumns(), predicate);
     }
 
     /** The SQL selecting the columns from the query table, with the predicate and the clauses after it. */

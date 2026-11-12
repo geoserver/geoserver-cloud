@@ -11,8 +11,8 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 
 /**
- * Enables Spring caching in the GeoServer services. The tile layer catalog, PMTiles and GeoServer ACL keep their caches
- * in the Spring {@link CacheManager} configured by {@code geoserver_spring_boot_profiles.yml}. Spring Boot creates this
+ * Enables Spring caching in the GeoServer services. PMTiles and GeoServer ACL keep their caches in the Spring
+ * {@link CacheManager} configured by {@code geoserver_spring_boot_profiles.yml}. Spring Boot creates this
  * {@code CacheManager} only when caching is enabled.
  *
  * <p>The config and gateway services do not include GeoServer, and their load balancer manages its own cache.

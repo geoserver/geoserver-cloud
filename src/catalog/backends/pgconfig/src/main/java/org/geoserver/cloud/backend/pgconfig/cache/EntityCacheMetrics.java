@@ -12,11 +12,13 @@ import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.BaseUnits;
 import io.micrometer.core.instrument.binder.MeterBinder;
 import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
+import java.util.Optional;
 import lombok.NonNull;
 
 /**
- * Registers the statistics of an {@link EntityCache}, or of another Caffeine cache bounded by weight, with Micrometer:
- * the meters of {@link CaffeineCacheMetrics}, such as {@code cache.gets}, and a {@code cache.weight} gauge in bytes.
+ * Registers the statistics of an {@link EntityCache}, or of another Caffeine cache, with Micrometer: the meters of
+ * {@link CaffeineCacheMetrics}, such as {@code cache.gets}, and a {@code cache.weight} gauge in bytes for a cache
+ * bounded by weight.
  *
  * <p>The meters have the names and tag keys used by Spring Boot for the caches of a cache manager, for the dashboards
  * built on those: {@code cache} and {@code name} hold the name of the cache, and {@code cache.manager} holds
@@ -42,7 +44,7 @@ public class EntityCacheMetrics implements MeterBinder {
         this(cache.name(), cache.caffeine());
     }
 
-    /** @param caffeine a cache built with a maximum weight, as required by the {@code cache.weight} gauge */
+    /** @param caffeine the cache; a cache built with a maximum weight also gets the {@code cache.weight} gauge */
     public EntityCacheMetrics(@NonNull String name, @NonNull Cache<?, ?> caffeine) {
         this.name = name;
         this.caffeine = caffeine;
@@ -61,7 +63,16 @@ public class EntityCacheMetrics implements MeterBinder {
     @Override
     public void bindTo(MeterRegistry registry) {
         CaffeineCacheMetrics.monitor(registry, caffeine, name, cacheManagerTags(name));
-        registerWeightGauge(registry, caffeine, gaugeTags(name));
+        if (boundedByWeight(caffeine)) {
+            registerWeightGauge(registry, caffeine, gaugeTags(name));
+        }
+    }
+
+    // A cache bounded by a number of entries has no weight to report
+    private static boolean boundedByWeight(Cache<?, ?> caffeine) {
+        Policy<?, ?> policy = caffeine.policy();
+        Optional<Boolean> weighted = policy.eviction().map(Policy.Eviction::isWeighted);
+        return weighted.orElse(false);
     }
 
     private static void registerWeightGauge(MeterRegistry registry, Cache<?, ?> caffeine, Tags tags) {

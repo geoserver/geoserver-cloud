@@ -23,6 +23,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /** @since 1.4 */
 public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<LayerInfo> implements LayerRepository {
 
+    private static final String COLUMNS_WITH_TILE_LAYER =
+            CatalogInfoRowMapper.LAYERINFO_BUILD_COLUMNS + ", " + CatalogInfoRowMapper.TILE_LAYER_COLUMN;
+
     /** @param template */
     public PgconfigLayerRepository(@NonNull JdbcTemplate template, @NonNull PgconfigStyleRepository styleLoader) {
         super(LayerInfo.class, template, styleLoader);
@@ -31,6 +34,18 @@ public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<Lay
     @Override
     protected String getReturnColumns() {
         return CatalogInfoRowMapper.LAYERINFO_BUILD_COLUMNS;
+    }
+
+    /** The lookups of one layer also select its GWC settings, by id and by name. */
+    @Override
+    protected String getLookupColumns() {
+        return COLUMNS_WITH_TILE_LAYER;
+    }
+
+    /** The bulk lookups by id also select the GWC settings of the layers. */
+    @Override
+    protected String getBulkColumns() {
+        return COLUMNS_WITH_TILE_LAYER;
     }
 
     @Override
@@ -75,14 +90,14 @@ public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<Lay
             // two options here, it's either a prefixed name like in <workspace>:<name>, or the
             // ResourceInfo name actually contains a colon
             Optional<LayerInfo> found =
-                    findOne(sql.formatted(getReturnColumns(), getQueryTable(), "prefixedName"), possiblyPrefixedName);
+                    findOne(sql.formatted(getLookupColumns(), getQueryTable(), "prefixedName"), possiblyPrefixedName);
             if (found.isPresent()) {
                 return found;
             }
         }
 
         // no colon in name or name actually contains a colon
-        return findOne(sql.formatted(getReturnColumns(), getQueryTable(), "name"), possiblyPrefixedName);
+        return findOne(sql.formatted(getLookupColumns(), getQueryTable(), "name"), possiblyPrefixedName);
     }
 
     @Override

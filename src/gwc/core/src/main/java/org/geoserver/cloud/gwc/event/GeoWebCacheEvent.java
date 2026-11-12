@@ -33,6 +33,9 @@ public abstract class GeoWebCacheEvent extends ApplicationEvent {
     private @NonNull @Getter @Setter Type eventType;
     private @Getter @Setter String id;
 
+    /** True on the local copy of an event received from another service instance. */
+    private @Getter @Setter boolean remote;
+
     protected GeoWebCacheEvent(Object source) {
         this(source, null);
     }

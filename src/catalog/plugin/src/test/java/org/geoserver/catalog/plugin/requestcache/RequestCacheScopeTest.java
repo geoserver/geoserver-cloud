@@ -5,6 +5,7 @@
 package org.geoserver.catalog.plugin.requestcache;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -148,6 +149,30 @@ class RequestCacheScopeTest {
         assertThat(opened.isDead()).isTrue();
         assertThat(other.isDead()).isFalse();
         assertThat(RequestCacheScope.current()).isSameAs(other);
+    }
+
+    // objects kept beyond the request must not come from its cache
+    @Test
+    void withoutCacheRestoresCache() {
+        RequestCacheScope.open(10);
+        RequestCache cache = RequestCacheScope.current();
+
+        RequestCache duringAction = RequestCacheScope.withoutCache(RequestCacheScope::current);
+
+        assertThat(duringAction).isNull();
+        assertThat(RequestCacheScope.current()).isSameAs(cache);
+        assertThat(cache.isDead()).isFalse();
+    }
+
+    @Test
+    void withoutCacheRestoresOnError() {
+        RequestCacheScope.open(10);
+        RequestCache cache = RequestCacheScope.current();
+
+        assertThatIllegalStateException()
+                .isThrownBy(() -> RequestCacheScope.withoutCache(RequestCacheScopeTest::failInAction));
+
+        assertThat(RequestCacheScope.current()).isSameAs(cache);
     }
 
     @Test
@@ -647,6 +672,10 @@ class RequestCacheScopeTest {
 
     private static void failToListen(RequestCache cache) {
         throw new IllegalStateException("listener failed");
+    }
+
+    private static Object failInAction() {
+        throw new IllegalStateException("action failed");
     }
 
     /** Keeps the events of a logger in memory during a test, and keeps them off the console. */

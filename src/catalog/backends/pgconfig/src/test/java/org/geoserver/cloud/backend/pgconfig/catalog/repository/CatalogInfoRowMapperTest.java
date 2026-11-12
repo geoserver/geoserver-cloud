@@ -140,6 +140,8 @@ class CatalogInfoRowMapperTest {
             {"id": "LayerGroupInfo-basemap", "mode": "SINGLE", "name": "basemap", "@type": "LayerGroupInfo", \
             "layers": ["LayerInfo-01M6MHWGZJH051H0ZNCN68FDMN"], "styles": [null], "workspace": null}""";
 
+    private static final String TILE_LAYER_JSON = "{\"enabled\":true}";
+
     private static final String MEMBER_TEMPLATE =
             """
             {"@type": "%s", "publishedinfo": %s, "workspace": %s, "namespace": %s, "store": %s, "resource": %s, \
@@ -295,6 +297,23 @@ class CatalogInfoRowMapperTest {
         verify(rs, times(1)).getMetaData();
     }
 
+    // NULL is a layer without tile layer, and a listing does not select the column
+    @Test
+    void decomposesTileLayerColumn() throws SQLException {
+        Map<String, String> withTileLayer = layerRow();
+        withTileLayer.put("tilelayer", TILE_LAYER_JSON);
+        Map<String, String> withoutTileLayer = layerRow();
+        withoutTileLayer.put("tilelayer", null);
+
+        List<CacheEntry> json = tileLayerEntries(mapper.decompose(resultSet(withTileLayer)));
+        List<CacheEntry> empty = tileLayerEntries(mapper.decompose(resultSet(withoutTileLayer)));
+        List<CacheEntry> notSelected = tileLayerEntries(mapper.decompose(resultSet(layerRow())));
+
+        assertThat(json).containsExactly(CacheEntry.tileLayer(LAYER_ID, TILE_LAYER_JSON.getBytes(UTF_8)));
+        assertThat(empty).containsExactly(CacheEntry.tileLayer(LAYER_ID, new byte[0]));
+        assertThat(notSelected).isEmpty();
+    }
+
     // the row holds the workspace of the layer, not the one of its default style
     @Test
     void styleOfOtherWorkspaceIsUnnamed() throws SQLException {
@@ -427,6 +446,12 @@ class CatalogInfoRowMapperTest {
         return entries.stream()
                 .map(CacheEntry::key)
                 .filter(key -> key.kind() == kind)
+                .toList();
+    }
+
+    private static List<CacheEntry> tileLayerEntries(List<CacheEntry> entries) {
+        return entries.stream()
+                .filter(entry -> entry.key().kind() == Kind.TILE_LAYER)
                 .toList();
     }
 

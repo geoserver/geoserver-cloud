@@ -27,6 +27,7 @@ class EntityCachePropertiesTest {
         assertThat(properties.getCompression()).isEqualTo(Compression.ZSTD);
         assertThat(properties.getMissTtl()).isEqualTo(Duration.ofSeconds(30));
         assertThat(properties.isListingWriteThrough()).isFalse();
+        assertThat(properties.getTileLayers()).isEqualTo(1_000);
         assertThat(properties.getRequest().isEnabled()).isTrue();
         assertThat(properties.getRequest().getMaxEntries()).isEqualTo(8_000);
         assertThat(properties.getRequest().getMaxTotalEntries()).isEqualTo(100_000);
@@ -50,6 +51,7 @@ class EntityCachePropertiesTest {
                 PREFIX + ".max-heap-percent", "2",
                 PREFIX + ".miss-ttl", "5s",
                 PREFIX + ".listing-write-through", "true",
+                PREFIX + ".tile-layers", "10",
                 PREFIX + ".request.max-entries", "50",
                 PREFIX + ".request.max-total-entries", "500");
         Binder binder = new Binder(new MapConfigurationPropertySource(values));
@@ -61,6 +63,7 @@ class EntityCachePropertiesTest {
         assertThat(properties.getMaxHeapPercent()).isEqualTo(2);
         assertThat(properties.getMissTtl()).isEqualTo(Duration.ofSeconds(5));
         assertThat(properties.isListingWriteThrough()).isTrue();
+        assertThat(properties.getTileLayers()).isEqualTo(10);
         assertThat(properties.getRequest().getMaxEntries()).isEqualTo(50);
         assertThat(properties.getRequest().getMaxTotalEntries()).isEqualTo(500);
     }

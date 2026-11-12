@@ -30,7 +30,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.cache.autoconfigure.CacheAutoConfiguration;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -67,10 +66,7 @@ class PgconfigDiskQuotaAutoConfigurationIT {
                         PgconfigBackendAutoConfiguration.class,
                         PgconfigDataSourceAutoConfiguration.class,
                         PgconfigTransactionManagerAutoConfiguration.class,
-                        PgconfigMigrationAutoConfiguration.class,
-                        CacheAutoConfiguration.class))
-                // as set for the services by geoserver_spring_boot_profiles.yml
-                .withPropertyValues("spring.cache.type=caffeine");
+                        PgconfigMigrationAutoConfiguration.class));
         runner = db.withJdbcUrlConfig(runner);
     }
 
