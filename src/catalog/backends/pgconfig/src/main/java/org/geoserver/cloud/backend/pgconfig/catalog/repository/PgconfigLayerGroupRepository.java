@@ -5,8 +5,11 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -17,11 +20,18 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
 import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
+import org.geoserver.cloud.backend.pgconfig.cache.PutBudget;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /** @since 1.4 */
 public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepository<LayerGroupInfo>
         implements LayerGroupRepository {
+
+    /** The most groups read by one query of {@link #warmUp(BooleanSupplier, PutBudget)}. */
+    static final int WARM_UP_PAGE_SIZE = 100;
+
+    // The empty id sorts before the ids of the groups
+    private static final String BEFORE_FIRST_ID = "";
 
     /** @param template */
     public PgconfigLayerGroupRepository(@NonNull JdbcTemplate template, @NonNull PgconfigStyleRepository styleLoader) {
@@ -84,6 +94,61 @@ public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepositor
         return super.queryForStream(select(predicate), workspace.getId());
     }
 
+    /**
+     * Puts the groups in the entity cache with their members, ahead of their lookups. The access checks look up the
+     * groups containing a layer by id, and each lookup missing the cache runs a query of its own.
+     *
+     * <p>The groups are read in pages ordered by id, with the columns of the lookup of one group, members included.
+     * Their rows are put without decoding their objects. The puts of a page take the epoch read before its query: an
+     * eviction during the query drops them. The warm-up stops after the last page, when cancelled, once the budget is
+     * spent, or when the cache is not in use, as during a reload. Without a cache, it runs nothing.
+     *
+     * @param cancelled answers true when the caller no longer needs the warm-up, checked before each page
+     * @param budget bounds the weight put in the cache, bound to the thread during the warm-up
+     * @return the number of groups put
+     */
+    public int warmUp(@NonNull BooleanSupplier cancelled, @NonNull PutBudget budget) {
+        try (PutBudget.Binding binding = budget.bind()) {
+            return warmUpPages(cancelled, budget);
+        }
+    }
+
+    private int warmUpPages(BooleanSupplier cancelled, PutBudget budget) {
+        int groupsPut = 0;
+        String lastId = BEFORE_FIRST_ID;
+        boolean morePages = true;
+        while (morePages && canWarmUp(cancelled, budget)) {
+            WarmUpPage page = warmUpPageAfter(lastId);
+            groupsPut += page.groupsPut();
+            lastId = page.lastId();
+            morePages = page.isFull();
+        }
+        return groupsPut;
+    }
+
+    // A suspended cache ignores puts
+    private boolean canWarmUp(BooleanSupplier cancelled, PutBudget budget) {
+        return cacheInUse() && !budget.isSpent() && !cancelled.getAsBoolean();
+    }
+
+    private WarmUpPage warmUpPageAfter(String lastId) {
+        WarmUpPage page = new WarmUpPage(lastId);
+        putRows(warmUpQuery(), page::add, lastId, WARM_UP_PAGE_SIZE);
+        return page;
+    }
+
+    /**
+     * The groups after an id, with their id for the next page and the columns of the lookup of one group, members
+     * included.
+     */
+    private String warmUpQuery() {
+        String predicate =
+                """
+                WHERE "@type" = 'LayerGroupInfo' AND id > ? ORDER BY id LIMIT ?
+                """;
+        return selectColumns("id, " + getLookupColumns(), predicate);
+    }
+
     @Override
     protected String encode(LayerGroupInfo info) {
         if (info != null) {
@@ -104,5 +169,38 @@ public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepositor
             }
         }
         return s;
+    }
+
+    /** A page of the warm-up: the id of its last row, the rows read and the groups put. */
+    private static final class WarmUpPage {
+
+        private String lastId;
+        private int rows;
+        private int groupsPut;
+
+        WarmUpPage(String afterId) {
+            this.lastId = afterId;
+        }
+
+        void add(ResultSet rs, boolean stored) throws SQLException {
+            lastId = rs.getString("id");
+            rows++;
+            if (stored) {
+                groupsPut++;
+            }
+        }
+
+        String lastId() {
+            return lastId;
+        }
+
+        int groupsPut() {
+            return groupsPut;
+        }
+
+        // A page with fewer rows than the limit is the last one
+        boolean isFull() {
+            return rows == WARM_UP_PAGE_SIZE;
+        }
     }
 }

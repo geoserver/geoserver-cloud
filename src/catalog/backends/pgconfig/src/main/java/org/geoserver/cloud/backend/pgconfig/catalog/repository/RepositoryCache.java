@@ -29,7 +29,7 @@ import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The {@link EntityCache} as a repository uses it: the cache side of the lookups, listings and writes of the
+ * The {@link EntityCache} as a repository uses it: the cache side of the lookups, listings, warm-ups and writes of the
  * repository. The repository keeps the SQL, and passes its queries as functions.
  *
  * <p>An object has a key for each of its possible types: a store looked up by id may be a data store or a coverage
@@ -191,9 +191,53 @@ final class RepositoryCache<T extends CatalogInfo> {
         if (entries.isEmpty()) {
             return null;
         }
-        long weight = putRow(entries, epochSeen);
+        long weight = putEntries(entries, epochSeen);
         budget.ifPresent(b -> b.charge(weight));
         return decode(entries.getFirst().json());
+    }
+
+    /**
+     * Puts the entries of a row in the cache without decoding its object, for a reader loading objects ahead of their
+     * lookups. The row gives the entries put by {@link #readRow}: for a group, the group, its members, their references
+     * and its GWC settings. A row that cannot be split into entries is left out of the cache.
+     *
+     * <p>The weight of the entries put is charged to the {@link PutBudget} of the thread, as for {@link #readRow}. Once
+     * the budget is spent, the row is not put.
+     *
+     * @return whether the cache stored the entry of the object of the row
+     */
+    boolean putRowOnly(CatalogInfoRowMapper<T> rowMapper, ResultSet rs, long epochSeen) {
+        Optional<PutBudget> budget = PutBudget.current();
+        if (budget.isPresent() && budget.get().isSpent()) {
+            return false;
+        }
+        if (isUncacheableRow(rowMapper, rs)) {
+            return false;
+        }
+        List<CacheEntry> entries = splitOrMarkUncacheable(rowMapper, rs);
+        if (entries.isEmpty()) {
+            return false;
+        }
+        CacheEntry objectEntry = entries.getFirst();
+        List<CacheEntry> otherEntries = entries.subList(1, entries.size());
+        long objectWeight = putEntry(objectEntry, epochSeen);
+        long weight = objectWeight + putEntries(otherEntries, epochSeen);
+        budget.ifPresent(b -> b.charge(weight));
+        return objectWeight > 0;
+    }
+
+    /**
+     * Splits a row into cache entries. A row that cannot be split gives no entries, and its object is marked as
+     * uncacheable if the key of the row can be read.
+     */
+    private List<CacheEntry> splitOrMarkUncacheable(CatalogInfoRowMapper<T> rowMapper, ResultSet rs) {
+        try {
+            return rowMapper.decompose(rs);
+        } catch (SQLException | UncheckedSqlException | IllegalArgumentException e) {
+            Optional<CacheKey> key = rowKey(rowMapper, rs);
+            key.ifPresent(found -> markUncacheable(found, e));
+            return List.of();
+        }
     }
 
     // Reading the key of a row parses its own column: it runs only while the cache holds an uncacheable object
@@ -227,14 +271,20 @@ final class RepositoryCache<T extends CatalogInfo> {
     }
 
     /**
-     * Marks the object of a row that could not be split as uncacheable. The first failure of the row logs a warning, a
-     * later one a debug line.
+     * Marks the object mapped from a row that could not be split, see {@link #markUncacheable(CacheKey, Exception)}.
      */
     private void markUncacheable(@Nullable T object, Exception splitError) {
         if (null == object) {
             return;
         }
-        CacheKey key = keyOf(object);
+        markUncacheable(keyOf(object), splitError);
+    }
+
+    /**
+     * Marks the object of a row that could not be split as uncacheable. The first failure of the row logs a warning, a
+     * later one a debug line.
+     */
+    private void markUncacheable(CacheKey key, Exception splitError) {
         boolean first = cache.markUncacheable(key);
         if (first) {
             log.warn(
@@ -247,17 +297,21 @@ final class RepositoryCache<T extends CatalogInfo> {
         }
     }
 
-    /** Stores the entries of a row read by a lookup, and returns the weight stored. */
-    private long putRow(List<CacheEntry> entries, long epochSeen) {
+    /** Stores entries of a row, and returns the weight stored. */
+    private long putEntries(List<CacheEntry> entries, long epochSeen) {
         long weight = 0;
         for (CacheEntry entry : entries) {
-            if (entry.key().holdsJson()) {
-                weight += cache.put(entry.key(), entry.json(), epochSeen);
-            } else {
-                weight += cache.putId(entry.key(), entry.id(), epochSeen);
-            }
+            weight += putEntry(entry, epochSeen);
         }
         return weight;
+    }
+
+    /** Stores an entry of a row, and returns the weight stored: 0 if the cache dropped it. */
+    private long putEntry(CacheEntry entry, long epochSeen) {
+        if (entry.key().holdsJson()) {
+            return cache.put(entry.key(), entry.json(), epochSeen);
+        }
+        return cache.putId(entry.key(), entry.id(), epochSeen);
     }
 
     /**

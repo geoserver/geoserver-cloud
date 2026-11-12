@@ -11,8 +11,8 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.LAYER;
 import java.time.Duration;
 import java.util.List;
 import org.geoserver.cloud.backend.pgconfig.cache.Lookup.Absent;
+import org.geoserver.cloud.event.bus.RemoteEventsResumed;
 import org.junit.jupiter.api.Test;
-import org.springframework.amqp.rabbit.listener.ConsumeOkEvent;
 
 class EntityCacheBusListenerTest {
 
@@ -28,7 +28,7 @@ class EntityCacheBusListenerTest {
         }
         EntityCacheBusListener listener = new EntityCacheBusListener(caches);
 
-        listener.onConsumerSubscribed(new ConsumeOkEvent(this, "geoserver.anonymous.queue", "consumer-1"));
+        listener.onRemoteEventsResumed(new RemoteEventsResumed("geoserver.anonymous.queue"));
 
         assertThat(caches).allMatch(cache -> cache.lookup(KEY) instanceof Absent, "empty");
     }
