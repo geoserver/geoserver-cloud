@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
@@ -22,6 +23,7 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.main.GeoServerMainSecurityAutoConfiguration;
 import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.security.RolesChanged;
+import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.cloud.event.security.UsersAndGroupsChanged;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
@@ -33,6 +35,7 @@ import org.geoserver.platform.resource.FileSystemWatcher;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.impl.GeoServerRole;
 import org.geoserver.security.impl.GeoServerUser;
+import org.geoserver.security.password.MasterPasswordConfig;
 import org.geoserver.security.xml.XMLRoleService;
 import org.geoserver.security.xml.XMLUserGroupService;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,6 +96,32 @@ class CloudGeoServerSecurityManagerTest {
             manager.loadRoleService(ROLE_SERVICE).createStore().store();
 
             assertThat(publishedEvents(context).all()).isEmpty();
+        });
+    }
+
+    @Test
+    void masterPasswordChangeBroadcastsAfterTheKeystoreCommit() {
+        runInitialized(context -> {
+            CloudGeoServerSecurityManager manager = securityManager(context);
+            File preparedKeyStore = new File(dataDirectory, "security/geoserver.jceks.new");
+            List<Boolean> preparedKeyStoreAtEvent = new CopyOnWriteArrayList<>();
+            publishedEvents(context).observe(event -> {
+                if (event instanceof SecurityConfigChanged) {
+                    preparedKeyStoreAtEvent.add(preparedKeyStore.exists());
+                }
+            });
+
+            changeMasterPassword(manager, "n3wM4st3rPassw0rd");
+
+            SecurityConfigChanged event = publishedEvents(context).expectOne(SecurityConfigChanged.class);
+            assertThat(event.getReason()).isEqualTo("MasterPasswordConfig changed");
+            assertThat(preparedKeyStoreAtEvent)
+                    .as("the keystore swap must be committed when the event goes out")
+                    .containsExactly(false);
+            assertThat(manager.checkMasterPassword("n3wM4st3rPassw0rd", false)).isTrue();
+            assertThatCode(() -> manager.getKeyStoreProvider().reloadKeyStore())
+                    .as("the keystore opens with the new master password")
+                    .doesNotThrowAnyException();
         });
     }
 
@@ -173,6 +202,12 @@ class CloudGeoServerSecurityManagerTest {
 
     private void addUser(GeoServerSecurityManager manager, String username) throws Exception {
         addUser(manager.loadUserGroupService(USER_GROUP_SERVICE), username);
+    }
+
+    private void changeMasterPassword(GeoServerSecurityManager manager, String newPassword) throws Exception {
+        MasterPasswordConfig config = manager.getMasterPasswordConfig();
+        char[] current = manager.getMasterPassword();
+        manager.saveMasterPasswordConfig(config, current, newPassword.toCharArray(), newPassword.toCharArray());
     }
 
     /**
@@ -271,10 +306,17 @@ class CloudGeoServerSecurityManagerTest {
     static class PublishedEvents {
 
         private final List<GeoServerEvent> events = new CopyOnWriteArrayList<>();
+        private volatile Consumer<GeoServerEvent> observer = event -> {};
 
         @EventListener(GeoServerEvent.class)
         void onEvent(GeoServerEvent event) {
             events.add(event);
+            observer.accept(event);
+        }
+
+        /** Runs the observer as each event is published, to check the state of the system at that moment */
+        void observe(Consumer<GeoServerEvent> observer) {
+            this.observer = observer;
         }
 
         List<GeoServerEvent> all() {
