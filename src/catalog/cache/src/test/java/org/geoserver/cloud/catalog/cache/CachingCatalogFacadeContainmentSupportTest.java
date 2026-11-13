@@ -19,7 +19,9 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageInfo;
@@ -642,6 +644,49 @@ class CachingCatalogFacadeContainmentSupportTest {
             when(i.getName()).thenReturn(name);
         }
         return info;
+    }
+
+    @Test
+    void loadIntoCacheSkipsOnEvict() {
+        LayerInfo layer = stubLayer("l1", null, Set.of());
+        support.loadIntoCache(() -> {
+            support.evict(layer);
+            return layer;
+        });
+        assertNotCached(layer);
+    }
+
+    @Test
+    void loadIntoCacheCachesIdAndName() {
+        LayerInfo layer = stubLayer("l1", null, Set.of());
+        support.loadIntoCache(() -> layer);
+        assertCached(layer);
+    }
+
+    @Test
+    void loadAllIntoCacheSkipsOnEvict() {
+        LayerInfo layer = stubLayer("l1", null, Set.of());
+        LayerInfo other = stubLayer("l2", null, Set.of());
+        support.loadAllIntoCache(() -> {
+            support.evict(layer);
+            return Stream.of(layer, other);
+        });
+        assertNotCached(layer, other);
+    }
+
+    @Test
+    void loadAllIntoCacheCaches() {
+        LayerInfo layer = stubLayer("l1", null, Set.of());
+        support.loadAllIntoCache(() -> Stream.of(layer));
+        assertCached(layer);
+    }
+
+    @Test
+    void loadAllIntoCacheClosesStream() {
+        AtomicBoolean closed = new AtomicBoolean();
+        LayerInfo layer = stubLayer("l1", null, Set.of());
+        support.loadAllIntoCache(() -> Stream.of(layer).onClose(() -> closed.set(true)));
+        assertThat(closed).isTrue();
     }
 
     private void put(CatalogInfo... infos) {

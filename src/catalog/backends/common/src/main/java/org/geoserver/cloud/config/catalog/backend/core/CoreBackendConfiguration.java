@@ -152,7 +152,8 @@ public class CoreBackendConfiguration {
     LayerGroupContainmentCache enabledLayerGroupContainmentCache(@Qualifier("rawCatalog") Catalog rawCatalog) {
 
         log.info("using {}", GsCloudLayerGroupContainmentCache.class.getSimpleName());
-        return new GsCloudLayerGroupContainmentCache(rawCatalog);
+        GsCloudLayerGroupContainmentCache cache = new GsCloudLayerGroupContainmentCache(rawCatalog);
+        return cache;
     }
 
     /**

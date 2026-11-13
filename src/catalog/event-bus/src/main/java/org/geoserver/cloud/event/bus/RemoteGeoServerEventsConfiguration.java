@@ -20,6 +20,7 @@ import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.expression.Literal;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.cloud.bus.event.Destination;
@@ -97,5 +98,16 @@ public class RemoteGeoServerEventsConfiguration {
         Consumer<GeoServerEvent> localEventPublisher = eventPublisher::publishEvent;
         Consumer<RemoteGeoServerEvent> remoteEventPublisher = eventPublisher::publishEvent;
         return new RemoteGeoServerEventBridge(localEventPublisher, remoteEventPublisher, eventMapper);
+    }
+
+    /** Publishes {@link RemoteEventsResumed} when the bus runs over RabbitMQ. */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(name = "org.springframework.amqp.rabbit.listener.ConsumeOkEvent")
+    static class ResumedEventsConfiguration {
+
+        @Bean
+        RemoteEventsResumedPublisher remoteEventsResumedPublisher(ApplicationEventPublisher eventPublisher) {
+            return new RemoteEventsResumedPublisher(eventPublisher);
+        }
     }
 }

@@ -12,8 +12,12 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.STYLE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.WORKSPACE;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -21,6 +25,7 @@ import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -38,6 +43,8 @@ import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
 
 /**
@@ -45,8 +52,28 @@ import org.springframework.lang.Nullable;
  */
 public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
 
+    /**
+     * The precedence of the eviction listeners. Spring reads the order of a listener on its method, and ignores it
+     * on the class. The listeners reading the catalog upon a remote event, such as the layer group containment cache,
+     * run later and read the current object instead of the evicted one. The resource pool cleanup runs earlier: it
+     * reads a removed object before the eviction.
+     */
+    static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
+
     /** Name of the cache used as key to acquire it through {@link CacheManager#getCache(String)} */
     static final String CACHE_NAME = "gs-catalog";
+
+    /**
+     * The id keys used by the single-id getters, by type, in lookup order. A published object is cached under the layer
+     * key or the layer group key.
+     */
+    private static final Map<Class<? extends CatalogInfo>, List<ConfigInfoType>> ID_KEY_TYPES = Map.of(
+            PublishedInfo.class, List.of(LAYER, LAYERGROUP),
+            LayerInfo.class, List.of(LAYER),
+            LayerGroupInfo.class, List.of(LAYERGROUP),
+            StyleInfo.class, List.of(STYLE),
+            WorkspaceInfo.class, List.of(WORKSPACE),
+            NamespaceInfo.class, List.of(NAMESPACE));
 
     private final CachingCatalogFacadeContainmentSupport support;
 
@@ -69,16 +96,19 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     // ///////////////////  Eviction event listeners //////////////////////////
 
     @EventListener(classes = DefaultWorkspaceSet.class)
+    @Order(ORDER)
     public void onDefaultWorkspaceSet() {
         support.evictDefaultWorkspace();
     }
 
     @EventListener(classes = DefaultNamespaceSet.class)
+    @Order(ORDER)
     public void onDefaultNamespaceSet() {
         support.evictDefaultNamespace();
     }
 
     @EventListener(DefaultDataStoreSet.class)
+    @Order(ORDER)
     public void onDefaultDataStoreSet(DefaultDataStoreSet event) {
         support.evictDefaultDataStore(event.getWorkspaceId(), event.getObjectName());
     }
@@ -88,6 +118,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
      * event is local, the add(xxx) method shall have overridden it with a cache put
      */
     @EventListener(CatalogInfoAdded.class)
+    @Order(ORDER)
     public void onCatalogInfoAdded(CatalogInfoAdded event) {
         if (event.isRemote()) {
             support.evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
@@ -100,6 +131,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
      * names.
      */
     @EventListener(CatalogInfoModified.class)
+    @Order(ORDER)
     public void onCatalogInfoModified(CatalogInfoModified event) {
         if (event.isRemote()) {
             support.evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
@@ -108,6 +140,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     }
 
     @EventListener(CatalogInfoRemoved.class)
+    @Order(ORDER)
     public void onCatalogInfoRemovedEvent(CatalogInfoRemoved event) {
         if (event.isRemote()) {
             support.evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
@@ -219,6 +252,51 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     @Override
     public LayerInfo getLayer(@NonNull String id) {
         return support.get(id(id, LAYER), () -> super.getLayer(id));
+    }
+
+    @Override
+    public @Nullable PublishedInfo getPublished(@NonNull String id) {
+        PublishedInfo cached = peekById(id, PublishedInfo.class);
+        if (cached != null) {
+            return cached;
+        }
+        return support.loadIntoCache(() -> super.getPublished(id));
+    }
+
+    /**
+     * Answers from the cache, and asks the wrapped facade once for the ids not cached. Types not cached by id go
+     * straight to the wrapped facade.
+     */
+    @Override
+    public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        if (!ID_KEY_TYPES.containsKey(type)) {
+            return super.findAllById(ids, type);
+        }
+        List<T> found = new ArrayList<>();
+        List<String> missing = new ArrayList<>();
+        for (String id : new LinkedHashSet<>(ids)) {
+            T cached = peekById(id, type);
+            if (cached == null) {
+                missing.add(id);
+            } else {
+                found.add(cached);
+            }
+        }
+        if (!missing.isEmpty()) {
+            found.addAll(support.loadAllIntoCache(() -> super.findAllById(missing, type)));
+        }
+        return found.stream();
+    }
+
+    /** Returns the object cached under one of the id keys of {@code type}. Never loads. */
+    private <T extends CatalogInfo> @Nullable T peekById(String id, Class<T> type) {
+        for (ConfigInfoType keyType : ID_KEY_TYPES.get(type)) {
+            CatalogInfo cached = support.peek(id(id, keyType));
+            if (cached != null) {
+                return type.cast(cached);
+            }
+        }
+        return null;
     }
 
     /**

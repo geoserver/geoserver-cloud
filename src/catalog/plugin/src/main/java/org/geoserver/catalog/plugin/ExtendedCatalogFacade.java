@@ -6,6 +6,7 @@
 package org.geoserver.catalog.plugin;
 
 import java.io.Closeable;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -172,6 +173,28 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
                 .map(PublishedInfo.class::cast)
                 .or(() -> get(id, LayerGroupInfo.class))
                 .orElse(null);
+    }
+
+    /**
+     * Retrieves the objects of the given type with the given ids.
+     *
+     * <p>Each object found appears once, in no particular order. Ids with no object are absent. The type follows the
+     * rules of {@link #get(String, Class)}: it must be an interface, and {@link PublishedInfo} finds layers and layer
+     * groups. Implementations backed by a database should answer with one query instead of one per id.
+     *
+     * <p>The default calls {@link #get(String, Class)} for each distinct id. It does not use {@link #query(Query)}
+     * because an in-memory catalog answers a query by scanning all its objects.
+     *
+     * <p>The caller must close the returned stream, ideally with a try-with-resources block.
+     *
+     * @param <T> The type of {@link CatalogInfo} to retrieve.
+     * @param ids The ids to look up; must not be null.
+     * @param type The interface type of the objects, such as {@code StyleInfo.class}; must not be null.
+     * @return A {@link Stream} of the objects found; never null.
+     * @throws NullPointerException if {@code ids} or {@code type} is null.
+     */
+    default <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        return ids.stream().distinct().map(id -> get(id, type)).flatMap(Optional::stream);
     }
 
     /**

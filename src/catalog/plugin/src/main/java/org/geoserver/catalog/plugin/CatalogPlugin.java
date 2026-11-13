@@ -28,6 +28,7 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
@@ -758,6 +759,32 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     public <T extends CatalogInfo> Optional<T> findById(String id, Class<T> type) {
         return getFacade().get(id, type);
+    }
+
+    /**
+     * Retrieves a layer or a layer group by id, like {@link #getStore(String, Class)} and {@link #getResource(String,
+     * Class)} do for stores and resources.
+     *
+     * <p>A backend may answer {@code PublishedInfo.class} with one lookup, where {@link #getLayer(String)} followed by
+     * {@link #getLayerGroup(String)} costs two.
+     *
+     * @param clazz {@code PublishedInfo.class}, {@code LayerInfo.class} or {@code LayerGroupInfo.class}
+     * @return the object, or {@code null} if no object of that type has the id
+     */
+    public <T extends PublishedInfo> @Nullable T getPublished(@NonNull String id, @NonNull Class<T> clazz) {
+        return findById(id, clazz).orElse(null);
+    }
+
+    /**
+     * Retrieves the objects of a type with the given ids. A database backend answers with one query instead of one per
+     * id.
+     *
+     * <p>The caller must close the returned stream.
+     *
+     * @see ExtendedCatalogFacade#findAllById(List, Class)
+     */
+    public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        return getFacade().findAllById(ids, type);
     }
 
     private Optional<String> getIdIfIdFilter(Filter filter) {

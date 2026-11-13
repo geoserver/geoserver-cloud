@@ -44,21 +44,22 @@ public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<Lay
     public Optional<LayerInfo> findOneByName(@NonNull String possiblyPrefixedName) {
         String sql =
                 """
-                SELECT "@type", publishedinfo, resource, store, workspace, namespace, "defaultStyle" \
+                SELECT %s \
                 FROM %s \
                 WHERE "@type" = 'LayerInfo' AND "%s" = ? ORDER BY id
                 """;
         if (possiblyPrefixedName.contains(":")) {
             // two options here, it's either a prefixed name like in <workspace>:<name>, or the
             // ResourceInfo name actually contains a colon
-            Optional<LayerInfo> found = findOne(sql.formatted(getQueryTable(), "prefixedName"), possiblyPrefixedName);
+            Optional<LayerInfo> found =
+                    findOne(sql.formatted(getReturnColumns(), getQueryTable(), "prefixedName"), possiblyPrefixedName);
             if (found.isPresent()) {
                 return found;
             }
         }
 
         // no colon in name or name actually contains a colon
-        return findOne(sql.formatted(getQueryTable(), "name"), possiblyPrefixedName);
+        return findOne(sql.formatted(getReturnColumns(), getQueryTable(), "name"), possiblyPrefixedName);
     }
 
     @Override
@@ -75,11 +76,11 @@ public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<Lay
     public Stream<LayerInfo> findAllByResource(@NonNull ResourceInfo resource) {
         String sql =
                 """
-                SELECT "@type", publishedinfo, resource, store, workspace, namespace, "defaultStyle" \
+                SELECT %s \
                 FROM %s \
                 WHERE "@type" = 'LayerInfo' AND "resource.id" = ?
                 """
-                        .formatted(getQueryTable());
+                        .formatted(getReturnColumns(), getQueryTable());
         return super.queryForStream(sql, resource.getId());
     }
 }

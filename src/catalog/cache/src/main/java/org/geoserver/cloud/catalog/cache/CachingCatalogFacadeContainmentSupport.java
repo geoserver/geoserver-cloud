@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 import javax.annotation.ParametersAreNonnullByDefault;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,6 +34,7 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -163,10 +165,14 @@ class CachingCatalogFacadeContainmentSupport {
     <T extends CatalogInfo> T put(Callable<T> supplier) {
         T info = supplier.call();
         if (null != info) {
-            put(InfoIdKey.valueOf(info), info);
-            put(InfoNameKey.valueOf(info), info);
+            putUnderIdAndName(info);
         }
         return info;
+    }
+
+    private void putUnderIdAndName(CatalogInfo info) {
+        put(InfoIdKey.valueOf(info), info);
+        put(InfoNameKey.valueOf(info), info);
     }
 
     private void put(Object key, Object value) {
@@ -190,6 +196,46 @@ class CachingCatalogFacadeContainmentSupport {
             put(key, value);
         }
         return value;
+    }
+
+    /** Returns the cached value for {@code key}, or null when there is none. Never loads. */
+    @SuppressWarnings("unchecked")
+    <T> @Nullable T peek(Object key) {
+        ValueWrapper cached = cache.get(key);
+        return cached == null ? null : (T) cached.get();
+    }
+
+    /**
+     * Loads an object and caches it under its id and name keys, unless the loader returned null or an eviction happened
+     * during the load. Misses are not cached because another service may add the object at any time.
+     */
+    <T extends CatalogInfo> @Nullable T loadIntoCache(Callable<T> loader) {
+        long epoch = evictionEpoch.get();
+        T info = load(loader);
+        if (info != null && epoch == evictionEpoch.get()) {
+            putUnderIdAndName(info);
+        }
+        return info;
+    }
+
+    /**
+     * Loads several objects with one call and caches them like {@link #loadIntoCache}. An eviction during the load
+     * skips the whole batch, because the evicted object may be any of them. The stream returned by the loader is read
+     * in full and closed.
+     */
+    <T extends CatalogInfo> List<T> loadAllIntoCache(Callable<Stream<T>> loader) {
+        long epoch = evictionEpoch.get();
+        List<T> loaded = loadAll(loader);
+        if (epoch == evictionEpoch.get()) {
+            loaded.forEach(this::putUnderIdAndName);
+        }
+        return loaded;
+    }
+
+    private static <T> List<T> loadAll(Callable<Stream<T>> loader) {
+        try (Stream<T> stream = load(loader)) {
+            return stream.toList();
+        }
     }
 
     /** As {@link #get get}, but caches null, meaning there is no such default. */
