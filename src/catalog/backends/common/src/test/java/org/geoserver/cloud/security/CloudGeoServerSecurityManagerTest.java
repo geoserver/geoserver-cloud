@@ -11,6 +11,8 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -63,13 +65,17 @@ class CloudGeoServerSecurityManagerTest {
     private static final String USER_GROUP_SERVICE = XMLUserGroupService.DEFAULT_NAME;
     private static final String ROLE_SERVICE = XMLRoleService.DEFAULT_NAME;
 
+    /** A fresh data directory takes its master password from the admin user of {@code users.properties} */
+    private static final String MASTER_PASSWORD = "adm1nPassw0rd";
+
     @TempDir
     File dataDirectory;
 
     private ApplicationContextRunner runner;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+        seedMasterPassword(dataDirectory);
         runner = createContextRunner(dataDirectory);
     }
 
@@ -117,6 +123,8 @@ class CloudGeoServerSecurityManagerTest {
                     preparedKeyStoreAtEvent.add(preparedKeyStore.exists());
                 }
             });
+
+            assertThat(manager.checkMasterPassword(MASTER_PASSWORD, false)).isTrue();
 
             changeMasterPassword(manager, "n3wM4st3rPassw0rd");
 
@@ -213,8 +221,18 @@ class CloudGeoServerSecurityManagerTest {
 
     private void changeMasterPassword(GeoServerSecurityManager manager, String newPassword) throws Exception {
         MasterPasswordConfig config = manager.getMasterPasswordConfig();
-        char[] current = manager.getMasterPassword();
+        char[] current = MASTER_PASSWORD.toCharArray();
         manager.saveMasterPasswordConfig(config, current, newPassword.toCharArray(), newPassword.toCharArray());
+    }
+
+    /**
+     * The security manager keeps the master password to itself. On a fresh data directory it adopts the password of
+     * the admin user listed in {@code users.properties}: the test writes that file and knows the password.
+     */
+    private static void seedMasterPassword(File dataDirectory) throws IOException {
+        Path usersFile = dataDirectory.toPath().resolve("security/users.properties");
+        Files.createDirectories(usersFile.getParent());
+        Files.writeString(usersFile, "admin=" + MASTER_PASSWORD + ",ROLE_ADMINISTRATOR\n");
     }
 
     /**
