@@ -47,14 +47,10 @@ public class ForwardingStyleRepository extends ForwardingCatalogRepository<Style
         return subject.findAllByWorkspace(ws);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Note: Assuming "Wordkspace" is a typo for "Workspace" in the method name.
-     */
+    /** {@inheritDoc} */
     @Override
-    public Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
-        return subject.findByNameAndWordkspaceNull(name);
+    public Optional<StyleInfo> findByNameAndWorkspaceIsNull(String name) {
+        return subject.findByNameAndWorkspaceIsNull(name);
     }
 
     /** {@inheritDoc} */

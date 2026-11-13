@@ -5,30 +5,22 @@
 
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.geoserver.catalog.LayerGroupInfo;
-import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.PublishedInfo;
 import org.geowebcache.util.GWCVars;
 
 /** @since 1.7 */
 @Data
 @Accessors(chain = true)
 public class TileLayerInfo {
-
-    @JsonIgnore
-    private PublishedInfo published;
 
     private boolean enabled;
 
@@ -163,24 +155,5 @@ public class TileLayerInfo {
     @EqualsAndHashCode(callSuper = true)
     public static class StyleParamFilter extends ParamFilter {
         private Set<String> styles;
-    }
-
-    public String id() {
-        return getPublished().getId();
-    }
-
-    public Optional<String> workspace() {
-        PublishedInfo publishedInfo = getPublished();
-        return Optional.ofNullable(
-                switch (publishedInfo) {
-                    case LayerInfo layer -> layer.getResource().getNamespace().getPrefix();
-                    case LayerGroupInfo lg ->
-                        lg.getWorkspace() == null ? null : lg.getWorkspace().getName();
-                    default -> throw new IllegalStateException("published: " + publishedInfo);
-                });
-    }
-
-    public String name() {
-        return getPublished().getName();
     }
 }

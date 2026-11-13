@@ -5,22 +5,30 @@
 
 package org.geoserver.cloud.autoconfigure.gwc.backend;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javax.sql.DataSource;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.requestcache.RemoteChangeCounter;
 import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.ConditionalOnPgconfigBackendEnabled;
 import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigDataSourceAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
-import org.geoserver.cloud.gwc.backend.pgconfig.CachingTileLayerInfoRepository;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheMetrics;
+import org.geoserver.cloud.backend.pgconfig.cache.EntityCacheProperties;
+import org.geoserver.cloud.backend.pgconfig.cache.PutBudget;
+import org.geoserver.cloud.config.catalog.backend.pgconfig.ConditionalOnPgconfigCacheEnabled;
+import org.geoserver.cloud.gwc.backend.pgconfig.BuiltTileLayerCache;
 import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigGwcCatalogRenameListener;
 import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerCatalog;
+import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerEventListener;
 import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerInfoRepository;
+import org.geoserver.cloud.gwc.backend.pgconfig.RequestCachingTileLayerInfoRepository;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfoRepository;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
@@ -28,20 +36,19 @@ import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.config.GWCInitializer;
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geowebcache.grid.GridSetBroker;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer
- * {@link TileLayerCatalog} @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be
- * public using the "pgconfig" module implementation to store the tile layer configuration as part of the GeoServer
- * Catalog in the Postgres database;
+ * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer {@link TileLayerCatalog} using the "pgconfig"
+ * module implementation to store the tile layer configuration as part of the GeoServer Catalog in the Postgres
+ * database.
  *
  * @since 1.7
  * @see ConditionalOnPgconfigBackendEnabled
@@ -81,49 +88,92 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
         return new PgconfigGwcCatalogRenameListener(catalog, eventPublisher::publishEvent);
     }
 
+    /**
+     * The tile layer catalog. Its lookups and listings take the layers and groups from the facade of the raw catalog. A
+     * listing puts rows in the entity cache of the catalog up to half of its maximum weight.
+     */
     @Bean(name = "gwcCatalogConfiguration")
     GeoServerTileLayerConfiguration pgconfigTileLayerCatalog(
             GridSetBroker gridsetBroker,
             TileLayerInfoRepository repository,
             ApplicationEventPublisher eventPublisher,
-            @Qualifier("rawCatalog") Catalog catalog,
-            GWCConfigPersister defaultsProvider) {
+            @Qualifier("rawCatalog") CatalogPlugin rawCatalog,
+            GWCConfigPersister defaultsProvider,
+            BuiltTileLayerCache builtTileLayers,
+            @Qualifier("pgconfigCatalogEntityCache") ObjectProvider<EntityCache> catalogCache) {
 
-        PgconfigTileLayerCatalog config =
-                new PgconfigTileLayerCatalog(repository, gridsetBroker, () -> catalog, defaultsProvider);
+        Supplier<PutBudget> listingBudget = listingBudget(catalogCache);
+        PgconfigTileLayerCatalog config = new PgconfigTileLayerCatalog(
+                repository, gridsetBroker, rawCatalog::getFacade, defaultsProvider, builtTileLayers, listingBudget);
         Consumer<TileLayerEvent> gwcEventPublisher = eventPublisher::publishEvent;
         return new GeoServerTileLayerConfiguration(config, gwcEventPublisher);
     }
 
+    /** Gives each listing a new budget of half the entity cache, and an unlimited one without the cache. */
+    private static Supplier<PutBudget> listingBudget(ObjectProvider<EntityCache> catalogCache) {
+        EntityCache cache = catalogCache.getIfAvailable();
+        if (null == cache) {
+            return PutBudget::unlimited;
+        }
+        return () -> PutBudget.halfOf(cache);
+    }
+
+    /**
+     * Evicts the cached GWC settings of a tile layer on its {@link TileLayerEvent}s, and makes the requests running
+     * during a change made through another instance read the settings again.
+     */
+    @Bean
+    PgconfigTileLayerEventListener pgconfigTileLayerEventListener(
+            @Qualifier("pgconfigCatalogEntityCache") ObjectProvider<EntityCache> catalogCache) {
+
+        EntityCache cache = catalogCache.getIfAvailable();
+        return new PgconfigTileLayerEventListener(cache, RemoteChangeCounter.shared());
+    }
+
+    /**
+     * The tile layers found by name, kept until the catalog changes: at most
+     * {@code geoserver.backend.pgconfig.cache.tile-layers} of them. If {@code geoserver.backend.pgconfig.cache.enabled}
+     * is false, the catalog has no entity cache, and lookups build their tile layers.
+     */
+    @Bean
+    BuiltTileLayerCache pgconfigBuiltTileLayerCache(
+            @Qualifier("pgconfigDataSource") DataSource dataSource,
+            @Qualifier("pgconfigCatalogEntityCache") ObjectProvider<EntityCache> catalogCache,
+            EntityCacheProperties cacheProperties) {
+
+        EntityCache cache = catalogCache.getIfAvailable();
+        int maximumSize = cacheProperties.getTileLayers();
+        return new BuiltTileLayerCache(cache, dataSource, maximumSize);
+    }
+
+    /**
+     * Registers the metrics of the kept tile layers, as for the entity caches. A nested class keeps the Micrometer
+     * types out of the methods of the outer configuration: Spring reads those methods, and fails on a type missing from
+     * the classpath.
+     */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(MeterRegistry.class)
+    static class BuiltTileLayerCacheMetricsConfiguration {
+
+        @Bean
+        @ConditionalOnPgconfigCacheEnabled
+        EntityCacheMetrics pgconfigBuiltTileLayerCacheMetrics(BuiltTileLayerCache builtTileLayers) {
+            return new EntityCacheMetrics(BuiltTileLayerCache.NAME, builtTileLayers.caffeine());
+        }
+    }
+
+    /**
+     * The GWC settings of the tile layers, read once per request. They come from the entity cache of the catalog, next
+     * to their layers and groups, unless {@code geoserver.backend.pgconfig.cache.enabled} is false.
+     */
     @Bean
     TileLayerInfoRepository pgconfigTileLayerRepository(
-            @Qualifier("pgconfigDataSource") DataSource dataSource, Optional<CacheManager> cacheManager) {
+            @Qualifier("pgconfigDataSource") DataSource dataSource,
+            @Qualifier("pgconfigCatalogEntityCache") ObjectProvider<EntityCache> catalogCache) {
 
-        PgconfigTileLayerInfoRepository pgrepo = new PgconfigTileLayerInfoRepository(new JdbcTemplate(dataSource));
-        return cacheManager.map(cm -> cachingTileLayerCatalog(pgrepo, cm)).orElse(pgrepo);
-    }
-
-    TileLayerInfoRepository cachingTileLayerCatalog(TileLayerInfoRepository delegate, CacheManager cacheManager) {
-
-        log.info(
-                "GeoWebCache Caching TileLayerInfoRepository enabled. Repository: {}, CacheManager: {}",
-                delegate.getClass().getName(),
-                cacheManager.getClass().getName());
-
-        Cache nameCache = getCache(cacheManager, CachingTileLayerInfoRepository.CACHE_NAME);
-        return new CachingTileLayerInfoRepository(delegate, nameCache);
-    }
-
-    @NonNull
-    private Cache getCache(CacheManager cacheManager, String cacheName) {
-        Cache cache = cacheManager.getCache(cacheName);
-        Objects.requireNonNull(
-                cache,
-                """
-                CacheManager %s returned null cache for cache name %s.
-                Make sure the configuration includes spring.cache.cache-names: %s[,<...>]
-                """
-                        .formatted(cacheManager.getClass().getName(), cacheName, cacheName));
-        return cache;
+        JdbcTemplate template = new JdbcTemplate(dataSource);
+        EntityCache cache = catalogCache.getIfAvailable();
+        PgconfigTileLayerInfoRepository repository = new PgconfigTileLayerInfoRepository(template, cache);
+        return new RequestCachingTileLayerInfoRepository(repository);
     }
 }

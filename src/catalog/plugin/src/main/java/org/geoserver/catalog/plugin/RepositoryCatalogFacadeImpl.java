@@ -1079,7 +1079,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      */
     @Override
     public StyleInfo getStyleByName(String name) {
-        Optional<StyleInfo> match = getStyleRepository().findByNameAndWordkspaceNull(name);
+        Optional<StyleInfo> match = getStyleRepository().findByNameAndWorkspaceIsNull(name);
         if (match.isEmpty()) {
             match = getStyleRepository().findFirstByName(name, StyleInfo.class);
         }
@@ -1107,7 +1107,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
             return getStyleByName(name);
         }
         Optional<StyleInfo> match = (workspace == NO_WORKSPACE)
-                ? getStyleRepository().findByNameAndWordkspaceNull(name)
+                ? getStyleRepository().findByNameAndWorkspaceIsNull(name)
                 : getStyleRepository().findByNameAndWorkspace(name, workspace);
         return match.orElse(null);
     }

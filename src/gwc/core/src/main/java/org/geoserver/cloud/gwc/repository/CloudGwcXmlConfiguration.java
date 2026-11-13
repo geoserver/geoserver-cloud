@@ -37,6 +37,8 @@ import org.geowebcache.layer.TileLayer;
 import org.geowebcache.locks.LockProvider;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 /**
  * @implNote there is a {@link BlobStoreConfigurationListener} abstraction, but no homologous one to listen to gridset
@@ -76,7 +78,12 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
+    /**
+     * Reloads the gridsets changed by another instance. The listeners of the event without an order run after this one,
+     * and find the change applied: a listener rebuilding tile layers then reads the new gridsets.
+     */
     @EventListener(GridsetEvent.class)
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public boolean onGridsetEvent(GridsetEvent event) throws Exception {
         final boolean isRemote = !isLocal(event);
         if (isRemote) {

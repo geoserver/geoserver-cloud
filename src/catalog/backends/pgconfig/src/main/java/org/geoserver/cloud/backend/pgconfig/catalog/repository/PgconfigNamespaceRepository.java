@@ -5,11 +5,14 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
+import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
+import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /** @since 1.4 */
@@ -31,6 +34,13 @@ public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<N
         return CatalogInfoRowMapper.NAMESPACE_BUILD_COLUMNS;
     }
 
+    /** The prefix of a namespace is unique, and is the key of its {@code NAME} entry. */
+    @Override
+    public <U extends NamespaceInfo> Optional<U> findFirstByName(@NonNull String prefix, Class<U> clazz) {
+        List<CacheKey> keys = nameKeys(prefix, clazz);
+        return findByKeys(keys, clazz, () -> super.findFirstByName(prefix, clazz));
+    }
+
     @Override
     public void setDefaultNamespace(@NonNull NamespaceInfo namespace) {
         unsetDefaultNamespace();
@@ -40,6 +50,7 @@ public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<N
                 """
                         .formatted(getUpdateTable()),
                 namespace.getId());
+        evictAfterWrite(CatalogInfoKeys.defaultNamespace());
     }
 
     @Override
@@ -49,16 +60,20 @@ public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<N
                 UPDATE %s SET default_namespace = FALSE WHERE default_namespace = TRUE
                 """
                         .formatted(getUpdateTable()));
+        evictAfterWrite(CatalogInfoKeys.defaultNamespace());
     }
 
     @Override
     public Optional<NamespaceInfo> getDefaultNamespace() {
-        return findOne(select("WHERE default_namespace = TRUE"));
+        List<CacheKey> keys = List.of(CatalogInfoKeys.defaultNamespace());
+        return findByKeys(keys, NamespaceInfo.class, () -> findOne(select("WHERE default_namespace = TRUE")));
     }
 
+    /** Several namespaces may share a URI, as isolated workspaces do: the key holds the first one, by id. */
     @Override
     public Optional<NamespaceInfo> findOneByURI(@NonNull String uri) {
-        return findOne(select("WHERE uri = ? ORDER BY id"), uri);
+        List<CacheKey> keys = List.of(CatalogInfoKeys.namespaceByUri(uri));
+        return findByKeys(keys, NamespaceInfo.class, () -> findOne(select("WHERE uri = ? ORDER BY id"), uri));
     }
 
     @Override

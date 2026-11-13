@@ -1,0 +1,1 @@
+[{"name": "pgconfig", "listen": "0.0.0.0:5432", "upstream": "geodatabase:5432", "enabled": true}]

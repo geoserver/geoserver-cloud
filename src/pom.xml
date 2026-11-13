@@ -57,6 +57,7 @@
     <rabbit-amqp-client.version>5.35.0</rabbit-amqp-client.version>
     <lombok.version>1.18.48</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
+    <zstd-jni.version>1.5.7-20</zstd-jni.version>
     <testcontainers.version>2.0.4</testcontainers.version>
     <fork.javac>false</fork.javac>
     <maven.compiler.release>${java.version}</maven.compiler.release>
@@ -819,6 +820,11 @@
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
         <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.luben</groupId>
+        <artifactId>zstd-jni</artifactId>
+        <version>${zstd-jni.version}</version>
       </dependency>
       <dependency>
         <groupId>org.wiremock</groupId>

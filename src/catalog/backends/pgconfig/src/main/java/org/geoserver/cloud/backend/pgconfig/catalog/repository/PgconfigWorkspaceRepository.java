@@ -5,10 +5,13 @@
 
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.NonNull;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
+import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
+import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +39,17 @@ public class PgconfigWorkspaceRepository extends PgconfigCatalogInfoRepository<W
         return CatalogInfoRowMapper.WORKSPACE_BUILD_COLUMNS;
     }
 
+    /** The name of a workspace is unique, and is the key of its {@code NAME} entry. */
+    @Override
+    public <U extends WorkspaceInfo> Optional<U> findFirstByName(@NonNull String name, Class<U> clazz) {
+        List<CacheKey> keys = nameKeys(name, clazz);
+        return findByKeys(keys, clazz, () -> super.findFirstByName(name, clazz));
+    }
+
     @Override
     public void unsetDefaultWorkspace() {
         template.update(UNSET_DEFAULT_WORKSPACE);
+        evictAfterWrite(CatalogInfoKeys.defaultWorkspace());
     }
 
     /** TODO: handle transactions and perform unset/set atomically */
@@ -52,10 +63,12 @@ public class PgconfigWorkspaceRepository extends PgconfigCatalogInfoRepository<W
                 """
                         .formatted(getUpdateTable()),
                 workspace.getId());
+        evictAfterWrite(CatalogInfoKeys.defaultWorkspace());
     }
 
     @Override
     public Optional<WorkspaceInfo> getDefaultWorkspace() {
-        return findOne(select("WHERE default_workspace = TRUE"));
+        List<CacheKey> keys = List.of(CatalogInfoKeys.defaultWorkspace());
+        return findByKeys(keys, WorkspaceInfo.class, () -> findOne(select("WHERE default_workspace = TRUE")));
     }
 }

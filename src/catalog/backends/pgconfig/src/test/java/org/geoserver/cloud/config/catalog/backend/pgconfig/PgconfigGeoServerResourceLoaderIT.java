@@ -12,9 +12,11 @@ import javax.sql.DataSource;
 import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceChangePublisher;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.platform.resource.Resource.Type;
+import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -49,7 +51,9 @@ class PgconfigGeoServerResourceLoaderIT {
                 db.getTemplate(),
                 lockProvider,
                 PgconfigResourceStore.defaultIgnoredResources(),
-                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
+                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()),
+                new DataSourceTransactionManager(db.getDataSource()),
+                new ResourceChangePublisher(new SimpleResourceNotificationDispatcher(), event -> {}));
     }
 
     private LockRepository lockRepository() {

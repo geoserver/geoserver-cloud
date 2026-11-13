@@ -237,11 +237,6 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.cloud.catalog</groupId>
-        <artifactId>gs-cloud-catalog-cache</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.geoserver.cloud.catalog.backend</groupId>
         <artifactId>gs-cloud-catalog-backend-common</artifactId>
         <version>${project.version}</version>

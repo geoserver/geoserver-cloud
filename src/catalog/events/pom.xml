@@ -16,6 +16,12 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <!-- the consumer of the event bus reports its subscriptions to its queue, see RemoteEventsResumedPublisher -->
+      <groupId>org.springframework.amqp</groupId>
+      <artifactId>spring-rabbit</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <!-- ability to encode RemoteInfoEvent payloads as JSON -->
       <groupId>org.geoserver.cloud.jackson</groupId>
       <artifactId>gs-jackson-bindings</artifactId>
