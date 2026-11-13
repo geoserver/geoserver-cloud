@@ -167,7 +167,7 @@ public class EntityCache implements ClearableCache {
         return switch (found) {
             case Lookup.Hit hit -> hit;
             case Lookup.Miss miss when probe.eachKeyMissed() -> miss;
-            case Lookup.Miss _, Lookup.Absent _ -> new Lookup.Absent();
+            case Lookup.Miss(), Lookup.Absent() -> new Lookup.Absent();
         };
     }
 

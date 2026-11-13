@@ -71,8 +71,8 @@ final class ConfigRepositoryCache {
         }
         return switch (cache.lookup(key)) {
             case Lookup.Hit hit -> decodeCached(key, hit.json(), type).or(() -> readWithoutCache(type, query));
-            case Lookup.Miss _ -> Optional.empty();
-            case Lookup.Absent _ -> queryRemembering(key, type, query);
+            case Lookup.Miss() -> Optional.empty();
+            case Lookup.Absent() -> queryRemembering(key, type, query);
         };
     }
 
@@ -85,8 +85,8 @@ final class ConfigRepositoryCache {
     <T extends Info> Optional<T> findThrough(IdLookup<T> lookup, Supplier<Optional<String>> query) {
         return switch (cache.lookup(lookup.key())) {
             case Lookup.Hit hit -> answerFromHint(lookup, hit, query);
-            case Lookup.Miss _ -> Optional.empty();
-            case Lookup.Absent _ -> queryThrough(lookup, query);
+            case Lookup.Miss() -> Optional.empty();
+            case Lookup.Absent() -> queryThrough(lookup, query);
         };
     }
 
