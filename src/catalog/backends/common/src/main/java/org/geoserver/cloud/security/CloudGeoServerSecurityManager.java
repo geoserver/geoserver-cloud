@@ -59,6 +59,10 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     private ApplicationContext applicationContext;
 
     private final AtomicBoolean reloading = new AtomicBoolean(false);
+
+    /** Set while a master password change runs, see {@link #saveMasterPasswordConfig(MasterPasswordConfig)} */
+    private boolean changingMasterPassword;
+
     private List<AuthenticationProvider> additionalAuthenticationProviders;
     private GeoServerConfigurationLock configLock;
 
@@ -298,20 +302,40 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         fireRemoteChangedEvent("SecurityManagerConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
+    /**
+     * Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} once the keystore change is
+     * committed.
+     *
+     * <p>A master password change re-encrypts the keystore into a new file, saves the configuration through
+     * {@link #saveMasterPasswordConfig(MasterPasswordConfig)}, and then commits by replacing the keystore file with the
+     * new one. The other instances reload on the event, and their reload commits a pending keystore change itself. An
+     * event fired before the commit makes them race this instance for the swap: when another instance wins, this one
+     * finds the files already swapped, keeps the old keystore in memory, and its store passwords stop decrypting until
+     * it restarts. The event is fired here, after the commit.
+     */
     @Override
     public synchronized void saveMasterPasswordConfig(
             MasterPasswordConfig config, char[] currPasswd, char[] newPasswd, char[] newPasswdConfirm)
             throws Exception {
-        super.saveMasterPasswordConfig(config, currPasswd, newPasswd, newPasswdConfirm);
+        changingMasterPassword = true;
+        try {
+            super.saveMasterPasswordConfig(config, currPasswd, newPasswd, newPasswdConfirm);
+        } finally {
+            changingMasterPassword = false;
+        }
         fireRemoteChangedEvent("MasterPasswordConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
+    /**
+     * Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged}, unless called during a master
+     * password change: the change fires its own event once committed.
+     */
     @Override
-    public void saveMasterPasswordConfig(MasterPasswordConfig config) throws IOException {
+    public synchronized void saveMasterPasswordConfig(MasterPasswordConfig config) throws IOException {
         super.saveMasterPasswordConfig(config);
-        fireRemoteChangedEvent("MasterPasswordConfig changed");
+        if (!changingMasterPassword) {
+            fireRemoteChangedEvent("MasterPasswordConfig changed");
+        }
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
