@@ -1,0 +1,86 @@
+#
+# Puts Toxiproxy between the GeoServer services and the pgconfig catalog database, to reproduce slow
+# database networks locally. Run with:
+#   ./pgconfig -f toxiproxy.yml up -d
+#
+# Toxics live in the memory of Toxiproxy, set them again after it restarts. Add 5 ms of latency to the
+# responses of the database:
+#   curl -XPOST localhost:8474/proxies/pgconfig/toxics -d \
+#     '{"name":"latency","type":"latency","stream":"downstream","attributes":{"latency":5,"jitter":0}}'
+# Limit the bandwidth to 62500 KB/s (500 Mbit/s):
+#   curl -XPOST localhost:8474/proxies/pgconfig/toxics -d \
+#     '{"name":"bandwidth","type":"bandwidth","stream":"downstream","attributes":{"rate":62500}}'
+# Remove them:
+#   curl -XDELETE localhost:8474/proxies/pgconfig/toxics/latency
+#   curl -XDELETE localhost:8474/proxies/pgconfig/toxics/bandwidth
+#
+# WMS_CATALOG_CACHING=false turns off the entity cache of the pgconfig backend in the wms service, through
+# geoserver.backend.pgconfig.cache.enabled. The request cache and the resource store cache stay on.
+
+services:
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:2.9.0
+    command: ["-host=0.0.0.0", "-config=/toxiproxy.json"]
+    volumes:
+      - ./toxiproxy.json:/toxiproxy.json:ro
+    ports:
+      - "8474:8474"
+    depends_on:
+      - geodatabase
+    healthcheck:
+      # the image has no shell
+      test: ["CMD", "/toxiproxy-cli", "list"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  wfs:
+    environment:
+      PGCONFIG_HOST: toxiproxy
+    depends_on:
+      toxiproxy:
+        condition: service_healthy
+
+  wms:
+    environment:
+      PGCONFIG_HOST: toxiproxy
+      # local variables win over the config server because it sets override-system-properties: false
+      GEOSERVER_BACKEND_PGCONFIG_CACHE_ENABLED: ${WMS_CATALOG_CACHING:-true}
+    depends_on:
+      toxiproxy:
+        condition: service_healthy
+
+  wcs:
+    environment:
+      PGCONFIG_HOST: toxiproxy
+    depends_on:
+      toxiproxy:
+        condition: service_healthy
+
+  wps:
+    environment:
+      PGCONFIG_HOST: toxiproxy
+    depends_on:
+      toxiproxy:
+        condition: service_healthy
+
+  gwc:
+    environment:
+      PGCONFIG_HOST: toxiproxy
+    depends_on:
+      toxiproxy:
+        condition: service_healthy
+
+  restconfig:
+    environment:
+      PGCONFIG_HOST: toxiproxy
+    depends_on:
+      toxiproxy:
+        condition: service_healthy
+
+  webui:
+    environment:
+      PGCONFIG_HOST: toxiproxy
+    depends_on:
+      toxiproxy:
+        condition: service_healthy

@@ -99,8 +99,8 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
      * <p>On pgconfig the tile layer is stored on the same row as its {@code PublishedInfo}: by the time
      * {@code GWC#removeTileLayers} runs, the row is gone, the tile-layer lookup returns empty and
      * {@code GeoServerTileLayerConfiguration} publishes no deleted event. Publishing it here, from the removed object's
-     * in-memory state, evicts the name from every node's tile-layer cache. Blob and quota removal on tile-layer delete
-     * is handled by {@code PgconfigTileLayerCatalog}.
+     * in-memory state, tells the services that the tile layer is gone. Blob and quota removal on tile-layer delete is
+     * handled by {@code PgconfigTileLayerCatalog}.
      */
     @Override
     public void handleRemoveEvent(CatalogRemoveEvent event) throws CatalogException {
@@ -293,12 +293,11 @@ public class PgconfigGwcCatalogRenameListener implements CatalogListener {
     }
 
     /**
-     * Notifies every service of the rename through {@link TileLayerEvent}s, keyed by the old prefixed name.
+     * Notifies the services of the rename through {@link TileLayerEvent}s, with the old and the new prefixed names.
      *
-     * <p>Upstream {@code CatalogLayerEventListener} only publishes its rename when the old prefixed name still
-     * resolves, which on pgconfig depends on the caching tile-layer repository holding a warm entry at the service
-     * handling the rename. These events make cache eviction independent of that: each node's
-     * {@link CachingTileLayerInfoRepository} drops the old-name entry and the name listing memo.
+     * <p>Upstream {@code CatalogLayerEventListener} publishes its rename only when the old prefixed name still finds
+     * the tile layer. On pgconfig, a tile layer lookup takes the layer or group from the catalog, and the old name
+     * finds nothing once the catalog renamed the object.
      */
     private void publishTileLayerEvents(List<TileLayerRename> pairs) {
         for (TileLayerRename pair : pairs) {

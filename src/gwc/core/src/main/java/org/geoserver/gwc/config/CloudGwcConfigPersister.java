@@ -21,6 +21,8 @@ import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.util.DimensionWarning;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 /**
  * extends {@link GWCConfigPersister} to send {@link ConfigChangeEvent}s upon
@@ -66,7 +68,12 @@ public class CloudGwcConfigPersister extends GWCConfigPersister {
         eventPublisher.accept(new ConfigChangeEvent(this));
     }
 
+    /**
+     * Reloads the GWC configuration changed by another instance. The listeners of the event without an order run after
+     * this one, and find the change applied: a listener rebuilding tile layers then reads the new defaults.
+     */
     @EventListener(ConfigChangeEvent.class)
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public void reloadOnRemoteConfigChangeEvent(ConfigChangeEvent event) throws IOException {
         final boolean isRemote = event.getSource() != this;
         if (isRemote) {

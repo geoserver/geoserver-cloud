@@ -27,6 +27,7 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
@@ -469,6 +470,37 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
     }
 
+    /**
+     * Answers a prefixed name from the facade, and goes on to upstream when the facade has no answer. A backend can
+     * look a layer up by name. Upstream lists the layers of the resource instead: a query on backends without a cache
+     * for it.
+     *
+     * <p>The prefix is a namespace prefix for upstream. A backend may match it against the workspace of the store, and
+     * would answer another layer when the two differ. The answer of the facade is accepted only if the namespace of its
+     * resource has the prefix asked.
+     */
+    @Override
+    public LayerInfo getLayerByName(String name) {
+        int colon = name.indexOf(':');
+        if (colon == -1) {
+            return super.getLayerByName(name);
+        }
+        String prefix = name.substring(0, colon);
+        LayerInfo fromFacade = facade.getLayerByName(name);
+        if (hasNamespacePrefix(fromFacade, prefix)) {
+            return fromFacade;
+        }
+        return super.getLayerByName(name);
+    }
+
+    private boolean hasNamespacePrefix(LayerInfo layer, String prefix) {
+        if (layer == null || layer.getResource() == null) {
+            return false;
+        }
+        NamespaceInfo namespace = layer.getResource().getNamespace();
+        return namespace != null && prefix.equals(namespace.getPrefix());
+    }
+
     public static LayerInfo getLayerByName(Catalog catalog, String workspace, String resourceName) {
         ResourceInfo r = catalog.getResourceByName(workspace, resourceName, ResourceInfo.class);
         if (r == null) {
@@ -736,6 +768,32 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     public <T extends CatalogInfo> Optional<T> findById(String id, Class<T> type) {
         return getFacade().get(id, type);
+    }
+
+    /**
+     * Retrieves a layer or a layer group by id, like {@link #getStore(String, Class)} and {@link #getResource(String,
+     * Class)} do for stores and resources.
+     *
+     * <p>A backend may answer {@code PublishedInfo.class} with one lookup, where {@link #getLayer(String)} followed by
+     * {@link #getLayerGroup(String)} costs two.
+     *
+     * @param clazz {@code PublishedInfo.class}, {@code LayerInfo.class} or {@code LayerGroupInfo.class}
+     * @return the object, or {@code null} if no object of that type has the id
+     */
+    public <T extends PublishedInfo> @Nullable T getPublished(@NonNull String id, @NonNull Class<T> clazz) {
+        return findById(id, clazz).orElse(null);
+    }
+
+    /**
+     * Retrieves the objects of a type with the given ids. A database backend answers with one query instead of one per
+     * id.
+     *
+     * <p>The caller must close the returned stream.
+     *
+     * @see ExtendedCatalogFacade#findAllById(List, Class)
+     */
+    public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        return getFacade().findAllById(ids, type);
     }
 
     private Optional<String> getIdIfIdFilter(Filter filter) {

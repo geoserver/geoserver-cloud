@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -40,6 +41,18 @@ public class BusEventCollector {
     private @NonNull Class<? extends GeoServerEvent> eventType = GeoServerEvent.class;
 
     private volatile boolean capturing = false;
+
+    private final List<RemoteEventsResumed> resumed = new CopyOnWriteArrayList<>();
+
+    @EventListener(RemoteEventsResumed.class)
+    public void onRemoteEventsResumed(RemoteEventsResumed event) {
+        resumed.add(event);
+    }
+
+    /** Returns the {@link RemoteEventsResumed} events received since startup, captured or not. */
+    public List<RemoteEventsResumed> resumed() {
+        return List.copyOf(resumed);
+    }
 
     @EventListener(RemoteGeoServerEvent.class)
     public void onApplicationEvent(RemoteGeoServerEvent busEvent) {

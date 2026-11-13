@@ -17,11 +17,9 @@ import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfoImpl;
 import org.geowebcache.config.XMLGridSubset;
 import org.geowebcache.grid.BoundingBox;
-import org.mapstruct.AfterMapping;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
 /** @since 1.7 */
@@ -32,11 +30,24 @@ interface GeoServerTileLayerInfoMapper {
     default TileLayerInfo map(GeoServerTileLayer tileLayer) {
         checkNotNull(tileLayer.getInfo(), "GeoServerTileLayerInfo is null");
         checkNotNull(tileLayer.getInfo().getId(), "GeoServerTileLayerInfo.info.id is null");
-        final PublishedInfo publishedInfo = tileLayer.getPublishedInfo();
         final GeoServerTileLayerInfo info = tileLayer.getInfo();
-        return map(info).setPublished(publishedInfo);
+        return map(info);
     }
 
+    /**
+     * Builds the info of a tile layer from its GWC settings and its layer or group. The layer or group gives the id and
+     * the prefixed name. Each call returns a new instance, with new grid subsets, parameter filters and expiration
+     * rules: the caller may change it without changing the settings.
+     */
+    default GeoServerTileLayerInfoImpl toInfo(TileLayerInfo settings, PublishedInfo published) {
+        Objects.requireNonNull(published, "publishedInfo");
+        GeoServerTileLayerInfoImpl info = map(settings);
+        info.setId(published.getId());
+        info.setName(published.prefixedName());
+        return info;
+    }
+
+    /** Maps the GWC settings alone, without id and name: {@link #toInfo} adds them. */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", ignore = true)
     @Mapping(target = "autoCacheStyles", ignore = true)
@@ -45,16 +56,6 @@ interface GeoServerTileLayerInfoMapper {
     @Mapping(target = "metaTilingY", conditionExpression = "java(info.getMetaTilingY() > 0)")
     GeoServerTileLayerInfoImpl map(TileLayerInfo info);
 
-    @AfterMapping
-    default void setIdAndName(TileLayerInfo source, @MappingTarget GeoServerTileLayerInfoImpl target) {
-
-        PublishedInfo published = source.getPublished();
-        Objects.requireNonNull(published, "publishedInfo");
-        target.setId(published.getId());
-        target.setName(published.prefixedName());
-    }
-
-    @Mapping(target = "published", ignore = true)
     TileLayerInfo map(GeoServerTileLayerInfo info);
 
     default BoundingBox map(Bounds bbox) {

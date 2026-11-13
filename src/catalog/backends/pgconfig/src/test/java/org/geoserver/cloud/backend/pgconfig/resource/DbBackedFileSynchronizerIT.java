@@ -20,6 +20,7 @@ import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendProperties;
 import org.geoserver.platform.resource.Resource.Type;
+import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -80,7 +81,9 @@ class DbBackedFileSynchronizerIT {
                 template,
                 lockProvider,
                 PgconfigResourceStore.defaultIgnoredResources(),
-                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
+                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()),
+                new DataSourceTransactionManager(db.getDataSource()),
+                new ResourceChangePublisher(new SimpleResourceNotificationDispatcher(), event -> {}));
     }
 
     private JdbcLockRegistry pgconfigLockRegistry() {
@@ -220,6 +223,20 @@ class DbBackedFileSynchronizerIT {
 
         assertThat(store.get("data/ws/mosaic7/mosaic7.properties").getType()).isEqualTo(Type.UNDEFINED);
         assertThat(store.get("data/ws/mosaic7/sample_image.dat").getType()).isEqualTo(Type.RESOURCE);
+    }
+
+    // the root lists the files of the whole store, most of them without a local copy
+    @Test
+    void syncOfRootDeletesNoRow() throws Exception {
+        Path localDir = cache.localPath("data/ws/mosaic9");
+        Files.createDirectories(localDir);
+        Files.writeString(localDir.resolve("mosaic9.properties"), "Levels=1");
+        synchronizer.sync("data/ws/mosaic9");
+        Files.delete(localDir.resolve("mosaic9.properties"));
+
+        synchronizer.syncDeletions("");
+
+        assertThat(store.get("data/ws/mosaic9/mosaic9.properties").getType()).isEqualTo(Type.RESOURCE);
     }
 
     @Test

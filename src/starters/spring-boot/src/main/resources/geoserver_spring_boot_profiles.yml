@@ -27,7 +27,7 @@ spring:
     # Required for GeoServer initialization
     allow-bean-definition-overriding: true
     allow-circular-references: true
-    # cache implementation to use if `geoserver.backend.caching.enabled: true`
+  # the CacheManager holds the caches of PMTiles and GeoServer ACL
   cache:
     type: caffeine
     caffeine:

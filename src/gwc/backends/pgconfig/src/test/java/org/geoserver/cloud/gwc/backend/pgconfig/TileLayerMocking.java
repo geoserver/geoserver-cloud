@@ -7,7 +7,6 @@ package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NonNull;
@@ -43,16 +42,9 @@ class TileLayerMocking {
 
     final GeoServerTileLayerInfoMapper infoMapper = Mappers.getMapper(GeoServerTileLayerInfoMapper.class);
 
-    private Catalog catalog;
-
     public TileLayerMocking(Catalog catalog, GeoServer geoserver) {
-        this.catalog = catalog;
         gridsets = new GridSetBroker(List.of(new DefaultGridsets(false, false)));
         faker = new CatalogFaker(catalog, geoserver);
-    }
-
-    public Supplier<Catalog> catalog() {
-        return () -> catalog;
     }
 
     public @NonNull String layerName(PublishedInfo published) {
@@ -72,7 +64,8 @@ class TileLayerMocking {
         return new GeoServerTileLayer(published, gridsets, tileLayerInfo);
     }
 
-    public TileLayerInfo pgLayerInfo(PublishedInfo info) {
+    /** Returns GWC settings with values other than the defaults. */
+    public TileLayerInfo pgLayerInfo() {
         List<XMLGridSubset> defaultXmlGridSubsets =
                 List.copyOf(TileLayerInfoUtil.create(new GWCConfig()).getGridSubsets());
         XMLGridSubset set1 = defaultXmlGridSubsets.getFirst();
@@ -93,7 +86,6 @@ class TileLayerMocking {
                 defaultXmlGridSubsets.stream().map(infoMapper::map).collect(Collectors.toSet());
 
         return new TileLayerInfo()
-                .setPublished(info)
                 .setBlobStoreId("defaultBlobStore")
                 .setCacheWarningSkips(Set.of(WarningType.FailedNearest))
                 .setEnabled(true)

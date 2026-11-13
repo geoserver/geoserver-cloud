@@ -10,12 +10,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
@@ -38,6 +40,7 @@ import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.impl.StoreInfoImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
@@ -47,6 +50,8 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.security.decorators.SecuredFeatureTypeInfo;
 import org.geoserver.security.decorators.SecuredLayerInfo;
 import org.geotools.util.decorate.AbstractDecorator;
+import org.jspecify.annotations.Nullable;
+import org.springframework.util.StringUtils;
 
 /**
  * A utility class for resolving {@link Info} objects and {@link Patch} properties within a GeoServer catalog context,
@@ -56,7 +61,8 @@ import org.geotools.util.decorate.AbstractDecorator;
  * {@link ResolvingProxy} references with actual catalog instances, managing nested collections, and determining whether
  * objects should be encoded as references in a {@link Patch}. It uses a catalog supplier and an optional
  * {@link GeoServer} configuration to fetch resolved instances, supporting both catalog entities (e.g.,
- * {@link StoreInfo}) and configuration objects (e.g., {@link ServiceInfo}).
+ * {@link StoreInfo}) and configuration objects (e.g., {@link ServiceInfo}). {@link ResolvingProxyResolver} may instead
+ * have it look catalog references up in a facade, with a {@link FacadeReferenceLookup}.
  *
  * <p>Key features:
  *
@@ -86,7 +92,6 @@ import org.geotools.util.decorate.AbstractDecorator;
  * @see Patch
  */
 @Slf4j(topic = "org.geoserver.catalog.plugin.resolving")
-@RequiredArgsConstructor
 public class ProxyUtils {
     /**
      * Types that shall be encoded as {@link InfoReference reference} instead of as a full value object when coming as a
@@ -108,10 +113,34 @@ public class ProxyUtils {
             GeoServerInfo.class, //
             ServiceInfo.class);
 
-    private final @NonNull Supplier<Catalog> catalog;
+    private final @Nullable Supplier<Catalog> catalog;
     private final @NonNull Optional<GeoServer> config;
 
+    /** Looks catalog references up in a facade instead of the catalog, when not null. */
+    private final @Nullable FacadeReferenceLookup facadeLookup;
+
     private boolean failOnNotFound = false;
+
+    /**
+     * Resolves catalog references through the catalog, and configuration references through the {@link GeoServer}
+     * configuration, if present.
+     */
+    public ProxyUtils(@NonNull Supplier<Catalog> catalog, @NonNull Optional<GeoServer> config) {
+        this.catalog = catalog;
+        this.config = config;
+        this.facadeLookup = null;
+    }
+
+    /**
+     * Resolves catalog references through a facade instead of the catalog, and leaves configuration references
+     * unresolved. An object found for a reference comes back as the facade returns it: {@link ResolvingProxyResolver}
+     * resolves its own references.
+     */
+    ProxyUtils(@NonNull FacadeReferenceLookup facadeLookup) {
+        this.catalog = null;
+        this.config = Optional.empty();
+        this.facadeLookup = facadeLookup;
+    }
 
     /**
      * Configures whether unresolved proxy references should throw an exception.
@@ -247,10 +276,10 @@ public class ProxyUtils {
      * {@link #failOnMissingReference(boolean)} is false; otherwise, throws an exception.
      *
      * <p>Resolved references are returned as raw implementations, never wrapped in {@link ModificationProxy}: they get
-     * stored into materialized object graphs that may be shared across threads (e.g. by the catalog caching facade),
-     * and a live proxy inside such a graph is both mutated by reader threads and Java-serialized along with its
-     * unsynchronized state maps by {@code ModificationProxyCloner}, corrupting the stream under concurrency. This
-     * matches upstream {@code org.geoserver.catalog.impl.ResolvingProxyResolver}, which unwraps likewise.
+     * stored into materialized object graphs that may be shared across threads, and a live proxy inside such a graph is
+     * both mutated by reader threads and Java-serialized along with its unsynchronized state maps by
+     * {@code ModificationProxyCloner}, corrupting the stream under concurrency. This matches upstream
+     * {@code org.geoserver.catalog.impl.ResolvingProxyResolver}, which unwraps likewise.
      *
      * @param <T> The type of {@link Info}.
      * @param unresolved The {@link Info} object to resolve; may be null.
@@ -359,7 +388,7 @@ public class ProxyUtils {
     }
 
     /**
-     * Resolves a {@link CatalogInfo} proxy using the catalog.
+     * Resolves a {@link CatalogInfo} proxy using the catalog, or the facade of the {@link FacadeReferenceLookup}.
      *
      * <p>Handles special case for {@link PublishedInfo} to try both {@link LayerInfo} and {@link LayerGroupInfo}
      * resolutions due to a known {@link ResolvingProxy} limitation.
@@ -370,17 +399,15 @@ public class ProxyUtils {
      */
     @SuppressWarnings("unchecked")
     private <T extends Info> T resolveCatalogInfo(final T info) {
+        if (facadeLookup != null) {
+            return findInFacade(info);
+        }
         Catalog actualCatalog = getCatalog();
         // Workaround for a bug in ResolvingProxy.resolve(), if info is a PublishedInfo
         // (as opposed
         // to a concrete LayerInfo or LayerGroupInfo) it does nothing.
         if (info instanceof PublishedInfo) {
-            PublishedInfo l =
-                    ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(info.getId(), LayerInfo.class));
-            if (null == l) {
-                l = ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(info.getId(), LayerGroupInfo.class));
-            }
-            return (T) l;
+            return (T) resolvePublished(actualCatalog, info.getId());
         }
         T resolved = ResolvingProxy.resolve(actualCatalog, info);
         if (resolved == null) {
@@ -388,6 +415,38 @@ public class ProxyUtils {
             resolved = info;
         }
         return resolved;
+    }
+
+    /** Looks a reference up in the facade, and keeps the proxy if the facade does not hold the object. */
+    private <T extends Info> T findInFacade(T info) {
+        T found = facadeLookup.resolve(info);
+        if (found == null) {
+            return info;
+        }
+        return found;
+    }
+
+    /**
+     * Resolves a reference to a layer or layer group by id, with a single lookup when the catalog is a
+     * {@link CatalogPlugin}.
+     *
+     * <p>Looking the id up as a layer, then as a layer name, then as a layer group costs three lookups that find
+     * nothing before the one that finds a nested layer group. The by-name lookup remains as a fallback for references
+     * holding a name.
+     */
+    private PublishedInfo resolvePublished(Catalog actualCatalog, String id) {
+        if (actualCatalog instanceof CatalogPlugin plugin) {
+            PublishedInfo found = plugin.getPublished(id, PublishedInfo.class);
+            if (found != null) {
+                // the outbound resolver wraps the result, and a proxy must not be stored in a shared graph
+                return ModificationProxy.unwrap(found);
+            }
+        }
+        PublishedInfo layer = ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(id, LayerInfo.class));
+        if (null == layer) {
+            return ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(id, LayerGroupInfo.class));
+        }
+        return layer;
     }
 
     /**
@@ -490,21 +549,102 @@ public class ProxyUtils {
     protected LayerGroupInfo resolveInternal(LayerGroupInfo layerGroup) {
         LayerGroupInfoImpl lg = (LayerGroupInfoImpl) layerGroup;
 
+        Map<String, PublishedInfo> members = loadAllById(referencedIds(lg.getLayers()), PublishedInfo.class);
         for (int i = 0; i < lg.getLayers().size(); i++) {
             PublishedInfo l = lg.getLayers().get(i);
             if (l != null) {
-                lg.getLayers().set(i, resolve(l));
+                lg.getLayers().set(i, resolveEntry(members, l));
             }
         }
 
+        Map<String, StyleInfo> styles = loadAllById(referencedIds(lg.getStyles()), StyleInfo.class);
         for (int i = 0; i < lg.getStyles().size(); i++) {
             StyleInfo s = lg.getStyles().get(i);
             if (s != null) {
-                lg.getStyles().set(i, resolve(s));
+                lg.getStyles().set(i, resolveEntry(styles, s));
             }
         }
         lg.setWorkspace(resolve(lg.getWorkspace()));
         return lg;
+    }
+
+    /**
+     * Collects the ids of the {@link ResolvingProxy} entries in a list of references.
+     *
+     * <p>Null entries, entries that are not proxies, and proxies with an empty reference are skipped.
+     *
+     * @param refs the references of a layer group, such as its members or styles; may contain nulls
+     * @return the distinct referenced ids, never null
+     */
+    static List<String> referencedIds(List<? extends Info> refs) {
+        Set<String> ids = new LinkedHashSet<>();
+        for (Info ref : refs) {
+            String id = referencedId(ref);
+            if (id != null) {
+                ids.add(id);
+            }
+        }
+        return List.copyOf(ids);
+    }
+
+    /**
+     * Loads the objects of a type by id in one call, to the facade if there is one, to the catalog otherwise.
+     *
+     * @return the objects found, keyed by id
+     */
+    <T extends CatalogInfo> Map<String, T> loadAllById(List<String> ids, Class<T> type) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        if (facadeLookup != null) {
+            return facadeLookup.findAllById(ids, type);
+        }
+        return loadAllFromCatalog(ids, type);
+    }
+
+    /**
+     * Returns an empty map if the catalog is not a {@link CatalogPlugin}. The values are unwrapped because the outbound
+     * resolver of the catalog facade wraps them in a {@link ModificationProxy}, and a proxy must not be stored in a
+     * shared graph.
+     */
+    private <T extends CatalogInfo> Map<String, T> loadAllFromCatalog(List<String> ids, Class<T> type) {
+        if (!(getCatalog() instanceof CatalogPlugin plugin)) {
+            return Map.of();
+        }
+        try (Stream<T> found = plugin.findAllById(ids, type)) {
+            Stream<T> unwrapped = found.map(ModificationProxy::unwrap);
+            return unwrapped.collect(Collectors.toMap(CatalogInfo::getId, Function.identity()));
+        }
+    }
+
+    /** Takes the entry from the bulk lookup results, or resolves it on its own when they do not hold it. */
+    private <T extends Info> T resolveEntry(Map<String, T> found, T entry) {
+        T bulkResult = findReferenced(found, entry);
+        if (bulkResult != null) {
+            return bulkResult;
+        }
+        return resolve(entry);
+    }
+
+    /**
+     * Finds the object referenced by a {@link ResolvingProxy} entry among bulk lookup results.
+     *
+     * @return the object, or null if {@code ref} is not a proxy or the lookup did not find it
+     */
+    static <T extends Info> T findReferenced(Map<String, T> found, Info ref) {
+        String id = referencedId(ref);
+        if (id == null) {
+            return null;
+        }
+        return found.get(id);
+    }
+
+    private static String referencedId(Info ref) {
+        ResolvingProxy proxy = org.geoserver.catalog.impl.ProxyUtils.handler(ref, ResolvingProxy.class);
+        if (proxy == null || !StringUtils.hasLength(proxy.getRef())) {
+            return null;
+        }
+        return proxy.getRef();
     }
 
     /**

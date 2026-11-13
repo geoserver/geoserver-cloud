@@ -5,10 +5,16 @@
 
 package org.geoserver.cloud.catalog.backend.datadir;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -268,6 +274,44 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
         return retryOnNull(
                 () -> super.getLayerGroup(id), //
                 () -> "getLayerGroup(%s)".formatted(id));
+    }
+
+    @Override
+    public PublishedInfo getPublished(@NonNull String id) {
+        return retryOnNull(
+                () -> lookupPublished(id), //
+                () -> "getPublished(%s)".formatted(id));
+    }
+
+    /** Retries the layer and group lookups as one unit. A group id then costs one retry, not two. */
+    private PublishedInfo lookupPublished(String id) {
+        LayerInfo layer = super.getLayer(id);
+        if (layer != null) {
+            return layer;
+        }
+        return super.getLayerGroup(id);
+    }
+
+    /**
+     * Asks the wrapped facade for the ids in one call, then looks the missing ids up one at a time with the retrying
+     * getters, such as {@link #getPublished(String)} for {@link PublishedInfo}.
+     */
+    @Override
+    public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        List<T> found = findAllWithoutRetry(ids, type);
+        Set<String> foundIds = found.stream().map(CatalogInfo::getId).collect(Collectors.toSet());
+        for (String id : new LinkedHashSet<>(ids)) {
+            if (!foundIds.contains(id)) {
+                get(id, type).ifPresent(found::add);
+            }
+        }
+        return found.stream();
+    }
+
+    private <T extends CatalogInfo> List<T> findAllWithoutRetry(List<String> ids, Class<T> type) {
+        try (Stream<T> found = super.findAllById(ids, type)) {
+            return new ArrayList<>(found.toList());
+        }
     }
 
     @Override

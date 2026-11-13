@@ -25,6 +25,8 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.StoreInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
+import org.geoserver.catalog.plugin.requestcache.RequestCache;
+import org.geoserver.catalog.plugin.requestcache.RequestCacheScope;
 
 /**
  * A {@link UnaryOperator} that sets the {@link Catalog} property on {@link CatalogInfo} objects requiring it.
@@ -42,6 +44,9 @@ import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
  *   <li><strong>Catalog Assignment:</strong> Sets the catalog on supported {@link CatalogInfo} types.
  *   <li><strong>Recursive Resolution:</strong> Handles nested structures like styles, layers, and group styles.
  *   <li><strong>Null Safety:</strong> Gracefully handles null inputs, returning null without modification.
+ *   <li><strong>Once per request:</strong> Inside a {@link RequestCacheScope}, an instance is walked the first time
+ *       only. The request cache returns the same instance on each lookup, and the catalog of its references stays set.
+ *       Without a scope, each call walks the object.
  * </ul>
  *
  * <p>Example usage:
@@ -142,6 +147,9 @@ public class CatalogPropertyResolver {
      */
     private <I> I resolve(@NonNull I orig) {
         I info = ModificationProxy.unwrap(orig);
+        if (resolvedInThisRequest(info)) {
+            return orig;
+        }
         if (info instanceof StoreInfo store) {
             setCatalog(store);
         } else if (info instanceof ResourceInfo resource) {
@@ -154,6 +162,18 @@ public class CatalogPropertyResolver {
             setCatalog(lgs);
         }
         return orig;
+    }
+
+    /**
+     * Whether the request holds the instance with its references resolved already, and marks it otherwise. Outside a
+     * request cache scope nothing is held, and the instance is walked.
+     */
+    private boolean resolvedInThisRequest(Object info) {
+        RequestCache requestCache = RequestCacheScope.current();
+        if (requestCache == null) {
+            return false;
+        }
+        return !requestCache.markResolved(info);
     }
 
     /**

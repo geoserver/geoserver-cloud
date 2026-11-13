@@ -34,6 +34,8 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 /**
  * Spring event listener that synchronizes the local data directory catalog with remote catalog and configuration events
@@ -66,6 +68,14 @@ import org.springframework.context.event.EventListener;
 @RequiredArgsConstructor
 class RemoteEventDataDirectoryProcessor {
 
+    /**
+     * The precedence of the listeners of this processor. Spring reads the order of a listener on its method, and
+     * ignores it on the class. The listeners reading the catalog upon a remote event, such as the layer group
+     * containment cache, run later and find the change applied. The resource pool cleanup runs earlier: it reads a
+     * removed object before the removal.
+     */
+    static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 100;
+
     private final @NonNull RepositoryGeoServerFacade configFacade;
     private final @NonNull CatalogPlugin rawCatalog;
 
@@ -88,6 +98,7 @@ class RemoteEventDataDirectoryProcessor {
      * @param event the update sequence event from a remote node
      */
     @EventListener(UpdateSequenceEvent.class)
+    @Order(ORDER)
     void onRemoteUpdateSequenceEvent(UpdateSequenceEvent event) {
         if (event.isLocal()) {
             return;
@@ -124,6 +135,7 @@ class RemoteEventDataDirectoryProcessor {
      * @param event the removal event containing the object ID and type
      */
     @EventListener(InfoRemoved.class)
+    @Order(ORDER)
     public void onRemoteRemoveEvent(InfoRemoved event) {
         if (event.isLocal()) {
             return;
@@ -170,6 +182,7 @@ class RemoteEventDataDirectoryProcessor {
      * @param event the addition event containing the new object
      */
     @EventListener(InfoAdded.class)
+    @Order(ORDER)
     public void onRemoteAddEvent(InfoAdded<? extends Info> event) {
         if (event.isLocal()) {
             return;
@@ -207,6 +220,7 @@ class RemoteEventDataDirectoryProcessor {
      * @param event the modification event containing the patch
      */
     @EventListener(InfoModified.class)
+    @Order(ORDER)
     public void onRemoteModifyEvent(InfoModified event) {
         if (event.isLocal()) {
             return;
@@ -272,6 +286,7 @@ class RemoteEventDataDirectoryProcessor {
      * @param event the default workspace change event
      */
     @EventListener(DefaultWorkspaceSet.class)
+    @Order(ORDER)
     public void onRemoteDefaultWorkspaceEvent(DefaultWorkspaceSet event) {
         if (event.isLocal()) {
             return;
@@ -294,6 +309,7 @@ class RemoteEventDataDirectoryProcessor {
      * @param event the default namespace change event
      */
     @EventListener(DefaultNamespaceSet.class)
+    @Order(ORDER)
     public void onRemoteDefaultNamespaceEvent(DefaultNamespaceSet event) {
         if (event.isLocal()) {
             return;
@@ -316,6 +332,7 @@ class RemoteEventDataDirectoryProcessor {
      * @param event the default data store change event
      */
     @EventListener(DefaultDataStoreSet.class)
+    @Order(ORDER)
     public void onRemoteDefaultDataStoreEvent(DefaultDataStoreSet event) {
         if (event.isLocal()) {
             return;

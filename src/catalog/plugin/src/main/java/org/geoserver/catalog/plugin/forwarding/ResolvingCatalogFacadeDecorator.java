@@ -207,7 +207,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      */
     @Override
     public <T extends CatalogInfo> T add(@NonNull T info) {
-        return super.add(resolveInbound(info));
+        return resolveOutbound(super.add(resolveInbound(info)));
     }
 
     /**
@@ -286,6 +286,19 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     @Override
     public PublishedInfo getPublished(@NonNull String id) {
         return resolveOutbound(super.getPublished(id));
+    }
+
+    /**
+     * Retrieves objects by id, applying the outbound resolver to the results like {@link #query(Query)}.
+     *
+     * @param <T> The type of {@link CatalogInfo} to retrieve.
+     * @param ids The ids to look up; must not be null.
+     * @param type The interface type of the objects; must not be null.
+     * @return A {@link Stream} of resolved objects; never null.
+     */
+    @Override
+    public <T extends CatalogInfo> Stream<T> findAllById(@NonNull List<String> ids, @NonNull Class<T> type) {
+        return super.findAllById(ids, type).map(this::resolveOutbound).filter(Objects::nonNull);
     }
 
     /**

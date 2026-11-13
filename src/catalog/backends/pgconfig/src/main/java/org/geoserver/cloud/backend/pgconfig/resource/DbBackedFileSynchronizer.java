@@ -116,6 +116,10 @@ public class DbBackedFileSynchronizer {
      * survived it.
      */
     public void syncDeletions(@NonNull String path) {
+        // the root lists the files of the whole store: its sync would delete the rows of the files without a local copy
+        if (path.isEmpty()) {
+            return;
+        }
         removeDbRowsOfDeletedFiles(path);
     }
 

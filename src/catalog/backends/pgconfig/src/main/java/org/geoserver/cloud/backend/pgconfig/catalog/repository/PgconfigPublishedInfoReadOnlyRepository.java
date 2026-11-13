@@ -9,9 +9,11 @@ import lombok.NonNull;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 public class PgconfigPublishedInfoReadOnlyRepository extends PgconfigPublishedInfoRepository<PublishedInfo> {
+
+    private static final String COLUMNS_WITH_TILE_LAYER =
+            CatalogInfoRowMapper.PUBLISHEDINFO_BUILD_COLUMNS + ", " + CatalogInfoRowMapper.TILE_LAYER_COLUMN;
 
     public PgconfigPublishedInfoReadOnlyRepository(
             @NonNull JdbcTemplate template, @NonNull PgconfigStyleRepository styleLoader) {
@@ -24,8 +26,20 @@ public class PgconfigPublishedInfoReadOnlyRepository extends PgconfigPublishedIn
         return CatalogInfoRowMapper.PUBLISHEDINFO_BUILD_COLUMNS;
     }
 
+    /** The lookups of one layer or group also select its GWC settings. */
     @Override
-    protected final RowMapper<PublishedInfo> newRowMapper() {
+    protected String getLookupColumns() {
+        return COLUMNS_WITH_TILE_LAYER;
+    }
+
+    /** The bulk lookups by id also select the GWC settings of the layers and groups. */
+    @Override
+    protected String getBulkColumns() {
+        return COLUMNS_WITH_TILE_LAYER;
+    }
+
+    @Override
+    protected final CatalogInfoRowMapper<PublishedInfo> newRowMapper() {
         return CatalogInfoRowMapper.<PublishedInfo>newInstance().setStyleLoader(styleRepo::findById);
     }
 

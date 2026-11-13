@@ -32,7 +32,9 @@ import org.geoserver.catalog.impl.ResourceInfoImpl;
 import org.geoserver.catalog.impl.StoreInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.requestcache.RequestCacheScope;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,6 +54,11 @@ class CatalogPropertyResolverTest {
         geoServer.setCatalog(catalog);
         testData = CatalogTestData.initialized(() -> catalog, () -> geoServer).initCatalog();
         resolver = CatalogPropertyResolver.of(catalog);
+    }
+
+    @AfterEach
+    void closeScope() {
+        RequestCacheScope.close();
     }
 
     @Test
@@ -354,5 +361,58 @@ class CatalogPropertyResolverTest {
         assertThat(defaultStyle.getCatalog()).isSameAs(catalog);
         assertThat(s1.getCatalog()).isSameAs(catalog);
         assertThat(remoteStyle.getCatalog()).isNull();
+    }
+
+    // the request cache returns the same instance on each lookup, with its references resolved already
+    @Test
+    void walkedOncePerRequest() {
+        LayerGroupInfoImpl layerGroup = new LayerGroupInfoImpl();
+        StyleInfoImpl style = new StyleInfoImpl(null);
+        style.setId("s1");
+        layerGroup.getStyles().add(style);
+
+        RequestCacheScope.open(10);
+        resolver.apply(layerGroup);
+        assertThat(style.getCatalog()).isSameAs(catalog);
+
+        style.setCatalog(null);
+        resolver.apply(ModificationProxy.create(layerGroup, LayerGroupInfo.class));
+        assertThat(style.getCatalog()).isNull();
+
+        RequestCacheScope.close();
+        resolver.apply(layerGroup);
+        assertThat(style.getCatalog()).isSameAs(catalog);
+    }
+
+    // a style walked inside its group is not walked again when looked up on its own
+    @Test
+    void nestedObjectsWalkedWithTheirOwner() {
+        LayerGroupInfoImpl layerGroup = new LayerGroupInfoImpl();
+        StyleInfoImpl style = new StyleInfoImpl(null);
+        style.setId("s1");
+        layerGroup.getStyles().add(style);
+
+        RequestCacheScope.open(10);
+        resolver.apply(layerGroup);
+        style.setCatalog(null);
+
+        resolver.apply(style);
+        assertThat(style.getCatalog()).isNull();
+    }
+
+    // a fresh decode of the same object is a new instance and gets its references resolved
+    @Test
+    void newInstanceWalkedUnderScope() {
+        StyleInfoImpl style = new StyleInfoImpl(null);
+        style.setId("s1");
+        StyleInfoImpl decodedAgain = new StyleInfoImpl(null);
+        decodedAgain.setId("s1");
+
+        RequestCacheScope.open(10);
+        resolver.apply(style);
+        resolver.apply(decodedAgain);
+
+        assertThat(style.getCatalog()).isSameAs(catalog);
+        assertThat(decodedAgain.getCatalog()).isSameAs(catalog);
     }
 }

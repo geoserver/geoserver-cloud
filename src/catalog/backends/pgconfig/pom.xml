@@ -17,12 +17,6 @@
     <dependency>
       <groupId>org.geoserver.cloud.catalog</groupId>
       <artifactId>gs-cloud-events</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud.catalog</groupId>
-      <artifactId>gs-cloud-catalog-cache</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -63,6 +57,10 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.luben</groupId>
+      <artifactId>zstd-jni</artifactId>
     </dependency>
     <dependency>
       <!-- to access gwc-core transitively without having to specify the gwc version -->

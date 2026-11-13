@@ -17,6 +17,7 @@ import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigBackendProperties;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
+import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -60,7 +61,9 @@ class PgconfigDbBackedPatternsIT {
                 template,
                 lockProvider,
                 PgconfigResourceStore.defaultIgnoredResources(),
-                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()));
+                PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()),
+                new DataSourceTransactionManager(db.getDataSource()),
+                new ResourceChangePublisher(new SimpleResourceNotificationDispatcher(), event -> {}));
     }
 
     private JdbcLockRegistry pgconfigLockRegistry() {

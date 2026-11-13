@@ -79,7 +79,7 @@ class PgconfigGwcCatalogRenameListenerIT {
         GWCConfigPersister defaultsProvider = mock(GWCConfigPersister.class);
         when(defaultsProvider.getConfig()).thenReturn(new GWCConfig());
         tlCatalog = new PgconfigTileLayerCatalog(
-                db.getDataSource(), support.getGridsets(), () -> catalog, defaultsProvider);
+                db.getDataSource(), support.getGridsets(), catalog::getFacade, defaultsProvider);
 
         mediator = mock(GWC.class);
         GWC.set(mediator, mock(GWCSynchEnv.class));
