@@ -15,6 +15,8 @@ import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.cloud.event.info.InfoRemoved;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 /**
  * Listens to {@link RemoteCatalogEvent}s and evicts the modified or deleted {@link CatalogInfo }
@@ -24,14 +26,23 @@ import org.springframework.context.event.EventListener;
 @RequiredArgsConstructor
 public class RemoteEventJdbcConfigProcessor {
 
+    /**
+     * The precedence of the listeners of this processor. Spring reads the order of a listener on its method, and
+     * ignores it on the class. The listeners reading the catalog upon a remote event, such as the layer group
+     * containment cache, run later and find the change applied.
+     */
+    static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 100;
+
     private final @NonNull ConfigDatabase jdbcConfigDatabase;
 
     @EventListener(InfoRemoved.class)
+    @Order(ORDER)
     public void onRemoteRemoveEvent(InfoRemoved event) {
         evictConfigDatabaseEntry(event);
     }
 
     @EventListener(InfoModified.class)
+    @Order(ORDER)
     public void onRemoteModifyEvent(InfoModified event) {
         evictConfigDatabaseEntry(event);
     }

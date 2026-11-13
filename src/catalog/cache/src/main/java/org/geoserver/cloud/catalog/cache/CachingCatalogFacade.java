@@ -43,12 +43,22 @@ import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
 
 /**
  * @see CachingCatalogFacadeContainmentSupport
  */
 public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
+
+    /**
+     * The precedence of the eviction listeners. Spring reads the order of a listener on its method, and ignores it
+     * on the class. The listeners reading the catalog upon a remote event, such as the layer group containment cache,
+     * run later and read the current object instead of the evicted one. The resource pool cleanup runs earlier: it
+     * reads a removed object before the eviction.
+     */
+    static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
 
     /** Name of the cache used as key to acquire it through {@link CacheManager#getCache(String)} */
     static final String CACHE_NAME = "gs-catalog";
@@ -86,16 +96,19 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     // ///////////////////  Eviction event listeners //////////////////////////
 
     @EventListener(classes = DefaultWorkspaceSet.class)
+    @Order(ORDER)
     public void onDefaultWorkspaceSet() {
         support.evictDefaultWorkspace();
     }
 
     @EventListener(classes = DefaultNamespaceSet.class)
+    @Order(ORDER)
     public void onDefaultNamespaceSet() {
         support.evictDefaultNamespace();
     }
 
     @EventListener(DefaultDataStoreSet.class)
+    @Order(ORDER)
     public void onDefaultDataStoreSet(DefaultDataStoreSet event) {
         support.evictDefaultDataStore(event.getWorkspaceId(), event.getObjectName());
     }
@@ -105,6 +118,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
      * event is local, the add(xxx) method shall have overridden it with a cache put
      */
     @EventListener(CatalogInfoAdded.class)
+    @Order(ORDER)
     public void onCatalogInfoAdded(CatalogInfoAdded event) {
         if (event.isRemote()) {
             support.evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
@@ -117,6 +131,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
      * names.
      */
     @EventListener(CatalogInfoModified.class)
+    @Order(ORDER)
     public void onCatalogInfoModified(CatalogInfoModified event) {
         if (event.isRemote()) {
             support.evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
@@ -125,6 +140,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     }
 
     @EventListener(CatalogInfoRemoved.class)
+    @Order(ORDER)
     public void onCatalogInfoRemovedEvent(CatalogInfoRemoved event) {
         if (event.isRemote()) {
             support.evict(event.getObjectId(), event.getObjectName(), event.getObjectType());

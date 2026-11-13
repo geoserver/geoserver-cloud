@@ -15,6 +15,12 @@
       <artifactId>spring-cloud-bus</artifactId>
     </dependency>
     <dependency>
+      <!-- the consumer of the event bus reports its subscriptions to its queue, see RemoteEventsResumedPublisher -->
+      <groupId>org.springframework.amqp</groupId>
+      <artifactId>spring-rabbit</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-main</artifactId>
     </dependency>

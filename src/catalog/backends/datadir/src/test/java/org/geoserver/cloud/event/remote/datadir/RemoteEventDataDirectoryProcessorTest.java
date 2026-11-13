@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -22,9 +23,11 @@ import java.util.List;
 import java.util.Optional;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
+import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
+import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.NamespaceInfoImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
@@ -53,12 +56,16 @@ import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
+import org.geoserver.security.impl.GsCloudLayerGroupContainmentCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 class RemoteEventDataDirectoryProcessorTest {
 
     ExtendedCatalogFacade mockFacade;
+    CatalogPlugin mockCatalog;
     RepositoryGeoServerFacade mockGeoServerFacade;
     RemoteEventDataDirectoryProcessor processor;
 
@@ -67,12 +74,12 @@ class RemoteEventDataDirectoryProcessorTest {
     @BeforeEach
     void setUp() {
         mockFacade = mock(ExtendedCatalogFacade.class);
-        var catalog = mock(CatalogPlugin.class);
-        when(catalog.getFacade()).thenReturn(mockFacade);
+        mockCatalog = mock(CatalogPlugin.class);
+        when(mockCatalog.getFacade()).thenReturn(mockFacade);
         mockGeoServerFacade = mock(RepositoryGeoServerFacade.class);
         global = new GeoServerInfoImpl();
         when(mockGeoServerFacade.getGlobal()).thenReturn(global);
-        processor = new RemoteEventDataDirectoryProcessor(mockGeoServerFacade, catalog);
+        processor = new RemoteEventDataDirectoryProcessor(mockGeoServerFacade, mockCatalog);
     }
 
     @Test
@@ -397,5 +404,40 @@ class RemoteEventDataDirectoryProcessorTest {
         nullEvent.setRemote(true);
         processor.onRemoteDefaultDataStoreEvent(nullEvent);
         verify(mockFacade, times(1)).setDefaultDataStore(any(WorkspaceInfo.class), isNull());
+    }
+
+    // the containment cache reads the group from the catalog, after the processor applied the change
+    @Test
+    void processorRunsBeforeContainment() {
+        LayerGroupInfoImpl group = new LayerGroupInfoImpl();
+        group.setId("lg1");
+        group.setName("group");
+        LayerGroupInfo changed = ModificationProxy.create(group, LayerGroupInfo.class);
+        changed.setName("renamed");
+        InfoModified event = CatalogInfoModified.createLocal(1, changed);
+        event.setRemote(true);
+        when(mockFacade.get("lg1", LayerGroupInfo.class)).thenReturn(Optional.of(changed));
+        GsCloudLayerGroupContainmentCache containment = new GsCloudLayerGroupContainmentCache(mockCatalog);
+
+        publish(event, processor, containment);
+
+        InOrder inOrder = inOrder(mockFacade, mockCatalog);
+        inOrder.verify(mockFacade).update(changed, event.getPatch());
+        inOrder.verify(mockCatalog).getLayerGroup("lg1");
+    }
+
+    /**
+     * Publishes the event through the event multicaster of an application context, to the listener methods of the
+     * beans. A bean registered as a singleton gets no callback from the context: the containment cache does not build
+     * itself upon the refresh.
+     */
+    private static void publish(Object event, Object... beans) {
+        try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+            for (Object bean : beans) {
+                context.getBeanFactory().registerSingleton(bean.getClass().getSimpleName(), bean);
+            }
+            context.refresh();
+            context.publishEvent(event);
+        }
     }
 }

@@ -25,11 +25,17 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 
 /** */
 @CacheConfig(cacheNames = CachingGeoServerFacade.CACHE_NAME)
 @Slf4j(topic = "org.geoserver.cloud.catalog.caching")
 public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
+
+    /**
+     * The precedence of the eviction listener, the same as the one of {@link CachingCatalogFacade}.
+     */
+    static final int ORDER = CachingCatalogFacade.ORDER;
 
     /**
      * Name of the cache used by {@link CachingGeoServerFacade}, used as key to acquire it through
@@ -62,6 +68,7 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
      * catalog or the configuration.
      */
     @EventListener(classes = UpdateSequenceEvent.class)
+    @Order(ORDER)
     void onUpdateSequenceEvent(UpdateSequenceEvent event) {
         if (event.isRemote()) {
             evictAll();
