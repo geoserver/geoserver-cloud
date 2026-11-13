@@ -12,6 +12,7 @@ import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.BaseUnits;
 import io.micrometer.core.instrument.binder.MeterBinder;
 import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.NonNull;
 
@@ -40,8 +41,8 @@ public class EntityCacheMetrics implements MeterBinder {
     private final String name;
     private final Cache<?, ?> caffeine;
 
-    public EntityCacheMetrics(@NonNull EntityCache cache) {
-        this(cache.name(), cache.caffeine());
+    public EntityCacheMetrics(EntityCache cache) {
+        this(Objects.requireNonNull(cache, "cache").name(), cache.caffeine());
     }
 
     /** @param caffeine the cache; a cache built with a maximum weight also gets the {@code cache.weight} gauge */

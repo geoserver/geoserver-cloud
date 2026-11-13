@@ -502,8 +502,8 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
         List<CacheKey> keys = cache.entityKeys(id, clazz);
         return switch (cache.lookup(keys)) {
             case Lookup.Hit hit -> instanceOf(clazz, cache.decode(hit.json()));
-            case Lookup.Miss _ -> Optional.empty();
-            case Lookup.Absent _ -> cache.queryRemembering(keys, () -> readById(id, clazz));
+            case Lookup.Miss() -> Optional.empty();
+            case Lookup.Absent() -> cache.queryRemembering(keys, () -> readById(id, clazz));
         };
     }
 
@@ -570,10 +570,10 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
         for (String id : new LinkedHashSet<>(ids)) {
             switch (cache.lookup(cache.entityKeys(id, type))) {
                 case Lookup.Hit hit -> found.add(cache.decode(hit.json()));
-                case Lookup.Miss _ -> {
+                case Lookup.Miss() -> {
                     // the id was not found earlier
                 }
-                case Lookup.Absent _ -> absent.add(id);
+                case Lookup.Absent() -> absent.add(id);
             }
         }
         found.addAll(fetchAll(absent, type));
@@ -612,8 +612,8 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
         }
         return switch (cache.lookup(keys)) {
             case Lookup.Hit hit -> findByHint(keys, new String(hit.json(), UTF_8), clazz, query);
-            case Lookup.Miss _ -> Optional.empty();
-            case Lookup.Absent _ -> cache.queryRemembering(keys, query);
+            case Lookup.Miss() -> Optional.empty();
+            case Lookup.Absent() -> cache.queryRemembering(keys, query);
         };
     }
 
