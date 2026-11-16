@@ -206,6 +206,36 @@ spring:
                 allowedMethods: GET, PUT, POST, DELETE, OPTIONS, HEAD
 ```
 
+### Connection Pool
+
+The gateway keeps a pool of connections to each upstream address, from which it sends the proxied requests.
+Spring Cloud Gateway Server MVC has no settings for this pool. The gateway binds the `httpclient.pool`
+properties of the WebFlux gateway under `spring.cloud.gateway.server.webmvc.httpclient.pool`:
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `max-connections` | `500` | Maximum number of connections to each upstream address. Further requests wait for a connection |
+| `acquire-timeout` | `10s` | Maximum time a request waits for a connection, then it fails |
+| `max-idle-time` | `30s` | Idle time after which a connection is not reused. Keep it below the keep-alive timeout of the services, 60 seconds by default |
+| `eviction-interval` | `15s` | Interval of the background task closing the expired connections. `0` disables it |
+| `metrics` | `true` | Publishes the pool metrics, named `reactor.netty.connection.provider.*` |
+
+The services close the connections that stay idle longer than their keep-alive timeout. If `max-idle-time`
+were longer, the gateway could send a request on a connection being closed, and the request would fail.
+
+### Timeouts
+
+The proxied requests use the timeouts of the Spring Boot HTTP clients, set in `gateway.yml`:
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `spring.http.clients.connect-timeout` | `5s` | Time to open a connection to a service. `GATEWAY_CONNECT_TIMEOUT` overrides it |
+| `spring.http.clients.read-timeout` | `300s` | Time between two reads of a response, the first byte included. `GATEWAY_READ_TIMEOUT` overrides it |
+
+The read timeout is long on purpose. The services bound their own work, with control-flow and the WMS rendering
+limits, and a long GetFeature download or WPS execution must not fail at the gateway. The timeout protects the
+gateway from a service holding a request without ever answering it.
+
 ### Profiles
 
 | Profile | Description |

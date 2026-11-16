@@ -1,9 +1,6 @@
 server:
   tomcat:
-    max-connections: 1024    
-    threads:
-      min-spare: 1
-      max: 25
+    max-connections: 1024
 
 spring:
   application.name: config
