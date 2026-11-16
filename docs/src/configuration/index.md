@@ -243,6 +243,27 @@ The gateway logs a warning the first time a request with an `X-Forwarded-For` he
 
 The same setting selects the proxies allowed to set the request ID of the logs, see [Write JSON logs](../user-guide/logging.md#write-json-logs).
 
+## Concurrent requests
+
+Two settings of the configuration repository decide how many requests a service runs at once.
+
+The control-flow extension admits the requests, with the rules of `geoserver_control_flow.yml`. Each service loads the first document of the file and the document of its own profile. The limits scale with `cpu.cores`, the number of processors seen by the JVM, equal to the CPU limit of the container:
+
+| Service | Rules | Default per core |
+|---------|-------|------------------|
+| wms | `ows.wms`, `ows.wms.getmap` | 8, 4 |
+| wfs | `ows.wfs`, `ows.wfs.getfeature` | 8, 2 |
+| wcs | `ows.wcs`, `ows.wcs.getcoverage` | 8, 1 |
+| wps | `ows.wps.execute` | 1 |
+| gwc | `ows.gwc`, `ows.wms.getmap` | 8, 4 |
+| restconfig, webui | none, control-flow is disabled | |
+
+A request above a limit waits in the queue of the rule for `timeout` seconds, 10 by default, then gets a 503. An environment variable sets one rule on one container, for instance `GEOSERVER_EXTENSION_CONTROLFLOW_PROPERTIES_OWS_WMS_GETMAP=6`, and `CONTROL_FLOW=false` disables the extension. The file documents the other rules: per user, per IP address, per output format, and request rates.
+
+Tomcat gives each request a worker thread before control-flow sees it, and keeps the requests above its thread count waiting with no timeout. `geoserver_spring.yml` gives the services 500 threads, as many requests as one gateway replica sends to one address at once, the size of its [connection pool](../developer-guide/services/gateway-service.md#connection-pool). The count holds regardless of the services in the pod. `TOMCAT_THREADS_MAX` sets it on a container. A thread waiting in a control-flow queue costs memory only.
+
+When the CPU request of a container is far below its limit, `cpu.cores` counts CPU not guaranteed to the container. Set the request equal to the limit, or pass the cores to size for: `JAVA_OPTS=-Dcpu.cores=2`.
+
 ## Use GeoServer ACL
 
 To use GeoServer ACL with GeoServer Cloud, you need to do the following steps:
