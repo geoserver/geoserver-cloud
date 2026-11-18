@@ -13,7 +13,7 @@ import java.util.List;
 import org.geoserver.cloud.backend.pgconfig.cache.Lookup.Absent;
 import org.geoserver.cloud.backend.pgconfig.resource.ResourceRow;
 import org.geoserver.cloud.backend.pgconfig.resource.ResourceStoreCache;
-import org.geoserver.cloud.event.bus.RemoteEventsResumed;
+import org.geoserver.cloud.event.RemoteEventsResumed;
 import org.geoserver.platform.resource.Resource.Type;
 import org.junit.jupiter.api.Test;
 

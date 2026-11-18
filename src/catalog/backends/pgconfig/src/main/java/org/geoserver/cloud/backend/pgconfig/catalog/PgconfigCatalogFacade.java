@@ -35,6 +35,7 @@ import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigResourceR
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigStoreRepository;
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigStyleRepository;
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigWorkspaceRepository;
+import org.geoserver.cloud.backend.pgconfig.catalog.secrets.StoreSecrets;
 import org.geotools.api.filter.Filter;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.jspecify.annotations.Nullable;
@@ -148,6 +149,14 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
     /** Sets whether listings add their objects to the cache. Off by default. */
     public void setListingWriteThrough(boolean listingWriteThrough) {
         allRepositories().forEach(repository -> repository.setListingWriteThrough(listingWriteThrough));
+    }
+
+    /**
+     * Sets the encryption of the secrets of stores in their rows. {@link StoreSecrets#none()}, the default, reads and
+     * writes the rows as they are.
+     */
+    public void setStoreSecrets(@NonNull StoreSecrets storeSecrets) {
+        allRepositories().forEach(repository -> repository.setStoreSecrets(storeSecrets));
     }
 
     /**

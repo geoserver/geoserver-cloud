@@ -11,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import java.util.ArrayList;
 import java.util.List;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.cloud.event.RemoteEventsResumed;
 import org.geoserver.config.GeoServer;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.cloud.event.GeoServerEvent;
+import org.geoserver.cloud.security.secrets.StoreSecretsCipher;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.configuration.core.main.GeoServerMainSecurityConfiguration;
@@ -19,6 +20,7 @@ import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.security.CloudGeoServerSecurityManager;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.filter.DisabledSecurityFilter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -87,6 +89,15 @@ public class GeoServerMainSecurityAutoConfiguration {
 
         return new CloudGeoServerSecurityManager(
                 lock, dataDir, publisher, updateSequenceIncrementor, additionalAuthenticationProviders);
+    }
+
+    /**
+     * The cipher of the store secrets, used by the catalog backend and the event bus. Its encoders are created once the
+     * application is ready, and again after a reload of the security configuration.
+     */
+    @Bean
+    StoreSecretsCipher storeSecretsCipher(ObjectProvider<GeoServerSecurityManager> securityManager) {
+        return StoreSecretsCipher.of(securityManager);
     }
 
     /**

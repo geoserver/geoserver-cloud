@@ -1,4 +1,3 @@
 org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration
 org.geoserver.cloud.autoconfigure.catalog.event.UpdateSequenceControllerAutoConfiguration
 org.geoserver.cloud.autoconfigure.catalog.event.LifecycleEventAutoConfiguration
-org.geoserver.cloud.autoconfigure.event.bus.GeoServerBusIntegrationAutoConfiguration

@@ -7,7 +7,7 @@ package org.geoserver.cloud.backend.pgconfig.cache;
 import java.util.List;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.event.bus.RemoteEventsResumed;
+import org.geoserver.cloud.event.RemoteEventsResumed;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

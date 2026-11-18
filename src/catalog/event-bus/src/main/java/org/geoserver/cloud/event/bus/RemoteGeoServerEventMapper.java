@@ -29,6 +29,7 @@ class RemoteGeoServerEventMapper {
     private final @NonNull InfoEventResolver remoteEventsPropertyResolver;
     private final @NonNull ServiceMatcher serviceMatcher;
     private final @NonNull Destination.Factory destinationFactory;
+    private final @NonNull RemoteEventSecrets secrets;
 
     private Destination destinationService() {
         return destinationFactory.getDestination(DESTINATION_ALL_SERVICES);
@@ -38,12 +39,18 @@ class RemoteGeoServerEventMapper {
         return serviceMatcher.getBusId();
     }
 
+    /**
+     * Wraps a local event to send it to the other instances. The event sent is a copy of the local one if it holds
+     * store secrets, encrypted by {@link RemoteEventSecrets}.
+     */
     public RemoteGeoServerEvent toRemote(GeoServerEvent anyLocalCatalogOrConfigEvent) {
         String origin = localBusServiceId();
         Destination destination = destinationService();
-        RemoteGeoServerEvent remote = new RemoteGeoServerEvent(this, origin, destination, anyLocalCatalogOrConfigEvent);
         anyLocalCatalogOrConfigEvent.setOrigin(origin);
+        GeoServerEvent payload = secrets.encrypt(anyLocalCatalogOrConfigEvent);
+        RemoteGeoServerEvent remote = new RemoteGeoServerEvent(this, origin, destination, payload);
         anyLocalCatalogOrConfigEvent.setId(remote.getId());
+        payload.setId(remote.getId());
         return remote;
     }
 
@@ -70,6 +77,7 @@ class RemoteGeoServerEventMapper {
         GeoServerEvent event = incoming.getEvent();
         event.setRemote(true);
         event.setOrigin(incoming.getOriginService());
+        secrets.decrypt(event);
         if (event instanceof InfoEvent infoEvent) {
             event = remoteEventsPropertyResolver.resolve(infoEvent);
         }

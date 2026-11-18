@@ -35,6 +35,8 @@ import org.geoserver.cloud.backend.pgconfig.cache.ZstdCodec;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigLayerGroupWarmUp;
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigLayerGroupRepository;
+import org.geoserver.cloud.backend.pgconfig.catalog.secrets.StoreSecrets;
+import org.geoserver.cloud.backend.pgconfig.catalog.secrets.StoreSecretsMetrics;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigConfigRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigUpdateSequence;
@@ -53,9 +55,11 @@ import org.geoserver.cloud.backend.pgconfig.resource.SynchronizedResourceNotific
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.core.RawCatalogCustomizer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.DatabaseMigrationConfiguration.Migrations;
+import org.geoserver.cloud.security.secrets.StoreSecretsCipher;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.resource.LockProvider;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -199,12 +203,25 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
     PgconfigCatalogFacade pgconfigCatalogFacade(
             @Qualifier("pgconfigDataSource") DataSource dataSource,
             @Qualifier("pgconfigCatalogEntityCache") ObjectProvider<EntityCache> catalogCache,
-            EntityCacheProperties cacheProperties) {
+            EntityCacheProperties cacheProperties,
+            StoreSecrets storeSecrets) {
         JdbcTemplate template = new JdbcTemplate(dataSource);
         PgconfigCatalogFacade facade = new PgconfigCatalogFacade(template, catalogCache.getIfAvailable());
         facade.setListingWriteThrough(cacheProperties.isListingWriteThrough());
         facade.setRequestCacheMaxEntries(cacheProperties.getRequest().getMaxEntries());
+        facade.setStoreSecrets(storeSecrets);
         return facade;
+    }
+
+    /**
+     * Encrypts the secrets of stores in their rows with the encoder and keystore of the security settings, as vanilla
+     * GeoServer does in its XML files. The security manager is looked up on first use: the catalog facade exists before
+     * it, and a store read during its creation is read as it is stored.
+     */
+    @Bean
+    StoreSecrets pgconfigStoreSecrets(
+            ObjectProvider<StoreSecretsCipher> cipher, ObjectProvider<GeoServerSecurityManager> securityManager) {
+        return new StoreSecrets(cipher.getIfAvailable(() -> StoreSecretsCipher.of(securityManager)));
     }
 
     /**
@@ -349,6 +366,11 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         @ConditionalOnPgconfigResourceCacheEnabled
         ResourceStoreCacheMetrics pgconfigResourceStoreCacheMetrics(ResourceStoreCache resourceStoreCache) {
             return new ResourceStoreCacheMetrics(resourceStoreCache);
+        }
+
+        @Bean
+        StoreSecretsMetrics pgconfigStoreSecretsMetrics(StoreSecrets storeSecrets) {
+            return new StoreSecretsMetrics(storeSecrets);
         }
     }
 

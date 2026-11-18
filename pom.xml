@@ -232,6 +232,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.cloud.catalog</groupId>
+        <artifactId>gs-cloud-catalog-event-bus</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-spring-cloud-starter</artifactId>
         <version>${project.version}</version>
