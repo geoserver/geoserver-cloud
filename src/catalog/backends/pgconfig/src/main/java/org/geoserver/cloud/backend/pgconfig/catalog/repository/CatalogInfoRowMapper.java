@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.CatalogInfo;
@@ -40,6 +41,7 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.cloud.backend.pgconfig.cache.CacheEntry;
 import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
 import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
+import org.geoserver.cloud.backend.pgconfig.catalog.secrets.StoreSecrets;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.jspecify.annotations.Nullable;
@@ -257,6 +259,8 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
 
     private Function<String, Optional<StyleInfo>> styleLoader;
 
+    private StoreSecrets storeSecrets = StoreSecrets.none();
+
     /** The rows split by {@link #decompose(ResultSet)} from the last result set. */
     private @Nullable RowsRead rowsRead;
 
@@ -266,6 +270,12 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
 
     public CatalogInfoRowMapper<T> setStyleLoader(Function<String, Optional<StyleInfo>> styleLoader) {
         this.styleLoader = styleLoader;
+        return this;
+    }
+
+    /** Sets the decryption of the secrets of the stores read. {@link StoreSecrets#none()} by default. */
+    public CatalogInfoRowMapper<T> setStoreSecrets(@NonNull StoreSecrets storeSecrets) {
+        this.storeSecrets = storeSecrets;
         return this;
     }
 
@@ -416,7 +426,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
     StoreInfo mapStore(ResultSet rs) {
         StoreInfo store;
         try {
-            store = decode(rs.getString("store"), StoreInfo.class);
+            store = decode(decryptStore(rs.getString("store")), StoreInfo.class);
         } catch (SQLException e) {
             throw UncheckedSqlException.of(e);
         }
@@ -426,6 +436,10 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
             store.setWorkspace(ws);
         }
         return store;
+    }
+
+    private @Nullable String decryptStore(@Nullable String storeJson) {
+        return null == storeJson ? null : storeSecrets.decrypt(storeJson);
     }
 
     protected StoreInfo mapStore(String id, ResultSet rs) {
@@ -679,7 +693,7 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         if (null == rowObject) {
             return List.of();
         }
-        RowEntries entries = new RowEntries(rowsRead(rs).returnedKeys);
+        RowEntries entries = new RowEntries(rowsRead(rs).returnedKeys, storeSecrets);
         entries.add(objects);
         switch (type) {
             case "LayerInfo" -> {
@@ -819,8 +833,11 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         /** The {@code ENTITY} keys returned for the result set so far, this row included. */
         private final Set<CacheKey> returnedKeys;
 
-        RowEntries(Set<CacheKey> returnedKeys) {
+        private final StoreSecrets storeSecrets;
+
+        RowEntries(Set<CacheKey> returnedKeys, StoreSecrets storeSecrets) {
             this.returnedKeys = returnedKeys;
+            this.storeSecrets = storeSecrets;
         }
 
         /** Adds the entries of the styles of a published object. */
@@ -864,9 +881,21 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
             boolean rowObject = byKey.isEmpty();
             boolean newToResultSet = returnedKeys.add(key);
             if (rowObject || newToResultSet) {
-                byKey.put(key, CacheEntry.entity(object.type(), object.id(), object.json()));
+                byKey.put(key, CacheEntry.entity(object.type(), object.id(), entityJson(object)));
                 addName(object, objects);
             }
+        }
+
+        /**
+         * The JSON of the entry of an object. A store enters the cache with its secrets decrypted, once per result set:
+         * a decryption costs many times the decoding of the store, and the cached JSON is decoded on each lookup.
+         */
+        private byte[] entityJson(RowObject object) {
+            byte[] json = object.json();
+            return switch (object.type()) {
+                case DATASTORE, COVERAGESTORE, WMSSTORE, WMTSSTORE -> storeSecrets.decryptForCache(json);
+                default -> json;
+            };
         }
 
         private void addName(RowObject object, Map<String, RowObject> objects) {

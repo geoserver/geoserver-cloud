@@ -40,6 +40,7 @@ import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
 import org.geoserver.cloud.backend.pgconfig.cache.Lookup;
 import org.geoserver.cloud.backend.pgconfig.cache.PutBudget;
 import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgconfigQueryBuilder;
+import org.geoserver.cloud.backend.pgconfig.catalog.secrets.StoreSecrets;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
@@ -87,6 +88,8 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
     private @Nullable RepositoryCache<T> cache;
 
     private boolean listingWriteThrough;
+
+    private StoreSecrets storeSecrets = StoreSecrets.none();
 
     /** See {@link #setReferenceResolver(UnaryOperator)}. */
     private UnaryOperator<CatalogInfo> referenceResolver = UnaryOperator.identity();
@@ -137,6 +140,18 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
     /** Sets whether listings add their objects to the cache. Off by default. */
     public void setListingWriteThrough(boolean listingWriteThrough) {
         this.listingWriteThrough = listingWriteThrough;
+    }
+
+    /**
+     * Sets the encryption of the secrets of the stores written and read, including the stores held by the rows of
+     * resources, layers and groups. {@link StoreSecrets#none()} by default.
+     */
+    public void setStoreSecrets(@NonNull StoreSecrets storeSecrets) {
+        this.storeSecrets = storeSecrets;
+    }
+
+    protected final StoreSecrets storeSecrets() {
+        return storeSecrets;
     }
 
     /**
@@ -194,6 +209,11 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
      */
     protected CatalogInfoRowMapper<T> newRowMapper() {
         return CatalogInfoRowMapper.newInstance();
+    }
+
+    // The subclasses give the row mapper of their type, and the repository adds the decryption of store secrets
+    private CatalogInfoRowMapper<T> rowMapper() {
+        return newRowMapper().setStoreSecrets(storeSecrets);
     }
 
     protected final Set<String> sortableProperties() {
@@ -378,7 +398,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
      * The row mapper of a listing. With listing write-through on, it also puts the entries of the rows in the cache.
      */
     private RowMapper<T> listingRowMapper() {
-        CatalogInfoRowMapper<T> rowMapper = newRowMapper();
+        CatalogInfoRowMapper<T> rowMapper = rowMapper();
         if (!cacheInUse() || !listingWriteThrough) {
             return rowMapper;
         }
@@ -720,13 +740,13 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
      * row that cannot be split into entries is mapped as without a cache, and left out of the cache.
      */
     private RowMapper<T> cachingRowMapper(long epochSeen) {
-        CatalogInfoRowMapper<T> rowMapper = newRowMapper();
+        CatalogInfoRowMapper<T> rowMapper = rowMapper();
         return (rs, rowNum) -> cache.readRow(rowMapper, rs, rowNum, epochSeen);
     }
 
     /** Maps the rows of the query as without a cache, and returns the first instance of the class. */
     private <U extends T> Optional<U> findMapped(String query, Class<U> clazz, Object... args) {
-        RowMapper<T> rowMapper = newRowMapper();
+        RowMapper<T> rowMapper = rowMapper();
         try (Stream<U> stream = template.queryForStream(query, rowMapper, args)
                 .filter(clazz::isInstance)
                 .map(clazz::cast)) {
@@ -744,7 +764,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
             return;
         }
         long epochSeen = cache.epoch();
-        CatalogInfoRowMapper<T> rowMapper = newRowMapper();
+        CatalogInfoRowMapper<T> rowMapper = rowMapper();
         RowCallbackHandler putRow = rs -> {
             boolean stored = cache.putRowOnly(rowMapper, rs, epochSeen);
             handler.rowPut(rs, stored);

@@ -11,6 +11,7 @@ import java.io.UncheckedIOException;
 import java.util.Optional;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.cloud.autoconfigure.main.GeoServerMainSecurityAutoConfiguration;
 import org.geoserver.config.ConfigurationListener;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;
@@ -32,7 +33,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.ContextClosedEvent;
 
-@EnableAutoConfiguration
+// the bus tests need no security manager
+@EnableAutoConfiguration(exclude = GeoServerMainSecurityAutoConfiguration.class)
 @SpringBootConfiguration
 public class TestConfigurationAutoConfiguration implements InitializingBean, ApplicationListener<ContextClosedEvent> {
 
