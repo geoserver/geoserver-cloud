@@ -12,13 +12,18 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.cloud.event.GeoServerEvent;
+import org.geoserver.cloud.event.RemoteEventsResumed;
+import org.geoserver.cloud.security.secrets.StoreSecretsCipher;
 import org.geoserver.config.GeoServer;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.expression.Literal;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
+import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -28,6 +33,8 @@ import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /** Catalog and config events integration with spring cloud bus */
 @Configuration(proxyBeanMethods = false)
@@ -78,13 +85,34 @@ public class RemoteGeoServerEventsConfiguration {
         return new InfoEventResolver(rawCatalog, geoserver);
     }
 
+    /**
+     * Encrypts the store secrets of the events sent, and decrypts them in the events received. The events are copied
+     * with the JSON mapper of the application, used by the event bus to send them.
+     */
+    @Bean
+    RemoteEventSecrets remoteEventSecrets(
+            ObjectProvider<StoreSecretsCipher> cipher,
+            ObjectProvider<GeoServerSecurityManager> securityManager,
+            @Qualifier("rawCatalog") Catalog rawCatalog,
+            ObjectProvider<JsonMapper> jsonMapper) {
+
+        StoreSecretsCipher storeSecretsCipher = cipher.getIfAvailable(() -> StoreSecretsCipher.of(securityManager));
+        ObjectMapper mapper = jsonMapper.getIfAvailable();
+        if (null == mapper) {
+            mapper = ObjectMapperUtil.newObjectMapper();
+        }
+        return new RemoteEventSecrets(storeSecretsCipher, rawCatalog, mapper);
+    }
+
     @Bean
     RemoteGeoServerEventMapper remoteGeoServerEventMapper(
             InfoEventResolver remoteEventPropertiesResolver,
             ServiceMatcher serviceMatcher,
-            Destination.Factory destinationFactory) {
+            Destination.Factory destinationFactory,
+            RemoteEventSecrets remoteEventSecrets) {
 
-        return new RemoteGeoServerEventMapper(remoteEventPropertiesResolver, serviceMatcher, destinationFactory);
+        return new RemoteGeoServerEventMapper(
+                remoteEventPropertiesResolver, serviceMatcher, destinationFactory, remoteEventSecrets);
     }
 
     @Bean

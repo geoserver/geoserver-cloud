@@ -6,6 +6,7 @@ package org.geoserver.cloud.event.bus;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.cloud.event.RemoteEventsResumed;
 import org.springframework.amqp.rabbit.listener.ConsumeOkEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;

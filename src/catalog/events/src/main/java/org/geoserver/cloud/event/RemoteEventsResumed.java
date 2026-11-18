@@ -2,7 +2,7 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.geoserver.cloud.event.bus;
+package org.geoserver.cloud.event;
 
 /**
  * Tells the listeners of this service instance that the events of the other instances reach it again: the consumer of

@@ -118,10 +118,19 @@ The Prometheus actuator endpoint exposes the caches.
 - `resourcestore_index_rows` is the number of rows in the resource store index.
 - `catalog_request_cache_lookups_total` counts the lookups in the request caches, with `result="hit"` or `result="miss"`. `catalog_request_cache_rejected_total` counts the objects not kept because a request cache was full or closed, or because the requests in flight held their `request.max-total-entries`. A request adds its counts when it ends.
 - `catalog_request_cache_entries` is the number of objects held by the requests in flight together, against `request.max-total-entries`.
+- `pgconfig_store_secrets_decrypt_seconds_count` and `pgconfig_store_secrets_decrypt_seconds_sum` count the store secrets decrypted and the time spent, see [store secrets](#store-secrets).
 
 ### Removed property
 
 The `geoserver.catalog.caching.enabled` property has no effect. The pgconfig caches replace the optional catalog cache of the services. `geoserver.backend.pgconfig.cache.enabled` turns the entity cache on or off, and `request.enabled` and `resources.enabled` control the two other caches. A service started with the old property logs a warning that names the new one, whatever the old value. With the Compose overlay `compose/toxiproxy.yml`, `WMS_CATALOG_CACHING=false` sets `GEOSERVER_BACKEND_PGCONFIG_CACHE_ENABLED=false` for the `wms` service.
+
+## Store secrets
+
+The secrets of stores are encrypted, as GeoServer does in the store files of a data directory: the database passwords of data stores, the passwords of WMS and WMTS stores, and the connection parameters declared as secrets by extensions. The `pgconfig` backend stores them encrypted in its database, and the services send them encrypted in the events of the event bus. They are encrypted with the password encrypter chosen in the security settings, `pbePasswordEncoder` by default, and the keys of the keystore.
+
+The keystore is protected by the keystore password, also called master password. With the `pgconfig` backend, the keystore and the default keystore password file are both rows of the `resourcestore` table, in the same database as the catalog. To keep the secrets closed to a reader of the database, make a URL keystore password provider the active one, reading the password from a file outside the data directory, such as a secret mounted at the same path in each service. The GeoServer user manual describes these providers under Security, Passwords.
+
+A secret of the `pgconfig` database that cannot be decrypted, as in a database restored without its keystore, is kept as it is, and its store is disabled with an error in the logs.
 
 ## GeoServer configuration properties
 

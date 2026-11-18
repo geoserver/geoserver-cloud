@@ -42,7 +42,7 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.requestcache.RequestCacheScope;
 import org.geoserver.catalog.util.CloseableIterator;
-import org.geoserver.cloud.event.bus.RemoteEventsResumed;
+import org.geoserver.cloud.event.RemoteEventsResumed;
 import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
 import org.geoserver.cloud.event.catalog.CatalogInfoModified;
 import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;

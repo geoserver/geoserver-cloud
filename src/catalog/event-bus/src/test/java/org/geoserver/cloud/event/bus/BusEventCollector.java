@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.event.GeoServerEvent;
+import org.geoserver.cloud.event.RemoteEventsResumed;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
