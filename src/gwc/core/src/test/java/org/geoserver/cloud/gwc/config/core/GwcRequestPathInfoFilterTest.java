@@ -80,7 +80,7 @@ class GwcRequestPathInfoFilterTest {
         HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
         assertThat(result.getServletPath()).isEqualTo("/ws");
         assertThat(result.getPathInfo()).isEqualTo("/service/wmts");
-        assertThat(result.getRequestURI()).isEqualTo("/gwc/service/wmts");
+        assertThat(result.getRequestURI()).isEqualTo("/ws/gwc/service/wmts");
     }
 
     @Test
@@ -98,7 +98,7 @@ class GwcRequestPathInfoFilterTest {
         HttpServletRequest result = GwcRequestPathInfoFilter.adaptRequest(request);
         assertThat(result.getServletPath()).isEqualTo("/ws/layer");
         assertThat(result.getPathInfo()).isEqualTo("/service/wmts");
-        assertThat(result.getRequestURI()).isEqualTo("/gwc/service/wmts");
+        assertThat(result.getRequestURI()).isEqualTo("/ws/layer/gwc/service/wmts");
     }
 
     @Test
