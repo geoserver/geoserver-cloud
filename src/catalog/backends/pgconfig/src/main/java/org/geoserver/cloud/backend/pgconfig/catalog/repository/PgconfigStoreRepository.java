@@ -15,6 +15,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.cloud.backend.pgconfig.cache.CacheKey;
 import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
+import org.geoserver.cloud.backend.pgconfig.catalog.secrets.StoreSecrets;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /** @since 1.4 */
@@ -28,6 +29,12 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
     @Override
     protected String getQueryTable() {
         return "storeinfos";
+    }
+
+    /** Writes the secrets of the store encrypted, see {@link StoreSecrets#encrypt(StoreInfo)}. */
+    @Override
+    protected String encode(StoreInfo info) {
+        return storeSecrets().encrypt(info);
     }
 
     @Override

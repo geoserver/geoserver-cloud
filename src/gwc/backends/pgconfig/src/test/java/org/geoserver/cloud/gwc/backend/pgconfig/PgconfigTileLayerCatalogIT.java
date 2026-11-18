@@ -52,7 +52,7 @@ import org.geoserver.cloud.backend.pgconfig.support.DecodeCounter;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.backend.pgconfig.support.PgconfigTestDatabaseSupport;
 import org.geoserver.cloud.backend.pgconfig.support.StatementCounter;
-import org.geoserver.cloud.event.bus.RemoteEventsResumed;
+import org.geoserver.cloud.event.RemoteEventsResumed;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type;
 import org.geoserver.cloud.gwc.event.GridsetEvent;

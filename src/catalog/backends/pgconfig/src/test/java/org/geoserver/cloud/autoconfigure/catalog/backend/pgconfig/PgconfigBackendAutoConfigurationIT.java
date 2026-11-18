@@ -61,7 +61,7 @@ import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerLoad
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerResourceLoader;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.RequestCacheFilter;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.RequestCacheMetrics;
-import org.geoserver.cloud.event.bus.RemoteEventsResumed;
+import org.geoserver.cloud.event.RemoteEventsResumed;
 import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.resource.ResourceChanged;

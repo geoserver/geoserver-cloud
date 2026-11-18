@@ -25,6 +25,7 @@ import org.geoserver.cloud.backend.pgconfig.cache.CatalogInfoKeys;
 import org.geoserver.cloud.backend.pgconfig.cache.EntityCache;
 import org.geoserver.cloud.backend.pgconfig.cache.Lookup;
 import org.geoserver.cloud.backend.pgconfig.cache.PutBudget;
+import org.geoserver.cloud.backend.pgconfig.catalog.secrets.SecretsNotReadyException;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.jspecify.annotations.Nullable;
 
@@ -164,7 +165,8 @@ final class RepositoryCache<T extends CatalogInfo> {
 
     /**
      * Puts the entries of a row read by a lookup in the cache, and returns the object of the row decoded from its own
-     * JSON. A row that cannot be split into entries is mapped as without a cache, and left out of the cache.
+     * JSON. A row that cannot be split into entries is mapped as without a cache, and left out of the cache. So is a
+     * row holding a store with secrets that cannot be decrypted yet, see {@link SecretsNotReadyException}.
      *
      * <p>If the thread has a {@link PutBudget}, the weight of the entries put is charged to it. Once it is spent, the
      * row is mapped as without a cache and not put. A layer comes with the references held by its row. The members and
@@ -183,6 +185,8 @@ final class RepositoryCache<T extends CatalogInfo> {
         List<CacheEntry> entries;
         try {
             entries = rowMapper.decompose(rs);
+        } catch (SecretsNotReadyException e) {
+            return rowMapper.mapRow(rs, rowNum);
         } catch (SQLException | UncheckedSqlException | IllegalArgumentException e) {
             T object = rowMapper.mapRow(rs, rowNum);
             markUncacheable(object, e);
@@ -228,11 +232,14 @@ final class RepositoryCache<T extends CatalogInfo> {
 
     /**
      * Splits a row into cache entries. A row that cannot be split gives no entries, and its object is marked as
-     * uncacheable if the key of the row can be read.
+     * uncacheable if the key of the row can be read. A row holding a store with secrets that cannot be decrypted yet
+     * gives no entries either, without the mark: a later read decrypts them.
      */
     private List<CacheEntry> splitOrMarkUncacheable(CatalogInfoRowMapper<T> rowMapper, ResultSet rs) {
         try {
             return rowMapper.decompose(rs);
+        } catch (SecretsNotReadyException e) {
+            return List.of();
         } catch (SQLException | UncheckedSqlException | IllegalArgumentException e) {
             Optional<CacheKey> key = rowKey(rowMapper, rs);
             key.ifPresent(found -> markUncacheable(found, e));
@@ -330,6 +337,8 @@ final class RepositoryCache<T extends CatalogInfo> {
         try {
             List<CacheEntry> entries = rowMapper.decompose(rs);
             putListedEntries(entries, epochSeen);
+        } catch (SecretsNotReadyException e) {
+            // a later read decrypts the secrets and caches the row
         } catch (SQLException | UncheckedSqlException | IllegalArgumentException e) {
             markUncacheable(object, e);
         }
