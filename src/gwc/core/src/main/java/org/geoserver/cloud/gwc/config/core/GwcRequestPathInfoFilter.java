@@ -34,6 +34,9 @@ public class GwcRequestPathInfoFilter implements Filter {
     @SuppressWarnings("java:S1075") // base path is fixed
     static final String GWC_BASE_PATH = "/gwc";
 
+    /** The path of the GWC services, after {@link #GWC_BASE_PATH}, dispatched by GeoServer's dispatcher. */
+    private static final String SERVICE_PATH = "/service";
+
     /**
      * First path segments claimed by other GeoServer dispatchers: {@code rest} is the REST API and {@code web} the
      * wicket UI. A workspace with one of these names cannot be addressed through virtual service URLs anyway, the
@@ -55,20 +58,17 @@ public class GwcRequestPathInfoFilter implements Filter {
         final int gwcIdx = indexOfGwcBasePath(requestURI, contextPath);
         if (gwcIdx > -1) {
             final String prefix = requestURI.substring(0, gwcIdx);
+            final String pathToGwc = requestURI.substring(0, gwcIdx + GWC_BASE_PATH.length());
+            final String pathInfo = requestURI.substring(pathToGwc.length());
             final String servletPath;
             final String adjustedRequestURI;
             if (prefix.length() > contextPath.length()) {
-                // virtual service URL: strip the workspace prefix from the URI
-                // so GeoWebCacheDispatcher.normalizeURL() sees contextPath + /gwc/...
                 servletPath = prefix.substring(contextPath.length());
-                adjustedRequestURI = contextPath + requestURI.substring(prefix.length());
+                adjustedRequestURI = virtualServiceRequestURI(requestURI, contextPath, prefix, pathInfo);
             } else {
                 servletPath = GWC_BASE_PATH;
                 adjustedRequestURI = requestURI;
             }
-
-            final String pathToGwc = requestURI.substring(0, gwcIdx + GWC_BASE_PATH.length());
-            final String pathInfo = requestURI.substring(pathToGwc.length());
 
             return new HttpServletRequestWrapper(request) {
                 @Override
@@ -88,6 +88,27 @@ public class GwcRequestPathInfoFilter implements Filter {
             };
         }
         return request;
+    }
+
+    /**
+     * The request URI of a virtual service URL, such as {@code /ctx/ws/gwc/demo/layer}. The workspace is removed from
+     * the URI, for {@code GeoWebCacheDispatcher.normalizeURL()} to see {@code /ctx/gwc/demo/layer}.
+     *
+     * <p>A service request, such as {@code /ctx/ws/gwc/service/wmts}, keeps the workspace. GeoServer's dispatcher
+     * handles it: it sets the local workspace from the URI, and the GWC callback of the dispatcher removes the
+     * workspace for GWC itself. Without the workspace in the URI, the capabilities of a workspace would list the tile
+     * layers of all workspaces.
+     */
+    private static String virtualServiceRequestURI(
+            String requestURI, String contextPath, String prefix, String pathInfo) {
+        if (isServiceRequest(pathInfo)) {
+            return requestURI;
+        }
+        return contextPath + requestURI.substring(prefix.length());
+    }
+
+    private static boolean isServiceRequest(String pathInfo) {
+        return pathInfo.equals(SERVICE_PATH) || pathInfo.startsWith(SERVICE_PATH + "/");
     }
 
     /**
