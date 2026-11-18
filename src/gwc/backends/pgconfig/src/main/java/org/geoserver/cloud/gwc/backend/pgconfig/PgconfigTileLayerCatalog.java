@@ -369,7 +369,10 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
     GeoServerTileLayer toLayer(TileLayerInfo settings, PublishedInfo published) {
         GeoServerTileLayerInfo info = infoMapper.toInfo(settings, published);
         completeWithDefaults(info, published);
-        return new GeoServerTileLayer(published, gridsetBroker, info);
+        // the constructor taking the catalog sets the styles of the style filter only once the layer is looked up
+        TileLayerInfoUtil.checkAutomaticStyles(published, info);
+        Catalog catalog = new TileLayerCatalogView(catalogFacade.get().getCatalog(), published);
+        return new GeoServerTileLayer(catalog, published.getId(), gridsetBroker, info);
     }
 
     @Override

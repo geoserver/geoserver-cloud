@@ -12,14 +12,26 @@ import static org.springframework.http.MediaType.APPLICATION_XML;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicReference;
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.NamespaceInfoImpl;
+import org.geoserver.catalog.impl.WorkspaceInfoImpl;
+import org.geoserver.ows.AbstractDispatcherCallback;
+import org.geoserver.ows.LocalWorkspace;
+import org.geoserver.ows.Request;
+import org.geoserver.platform.Service;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -29,10 +41,18 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureTestRestTemplate
+@Import(GeoWebCacheApplicationTest.LocalWorkspaceProbe.class)
 abstract class GeoWebCacheApplicationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    @Qualifier("rawCatalog")
+    private Catalog catalog;
+
+    @Autowired
+    private LocalWorkspaceProbe localWorkspace;
 
     @BeforeEach
     void before() {
@@ -60,6 +80,30 @@ abstract class GeoWebCacheApplicationTest {
     @Test
     void testRESTPathExtensionContentNegotiationXml() {
         testGetRequestContentType("/gwc/rest/layers.xml", APPLICATION_XML);
+    }
+
+    // the tile layers listed by the capabilities of a workspace depend on the local workspace
+    @Test
+    void workspaceServiceSetsWorkspace() {
+        addWorkspace("wmtsws");
+        String uri = "/wmtsws/gwc/service/wmts?service=WMTS&version=1.0.0&request=GetCapabilities";
+
+        ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(localWorkspace.lastWorkspaceName()).isEqualTo("wmtsws");
+    }
+
+    private void addWorkspace(String name) {
+        if (null == catalog.getWorkspaceByName(name)) {
+            WorkspaceInfo workspace = new WorkspaceInfoImpl();
+            workspace.setName(name);
+            catalog.add(workspace);
+            NamespaceInfo namespace = new NamespaceInfoImpl();
+            namespace.setPrefix(name);
+            namespace.setURI("http://" + name);
+            catalog.add(namespace);
+        }
     }
 
     protected ResponseEntity<String> testGetRequestContentType(String uri, MediaType expected) {
@@ -98,5 +142,23 @@ abstract class GeoWebCacheApplicationTest {
         // see org.geoserver.cloud.gwc.config.services.SeedController
         assertThat(statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(body).contains("Unknown layer workspace:layer");
+    }
+
+    /** Records the local workspace of the GWC service requests handled by GeoServer's dispatcher. */
+    static class LocalWorkspaceProbe extends AbstractDispatcherCallback {
+
+        private final AtomicReference<String> lastWorkspaceName = new AtomicReference<>();
+
+        @Override
+        public Service serviceDispatched(Request request, Service service) {
+            WorkspaceInfo workspace = LocalWorkspace.get();
+            lastWorkspaceName.set(null == workspace ? null : workspace.getName());
+            return service;
+        }
+
+        @Nullable
+        String lastWorkspaceName() {
+            return lastWorkspaceName.get();
+        }
     }
 }

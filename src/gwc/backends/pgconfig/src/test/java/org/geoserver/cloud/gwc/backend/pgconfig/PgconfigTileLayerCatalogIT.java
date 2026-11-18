@@ -62,6 +62,7 @@ import org.geoserver.gwc.config.GWCConfig;
 import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
+import org.geoserver.gwc.layer.StyleParameterFilter;
 import org.geoserver.gwc.layer.TileLayerInfoUtil;
 import org.geoserver.ows.Dispatcher;
 import org.geoserver.ows.LocalWorkspace;
@@ -191,6 +192,22 @@ class PgconfigTileLayerCatalogIT {
         tlCatalog.removeLayer(unprefixedName);
     }
 
+    // the capabilities of a workspace name its layers without the workspace prefix
+    @Test
+    void workspaceNameWithoutPrefix() {
+        LayerInfo layerInfo = support.layerInfo();
+        tlCatalog.addLayer(support.geoServerTileLayer(layerInfo));
+        GeoServerTileLayer tileLayer = tlCatalog
+                .getLayer(layerInfo.prefixedName())
+                .map(GeoServerTileLayer.class::cast)
+                .orElseThrow();
+
+        LocalWorkspace.set(layerInfo.getResource().getStore().getWorkspace());
+
+        assertThat(tileLayer.getContextualName()).isEqualTo(support.layerName(layerInfo));
+        assertThat(tileLayer.getPublishedInfo().getId()).isEqualTo(layerInfo.getId());
+    }
+
     @Test
     void tileLayerHasAltStyles() {
         LayerInfo layerInfo = support.layerInfo();
@@ -208,6 +225,27 @@ class PgconfigTileLayerCatalogIT {
         Set<String> actual =
                 published.getStyles().stream().map(StyleInfo::getName).collect(Collectors.toSet());
         assertThat(actual).isEqualTo(expected);
+    }
+
+    // a tile request filters the styles before anything reads the layer of the tile layer
+    @Test
+    void styleFilterReadyOnBuild() {
+        LayerInfo layerInfo = support.layerInfo();
+        StyleInfo alternate = addStyle(catalog);
+        LayerInfo layer = catalog.getLayer(layerInfo.getId());
+        layer.getStyles().add(alternate);
+        catalog.save(layer);
+        tlCatalog.addLayer(support.geoServerTileLayer(catalog.getLayer(layerInfo.getId())));
+
+        GeoServerTileLayer found = (GeoServerTileLayer)
+                tlCatalog.getLayer(layerInfo.prefixedName()).orElseThrow();
+        StyleParameterFilter styles = found.getInfo().getParameterFilters().stream()
+                .filter(StyleParameterFilter.class::isInstance)
+                .map(StyleParameterFilter.class::cast)
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(styles.getLegalValues()).contains(alternate.getName());
     }
 
     @Test
