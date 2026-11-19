@@ -112,6 +112,7 @@ nav:
       - Helm:
         - Overview: deploy/kubernetes/helm/index.md
         - Example — pgconfig: deploy/kubernetes/helm/example-pgconfig.md
+      - Data directory on shared storage: deploy/kubernetes/datadir-shared-storage.md
   - User Guide:
     - Overview: user-guide/index.md
     - Additional libraries and fonts: user-guide/additional-libs-and-fonts.md
