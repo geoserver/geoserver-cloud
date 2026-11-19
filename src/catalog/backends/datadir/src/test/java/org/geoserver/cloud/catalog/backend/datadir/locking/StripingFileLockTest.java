@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.backend.datadir.locking;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,6 +82,21 @@ class StripingFileLockTest {
 
         // Final release actually frees the file lock
         lock1.release();
+    }
+
+    @Test
+    void heldBucketsAreRegisteredUntilReleased() {
+        final String key = "heldBucketsAreRegisteredUntilReleased";
+        final long bucket = StripingFileLock.getBucket(key);
+        Resource.Lock lock1 = provider.acquire(key);
+        Resource.Lock lock2 = provider.acquire(key);
+        assertThat(provider.bucketsHeldForKey).containsExactly(entry(bucket, key));
+
+        lock2.release();
+        assertThat(provider.bucketsHeldForKey).containsExactly(entry(bucket, key));
+
+        lock1.release();
+        assertThat(provider.bucketsHeldForKey).isEmpty();
     }
 
     @Test
