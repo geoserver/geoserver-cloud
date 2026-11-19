@@ -48,6 +48,7 @@ import org.geoserver.cloud.backend.pgconfig.resource.ResourceChangePublisher;
 import org.geoserver.cloud.backend.pgconfig.resource.ResourceRow;
 import org.geoserver.cloud.backend.pgconfig.resource.ResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.ResourceStoreCacheMetrics;
+import org.geoserver.cloud.backend.pgconfig.resource.ResourceStoreCacheStartup;
 import org.geoserver.cloud.backend.pgconfig.resource.SynchronizedResourceNotificationDispatcher;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.core.RawCatalogCustomizer;
@@ -290,8 +291,9 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
 
     /**
      * The index of the resource store and the content read from it, named {@code gs-resources} in the metrics. The
-     * index is loaded on first use and after a clear of the caches. The content takes 1% of the heap by default, 64 MiB
-     * at most. GeoServer clears the cache on a reload of its configuration, as a lifecycle handler.
+     * index serves once the application is ready, see {@link #pgconfigResourceStoreCacheStartup}, and is loaded on
+     * first use and after a clear of the caches. The content takes 1% of the heap by default, 64 MiB at most. GeoServer
+     * clears the cache on a reload of its configuration, as a lifecycle handler.
      */
     @Bean
     @ConditionalOnPgconfigResourceCacheEnabled
@@ -300,7 +302,20 @@ public class PgconfigBackendConfiguration implements GeoServerBackendConfigurer 
         int heapPercent = cacheProperties.getResources().getMaxHeapPercent();
         long contentMaximumWeight = resourceContentMaximumWeight(EntityCache.maximumWeightFor(heapPercent));
         Supplier<List<ResourceRow>> loader = PgconfigResourceStore.indexLoader(template);
-        return new ResourceStoreCache("gs-resources", loader, contentMaximumWeight);
+        ResourceStoreCache cache = new ResourceStoreCache("gs-resources", loader, contentMaximumWeight);
+        cache.waitForStartup();
+        return cache;
+    }
+
+    /**
+     * Lets the resource store index serve once the application is ready. The reads made while the service starts go to
+     * the database: the security manager reads its configuration under the configuration lock, and the index may lack
+     * the rows written by the instance holding the lock before it, until their events arrive.
+     */
+    @Bean
+    @ConditionalOnPgconfigResourceCacheEnabled
+    ResourceStoreCacheStartup pgconfigResourceStoreCacheStartup(ResourceStoreCache resourceStoreCache) {
+        return new ResourceStoreCacheStartup(resourceStoreCache);
     }
 
     /** The maximum weight of the content of the resource store cache: a share of the heap, and 64 MiB at most. */

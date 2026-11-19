@@ -100,7 +100,7 @@ The request cache decodes each object once per request. A request keeps at most 
 
 ### Resource store cache
 
-The resource store holds files such as styles and templates. The cache loads the paths of the whole store in one query, and a path missing from the index is missing from the store. The index is loaded at first use and again after a clear: when the event bus reconnects, and when GeoServer resets. The content of the files is kept once read, within `resources.max-heap-percent` of the heap and 64 MiB at most.
+The resource store holds files such as styles and templates. The cache loads the paths of the whole store in one query, and a path missing from the index is missing from the store. The index is loaded at first use and again after a clear: when the event bus reconnects, and when GeoServer resets. A service reads the database while it starts, and the index serves once the service is ready: during startup the security and GWC configurations are read under the configuration lock, and the rows written by the previous holder of the lock reach the index through events. Those events may arrive after the lock is released. The content of the files is kept once read, within `resources.max-heap-percent` of the heap and 64 MiB at most.
 
 The first read of a file in a styles folder (`styles` at the root, or `workspaces/<workspace>/styles`) writes the missing or outdated files of that folder to the pod's disk, in one query. This spares a GetCapabilities on a new pod one query per style file. If those files add up to more than 16 MB, they are read one by one. Subfolders of a styles folder load file by file.
 
