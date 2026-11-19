@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource;
@@ -37,6 +40,10 @@ import org.geotools.util.logging.Logging;
  * and {@link #threadIdHoldingKey} tracks the reentrancy count per key. If two different keys hash to the same bucket
  * and one is already held, an {@link IllegalStateException} is thrown to signal the collision.
  *
+ * <p><b>Channel recycling:</b> The channel stays open for the life of the provider. A lock that keeps failing while no
+ * thread holds any lock on the channel makes {@link StripingFileLock} call {@link #recycleChannel()}, which closes the
+ * channel to drop any lock the file system still attributes to it without this JVM knowing.
+ *
  * @see DistributedFileLockProvider
  * @see ChainedLockProvider
  * @see StripingFileLock
@@ -50,14 +57,23 @@ class StripingFileLockProvider implements LockProvider, Closeable {
     /** max lock attempts */
     private int maxLockAttempts = 120 * 1000 / waitBeforeRetry;
 
-    /** Holds the lock key by bucket index to recognize hash collisions */
+    /**
+     * Holds the lock key by bucket index for every file lock this JVM holds, to recognize hash collisions and to know
+     * whether the channel can be recycled
+     */
     Map<Long, String> bucketsHeldForKey = new ConcurrentHashMap<>();
     /** Holds lock counter by lock key to aid in reentrancy */
     Map<String, AtomicInteger> threadIdHoldingKey = new ConcurrentHashMap<>();
 
     private File locksFile;
 
-    private FileChannel channel;
+    private volatile FileChannel channel;
+
+    /**
+     * Lock attempts hold the read lock while they use {@link #channel}, closing it takes the write lock, so the channel
+     * is never closed under an attempt in progress
+     */
+    private final ReadWriteLock channelGuard = new ReentrantReadWriteLock();
 
     @SuppressWarnings("java:S5164")
     private static final ThreadLocal<Map<String, StripingFileLock>> LOCKS =
@@ -85,29 +101,86 @@ class StripingFileLockProvider implements LockProvider, Closeable {
 
     @Override
     public void close() {
-        FileChannel ch = this.channel;
-        this.channel = null;
+        Lock writeLock = channelGuard.writeLock();
+        writeLock.lock();
+        try {
+            closeChannel();
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    /**
+     * Closes the channel if no thread of this JVM holds a lock on it or is trying to acquire one. The next lock attempt
+     * opens a new channel.
+     *
+     * <p>Closing the file releases any lock the file system still attributes to this process's handle on it, including
+     * one this JVM never learned it holds. That happens on SMB shares: if the connection drops while a lock request is
+     * in flight, the Linux client fails the request with {@code EAGAIN}, so {@link FileChannel#tryLock} returns
+     * {@code null}, but the server may have granted it, and when the handle survives the reconnect, as persistent
+     * handles do, the lock stays on it. As the channel would otherwise stay open for the life of the JVM, no process,
+     * this one included, could lock that bucket again until it exits. This does not help if another process on the same
+     * host shares the handle: the Linux client can serve an open of a file that is already open on the same mount with
+     * the existing handle.
+     *
+     * @return {@code true} if the channel was closed, {@code false} if a lock is held or being acquired
+     */
+    boolean recycleChannel() {
+        if (!bucketsHeldForKey.isEmpty()) {
+            return false;
+        }
+        Lock writeLock = channelGuard.writeLock();
+        // don't wait for attempts in progress, the caller will try again
+        if (!writeLock.tryLock()) {
+            return false;
+        }
+        try {
+            // locks are registered while holding the read lock, so this is accurate now
+            if (!bucketsHeldForKey.isEmpty()) {
+                return false;
+            }
+            closeChannel();
+            return true;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    /** To be held while using the channel, see {@link #recycleChannel()} */
+    Lock channelReadLock() {
+        return channelGuard.readLock();
+    }
+
+    private void closeChannel() {
+        FileChannel ch;
+        synchronized (this) {
+            ch = this.channel;
+            this.channel = null;
+        }
         IOUtils.closeQuietly(ch);
     }
 
+    /** Returns the channel to the locks file, opening it if it was not open yet or has been closed */
     FileChannel getChannel() {
         FileChannel ch = this.channel;
         if (ch == null || !ch.isOpen()) {
-            final File file = getFile();
             synchronized (this) {
-                if (this.channel == null) {
-                    ch = openChannel(file);
+                ch = this.channel;
+                if (ch == null || !ch.isOpen()) {
+                    if (ch != null) {
+                        LOGGER.warning("Locks file channel was closed, reopening " + locksFile);
+                    }
+                    ch = openChannel(getFile());
                     this.channel = ch;
-                } else {
-                    ch = this.channel;
                 }
             }
         }
         return ch;
     }
 
+    /** Opens a channel to the locks file; tests override it to stand in for a channel whose handle fails */
     @SuppressWarnings("resource")
-    private FileChannel openChannel(File file) {
+    FileChannel openChannel(File file) {
         try {
             return new RandomAccessFile(file, "rw").getChannel();
         } catch (FileNotFoundException e) {
