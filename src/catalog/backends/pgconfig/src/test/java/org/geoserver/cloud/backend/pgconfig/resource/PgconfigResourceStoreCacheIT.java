@@ -208,6 +208,28 @@ class PgconfigResourceStoreCacheIT {
         assertThat(store.get("workspaces/inserted.txt").getType()).isEqualTo(UNDEFINED);
     }
 
+    // a starting service reads what another instance wrote, before the events of that instance arrive
+    @Test
+    void startingServiceReadsDatabase() {
+        index.waitForStartup();
+        store.get(STYLE);
+        insertRows("security");
+        insertFile("security/version.properties", "version=2.6");
+
+        assertThat(store.get("security/version.properties").getType()).isEqualTo(RESOURCE);
+        assertThat(index.size()).isZero();
+
+        counter.reset();
+        index.startupComplete();
+
+        assertThat(counter.count()).as("the index is loaded once it serves").isEqualTo(1);
+        counter.reset();
+        store.get(STYLE);
+        store.get("security/version.properties");
+        assertThat(counter.count()).isZero();
+        assertThat(index.find("security/version.properties")).isPresent();
+    }
+
     @Test
     void disabledQueriesEachLookup() {
         PgconfigResourceStore withoutIndex = newStore(new JdbcTemplate(counter.dataSource()), null);
