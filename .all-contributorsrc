@@ -307,6 +307,18 @@
         "test",
         "bug"
       ]
+    },
+    {
+      "login": "afabiani",
+      "name": "Alessio Fabiani",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1278021?v=4",
+      "profile": "https://github.com/afabiani",
+      "contributions": [
+        "code",
+        "bug",
+        "doc",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
