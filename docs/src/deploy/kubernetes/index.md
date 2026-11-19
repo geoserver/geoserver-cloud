@@ -7,7 +7,7 @@ GeoServer Cloud is a suite of microservices (WMS, WFS, WCS, WPS, GWC, REST, WebU
 - A Kubernetes cluster (local or remote).
 - An ingress controller.
 - A **catalog backend** — one of:
-    - **`datadir`** — shared file system (e.g. an NFS PersistentVolume).
+    - **`datadir`** — shared file system (e.g. an NFS PersistentVolume). See [Data directory on shared storage](./datadir-shared-storage.md).
     - **`pgconfig`** — a PostgreSQL database (recommended for anything beyond simple testing).
 - A **message bus** — RabbitMQ. The chart provisions it for you if you don't bring your own.
 - Optionally, the [GeoServer ACL](https://github.com/geoserver/geoserver-acl) service for advanced authorization.
