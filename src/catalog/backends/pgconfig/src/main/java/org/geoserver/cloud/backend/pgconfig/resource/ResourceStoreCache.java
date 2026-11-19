@@ -39,6 +39,13 @@ import org.jspecify.annotations.Nullable;
  * <p>GeoServer empties the cache on a reset or a reload of its configuration, and
  * {@link org.geoserver.cloud.backend.pgconfig.cache.EntityCacheBusListener EntityCacheBusListener} empties it when the
  * event bus reconnects.
+ *
+ * <p>The index answers reads once the service is started, see {@link #waitForStartup()}. While a service starts, it
+ * reads the security configuration and the GWC configuration under the configuration lock, after the instance holding
+ * the lock before it wrote them. The index learns about those writes from the events of that instance, and the events
+ * may arrive after the lock. A read under the lock then misses a row present in the database, such as the version file
+ * of the security configuration, and the service runs the security migration again, over the files of the other
+ * instance.
  */
 @Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.resource")
 public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableCache {
@@ -57,6 +64,9 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
 
     /** The loaded rows; null before the first load and after {@link #clear()}. */
     private volatile @Nullable Index index;
+
+    /** Whether the store reads through the index, see {@link #waitForStartup()}. */
+    private volatile boolean serving = true;
 
     /** The writes made since the running load started; null when no load runs. Guarded by {@link #writeLock}. */
     private @Nullable List<Consumer<ConcurrentNavigableMap<String, ResourceRow>>> writesDuringLoad;
@@ -102,6 +112,31 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
     @Override
     public String name() {
         return name;
+    }
+
+    /**
+     * Keeps the reads of the store away from the index until {@link #startupComplete()}: they query the database, and
+     * the index is not loaded. A service calls it when it creates the cache, and {@link #startupComplete()} once it is
+     * started. The caches made for tests serve from the start.
+     */
+    public void waitForStartup() {
+        serving = false;
+    }
+
+    /**
+     * Lets the reads of the store go through the index, and loads it. The load runs on the calling thread: a service
+     * calling it from the listener of its ready event is reported ready once the index is loaded, as it was when the
+     * first read of its startup loaded the index.
+     */
+    public void startupComplete() {
+        serving = true;
+        rows();
+        log.info("The resource store index {} serves the reads", name);
+    }
+
+    /** Whether the store reads through the index. */
+    public boolean isServing() {
+        return serving;
     }
 
     /**

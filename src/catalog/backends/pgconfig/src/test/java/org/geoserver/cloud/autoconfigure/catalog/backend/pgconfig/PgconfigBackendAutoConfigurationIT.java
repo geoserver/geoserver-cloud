@@ -83,12 +83,15 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceAccessMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.api.parallel.ResourceLockTarget;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -578,6 +581,7 @@ class PgconfigBackendAutoConfigurationIT {
                     .hasSingleBean(ResourceChangeListener.class);
             ResourceStoreCache cache = context.getBean(ResourceStoreCache.class);
             PgconfigResourceStore store = context.getBean("resourceStoreImpl", PgconfigResourceStore.class);
+            applicationReady(context);
 
             store.get("styles");
 
@@ -586,10 +590,36 @@ class PgconfigBackendAutoConfigurationIT {
         });
     }
 
+    // the security manager and GWC read their configuration under the configuration lock before the application is
+    // ready, and the index may lack the rows written by the previous holder of the lock
+    @Test
+    void indexServesOnceReady() {
+        runner.run(context -> {
+            ResourceStoreCache cache = context.getBean(ResourceStoreCache.class);
+            PgconfigResourceStore store = context.getBean("resourceStoreImpl", PgconfigResourceStore.class);
+            store.get("styles");
+
+            assertThat(cache.isServing()).isFalse();
+            assertThat(cache.size()).isZero();
+
+            applicationReady(context);
+
+            assertThat(cache.isServing()).isTrue();
+            assertThat(cache.size()).as("loaded by the ready event").isPositive();
+        });
+    }
+
+    private static void applicationReady(AssertableApplicationContext context) {
+        ConfigurableApplicationContext source = context.getSourceApplicationContext();
+        SpringApplication application = new SpringApplication();
+        source.publishEvent(new ApplicationReadyEvent(application, new String[0], source, Duration.ZERO));
+    }
+
     @Test
     void busSubscriptionClearsIndex() {
         runner.run(context -> {
             ResourceStoreCache cache = context.getBean(ResourceStoreCache.class);
+            applicationReady(context);
             context.getBean("resourceStoreImpl", PgconfigResourceStore.class).get("styles");
 
             context.publishEvent(new RemoteEventsResumed("geoserver.anonymous.queue"));
@@ -603,6 +633,7 @@ class PgconfigBackendAutoConfigurationIT {
     void remoteResourceRefreshesIndex() {
         runner.run(context -> {
             ResourceStoreCache cache = context.getBean(ResourceStoreCache.class);
+            applicationReady(context);
             context.getBean("resourceStoreImpl", PgconfigResourceStore.class).get("styles");
             String path = "%s.sld".formatted(UUID.randomUUID());
             insertBehindStore(context.getBean("pcconfigJdbcTemplate", JdbcTemplate.class), path);

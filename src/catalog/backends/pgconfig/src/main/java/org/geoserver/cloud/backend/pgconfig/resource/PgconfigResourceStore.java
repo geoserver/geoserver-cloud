@@ -406,11 +406,12 @@ public class PgconfigResourceStore implements ResourceStore {
     }
 
     /**
-     * Whether reads go through the index: there is one, and no transaction runs on the data source. A read within a
-     * transaction must see the rows written by it, and the mtimes set by the triggers.
+     * Whether reads go through the index: there is one, it serves, and no transaction runs on the data source. A read
+     * within a transaction must see the rows written by it, and the mtimes set by the triggers. The index serves once
+     * the service is started, see {@link ResourceStoreCache#waitForStartup()}.
      */
     private boolean useIndex() {
-        return index != null && !CacheAccess.inTransaction(dataSource);
+        return index != null && index.isServing() && !CacheAccess.inTransaction(dataSource);
     }
 
     private Optional<ResourceRow> queryByPath(String path) {
