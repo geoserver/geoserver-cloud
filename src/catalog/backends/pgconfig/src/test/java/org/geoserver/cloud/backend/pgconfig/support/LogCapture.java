@@ -7,8 +7,9 @@ package org.geoserver.cloud.backend.pgconfig.support;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
+import ch.qos.logback.core.AppenderBase;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -21,7 +22,7 @@ public final class LogCapture implements AutoCloseable {
 
     private final Logger logger;
     private final Level level;
-    private final ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    private final RecordingAppender appender = new RecordingAppender();
 
     private LogCapture(Logger logger) {
         this.logger = logger;
@@ -38,7 +39,7 @@ public final class LogCapture implements AutoCloseable {
 
     /** The formatted messages of the events logged at the level. */
     public List<String> messages(Level eventLevel) {
-        return appender.list.stream()
+        return appender.events.stream()
                 .filter(event -> event.getLevel() == eventLevel)
                 .map(ILoggingEvent::getFormattedMessage)
                 .toList();
@@ -57,5 +58,19 @@ public final class LogCapture implements AutoCloseable {
         logger.addAppender(appender);
         logger.setAdditive(false);
         logger.setLevel(Level.DEBUG);
+    }
+
+    /**
+     * Keeps the events in a list safe to read while another thread logs. The tests of a class run concurrently, and a
+     * logger is shared by the JVM: the other tests log through the captured logger while a test reads its messages.
+     */
+    private static final class RecordingAppender extends AppenderBase<ILoggingEvent> {
+
+        private final List<ILoggingEvent> events = new CopyOnWriteArrayList<>();
+
+        @Override
+        protected void append(ILoggingEvent event) {
+            events.add(event);
+        }
     }
 }
