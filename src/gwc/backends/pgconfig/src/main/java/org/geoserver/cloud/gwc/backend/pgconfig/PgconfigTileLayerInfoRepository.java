@@ -14,11 +14,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.sql.DataSource;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.backend.pgconfig.cache.CacheAccess;
@@ -67,7 +69,12 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
     public PgconfigTileLayerInfoRepository(@NonNull JdbcTemplate template, @Nullable EntityCache cache) {
         this.template = new LoggingTemplate(template);
         this.cache = cache;
-        this.access = null == cache ? null : new CacheAccess(cache, template.getDataSource());
+        if (null == cache) {
+            this.access = null;
+        } else {
+            DataSource dataSource = Objects.requireNonNull(template.getDataSource(), "the template has no data source");
+            this.access = new CacheAccess(cache, dataSource);
+        }
     }
 
     /**
@@ -102,8 +109,8 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
     /** Reads the settings from the cache, else from the database, and puts the answer of the query in the cache. */
     private Optional<byte[]> cachedOrQueried(EntityCache usable, String publishedId) {
         CacheKey key = CacheKey.tileLayer(publishedId);
-        if (usable.lookup(key) instanceof Lookup.Hit hit) {
-            return Optional.of(hit.json());
+        if (usable.lookup(key) instanceof Lookup.Hit(byte[] cached)) {
+            return Optional.of(cached);
         }
         long epochSeen = usable.epoch();
         Optional<byte[]> queried = querySettings(publishedId);
@@ -149,8 +156,8 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
         Map<String, byte[]> found = new HashMap<>();
         List<String> absent = new ArrayList<>();
         for (String publishedId : publishedIds) {
-            if (usable.lookup(CacheKey.tileLayer(publishedId)) instanceof Lookup.Hit hit) {
-                found.put(publishedId, hit.json());
+            if (usable.lookup(CacheKey.tileLayer(publishedId)) instanceof Lookup.Hit(byte[] cached)) {
+                found.put(publishedId, cached);
             } else {
                 absent.add(publishedId);
             }

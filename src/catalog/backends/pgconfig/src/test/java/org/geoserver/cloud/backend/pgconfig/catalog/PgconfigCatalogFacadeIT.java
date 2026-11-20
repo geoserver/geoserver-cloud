@@ -176,7 +176,7 @@ class PgconfigCatalogFacadeIT {
 
         List<LayerInfo> all = findAllCold(unbounded, ids);
         List<LayerInfo> some;
-        try (PutBudget.Binding binding = new PutBudget(4 * 1024).bind()) {
+        try (PutBudget.Binding _ = new PutBudget(4 * 1024).bind()) {
             some = findAllCold(bounded, ids);
         }
 
@@ -747,14 +747,14 @@ class PgconfigCatalogFacadeIT {
     void nestedGroupHoldsOneConnection() {
         String containerId = addNestedGroups();
         CatalogPlugin uncached = new CatalogPlugin();
-        PgconfigCatalogFacade facade = new PgconfigCatalogFacade(new JdbcTemplate(counter.dataSource()));
-        uncached.setFacade(PgconfigBackendBuilder.requestCaching(facade));
+        PgconfigCatalogFacade uncachedFacade = new PgconfigCatalogFacade(new JdbcTemplate(counter.dataSource()));
+        uncached.setFacade(PgconfigBackendBuilder.requestCaching(uncachedFacade));
         RequestCacheScope.open(REQUEST_CACHE_SIZE);
         counter.reset();
 
-        LayerGroupInfo container = uncached.getLayerGroup(containerId);
+        LayerGroupInfo containerGroup = uncached.getLayerGroup(containerId);
 
-        assertThat(container.getLayers()).hasSize(3);
+        assertThat(containerGroup.getLayers()).hasSize(3);
         assertThat(counter.mostOpenConnections()).isOne();
     }
 
@@ -764,12 +764,12 @@ class PgconfigCatalogFacadeIT {
         String containerId = addNestedGroups();
         counter.reset();
 
-        LayerGroupInfo container = catalog.getLayerGroup(containerId);
+        LayerGroupInfo containerGroup = catalog.getLayerGroup(containerId);
 
-        // 1 container row + 1 for its 3 children + 1 for the members + 1 for the style of the children
+        // 1 containerGroup row + 1 for its 3 children + 1 for the members + 1 for the style of the children
         assertThat(counter.count()).isEqualTo(4);
-        LayerGroupInfo first = (LayerGroupInfo) container.getLayers().get(0);
-        LayerGroupInfo last = (LayerGroupInfo) container.getLayers().get(2);
+        LayerGroupInfo first = (LayerGroupInfo) containerGroup.getLayers().get(0);
+        LayerGroupInfo last = (LayerGroupInfo) containerGroup.getLayers().get(2);
         assertThat(first.getStyles()).extracting(this::nameOrNull).containsExactly("s1", null);
         assertThat(last.getLayers()).noneMatch(ProxyUtils::isResolvingProxy);
         assertThat(last.getStyles()).extracting(this::nameOrNull).containsExactly("s1", null);
@@ -778,15 +778,15 @@ class PgconfigCatalogFacadeIT {
     // the catalog looks ws:lg up as a group without workspace first, then as lg in ws
     @Test
     void workspaceGroupFoundByPrefixedNameCold() {
-        String groupId = addWorkspaceGroup("ws", "lg").getId();
+        String wsGroupId = addWorkspaceGroup("ws", "lg").getId();
         CatalogPlugin cached = cachedCatalog();
 
         LayerGroupInfo first = cached.getLayerGroupByName("ws:lg");
         counter.reset();
         LayerGroupInfo second = cached.getLayerGroupByName("ws:lg");
 
-        assertThat(first).extracting(LayerGroupInfo::getId).isEqualTo(groupId);
-        assertThat(second).extracting(LayerGroupInfo::getId).isEqualTo(groupId);
+        assertThat(first).extracting(LayerGroupInfo::getId).isEqualTo(wsGroupId);
+        assertThat(second).extracting(LayerGroupInfo::getId).isEqualTo(wsGroupId);
         // the lookup without workspace reads its remembered miss, the lookup in ws reads the group
         assertThat(counter.count()).isZero();
     }
@@ -795,15 +795,15 @@ class PgconfigCatalogFacadeIT {
     @Test
     void globalGroupWithColonUncached() {
         LayerInfo l1 = catalog.getLayer(layerId);
-        String groupId = addGroup("a:b", l1).getId();
+        String colonGroupId = addGroup("a:b", l1).getId();
         EntityCache cache = newEntityCache();
         CatalogPlugin cached = cachedCatalog(cache);
 
         LayerGroupInfo first = cached.getLayerGroupByName("a:b");
         LayerGroupInfo second = cached.getLayerGroupByName("a:b");
 
-        assertThat(first).extracting(LayerGroupInfo::getId).isEqualTo(groupId);
-        assertThat(second).extracting(LayerGroupInfo::getId).isEqualTo(groupId);
+        assertThat(first).extracting(LayerGroupInfo::getId).isEqualTo(colonGroupId);
+        assertThat(second).extracting(LayerGroupInfo::getId).isEqualTo(colonGroupId);
         assertThat(cache.lookup(CacheKey.name(LAYERGROUP, "a:b"))).isInstanceOf(Lookup.Absent.class);
         assertThat(cache.lookup(CatalogInfoKeys.globalNameMiss(LAYERGROUP, "a:b")))
                 .isInstanceOf(Lookup.Absent.class);
@@ -851,8 +851,8 @@ class PgconfigCatalogFacadeIT {
     /** A second catalog on the same database, with the entity cache. */
     private CatalogPlugin cachedCatalog(EntityCache cache) {
         CatalogPlugin cached = new CatalogPlugin();
-        PgconfigCatalogFacade facade = new PgconfigCatalogFacade(new JdbcTemplate(counter.dataSource()), cache);
-        cached.setFacade(PgconfigBackendBuilder.resolving(facade));
+        PgconfigCatalogFacade cachedFacade = new PgconfigCatalogFacade(new JdbcTemplate(counter.dataSource()), cache);
+        cached.setFacade(PgconfigBackendBuilder.resolving(cachedFacade));
         return cached;
     }
 
@@ -863,8 +863,8 @@ class PgconfigCatalogFacadeIT {
     private CatalogPlugin requestCachedCatalog() {
         CatalogPlugin cached = new CatalogPlugin();
         JdbcTemplate template = new JdbcTemplate(counter.dataSource());
-        PgconfigCatalogFacade facade = new PgconfigCatalogFacade(template, newEntityCache());
-        RequestCachingCatalogFacade requestCaching = PgconfigBackendBuilder.requestCaching(facade);
+        PgconfigCatalogFacade cachedFacade = new PgconfigCatalogFacade(template, newEntityCache());
+        RequestCachingCatalogFacade requestCaching = PgconfigBackendBuilder.requestCaching(cachedFacade);
         cached.setFacade(requestCaching);
         return cached;
     }
@@ -962,19 +962,19 @@ class PgconfigCatalogFacadeIT {
         LayerInfo l1 = catalog.getLayer(layerId);
         LayerInfo l2 = catalog.getLayer(layer2Id);
         StyleInfo s1 = catalog.getStyle(s1Id);
-        LayerGroupInfo container = catalog.getFactory().createLayerGroup();
-        container.setName("container");
-        container.setMode(LayerGroupInfo.Mode.CONTAINER);
+        LayerGroupInfo containerGroup = catalog.getFactory().createLayerGroup();
+        containerGroup.setName("container");
+        containerGroup.setMode(LayerGroupInfo.Mode.CONTAINER);
         for (String name : List.of("n1", "n2", "n3")) {
             LayerGroupInfo child = catalog.getFactory().createLayerGroup();
             child.setName(name);
             child.getLayers().addAll(List.of(l1, l2));
             child.getStyles().addAll(Arrays.asList(s1, null));
             catalog.add(child);
-            container.getLayers().add(catalog.getLayerGroupByName(name));
-            container.getStyles().add(null);
+            containerGroup.getLayers().add(catalog.getLayerGroupByName(name));
+            containerGroup.getStyles().add(null);
         }
-        catalog.add(container);
+        catalog.add(containerGroup);
         return catalog.getLayerGroupByName("container").getId();
     }
 
@@ -1224,6 +1224,7 @@ class PgconfigCatalogFacadeIT {
     }
 
     /** Asks the set itself: AssertJ iterates, and would find a style kept in the bucket of its former hash. */
+    @SuppressWarnings("java:S5838")
     private void assertStylesFindDefaultStyle(LayerInfo layer) {
         Set<StyleInfo> styles = layer.getStyles();
         assertThat(styles.contains(layer.getDefaultStyle())).as(layer.getName()).isTrue();

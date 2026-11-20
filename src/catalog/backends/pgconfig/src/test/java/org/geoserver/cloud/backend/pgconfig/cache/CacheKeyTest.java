@@ -22,8 +22,11 @@ class CacheKeyTest {
         CacheKey otherId = CacheKey.entity(LAYER, "layer-2");
         CacheKey otherType = CacheKey.entity(STYLE, "layer-1");
 
-        assertThat(key).isEqualTo(sameTypeAndId).hasSameHashCodeAs(sameTypeAndId);
-        assertThat(key).isNotEqualTo(otherId).isNotEqualTo(otherType);
+        assertThat(key)
+                .isEqualTo(sameTypeAndId)
+                .hasSameHashCodeAs(sameTypeAndId)
+                .isNotEqualTo(otherId)
+                .isNotEqualTo(otherType);
     }
 
     @Test

@@ -110,8 +110,7 @@ class StripingFileLockProviderTest {
 
     @Test
     void reopensChannelClosedElsewhere() throws IOException {
-        StripingFileLockProvider provider = new StripingFileLockProvider(locksFile);
-        try {
+        try (StripingFileLockProvider provider = new StripingFileLockProvider(locksFile)) {
             FileChannel channel = provider.getChannel();
             // closed without going through provider.close(), which would also forget it
             channel.close();
@@ -122,8 +121,6 @@ class StripingFileLockProviderTest {
 
             Lock lock = provider.acquire("reopensChannelClosedElsewhere");
             lock.release();
-        } finally {
-            provider.close();
         }
     }
 
@@ -148,8 +145,7 @@ class StripingFileLockProviderTest {
 
     @Test
     void recycleChannelOnlyWhileNoLockIsHeld() {
-        StripingFileLockProvider provider = new StripingFileLockProvider(locksFile);
-        try {
+        try (StripingFileLockProvider provider = new StripingFileLockProvider(locksFile)) {
             Lock lock = provider.acquire("recycleChannelOnlyWhileNoLockIsHeld");
             FileChannel channel = provider.getChannel();
             assertThat(provider.recycleChannel()).isFalse();
@@ -159,8 +155,6 @@ class StripingFileLockProviderTest {
             assertThat(provider.recycleChannel()).isTrue();
             assertThat(channel.isOpen()).isFalse();
             assertThat(provider.getChannel()).isNotSameAs(channel);
-        } finally {
-            provider.close();
         }
     }
 
@@ -321,7 +315,7 @@ class StripingFileLockProviderTest {
         @SuppressWarnings("java:S106") // standard output tells the parent the lock is held
         public static void main(String[] args) throws IOException {
             try (RandomAccessFile file = new RandomAccessFile(args[0], "rw");
-                    FileLock lock = file.getChannel().lock(StripingFileLock.getBucket(args[1]), 1, false)) {
+                    FileLock _ = file.getChannel().lock(StripingFileLock.getBucket(args[1]), 1, false)) {
                 System.out.println("locked");
                 System.out.flush();
                 while (System.in.read() != -1) {

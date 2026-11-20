@@ -97,18 +97,13 @@ public final class TrustedProxies {
         for (int i = hops.size() - 1; i >= 0; i--) {
             Hop hop = Hop.parse(hops.get(i));
             if (hop == null) {
-                break;
+                return client;
             }
-            boolean trustedHop = isTrusted(hop.address());
-            if (hop.loopback() && !trustedHop) {
-                break;
+            if (!hop.loopback()) {
+                client = hop.address();
             }
-            if (hop.loopback()) {
-                continue;
-            }
-            client = hop.address();
-            if (!trustedHop) {
-                break;
+            if (!isTrusted(hop.address())) {
+                return client;
             }
         }
         return client;
@@ -155,7 +150,8 @@ public final class TrustedProxies {
                 // parses literals only, never does a DNS lookup
                 InetAddress parsed = InetAddress.ofLiteral(address);
                 return new Hop(address, parsed.isLoopbackAddress());
-            } catch (IllegalArgumentException notAnAddress) {
+            } catch (IllegalArgumentException _) {
+                // not an IP address
                 return null;
             }
         }

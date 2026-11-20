@@ -42,10 +42,10 @@ public record CacheEntry(@NonNull CacheKey key, byte @Nullable [] json, @Nullabl
     // The equals of a record compares arrays by identity
     @Override
     public boolean equals(Object other) {
-        return other instanceof CacheEntry entry
-                && key.equals(entry.key())
-                && Arrays.equals(json, entry.json())
-                && Objects.equals(id, entry.id());
+        return other instanceof CacheEntry(CacheKey otherKey, byte[] otherJson, String otherId)
+                && key.equals(otherKey)
+                && Arrays.equals(json, otherJson)
+                && Objects.equals(id, otherId);
     }
 
     @Override

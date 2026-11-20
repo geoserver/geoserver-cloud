@@ -512,8 +512,8 @@ public class RequestCachingCatalogFacade extends ForwardingExtendedCatalogFacade
         Set<ClassMappings> nameTypes = nameTypesOf(type);
         Predicate<String> named = namedAs(name);
         return key -> switch (key) {
-            case IdKey idKey -> idTypes.contains(idKey.type()) && Objects.equals(id, idKey.id());
-            case NameKey nameKey -> nameTypes.contains(nameKey.type()) && named.test(nameKey.name());
+            case IdKey(ClassMappings keyType, String keyId) -> idTypes.contains(keyType) && Objects.equals(id, keyId);
+            case NameKey(ClassMappings keyType, String keyName) -> nameTypes.contains(keyType) && named.test(keyName);
             default -> false;
         };
     }

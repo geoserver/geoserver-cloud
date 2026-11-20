@@ -79,7 +79,7 @@ public class ClientAddressFilter extends OncePerRequestFilter {
 
         @Override
         public String getRemoteHost() {
-            return clientAddress;
+            return getRemoteAddr();
         }
     }
 }
