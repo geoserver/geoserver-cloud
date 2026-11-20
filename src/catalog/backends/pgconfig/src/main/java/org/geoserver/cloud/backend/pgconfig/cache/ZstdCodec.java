@@ -44,6 +44,8 @@ public final class ZstdCodec implements EntityCodec, AutoCloseable {
     private static final int MAX_CONTENT_SIZE = 64 * 1024 * 1024;
 
     private final long dictionaryId;
+    private final ZstdDictCompress compressDictionary;
+    private final ZstdDictDecompress decompressDictionary;
     private final ContextPool<ZstdCompressCtx> compressContexts;
     private final ContextPool<ZstdDecompressCtx> decompressContexts;
 
@@ -54,8 +56,8 @@ public final class ZstdCodec implements EntityCodec, AutoCloseable {
      */
     public ZstdCodec(int level, @NonNull byte[] dictionary) {
         this.dictionaryId = requireDictionaryId(dictionary);
-        ZstdDictCompress compressDictionary = new ZstdDictCompress(dictionary, level);
-        ZstdDictDecompress decompressDictionary = new ZstdDictDecompress(dictionary);
+        this.compressDictionary = new ZstdDictCompress(dictionary, level);
+        this.decompressDictionary = new ZstdDictDecompress(dictionary);
         this.compressContexts = new ContextPool<>(
                 MAX_IDLE_CONTEXTS, () -> newCompressContext(compressDictionary), ZstdCompressCtx::close);
         this.decompressContexts = new ContextPool<>(
@@ -160,10 +162,12 @@ public final class ZstdCodec implements EntityCodec, AutoCloseable {
         return "zstd";
     }
 
-    /** Closes the idle contexts of both pools, at shutdown. */
+    /** Closes the idle contexts of both pools and the dictionary they share, at shutdown. */
     @Override
     public void close() {
         compressContexts.close();
         decompressContexts.close();
+        compressDictionary.close();
+        decompressDictionary.close();
     }
 }
