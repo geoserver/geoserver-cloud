@@ -29,7 +29,7 @@ class PutBudgetTest {
         PutBudget budget = new PutBudget(1_000);
 
         Optional<PutBudget> here;
-        try (PutBudget.Binding binding = budget.bind()) {
+        try (PutBudget.Binding _ = budget.bind()) {
             here = PutBudget.current();
             Optional<PutBudget> elsewhere =
                     CompletableFuture.supplyAsync(PutBudget::current).join();
@@ -45,8 +45,8 @@ class PutBudgetTest {
         PutBudget outer = new PutBudget(1_000);
         PutBudget inner = PutBudget.unlimited();
 
-        try (PutBudget.Binding outerBinding = outer.bind()) {
-            try (PutBudget.Binding innerBinding = inner.bind()) {
+        try (PutBudget.Binding _ = outer.bind()) {
+            try (PutBudget.Binding _ = inner.bind()) {
                 assertThat(PutBudget.current()).containsSame(inner);
             }
             assertThat(PutBudget.current()).containsSame(outer);
@@ -74,7 +74,7 @@ class PutBudgetTest {
         PutBudget budget = new PutBudget(1_000);
 
         assertThatIllegalStateException().isThrownBy(() -> {
-            try (PutBudget.Binding binding = budget.bind()) {
+            try (PutBudget.Binding _ = budget.bind()) {
                 throw new IllegalStateException("failed");
             }
         });

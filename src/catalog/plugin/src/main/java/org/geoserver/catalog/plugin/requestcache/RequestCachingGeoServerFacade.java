@@ -237,8 +237,7 @@ public class RequestCachingGeoServerFacade extends ForwardingGeoServerFacade {
     }
 
     private static boolean isServiceLookup(Object key) {
-        if (key instanceof LookupKey lookup) {
-            String discriminator = lookup.discriminator();
+        if (key instanceof LookupKey(String discriminator)) {
             return discriminator.startsWith(SERVICE_PREFIX) || discriminator.startsWith(SERVICE_NAME_PREFIX);
         }
         return false;

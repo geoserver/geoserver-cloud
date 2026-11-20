@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.catalog.backend.datadir.locking;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -65,63 +64,74 @@ class StripingFileLock implements Resource.Lock {
             ++lockCount;
         } else {
             this.bucket = getBucket(lockKey);
-            final File file = provider.getFile();
-            finest("Mapped lock key %s to bucket %,d on locks file %s", lockKey, bucket, file);
-
-            final int maxLockAttempts = provider.getMaxLockAttempts();
-            final int waitBeforeRetry = provider.getWaitBeforeRetry();
-            // past half the attempts, drop any lock our own channel holds without us knowing, see recycleChannel()
-            final int recycleAfter = maxLockAttempts / 2;
-            int recycledAt = 0;
-            boolean reopened = false;
-
-            for (int count = 0; count < maxLockAttempts; count++) {
-                Optional<FileLock> lock;
-                try {
-                    lock = acquire(bucket, lockKey);
-                } catch (ChannelError e) {
-                    // The handle under the channel can die: on an SMB share mounted without persistent handles, a
-                    // reconnect drops the open and every later lock call on the channel fails, typically with "Bad
-                    // file descriptor", until it is reopened. Reopen it once and try again. Fail as before if a lock is
-                    // held on the channel, which is reopened when that lock is released, or if the new one fails too.
-                    if (reopened || !provider.recycleChannel()) {
-                        throw new IllegalStateException("Unexpected error acquiring lock", e.getCause());
-                    }
-                    reopened = true;
-                    warning(
-                            "Error locking %s (bucket %,d) on %s, closed it to reopen it: %s",
-                            lockKey, bucket, file, e.getCause().getMessage());
-                    continue;
-                }
-                if (lock.isPresent()) {
-                    this.fileLock = lock.get();
-                    this.lockCount = 1;
-                    break;
-                }
-                if (recycledAt == 0 && count + 1 >= recycleAfter && provider.recycleChannel()) {
-                    recycledAt = count + 1;
-                    warning(
-                            "Unable to lock on %s (bucket %,d) after %,d attempts while this process holds no lock on "
-                                    + "%s, closed it to release any lock the file system still attributes to it",
-                            lockKey, bucket, recycledAt, file);
-                }
-                finest(
-                        "Unable to lock on %s (bucket %,d), retrying in %dms (attempt %d/%d)...",
-                        lockKey, bucket, waitBeforeRetry, count + 1, maxLockAttempts);
-                sleep(waitBeforeRetry);
-            }
-            if (lockCount == 0) {
-                throw new IllegalStateException(
-                        String.format("Failed to get a lock on key %s after %d attempts", lockKey, maxLockAttempts));
-            }
-            if (recycledAt > 0) {
-                info(
-                        "Acquired lock on %s (bucket %,d) after closing the locks file at attempt %,d",
-                        lockKey, bucket, recycledAt);
-            }
+            finest("Mapped lock key %s to bucket %,d on locks file %s", lockKey, bucket, provider.getFile());
+            this.fileLock = acquireWithRetries();
+            this.lockCount = 1;
         }
         finer("Acquired lock on %s, bucket %d, lock counter: %d", lockKey, this.bucket, this.lockCount);
         return this;
+    }
+
+    /**
+     * Tries to lock the bucket until it succeeds or the attempts run out. Past half the attempts, the channel is closed
+     * once to drop any lock it holds without this JVM knowing, see {@link StripingFileLockProvider#recycleChannel()}.
+     *
+     * @throws IllegalStateException if failed to acquire a lock after max attempts
+     */
+    private FileLock acquireWithRetries() {
+        final int maxLockAttempts = provider.getMaxLockAttempts();
+        final int recycleAfter = maxLockAttempts / 2;
+        int recycledAt = 0;
+        boolean reopened = false;
+        for (int attempt = 1; attempt <= maxLockAttempts; attempt++) {
+            Optional<FileLock> lock;
+            try {
+                lock = acquire(bucket, lockKey);
+            } catch (ChannelError e) {
+                reopenChannel(reopened, e);
+                reopened = true;
+                continue;
+            }
+            if (lock.isPresent()) {
+                if (recycledAt > 0) {
+                    info(
+                            "Acquired lock on %s (bucket %,d) after closing the locks file at attempt %,d",
+                            lockKey, bucket, recycledAt);
+                }
+                return lock.get();
+            }
+            if (recycledAt == 0 && attempt >= recycleAfter && provider.recycleChannel()) {
+                recycledAt = attempt;
+                warning(
+                        "Unable to lock on %s (bucket %,d) after %,d attempts while this process holds no lock on "
+                                + "%s, closed it to release any lock the file system still attributes to it",
+                        lockKey, bucket, recycledAt, provider.getFile());
+            }
+            final int waitBeforeRetry = provider.getWaitBeforeRetry();
+            finest(
+                    "Unable to lock on %s (bucket %,d), retrying in %dms (attempt %d/%d)...",
+                    lockKey, bucket, waitBeforeRetry, attempt, maxLockAttempts);
+            sleep(waitBeforeRetry);
+        }
+        throw new IllegalStateException(
+                String.format("Failed to get a lock on key %s after %d attempts", lockKey, maxLockAttempts));
+    }
+
+    /**
+     * Reopens the channel after an I/O error of a lock attempt, once. The handle under the channel can die: on an SMB
+     * share mounted without persistent handles, a reconnect drops the open and every later lock call on the channel
+     * fails, typically with "Bad file descriptor", until it is reopened. Fails if the channel was reopened already, or
+     * if a lock is held on the channel, which is reopened when that lock is released.
+     *
+     * @throws IllegalStateException if the channel cannot be reopened
+     */
+    private void reopenChannel(boolean reopened, ChannelError e) {
+        if (reopened || !provider.recycleChannel()) {
+            throw new IllegalStateException("Unexpected error acquiring lock", e.getCause());
+        }
+        warning(
+                "Error locking %s (bucket %,d) on %s, closed it to reopen it: %s",
+                lockKey, bucket, provider.getFile(), e.getCause().getMessage());
     }
 
     @Override

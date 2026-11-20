@@ -5,6 +5,7 @@
 package org.geoserver.cloud.backend.pgconfig.cache;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.config.GeoServer;
@@ -29,7 +30,7 @@ public class EntityCacheLifecycle implements GeoServerReinitializer, GeoServerLi
 
     private final List<EntityCache> caches;
 
-    private volatile Runnable afterServingAgain = () -> {};
+    private final AtomicReference<Runnable> afterServingAgain = new AtomicReference<>(() -> {});
 
     public EntityCacheLifecycle(@NonNull List<EntityCache> caches) {
         this.caches = List.copyOf(caches);
@@ -44,7 +45,7 @@ public class EntityCacheLifecycle implements GeoServerReinitializer, GeoServerLi
      * {@link #beforeReload()} and {@link #onReload()}. The caches are suspended then, and a warm-up returns at once.
      */
     public void setAfterServingAgain(@NonNull Runnable listener) {
-        this.afterServingAgain = listener;
+        this.afterServingAgain.set(listener);
     }
 
     @Override
@@ -66,13 +67,13 @@ public class EntityCacheLifecycle implements GeoServerReinitializer, GeoServerLi
     @Override
     public void onReload() {
         resume("onReload");
-        afterServingAgain.run();
+        afterServingAgain.get().run();
     }
 
     @Override
     public void onReset() {
         clear("onReset");
-        afterServingAgain.run();
+        afterServingAgain.get().run();
     }
 
     @Override

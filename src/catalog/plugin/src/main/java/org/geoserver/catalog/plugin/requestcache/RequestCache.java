@@ -255,7 +255,7 @@ public final class RequestCache {
     private record Identity(Object object) {
         @Override
         public boolean equals(Object other) {
-            return other instanceof Identity identity && identity.object == object;
+            return other instanceof Identity(Object otherObject) && otherObject == object;
         }
 
         @Override

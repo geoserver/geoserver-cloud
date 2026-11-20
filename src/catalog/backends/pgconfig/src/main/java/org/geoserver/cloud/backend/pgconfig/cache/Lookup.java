@@ -22,7 +22,7 @@ public sealed interface Lookup {
         // The equals of a record compares arrays by identity
         @Override
         public boolean equals(Object other) {
-            return other instanceof Hit hit && Arrays.equals(json, hit.json());
+            return other instanceof Hit(byte[] otherJson) && Arrays.equals(json, otherJson);
         }
 
         @Override

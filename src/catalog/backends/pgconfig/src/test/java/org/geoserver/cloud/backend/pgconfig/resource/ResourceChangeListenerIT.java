@@ -225,7 +225,7 @@ class ResourceChangeListenerIT {
         ResourceChanged remoteDelete = ResourceChanged.createLocal(STYLE, Kind.DELETED, RESOURCE, 0L, List.of());
         remoteDelete.setRemote(true);
 
-        try (LogCapture log = LogCapture.of(ResourceChangeListener.class.getName())) {
+        try (LogCapture _ = LogCapture.of(ResourceChangeListener.class.getName())) {
             failingListener.onResourceChanged(remoteDelete);
         }
 

@@ -158,7 +158,9 @@ class PgconfigCatalogBackendConformanceIT extends CatalogConformanceTest {
 
         @Disabled("as in the enclosing class")
         @Override
-        public void testSaveDataStoreRollbacksBothStoreAndResources() {}
+        public void testSaveDataStoreRollbacksBothStoreAndResources() {
+            // not run, see the enclosing class
+        }
     }
 
     static @BeforeAll void beforeAll() throws Exception {

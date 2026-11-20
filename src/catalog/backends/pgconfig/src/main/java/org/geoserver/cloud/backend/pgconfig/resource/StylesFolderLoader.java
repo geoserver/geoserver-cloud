@@ -147,7 +147,8 @@ class StylesFolderLoader {
             return;
         }
         Map<Long, String> paths = files.stream().collect(Collectors.toMap(ResourceRow::id, ResourceRow::path));
-        long[] ids = files.stream().mapToLong(ResourceRow::id).toArray();
+        // one array parameter: an array of Long would spread into one parameter per id
+        Object ids = files.stream().mapToLong(ResourceRow::id).toArray();
         RowCallbackHandler writer = row -> writeCopy(row, paths);
         String sql =
                 """
