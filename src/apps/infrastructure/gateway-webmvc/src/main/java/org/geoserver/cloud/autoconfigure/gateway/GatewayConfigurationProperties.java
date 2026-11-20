@@ -37,7 +37,7 @@ public class GatewayConfigurationProperties {
         if (trustedProxies != null) {
             return trustedProxies;
         }
-        return requestId.getTrustedProxies();
+        return requestId.trustedProxies;
     }
 
     /** The deprecated {@code geoserver.gateway.request-id} properties */
@@ -46,7 +46,7 @@ public class GatewayConfigurationProperties {
         private @Nullable Pattern trustedProxies;
 
         /** @deprecated replaced by {@code geoserver.gateway.trusted-proxies} */
-        @Deprecated
+        @Deprecated(since = "3.0.2")
         @DeprecatedConfigurationProperty(replacement = "geoserver.gateway.trusted-proxies")
         public @Nullable Pattern getTrustedProxies() {
             return trustedProxies;

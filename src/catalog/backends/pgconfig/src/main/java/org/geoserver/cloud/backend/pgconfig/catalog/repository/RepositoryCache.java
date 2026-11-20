@@ -115,8 +115,8 @@ final class RepositoryCache<T extends CatalogInfo> {
      */
     <R extends CatalogInfo> Optional<R> cachedObject(String id, Class<R> clazz) {
         List<CacheKey> keys = entityKeys(new RowTypes(clazz), id, clazz);
-        if (cache.lookup(keys) instanceof Lookup.Hit hit) {
-            R object = CatalogInfoRowMapper.decodeObject(hit.json(), clazz);
+        if (cache.lookup(keys) instanceof Lookup.Hit(byte[] json)) {
+            R object = CatalogInfoRowMapper.decodeObject(json, clazz);
             return Optional.of(object);
         }
         return Optional.empty();
@@ -260,7 +260,7 @@ final class RepositoryCache<T extends CatalogInfo> {
     private Optional<CacheKey> rowKey(CatalogInfoRowMapper<T> rowMapper, ResultSet rs) {
         try {
             return rowMapper.rowKey(rs);
-        } catch (SQLException | UncheckedSqlException | IllegalArgumentException e) {
+        } catch (SQLException | UncheckedSqlException | IllegalArgumentException _) {
             return Optional.empty();
         }
     }

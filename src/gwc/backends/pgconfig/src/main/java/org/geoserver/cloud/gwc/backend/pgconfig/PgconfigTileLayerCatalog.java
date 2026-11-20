@@ -193,7 +193,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
     private List<GeoServerTileLayer> tileLayersOf(List<String> batch, PutBudget budget) {
         Map<String, PublishedInfo> published;
         Map<String, TileLayerInfo> settings;
-        try (PutBudget.Binding binding = budget.bind()) {
+        try (PutBudget.Binding _ = budget.bind()) {
             published = findAllPublished(batch);
             settings = repository.findAllSettings(foundIds(batch, published));
         }

@@ -521,7 +521,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
     private <U extends T> Optional<U> findThroughCache(String id, Class<U> clazz) {
         List<CacheKey> keys = cache.entityKeys(id, clazz);
         return switch (cache.lookup(keys)) {
-            case Lookup.Hit hit -> instanceOf(clazz, cache.decode(hit.json()));
+            case Lookup.Hit(byte[] json) -> instanceOf(clazz, cache.decode(json));
             case Lookup.Miss() -> Optional.empty();
             case Lookup.Absent() -> cache.queryRemembering(keys, () -> readById(id, clazz));
         };
@@ -589,7 +589,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
         List<String> absent = new ArrayList<>();
         for (String id : new LinkedHashSet<>(ids)) {
             switch (cache.lookup(cache.entityKeys(id, type))) {
-                case Lookup.Hit hit -> found.add(cache.decode(hit.json()));
+                case Lookup.Hit(byte[] json) -> found.add(cache.decode(json));
                 case Lookup.Miss() -> {
                     // the id was not found earlier
                 }
@@ -631,7 +631,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> imple
             return query.get();
         }
         return switch (cache.lookup(keys)) {
-            case Lookup.Hit hit -> findByHint(keys, new String(hit.json(), UTF_8), clazz, query);
+            case Lookup.Hit(byte[] json) -> findByHint(keys, new String(json, UTF_8), clazz, query);
             case Lookup.Miss() -> Optional.empty();
             case Lookup.Absent() -> cache.queryRemembering(keys, query);
         };

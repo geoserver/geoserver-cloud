@@ -107,5 +107,10 @@
       <groupId>com.github.f4b6a3</groupId>
       <artifactId>ulid-creator</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

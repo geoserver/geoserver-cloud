@@ -120,7 +120,7 @@ public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepositor
      * @return the number of groups put
      */
     public int warmUp(@NonNull BooleanSupplier cancelled, @NonNull PutBudget budget) {
-        try (PutBudget.Binding binding = budget.bind()) {
+        try (PutBudget.Binding _ = budget.bind()) {
             return warmUpPages(cancelled, budget);
         }
     }

@@ -123,6 +123,7 @@ public class BuiltTileLayerCache {
      * Returns the id of the layer or group of a name: the kept one, or the one of the layer or group found by the
      * finder. Empty if the finder finds none.
      */
+    @SuppressWarnings("java:S2789") // Caffeine answers null for a key it does not hold, the values kept are Optionals
     Optional<String> findPublishedId(String layerName, Supplier<Optional<PublishedInfo>> finder) {
         Optional<Generation> generation = lookupGeneration();
         if (generation.isEmpty()) {
@@ -178,6 +179,7 @@ public class BuiltTileLayerCache {
         return generation;
     }
 
+    @SuppressWarnings("java:S2789") // Caffeine answers null for a key it does not hold, the values kept are Optionals
     private Optional<GeoServerTileLayer> keptOrBuilt(
             Generation generation,
             String layerName,
@@ -270,7 +272,7 @@ public class BuiltTileLayerCache {
     }
 
     /** Returns the Caffeine cache of the tile layers, for the metrics. Callers must not modify it. */
-    public Cache<?, ?> caffeine() {
+    public Cache<IdKey, Optional<GeoServerTileLayer>> caffeine() {
         return tileLayers;
     }
 
@@ -297,5 +299,5 @@ public class BuiltTileLayerCache {
     }
 
     /** The key of the tile layer of a layer or group. */
-    private record IdKey(long generation, String publishedId) {}
+    record IdKey(long generation, String publishedId) {}
 }
