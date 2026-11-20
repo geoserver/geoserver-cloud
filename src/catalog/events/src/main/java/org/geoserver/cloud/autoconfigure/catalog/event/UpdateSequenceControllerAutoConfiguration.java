@@ -19,7 +19,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnWebApplication
-@EnableMethodSecurity(jsr250Enabled = true)
+@EnableMethodSecurity(securedEnabled = true)
 public class UpdateSequenceControllerAutoConfiguration {
 
     @Bean
