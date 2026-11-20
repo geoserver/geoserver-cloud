@@ -46,6 +46,15 @@ public class AccessDeniedPageAutoConfiguration {
     ResourceHttpRequestHandler accessDeniedPageHandler() {
         ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
         handler.setLocationValues(List.of("classpath:/META-INF/resources/"));
+        acceptAnyMethod(handler);
         return handler;
+    }
+
+    /**
+     * A forwarded request keeps the method of the denied request. The handler accepts only GET and HEAD by default, and
+     * would answer a denied POST with a 405 instead of the 403 set by the filter.
+     */
+    private static void acceptAnyMethod(ResourceHttpRequestHandler handler) {
+        handler.setSupportedMethods((String[]) null);
     }
 }
