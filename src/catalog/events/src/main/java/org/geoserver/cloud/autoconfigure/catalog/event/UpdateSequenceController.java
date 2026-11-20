@@ -5,13 +5,13 @@
 
 package org.geoserver.cloud.autoconfigure.catalog.event;
 
-import jakarta.annotation.security.RolesAllowed;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.geoserver.cloud.event.UpdateSequenceEvent;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +36,13 @@ public class UpdateSequenceController {
         return new UpdateSeq(observed, real);
     }
 
-    @RolesAllowed({"ADMIN", "ROLE_ADMINISTRATOR"})
+    /**
+     * Increments the update sequence and tells the other services to drop their cached configuration.
+     *
+     * <p>Only the administrator may call it. GeoServer grants {@code ROLE_ADMINISTRATOR} to the holders of the admin
+     * role of the active role service, regardless of that role's name.
+     */
+    @Secured("ROLE_ADMINISTRATOR")
     @PostMapping(path = "/admin/updatesequence", produces = "application/json")
     public UpdateSeq nextVal() {
         long observed = observed();
