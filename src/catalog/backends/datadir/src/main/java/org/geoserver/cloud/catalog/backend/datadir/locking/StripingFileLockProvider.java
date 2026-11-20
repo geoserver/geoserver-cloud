@@ -15,9 +15,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource;
@@ -67,7 +69,7 @@ class StripingFileLockProvider implements LockProvider, Closeable {
 
     private File locksFile;
 
-    private volatile FileChannel channel;
+    private final AtomicReference<FileChannel> channel = new AtomicReference<>();
 
     /**
      * Lock attempts hold the read lock while they use {@link #channel}, closing it takes the write lock, so the channel
@@ -154,24 +156,23 @@ class StripingFileLockProvider implements LockProvider, Closeable {
     private void closeChannel() {
         FileChannel ch;
         synchronized (this) {
-            ch = this.channel;
-            this.channel = null;
+            ch = channel.getAndSet(null);
         }
         IOUtils.closeQuietly(ch);
     }
 
     /** Returns the channel to the locks file, opening it if it was not open yet or has been closed */
     FileChannel getChannel() {
-        FileChannel ch = this.channel;
+        FileChannel ch = channel.get();
         if (ch == null || !ch.isOpen()) {
             synchronized (this) {
-                ch = this.channel;
+                ch = channel.get();
                 if (ch == null || !ch.isOpen()) {
                     if (ch != null) {
-                        LOGGER.warning("Locks file channel was closed, reopening " + locksFile);
+                        LOGGER.log(Level.WARNING, "Locks file channel was closed, reopening {0}", locksFile);
                     }
                     ch = openChannel(getFile());
-                    this.channel = ch;
+                    channel.set(ch);
                 }
             }
         }

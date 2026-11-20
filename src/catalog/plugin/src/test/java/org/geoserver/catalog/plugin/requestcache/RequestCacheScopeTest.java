@@ -6,6 +6,7 @@ package org.geoserver.catalog.plugin.requestcache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.awaitility.Awaitility.await;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -603,16 +604,14 @@ class RequestCacheScopeTest {
 
     // a cache left bound past its maximum age may never be closed
     @Test
-    void expiredCacheDropsEntries() throws InterruptedException {
+    void expiredCacheDropsEntries() {
         RequestCacheBudget budget = new RequestCacheBudget(10);
         RequestCache expiring = new RequestCache(10, Duration.ofMillis(100), budget);
         LookupKey key = new LookupKey("default-workspace");
         expiring.put(key, null);
 
-        Thread.sleep(150);
-        Optional<Object> found = expiring.found(key);
+        await().atMost(Duration.ofSeconds(5)).until(() -> expiring.found(key).isEmpty());
 
-        assertThat(found).isEmpty();
         assertThat(budget.used()).isZero();
     }
 
@@ -752,10 +751,8 @@ class RequestCacheScopeTest {
         return dead;
     }
 
-    private static void awaitExpiry(RequestCache cache) throws InterruptedException {
-        while (!cache.isDead()) {
-            Thread.sleep(10);
-        }
+    private static void awaitExpiry(RequestCache cache) {
+        await().atMost(Duration.ofSeconds(5)).until(cache::isDead);
     }
 
     private static IdKey idOf(LayerInfo layer) {

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -63,7 +64,7 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
     private final Object writeLock = new Object();
 
     /** The loaded rows; null before the first load and after {@link #clear()}. */
-    private volatile @Nullable Index index;
+    private final AtomicReference<@Nullable Index> index = new AtomicReference<>();
 
     /** Whether the store reads through the index, see {@link #waitForStartup()}. */
     private volatile boolean serving = true;
@@ -81,7 +82,7 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
     private @Nullable ConcurrentNavigableMap<String, ResourceRow> rowsBeforeClear;
 
     /** Receives the rows found changed by a load, see {@link #onChangesFound(Consumer)}. */
-    private volatile Consumer<IndexChanges> changesListener = changes -> {};
+    private final AtomicReference<Consumer<IndexChanges>> changesListener = new AtomicReference<>(changes -> {});
 
     private record Index(ConcurrentNavigableMap<String, ResourceRow> rows) {}
 
@@ -145,7 +146,7 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
      * with.
      */
     void onChangesFound(@NonNull Consumer<IndexChanges> listener) {
-        this.changesListener = listener;
+        this.changesListener.set(listener);
     }
 
     /** Returns the row at the path, loading the index on first use and after a clear. */
@@ -233,18 +234,18 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
     public void clear() {
         synchronized (writeLock) {
             generation++;
-            Index dropped = index;
+            Index dropped = index.get();
             if (dropped != null) {
                 rowsBeforeClear = dropped.rows();
             }
-            index = null;
+            index.set(null);
         }
         content.invalidateAll();
     }
 
     /** Returns the number of rows in the index, 0 when it is not loaded. */
     public int size() {
-        Index current = index;
+        Index current = index.get();
         return current == null ? 0 : current.rows().size();
     }
 
@@ -290,7 +291,7 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
     }
 
     private ConcurrentNavigableMap<String, ResourceRow> rows() {
-        Index current = index;
+        Index current = index.get();
         if (current == null) {
             current = loadWaitingForOthers();
         }
@@ -312,7 +313,7 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
 
     // Another thread may have loaded the index while this one waited for the lock
     private Load loadUnlessFresh() {
-        Index current = index;
+        Index current = index.get();
         if (current != null) {
             return new Load(current, IndexChanges.NONE);
         }
@@ -360,7 +361,7 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
         }
         log.debug("A load of {} found changes made outside the store: {}", name, changes);
         try {
-            changesListener.accept(changes);
+            changesListener.get().accept(changes);
         } catch (RuntimeException e) {
             log.warn("The listener of the changes found by a load of {} failed", name, e);
         }
@@ -407,9 +408,9 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
             if (generation != loadGeneration) {
                 return Optional.empty();
             }
-            Index previous = index;
+            Index previous = index.get();
             ConcurrentNavigableMap<String, ResourceRow> replaced = previous == null ? rowsBeforeClear : previous.rows();
-            index = loaded;
+            index.set(loaded);
             rowsBeforeClear = null;
             return Optional.ofNullable(replaced);
         }
@@ -418,7 +419,7 @@ public class ResourceStoreCache implements GeoServerLifecycleHandler, ClearableC
     /** Applies a write to the index, and records it for the load running, if any. */
     private void write(Consumer<ConcurrentNavigableMap<String, ResourceRow>> change) {
         synchronized (writeLock) {
-            Index current = index;
+            Index current = index.get();
             if (current != null) {
                 change.accept(current.rows());
             }

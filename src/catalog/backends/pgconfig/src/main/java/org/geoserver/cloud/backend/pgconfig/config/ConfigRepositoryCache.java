@@ -70,7 +70,7 @@ final class ConfigRepositoryCache {
             return readWithoutCache(type, query);
         }
         return switch (cache.lookup(key)) {
-            case Lookup.Hit hit -> decodeCached(key, hit.json(), type).or(() -> readWithoutCache(type, query));
+            case Lookup.Hit(byte[] json) -> decodeCached(key, json, type).or(() -> readWithoutCache(type, query));
             case Lookup.Miss() -> Optional.empty();
             case Lookup.Absent() -> queryRemembering(key, type, query);
         };
@@ -148,8 +148,8 @@ final class ConfigRepositoryCache {
 
     /** The object held by an {@code ENTITY} key. Empty if the cache does not hold it: no query runs. */
     private <T extends Info> Optional<T> cachedObject(CacheKey key, Class<T> type) {
-        if (!cache.isUncacheable(key) && cache.lookup(key) instanceof Lookup.Hit hit) {
-            return decodeCached(key, hit.json(), type);
+        if (!cache.isUncacheable(key) && cache.lookup(key) instanceof Lookup.Hit(byte[] json)) {
+            return decodeCached(key, json, type);
         }
         return Optional.empty();
     }
@@ -221,6 +221,7 @@ final class ConfigRepositoryCache {
     }
 
     /** A row found by a query: the JSON of its object, and the object decoded from it. */
+    @SuppressWarnings("java:S6218") // never compared
     private record Row<T>(byte[] json, T object) {}
 
     /**

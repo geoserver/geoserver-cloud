@@ -134,12 +134,12 @@ class PgconfigResourceIT {
                 PgconfigResourceStore.antPathMatcher(PgconfigBackendProperties.defaultDbBackedFilePatterns()),
                 transactionManager,
                 changePublisher,
-                newIndex(template));
+                newIndex());
         setupTestData(template);
     }
 
     /** Returns the index of the store under test, or null for a store reading the database on each lookup. */
-    protected ResourceStoreCache newIndex(JdbcTemplate template) {
+    protected ResourceStoreCache newIndex() {
         return null;
     }
 

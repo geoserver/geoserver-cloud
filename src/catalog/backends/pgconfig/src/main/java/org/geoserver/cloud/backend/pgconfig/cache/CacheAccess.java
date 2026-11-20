@@ -76,7 +76,7 @@ public final class CacheAccess {
     private static boolean autoCommits(Connection connection) {
         try {
             return connection.getAutoCommit();
-        } catch (SQLException e) {
+        } catch (SQLException _) {
             return false;
         }
     }

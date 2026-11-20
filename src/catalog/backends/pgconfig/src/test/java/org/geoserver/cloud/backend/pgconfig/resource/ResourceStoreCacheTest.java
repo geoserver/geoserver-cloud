@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import org.awaitility.Awaitility;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceNotification;
 import org.geoserver.platform.resource.ResourceNotification.Kind;
@@ -348,12 +349,8 @@ class ResourceStoreCacheTest {
     }
 
     /** Waits until the thread waits for a lock: the listener read the store, and waits for the load. */
-    private static void awaitBlocked(Thread thread) throws InterruptedException {
-        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
-        while (thread.getState() != Thread.State.WAITING && System.nanoTime() < deadline) {
-            Thread.sleep(10);
-        }
-        assertThat(thread.getState()).isEqualTo(Thread.State.WAITING);
+    private static void awaitBlocked(Thread thread) {
+        Awaitility.await().atMost(5, TimeUnit.SECONDS).until(() -> thread.getState() == Thread.State.WAITING);
     }
 
     private static void await(CountDownLatch latch) {

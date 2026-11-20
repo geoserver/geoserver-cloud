@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import javax.sql.DataSource;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.geoserver.catalog.CatalogInfo;
@@ -69,7 +70,8 @@ public class PgconfigConfigRepository implements ConfigRepository {
         if (null == entityCache) {
             this.cache = null;
         } else {
-            this.cache = new ConfigRepositoryCache(entityCache, template.getDataSource(), infoMapper);
+            DataSource dataSource = Objects.requireNonNull(template.getDataSource(), "the template has no data source");
+            this.cache = new ConfigRepositoryCache(entityCache, dataSource, infoMapper);
         }
     }
 

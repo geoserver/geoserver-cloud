@@ -4,16 +4,15 @@
  */
 package org.geoserver.cloud.backend.pgconfig.resource;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-
 /** Runs the tests of {@link PgconfigResourceIT} on a store reading its rows from a {@link ResourceStoreCache}. */
 class PgconfigIndexedResourceIT extends PgconfigResourceIT {
 
     private ResourceStoreCache index;
 
     @Override
-    protected ResourceStoreCache newIndex(JdbcTemplate template) {
-        index = new ResourceStoreCache("gs-resources", PgconfigResourceStore.indexLoader(template), 1024 * 1024);
+    protected ResourceStoreCache newIndex() {
+        index = new ResourceStoreCache(
+                "gs-resources", PgconfigResourceStore.indexLoader(db.getTemplate()), 1024 * 1024);
         return index;
     }
 

@@ -100,7 +100,7 @@ class HoldingUpstream implements AutoCloseable {
     private void awaitRelease() {
         try {
             release.await();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
         }
     }

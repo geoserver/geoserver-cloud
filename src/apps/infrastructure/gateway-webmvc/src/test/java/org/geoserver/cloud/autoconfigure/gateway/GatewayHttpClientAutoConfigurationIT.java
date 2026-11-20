@@ -119,6 +119,8 @@ class GatewayHttpClientAutoConfigurationIT {
         assertThat(statuses).filteredOn(status -> status >= 500).hasSize(8);
     }
 
+    // the wait is the point: the connection must sit idle past the max idle time of the pool
+    @SuppressWarnings("java:S2925")
     @Test
     void idleConnectionIsNotReused() throws Exception {
         idleUpstream.reset();

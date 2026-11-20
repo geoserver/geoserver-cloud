@@ -1003,14 +1003,14 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
         Optional<String> reference(String property) {
             return tree.path(property).stringValueOpt();
         }
-    }
 
-    private static ConfigInfoType typeOf(String jsonType) {
-        ConfigInfoType type = TYPES_BY_JSON_TYPE.get(jsonType);
-        if (null == type) {
-            throw new IllegalArgumentException("Unexpected @type: " + jsonType);
+        private static ConfigInfoType typeOf(String jsonType) {
+            ConfigInfoType type = TYPES_BY_JSON_TYPE.get(jsonType);
+            if (null == type) {
+                throw new IllegalArgumentException("Unexpected @type: " + jsonType);
+            }
+            return type;
         }
-        return type;
     }
 
     protected <V> V decode(ResultSet rs, String column, Class<V> valueType) throws SQLException {

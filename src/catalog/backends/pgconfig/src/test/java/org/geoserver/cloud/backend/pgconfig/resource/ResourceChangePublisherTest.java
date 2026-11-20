@@ -140,7 +140,7 @@ class ResourceChangePublisherTest {
                 .changed(any(ResourceNotification.class));
         TransactionTemplate transaction = transactionOverMockedConnection();
 
-        try (LogCapture log = LogCapture.of(ResourceChangePublisher.class.getName())) {
+        try (LogCapture _ = LogCapture.of(ResourceChangePublisher.class.getName())) {
             transaction.executeWithoutResult(status -> {
                 publisher.afterCommit(change);
                 publisher.afterCommit(second);
