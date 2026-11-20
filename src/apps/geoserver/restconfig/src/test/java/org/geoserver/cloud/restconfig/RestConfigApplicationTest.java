@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -313,6 +314,29 @@ abstract class RestConfigApplicationTest {
         headers.set("x-gsc-roles", "ADMIN");
         ResponseEntity<String> response = restTemplate.exchange("/rest", GET, new HttpEntity<>(headers), String.class);
         assertThat(response.getStatusCode()).isEqualTo(OK);
+    }
+
+    // The admin login of the default user service holds ADMIN, mapped by GeoServer to ROLE_ADMINISTRATOR
+    @Test
+    void adminIncrementsUpdateSequence() {
+        restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
+        ResponseEntity<String> response = restTemplate.postForEntity("/rest/admin/updatesequence", null, String.class);
+        assertThat(response.getStatusCode()).isEqualTo(OK);
+        assertThat(response.getBody()).contains("\"observed\"", "\"real\"");
+    }
+
+    // The denied POST is forwarded to the access denied page, which must keep the 403
+    @Test
+    void userCannotIncrementUpdateSequence() {
+        restTemplate = restTemplate.withBasicAuth(null, null);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-gsc-username", "gabe");
+        headers.set("x-gsc-roles", "ROLE_ADMIN");
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<String> response =
+                restTemplate.exchange("/rest/admin/updatesequence", POST, request, String.class);
+        assertThat(response.getStatusCode()).isEqualTo(FORBIDDEN);
     }
 
     @Test
