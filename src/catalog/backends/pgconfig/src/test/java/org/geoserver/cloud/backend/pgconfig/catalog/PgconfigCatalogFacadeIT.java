@@ -166,6 +166,7 @@ class PgconfigCatalogFacadeIT {
     }
 
     @Test
+    @SuppressWarnings("java:S7466") // typed unnamed variable: the project avoids var
     void budgetBoundsBulkPuts() {
         List<StyleInfo> styles = addStyles("budget", 20);
         List<String> ids = addLayersOnOneStore("budget", styles).stream()

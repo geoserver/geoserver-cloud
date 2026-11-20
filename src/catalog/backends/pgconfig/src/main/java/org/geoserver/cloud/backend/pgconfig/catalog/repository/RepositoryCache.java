@@ -185,7 +185,7 @@ final class RepositoryCache<T extends CatalogInfo> {
         List<CacheEntry> entries;
         try {
             entries = rowMapper.decompose(rs);
-        } catch (SecretsNotReadyException e) {
+        } catch (SecretsNotReadyException _) {
             return rowMapper.mapRow(rs, rowNum);
         } catch (SQLException | UncheckedSqlException | IllegalArgumentException e) {
             T object = rowMapper.mapRow(rs, rowNum);
@@ -238,7 +238,7 @@ final class RepositoryCache<T extends CatalogInfo> {
     private List<CacheEntry> splitOrMarkUncacheable(CatalogInfoRowMapper<T> rowMapper, ResultSet rs) {
         try {
             return rowMapper.decompose(rs);
-        } catch (SecretsNotReadyException e) {
+        } catch (SecretsNotReadyException _) {
             return List.of();
         } catch (SQLException | UncheckedSqlException | IllegalArgumentException e) {
             Optional<CacheKey> key = rowKey(rowMapper, rs);
@@ -337,7 +337,7 @@ final class RepositoryCache<T extends CatalogInfo> {
         try {
             List<CacheEntry> entries = rowMapper.decompose(rs);
             putListedEntries(entries, epochSeen);
-        } catch (SecretsNotReadyException e) {
+        } catch (SecretsNotReadyException _) {
             // a later read decrypts the secrets and caches the row
         } catch (SQLException | UncheckedSqlException | IllegalArgumentException e) {
             markUncacheable(object, e);

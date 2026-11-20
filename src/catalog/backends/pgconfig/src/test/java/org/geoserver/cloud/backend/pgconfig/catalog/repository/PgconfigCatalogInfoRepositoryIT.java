@@ -313,6 +313,7 @@ class PgconfigCatalogInfoRepositoryIT {
 
     // the published infos repository marks the group, and the group repository writes it
     @Test
+    @SuppressWarnings("java:S7466") // typed unnamed variable: the project avoids var
     void writeForgetsUncacheableRow() {
         CacheKey key = CacheKey.entity(ConfigInfoType.LAYERGROUP, groupId);
         PgconfigLayerGroupRepository groups = withCache(new PgconfigLayerGroupRepository(template, styles));

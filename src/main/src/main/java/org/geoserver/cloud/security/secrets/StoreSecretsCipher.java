@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -48,13 +49,13 @@ public class StoreSecretsCipher {
 
     private final Supplier<@Nullable GeoServerSecurityManager> securityManagerLookup;
 
-    private volatile @Nullable GeoServerSecurityManager securityManager;
+    private final AtomicReference<@Nullable GeoServerSecurityManager> securityManager = new AtomicReference<>();
 
     /** The start of the values encrypted by the reversible encoders of the application, fixed by its beans. */
-    private volatile @Nullable List<String> prefixes;
+    private final AtomicReference<@Nullable List<String>> prefixes = new AtomicReference<>();
 
     /** The encoders ready for use by any thread, or null until a thread creates them under {@link #encodersLock}. */
-    private volatile @Nullable List<GeoServerPasswordEncoder> encoders;
+    private final AtomicReference<@Nullable List<GeoServerPasswordEncoder>> encoders = new AtomicReference<>();
 
     private final Object encodersLock = new Object();
 
@@ -110,7 +111,7 @@ public class StoreSecretsCipher {
      */
     @EventListener(SecurityManagerReloaded.class)
     public void reset() {
-        encoders = null;
+        encoders.set(null);
     }
 
     /** Whether the security manager exists. */
@@ -148,7 +149,7 @@ public class StoreSecretsCipher {
      * initialized.
      */
     public List<String> encryptedPrefixes() {
-        List<String> current = prefixes;
+        List<String> current = prefixes.get();
         if (null == current) {
             current = loadPrefixes();
         }
@@ -163,7 +164,7 @@ public class StoreSecretsCipher {
         List<String> loaded = withDelimiter(reversibleEncoders(manager).stream()
                 .map(GeoServerPasswordEncoder::getPrefix)
                 .toList());
-        prefixes = loaded;
+        prefixes.set(loaded);
         return loaded;
     }
 
@@ -183,7 +184,7 @@ public class StoreSecretsCipher {
         GeoServerSecurityManager manager = requireSecurityManager();
         try {
             return Optional.of(decryptWithEncoders(manager, encrypted));
-        } catch (RuntimeException firstFailure) {
+        } catch (RuntimeException _) {
             reset();
             try {
                 return Optional.of(decryptWithEncoders(manager, encrypted));
@@ -242,13 +243,13 @@ public class StoreSecretsCipher {
      * created its cipher, see {@link #initialize(GeoServerPasswordEncoder)}.
      */
     private List<GeoServerPasswordEncoder> encoders(GeoServerSecurityManager manager) {
-        List<GeoServerPasswordEncoder> current = encoders;
+        List<GeoServerPasswordEncoder> current = encoders.get();
         if (null == current) {
             synchronized (encodersLock) {
-                current = encoders;
+                current = encoders.get();
                 if (null == current) {
                     current = createEncoders(manager);
-                    encoders = current;
+                    encoders.set(current);
                 }
             }
         }
@@ -292,10 +293,10 @@ public class StoreSecretsCipher {
     }
 
     private @Nullable GeoServerSecurityManager securityManager() {
-        GeoServerSecurityManager manager = securityManager;
+        GeoServerSecurityManager manager = securityManager.get();
         if (null == manager) {
             manager = securityManagerLookup.get();
-            securityManager = manager;
+            securityManager.set(manager);
         }
         return manager;
     }

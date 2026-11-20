@@ -45,4 +45,15 @@ class TileLayerCatalogView extends AbstractCatalogDecorator {
         }
         return super.getLayerGroup(id);
     }
+
+    // the decorator compares the catalogs: two views of one catalog differ by the layer or group they hold
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof TileLayerCatalogView view && super.equals(view) && published.equals(view.published);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + published.hashCode();
+    }
 }
