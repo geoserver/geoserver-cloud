@@ -190,6 +190,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
      * the listing does not find its layer or group, or if the layer or group has no settings, as when the catalog
      * changed after the read of the ids.
      */
+    @SuppressWarnings("java:S7466") // typed unnamed variable: the project avoids var
     private List<GeoServerTileLayer> tileLayersOf(List<String> batch, PutBudget budget) {
         Map<String, PublishedInfo> published;
         Map<String, TileLayerInfo> settings;

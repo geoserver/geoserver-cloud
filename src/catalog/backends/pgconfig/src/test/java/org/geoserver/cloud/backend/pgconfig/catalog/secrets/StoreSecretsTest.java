@@ -147,8 +147,8 @@ class StoreSecretsTest {
             StoreSecrets notReady = new StoreSecrets(new StoreSecretsCipher(() -> null));
 
             assertThat(notReady.decrypt(row)).isSameAs(row);
-            assertThatThrownBy(() -> notReady.decryptForCache(row.getBytes(UTF_8)))
-                    .isInstanceOf(SecretsNotReadyException.class);
+            byte[] bytes = row.getBytes(UTF_8);
+            assertThatThrownBy(() -> notReady.decryptForCache(bytes)).isInstanceOf(SecretsNotReadyException.class);
         });
     }
 

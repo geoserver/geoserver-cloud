@@ -423,7 +423,7 @@ class RequestCacheScopeTest {
 
     // a listing left its stream open: its cache died at its maximum age, and kept its entries
     @Test
-    void openClosesExpiredCache() throws InterruptedException {
+    void openClosesExpiredCache() {
         RequestCacheBudget budget = new RequestCacheBudget(10);
         RequestCache expiring = new RequestCache(10, Duration.ofMillis(200), budget);
         expiring.put(new IdKey(ClassMappings.LAYER, "roads"), layer("roads"));
