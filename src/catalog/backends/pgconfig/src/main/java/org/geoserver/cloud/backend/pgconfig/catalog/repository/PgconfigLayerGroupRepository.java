@@ -119,6 +119,7 @@ public class PgconfigLayerGroupRepository extends PgconfigPublishedInfoRepositor
      * @param budget bounds the weight put in the cache, bound to the thread during the warm-up
      * @return the number of groups put
      */
+    @SuppressWarnings("java:S7466") // typed unnamed variable: the project avoids var
     public int warmUp(@NonNull BooleanSupplier cancelled, @NonNull PutBudget budget) {
         try (PutBudget.Binding _ = budget.bind()) {
             return warmUpPages(cancelled, budget);

@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("java:S7466") // typed unnamed variables: the project avoids var
 class PutBudgetTest {
 
     @Test

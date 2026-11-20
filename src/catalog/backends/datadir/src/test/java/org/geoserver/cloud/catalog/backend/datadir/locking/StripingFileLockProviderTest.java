@@ -312,7 +312,8 @@ class StripingFileLockProviderTest {
      * closed
      */
     public static class LockHolder {
-        @SuppressWarnings("java:S106") // standard output tells the parent the lock is held
+        // standard output tells the parent the lock is held, and the unnamed lock variable keeps its type
+        @SuppressWarnings({"java:S106", "java:S7466"})
         public static void main(String[] args) throws IOException {
             try (RandomAccessFile file = new RandomAccessFile(args[0], "rw");
                     FileLock _ = file.getChannel().lock(StripingFileLock.getBucket(args[1]), 1, false)) {

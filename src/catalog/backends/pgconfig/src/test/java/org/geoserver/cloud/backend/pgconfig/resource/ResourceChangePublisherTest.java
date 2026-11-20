@@ -131,6 +131,7 @@ class ResourceChangePublisherTest {
     }
 
     @Test
+    @SuppressWarnings("java:S7466") // typed unnamed variable: the project avoids var
     void laterChangesStillAnnounced() throws SQLException {
         ResourceChanged second =
                 ResourceChanged.createLocal("styles/b.sld", Kind.CREATED, Type.RESOURCE, 2000L, List.of());

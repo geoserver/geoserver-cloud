@@ -213,6 +213,7 @@ class ResourceChangeListenerIT {
     // removing the local copy needs no database
     @Test
     @ResourceLock(LISTENER_LOG)
+    @SuppressWarnings("java:S7466") // typed unnamed variable: the project avoids var
     void failingRefreshDropsLocalCopy() {
         insert(STYLE, RESOURCE, "<sld/>".getBytes(UTF_8));
         JdbcTemplate refusing = new JdbcTemplate(refusingConnections(db.getDataSource()));
