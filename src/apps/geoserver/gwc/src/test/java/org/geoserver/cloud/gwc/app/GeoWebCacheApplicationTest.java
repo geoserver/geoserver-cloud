@@ -16,12 +16,17 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.geoserver.security.GeoServerSecurityManager;
+import org.geoserver.security.GeoServerUserGroupStore;
+import org.geoserver.security.validation.PasswordPolicyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -41,6 +46,9 @@ class GeoWebCacheApplicationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    private GeoServerSecurityManager securityManager;
 
     static @TempDir Path datadir;
 
@@ -90,6 +98,26 @@ class GeoWebCacheApplicationTest {
         assertThat(parsed.isJsonArray()).isTrue();
 
         testGetRequestContentType("/gwc/rest/layers.xml", APPLICATION_XML);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/gwc/rest/layers", "/gwc/rest/layers.json"})
+    void deniedRestGetsAccessDeniedPage(String uri) throws IOException, PasswordPolicyException {
+        ResponseEntity<String> response = userWithoutAdminRole().getForEntity(uri, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).contains("Access Denied");
+    }
+
+    /** A client for a user without roles, added to the default user group service on first use. */
+    private TestRestTemplate userWithoutAdminRole() throws IOException, PasswordPolicyException {
+        GeoServerUserGroupStore store =
+                securityManager.loadUserGroupService("default").createStore();
+        if (store.getUserByUsername("viewer") == null) {
+            store.addUser(store.createUserObject("viewer", "viewer", true));
+            store.store();
+        }
+        return restTemplate.withBasicAuth("viewer", "viewer");
     }
 
     protected ResponseEntity<String> testGetRequestContentType(String uri, MediaType expected) {
