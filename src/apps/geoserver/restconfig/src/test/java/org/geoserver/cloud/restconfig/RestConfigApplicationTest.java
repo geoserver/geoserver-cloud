@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -59,6 +60,8 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -313,6 +316,43 @@ abstract class RestConfigApplicationTest {
         headers.set("x-gsc-roles", "ADMIN");
         ResponseEntity<String> response = restTemplate.exchange("/rest", GET, new HttpEntity<>(headers), String.class);
         assertThat(response.getStatusCode()).isEqualTo(OK);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/rest/workspaces", "/rest/workspaces.json", "/rest/workspaces.xml"})
+    void deniedReadGetsAccessDeniedPage(String uri) {
+        ResponseEntity<String> response = restTemplate.exchange(uri, GET, requestWithoutAdminRole(), String.class);
+        assertAccessDeniedPage(response);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/rest/workspaces", "/rest/workspaces.json", "/rest/workspaces.xml"})
+    void deniedWriteGetsAccessDeniedPage(String uri) {
+        ResponseEntity<String> response = restTemplate.exchange(uri, POST, requestWithoutAdminRole(), String.class);
+        assertAccessDeniedPage(response);
+    }
+
+    // The link of the page is relative to the URL of the denied request, three directories below the root here
+    @Test
+    void deniedPageLinksToTheWebUI() {
+        ResponseEntity<String> response = restTemplate.exchange(
+                "/rest/security/usergroup/users.json", GET, requestWithoutAdminRole(), String.class);
+
+        assertAccessDeniedPage(response);
+        assertThat(response.getBody()).contains("<base href=\"../../../\" />");
+    }
+
+    /** A request authenticated by the gateway headers, for a user without the admin role. */
+    private static HttpEntity<Void> requestWithoutAdminRole() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-gsc-username", "gabe");
+        headers.set("x-gsc-roles", "ROLE_USER");
+        return new HttpEntity<>(headers);
+    }
+
+    private static void assertAccessDeniedPage(ResponseEntity<String> response) {
+        assertThat(response.getStatusCode()).isEqualTo(FORBIDDEN);
+        assertThat(response.getBody()).contains("Access Denied");
     }
 
     @Test
