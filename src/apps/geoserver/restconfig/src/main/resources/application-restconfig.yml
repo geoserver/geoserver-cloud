@@ -1,0 +1,6 @@
+# Settings of the REST configuration service, loaded by the restconfig profile set by RestConfigApplication
+spring.application.name: restconfig
+
+geoserver:
+  services: restconfig
+  base-path: /rest

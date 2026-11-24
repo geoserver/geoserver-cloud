@@ -5,6 +5,7 @@
 
 package org.geoserver.cloud.app;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -26,9 +27,19 @@ public class GeoServerApplicationLauncher {
     }
 
     public static void run(Class<?> springBootApplicationClass, String... args) {
+        run(springBootApplicationClass, List.of(), args);
+    }
+
+    /**
+     * Launches the application with additional active profiles.
+     *
+     * <p>The profiles are added to the profiles of the environment, they do not replace them.
+     */
+    public static void run(Class<?> springBootApplicationClass, List<String> additionalProfiles, String... args) {
         Logger log = LoggerFactory.getLogger(springBootApplicationClass);
         try {
             SpringApplication app = new SpringApplication(springBootApplicationClass);
+            app.setAdditionalProfiles(additionalProfiles.toArray(String[]::new));
             // Set the startup implementation and buffer capacity, enables the
             // /actuator/startup endpoint
             app.setApplicationStartup(new BufferingApplicationStartup(2048));

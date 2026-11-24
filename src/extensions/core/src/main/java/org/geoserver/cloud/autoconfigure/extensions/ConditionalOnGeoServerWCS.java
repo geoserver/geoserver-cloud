@@ -11,7 +11,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Annotation that marks a component to be conditional on the application being a GeoServer WCS (Web Coverage Service)
@@ -23,7 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * <ul>
  *   <li>The application has GeoServer core classes ({@link ConditionalOnGeoServer})
  *   <li>The WCS service class is available in the classpath
- *   <li>The {@code geoserver.service.wcs.enabled} property is set to {@code true}
+ *   <li>The {@code wcs} service is enabled, resolved through {@link ConditionalOnGeoServerService}
  * </ul>
  *
  * <p>This conditional uses a property-based approach rather than bean detection to avoid potential issues with bean
@@ -54,5 +53,5 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Documented
 @ConditionalOnGeoServer
 @ConditionalOnClass(name = "org.geoserver.wcs.responses.CoverageResponseDelegateFinder")
-@ConditionalOnProperty(name = "geoserver.service.wcs.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnGeoServerService("wcs")
 public @interface ConditionalOnGeoServerWCS {}

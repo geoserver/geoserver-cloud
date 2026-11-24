@@ -1,4 +1,15 @@
 services:
+  geoserver:
+    extends:
+      file: templates.yml
+      service: current-platform
+    image: ${REPOSITORY}/geoserver:${TAG}
+    build:
+      context: ../src/apps/geoserver/geoserver/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud
+        org.opencontainers.image.description: GeoServer with the WMS, WFS, WCS, WPS, GeoWebCache, REST configuration and web UI services in one container
+
   wfs:
     extends:
       file: templates.yml
@@ -6,6 +17,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-wfs:${TAG}
     build:
       context: ../src/apps/geoserver/wfs/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud WFS
+        org.opencontainers.image.description: Web Feature Service of GeoServer Cloud
 
   wms:
     extends:
@@ -14,6 +28,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-wms:${TAG}
     build:
       context: ../src/apps/geoserver/wms/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud WMS
+        org.opencontainers.image.description: Web Map Service of GeoServer Cloud
 
   wcs:
     extends:
@@ -22,6 +39,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-wcs:${TAG}
     build:
       context: ../src/apps/geoserver/wcs/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud WCS
+        org.opencontainers.image.description: Web Coverage Service of GeoServer Cloud
 
   wps:
     extends:
@@ -30,6 +50,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-wps:${TAG}
     build:
       context: ../src/apps/geoserver/wps/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud WPS
+        org.opencontainers.image.description: Web Processing Service of GeoServer Cloud
 
   restconfig:
     extends:
@@ -38,6 +61,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-rest:${TAG}
     build:
       context: ../src/apps/geoserver/restconfig/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud REST configuration
+        org.opencontainers.image.description: REST configuration API of GeoServer Cloud
 
   webui:
     extends:
@@ -46,6 +72,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-webui:${TAG}
     build:
       context: ../src/apps/geoserver/webui/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud web UI
+        org.opencontainers.image.description: Web administration interface of GeoServer Cloud
 
   gwc:
     extends:
@@ -54,5 +83,6 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-gwc:${TAG}
     build:
       context: ../src/apps/geoserver/gwc/
-
-    
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud GeoWebCache
+        org.opencontainers.image.description: GeoWebCache tile services of GeoServer Cloud

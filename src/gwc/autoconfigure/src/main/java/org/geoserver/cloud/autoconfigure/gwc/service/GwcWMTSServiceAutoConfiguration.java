@@ -18,6 +18,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Import;
 
 /**
+ * Honors {@link ConditionalOnGeoWebCacheEnabled}: the service dispatches to the GeoWebCache core, which only the roles
+ * hosting it run. The class check alone cannot tell them apart on a union classpath.
+ *
  * @see GwcWMTSServiceConfiguration
  * @since 1.0
  */

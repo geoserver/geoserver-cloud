@@ -11,7 +11,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Annotation that marks a component to be conditional on the application being a GeoServer REST Configuration service
@@ -26,7 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * <ul>
  *   <li>The application has GeoServer core classes ({@link ConditionalOnGeoServer})
  *   <li>The REST Configuration service class is available in the classpath
- *   <li>The {@code geoserver.service.restconfig.enabled} property is set to {@code true}
+ *   <li>The {@code restconfig} service is enabled, resolved through {@link ConditionalOnGeoServerService}
  * </ul>
  *
  * <p>This conditional uses a property-based approach rather than bean detection to avoid potential issues with bean
@@ -57,5 +56,5 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Documented
 @ConditionalOnGeoServer
 @ConditionalOnClass(name = "org.geoserver.rest.security.RestConfigXStreamPersister")
-@ConditionalOnProperty(name = "geoserver.service.restconfig.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnGeoServerService("restconfig")
 public @interface ConditionalOnGeoServerREST {}

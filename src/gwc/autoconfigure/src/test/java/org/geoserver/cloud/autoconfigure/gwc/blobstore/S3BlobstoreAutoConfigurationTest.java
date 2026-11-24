@@ -58,7 +58,10 @@ class S3BlobstoreAutoConfigurationTest {
 
     @Test
     void blobstoreEnabledGeoServerWebUiEnabled() {
-        runner.withPropertyValues("gwc.blobstores.s3=true", "geoserver.web-ui.gwc.enabled=true")
+        runner.withPropertyValues(
+                        "gwc.blobstores.s3=true",
+                        "geoserver.web-ui.gwc.enabled=true",
+                        "geoserver.service.webui.enabled=true")
                 .run(context -> {
                     assertThat(context).hasSingleBean(S3BlobStoreConfigProvider.class);
                     assertThat(context).hasSingleBean(S3BlobStoreType.class);

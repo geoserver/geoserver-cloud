@@ -198,11 +198,6 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-starter-webmvc</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-starter-output-formats</artifactId>
         <version>${project.version}</version>
       </dependency>

@@ -1,0 +1,6 @@
+# Settings of the GeoWebCache service, loaded by the gwc profile set by GeoWebCacheApplication
+spring.application.name: gwc
+
+geoserver:
+  services: gwc
+  base-path: /gwc

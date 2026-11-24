@@ -1,0 +1,12 @@
+# Settings of the web UI service, loaded by the webui profile set by WebUIApplication
+spring.application.name: webui
+
+geoserver:
+  services: webui
+  base-path: /geoserver
+  wms:
+    output-formats:
+      vector-tiles:
+        mapbox.enabled: true
+        geojson.enabled: false
+        topojson.enabled: false

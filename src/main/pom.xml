@@ -27,7 +27,7 @@
       <artifactId>httpclient5</artifactId>
     </dependency>
     <dependency>
-      <!-- provided: the web applications supply Spring MVC through the webmvc starter,
+      <!-- provided: the web applications supply Spring MVC,
            needed here by the access denied page handler -->
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>

@@ -1,0 +1,6 @@
+# Settings of the WFS service, loaded by the wfs profile set by WfsApplication
+spring.application.name: wfs
+
+geoserver:
+  services: wfs
+  base-path: /wfs

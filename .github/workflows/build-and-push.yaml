@@ -80,9 +80,11 @@ jobs:
 
     - name: Build base images
       run: |
+        # revision and creation date for the labels of the images
+        GIT_COMMIT=$GITHUB_SHA BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        export GIT_COMMIT BUILD_DATE
         TAG=${{ env.VERSION }} docker compose -f docker-build/base-images.yml build jre
         TAG=${{ env.VERSION }} docker compose -f docker-build/base-images.yml build spring-boot
-        TAG=${{ env.VERSION }} docker compose -f docker-build/base-images.yml build geoserver-common
 
     - name: Push base images and extract digests
       run: |
@@ -208,6 +210,9 @@ jobs:
 
     - name: Build infrastructure images
       run: |
+        # revision and creation date for the labels of the images
+        GIT_COMMIT=$GITHUB_SHA BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        export GIT_COMMIT BUILD_DATE
         TAG=${{ env.VERSION }} docker compose -f docker-build/infrastructure.yml build
 
     - name: Push infrastructure images and extract digests
@@ -236,14 +241,12 @@ jobs:
   build-geoserver-images:
     needs: [stitch-base-manifests, geoserver-artifacts]
     if: github.repository == 'geoserver/geoserver-cloud'
-    name: GeoServer ${{ matrix.app }} (${{ matrix.arch }})
+    name: GeoServer image (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        # matches app folder names in src/apps/geoserver/* and docker compose service names
-        app: ['wms', 'wfs', 'wcs', 'wps', 'gwc', 'restconfig', 'webui']
         arch: [amd64, arm64]
         include:
           - arch: amd64
@@ -277,27 +280,31 @@ jobs:
 
     - name: Package GeoServer app
       run: |
-        ./mvnw clean package -DskipTests -T1C -ntp -am -pl src/apps/geoserver/${{ matrix.app }}
+        ./mvnw clean package -DskipTests -T1C -ntp -am -pl src/apps/geoserver/geoserver,src/apps/geoserver/gwc,src/apps/geoserver/restconfig,src/apps/geoserver/wcs,src/apps/geoserver/webui,src/apps/geoserver/wfs,src/apps/geoserver/wms,src/apps/geoserver/wps
 
-    - name: Build GeoServer image
+    - name: Build the GeoServer image and the service images
       run: |
-        TAG=${{ env.VERSION }} docker compose -f docker-build/geoserver.yml build ${{ matrix.app }}
+        # revision and creation date for the labels of the images
+        GIT_COMMIT=$GITHUB_SHA BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        export GIT_COMMIT BUILD_DATE
+        TAG=${{ env.VERSION }} docker compose -f docker-build/geoserver.yml build geoserver
+        TAG=${{ env.VERSION }} docker compose -f docker-build/geoserver.yml build wfs wms wcs wps restconfig webui gwc
 
-    - name: Push image and extract digest
+    - name: Push images and extract digests
       run: |
-        TAG=${{ env.VERSION }} docker compose -f docker-build/geoserver.yml push ${{ matrix.app }}
+        TAG=${{ env.VERSION }} docker compose -f docker-build/geoserver.yml push
         mkdir -p /tmp/digests
-        image=$(TAG=${{ env.VERSION }} docker compose -f docker-build/geoserver.yml \
-          config --format json | jq -r '.services."${{ matrix.app }}".image')
-        name=$(echo "$image" | sed 's|.*/||' | cut -d: -f1)
-        digest=$(docker inspect --format='{{index .RepoDigests 0}}' "$image" | cut -d@ -f2)
-        echo "Image: $image -> $name = $digest"
-        echo "$digest" > "/tmp/digests/${name}"
+        for image in $(TAG=${{ env.VERSION }} docker compose -f docker-build/geoserver.yml config --images); do
+          name=$(echo "$image" | sed 's|.*/||' | cut -d: -f1)
+          digest=$(docker inspect --format='{{index .RepoDigests 0}}' "$image" | cut -d@ -f2)
+          echo "Image: $image -> $name = $digest"
+          echo "$digest" > "/tmp/digests/${name}"
+        done
 
-    - name: Upload digest
+    - name: Upload digests
       uses: actions/upload-artifact@v7
       with:
-        name: digests-gs-${{ matrix.app }}-${{ matrix.arch }}
+        name: digests-gs-${{ matrix.arch }}
         path: /tmp/digests/*
         retention-days: 1
 
@@ -337,16 +344,14 @@ jobs:
     - name: Download amd64 geoserver digests
       uses: actions/download-artifact@v8
       with:
-        pattern: digests-gs-*-amd64
+        name: digests-gs-amd64
         path: /tmp/digests/amd64/
-        merge-multiple: true
 
     - name: Download arm64 geoserver digests
       uses: actions/download-artifact@v8
       with:
-        pattern: digests-gs-*-arm64
+        name: digests-gs-arm64
         path: /tmp/digests/arm64/
-        merge-multiple: true
 
     - name: Checkout
       uses: actions/checkout@v7

@@ -27,6 +27,7 @@ import org.geoserver.ows.ClasspathPublisher;
 import org.geoserver.ows.OWSHandlerMapping;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.rest.RestConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -64,7 +65,10 @@ class OgcApiCoreConfigurationTest {
                 .withBean("geoServer", GeoServer.class, () -> geoServer)
                 .withBean(GeoServerResourceLoader.class, () -> loader)
                 .withBean("classpathPublisher", ClasspathPublisher.class, ClasspathPublisher::new)
-                .withConfiguration(UserConfigurations.of(OgcApiCoreConfiguration.class));
+                // OgcApiCoreConfiguration consumes Spring MVC without configuring it: APIDispatcher reads
+                // mvcContentNegotiationManager and friends from the context. An application supplies an owner through
+                // Spring Boot's Web MVC auto-configuration; this runner supplies GeoServer's own.
+                .withConfiguration(UserConfigurations.of(RestConfiguration.class, OgcApiCoreConfiguration.class));
     }
 
     @Test

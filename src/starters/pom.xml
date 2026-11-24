@@ -16,7 +16,6 @@
     <module>spring-cloud</module>
     <module>output-formats</module>
     <module>extensions</module>
-    <module>webmvc</module>
     <module>security</module>
     <module>observability</module>
   </modules>
