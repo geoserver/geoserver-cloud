@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.geoserver.cloud.geoserver.GeoServerApplication;
 import org.geoserver.cloud.geoserver.SpringMvcOwnership;
+import org.geoserver.ows.ServiceExceptionHandler;
+import org.geoserver.platform.Service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,6 +97,14 @@ class WcsApplicationTest {
                 "wcs10Extension",
                 "wcsService-1.0.0",
                 "workspaceQualifier");
+    }
+
+    @Test
+    void wcs100ExceptionHandlerService() {
+        ServiceExceptionHandler handler = context.getBean("wcs100ExceptionHandler", ServiceExceptionHandler.class);
+        Service service = context.getBean("wcsService-1.0.0", Service.class);
+
+        assertThat(handler.getServices()).containsExactly(service);
     }
 
     @Test

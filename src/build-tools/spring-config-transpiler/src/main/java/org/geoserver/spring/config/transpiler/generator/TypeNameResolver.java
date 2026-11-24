@@ -8,9 +8,9 @@ import static javax.tools.Diagnostic.Kind.NOTE;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -20,9 +20,11 @@ import org.geoserver.spring.config.transpiler.context.TranspilationContext;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.core.ResolvableType;
 
 /**
  * Utility class for resolving type names during transpilation.
@@ -177,6 +179,42 @@ class TypeNameResolver {
     }
 
     /**
+     * The class declared for a bean of the transpiled XML, never inferred from the beans using it. For a factory bean,
+     * the class of its product. Empty for a bean declared elsewhere, and for a type that does not resolve.
+     */
+    public static Optional<Class<?>> resolveDeclaredBeanClass(
+            String beanName, @Nullable Map<String, BeanDefinition> allBeanDefinitions, TranspilationContext context) {
+        BeanDefinition definition = allBeanDefinitions == null ? null : allBeanDefinitions.get(beanName);
+        if (definition == null) {
+            return Optional.empty();
+        }
+        TypeResolutionResult result = resolveBeanReturnType(definition, context);
+        if (!result.isResolved()) {
+            return Optional.empty();
+        }
+        return loadDeclaredClass(result.getResolvedTypeName());
+    }
+
+    /** The product of a factory bean, as declared by its type argument. Empty for a raw factory bean. */
+    private static Optional<Class<?>> factoryBeanProduct(Class<?> factoryBeanClass) {
+        ResolvableType factoryBeanType =
+                ResolvableType.forClass(factoryBeanClass).as(FactoryBean.class);
+        return Optional.ofNullable(factoryBeanType.resolveGeneric(0));
+    }
+
+    private static Optional<Class<?>> loadDeclaredClass(String typeName) {
+        try {
+            Class<?> type = Reflections.convertToRuntimeClass(typeName);
+            if (FactoryBean.class.isAssignableFrom(type)) {
+                return factoryBeanProduct(type);
+            }
+            return Optional.of(type);
+        } catch (IllegalStateException | LinkageError _) {
+            return Optional.empty();
+        }
+    }
+
+    /**
      * Resolve a type name using the annotation processor's type system.
      *
      * @param rawTypeName the fully qualified type name, surrounding whitespace is ignored
@@ -290,9 +328,11 @@ class TypeNameResolver {
                         .formatted(dependencyName, allBeanDefinitions.size()));
 
         // Analyze constructor arguments to infer types from actual constructor signatures
-        for (BeanDefinition beanDef : allBeanDefinitions.values()) {
+        for (Map.Entry<String, BeanDefinition> entry : allBeanDefinitions.entrySet()) {
+            BeanDefinition beanDef = entry.getValue();
             if (beanDef.hasConstructorArgumentValues()) {
-                TypeResolutionResult constructorInference = inferFromConstructorUsage(dependencyName, beanDef, context);
+                TypeResolutionResult constructorInference =
+                        inferFromConstructorUsage(dependencyName, entry.getKey(), beanDef, allBeanDefinitions, context);
                 if (constructorInference.isResolved()) {
                     return constructorInference;
                 }
@@ -350,7 +390,11 @@ class TypeNameResolver {
 
     /** Infer type from constructor usage by analyzing actual constructor signatures. */
     private static TypeResolutionResult inferFromConstructorUsage(
-            String dependencyName, BeanDefinition beanDef, TranspilationContext context) {
+            String dependencyName,
+            String beanName,
+            BeanDefinition beanDef,
+            Map<String, BeanDefinition> allBeanDefinitions,
+            TranspilationContext context) {
 
         String beanClassName = beanDef.getBeanClassName();
         if (beanClassName == null) {
@@ -362,25 +406,8 @@ class TypeNameResolver {
 
         // Get constructor arguments from bean definition
         ConstructorArgumentValues constructorArgs = beanDef.getConstructorArgumentValues();
-        int argCount = constructorArgs.getArgumentCount();
-
-        // Find constructor with matching argument count, preferring public constructors
-        List<Constructor<?>> constructors = Arrays.asList(beanClass.getDeclaredConstructors());
-        Constructor<?> selectedConstructor = null;
-
-        // First try to find a public constructor with matching argument count
-        selectedConstructor = Reflections.findPublicConstructorWithArgCount(constructors, argCount)
-                .orElse(null);
-
-        // If no public constructor found, fall back to any constructor with matching count
-        if (selectedConstructor == null) {
-            for (Constructor<?> constructor : constructors) {
-                if (constructor.getParameterCount() == argCount) {
-                    selectedConstructor = constructor;
-                    break;
-                }
-            }
-        }
+        Constructor<?> selectedConstructor =
+                chosenConstructor(beanName, beanClass, constructorArgs, allBeanDefinitions, context);
 
         if (selectedConstructor != null) {
             Class<?>[] parameterTypes = selectedConstructor.getParameterTypes();
@@ -397,6 +424,28 @@ class TypeNameResolver {
             }
         }
         return TypeResolutionResult.unresolved(JAVA_LANG_OBJECT);
+    }
+
+    /**
+     * The constructor chosen for a bean using the dependency, null when it cannot be chosen. Such a bean may be
+     * excluded from the transpilation, and its constructor must not break the inference for the other beans.
+     */
+    private static @Nullable Constructor<?> chosenConstructor(
+            String beanName,
+            Class<?> beanClass,
+            ConstructorArgumentValues constructorArgs,
+            Map<String, BeanDefinition> allBeanDefinitions,
+            TranspilationContext context) {
+        TargetConstructorResolver resolver = new TargetConstructorResolver(
+                dependency -> resolveDeclaredBeanClass(dependency, allBeanDefinitions, context));
+        try {
+            return resolver.resolve(beanName, beanClass, constructorArgs).constructor();
+        } catch (IllegalStateException e) {
+            context.printMessage(
+                    NOTE,
+                    "Cannot infer types from the constructor of bean '%s': %s".formatted(beanName, e.getMessage()));
+            return null;
+        }
     }
 
     /** Find the index position of a dependency in constructor arguments. */

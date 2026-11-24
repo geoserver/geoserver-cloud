@@ -30,6 +30,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.xmlunit.assertj3.XmlAssert;
 
 @AutoConfigureTestRestTemplate
@@ -78,6 +80,21 @@ abstract class WfsApplicationTest {
                 "//ows:Operation[@name='GetFeature']/ows:Parameter[@name='outputFormat']/ows:Value[text()='DXF-ZIP']");
         xmlAssert.hasXPath(
                 "//ows:Operation[@name='GetFeature']/ows:Parameter[@name='outputFormat']/ows:Value[text()='application/flatgeobuf']");
+    }
+
+    @Test
+    void wfs20UnknownTypeNameIs400(@LocalServerPort int servicePort) {
+        String url = "http://localhost:%d/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=topp:doesnotexist"
+                .formatted(servicePort);
+
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Map<String, String> nscontext = Map.of("ows", "http://www.opengis.net/ows/1.1");
+        XmlAssert.assertThat(response.getBody())
+                .withNamespaceContext(nscontext)
+                .valueByXPath("/ows:ExceptionReport/@version")
+                .isEqualTo("2.0.0");
     }
 
     /**
