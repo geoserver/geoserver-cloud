@@ -184,7 +184,9 @@ public class AbstractBeanInheritanceMethodGenerator extends AbstractBeanMethodGe
 
         // Resolve the target constructor once for the merged args
         Class<?> beanClass = beanContext.getResolvedBeanClass();
-        Constructor<?> targetConstructor = Reflections.resolveTargetConstructor(beanClass, mergedConstructorArgs);
+        TargetConstructorResolver resolver = TargetConstructorResolver.of(transpilationContext);
+        Constructor<?> targetConstructor =
+                resolver.resolve(beanName, beanClass, mergedConstructorArgs).constructor();
         BeanAccessibility.requirePublic(transpilationContext, beanContext.getBeanName(), beanClass, targetConstructor);
 
         // Collect all bean references for method parameters
@@ -543,8 +545,7 @@ public class AbstractBeanInheritanceMethodGenerator extends AbstractBeanMethodGe
 
         // Add method parameters for each bean reference with inferred types
         for (String beanRef : beanReferences) {
-            ClassName paramType =
-                    resolveParameterTypeWithInference(beanRef, beanClassName, null, null, constructorArgs, context);
+            ClassName paramType = resolveParameterTypeWithInference(beanRef, beanClassName, null, context);
             paramType = beanRefToTypeMap.getOrDefault(beanRef, paramType);
 
             AnnotationSpec value = AnnotationSpec.builder(Qualifier.class)

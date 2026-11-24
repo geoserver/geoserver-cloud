@@ -493,10 +493,14 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
         testBeanMethodGeneneration("simpleHandlerAdapter", xml, expectedJavaCode);
     }
 
+    // the type of resourceStore, the product of its factory bean, chooses between the File and ResourceStore
+    // constructors
     @Test
     void testBeanWithSingleConstructorRef() {
         final String xml =
                 """
+                <bean id="resourceStore" class="org.geoserver.platform.resource.ResourceStoreFactory" />
+
                 <bean id="resourceLoader" class="org.geoserver.platform.GeoServerResourceLoader">
                     <constructor-arg ref="resourceStore"/>
                 </bean>
@@ -512,7 +516,7 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 }
                 """;
 
-        testBeanMethodGeneneration("resourceLoader", xml, expectedJavaCode);
+        testBeanMethodGeneneration("resourceLoader", xml, expectedJavaCode, true);
     }
 
     /**
@@ -1627,8 +1631,8 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 @org.springframework.context.annotation.Bean
                 java.lang.Boolean geoserverConsoleDisabled(
                     @org.springframework.beans.factory.annotation.Value(
-                    "#{ systemProperties['GEOSERVER_CONSOLE_DISABLED'] ?: false }") java.lang.Boolean spelParam0) {
-                    return new java.lang.Boolean((Boolean) spelParam0);
+                    "#{ systemProperties['GEOSERVER_CONSOLE_DISABLED'] ?: false }") java.lang.String spelParam0) {
+                    return new java.lang.Boolean((String) spelParam0);
                 }
                 """;
 
@@ -1650,8 +1654,8 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 @org.springframework.context.annotation.Bean
                 java.lang.String webDispatcherMappingSystem(
                     @org.springframework.beans.factory.annotation.Value(
-                    "#{ geoserverConsoleDisabled ? 'filePublisher' : 'wicket' }") java.lang.StringBuilder spelParam0) {
-                  return new java.lang.String((StringBuilder) spelParam0);
+                    "#{ geoserverConsoleDisabled ? 'filePublisher' : 'wicket' }") java.lang.String spelParam0) {
+                  return new java.lang.String((String) spelParam0);
                 }
                 """;
 
@@ -1900,6 +1904,92 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 """;
 
         testBeanMethodGeneneration("wfsExceptionHandler", xml, expectedJavaCode, true);
+    }
+
+    // Spring converts a single bean given for a collection parameter into a list holding it
+    @Test
+    void singleRefToListConstructorArg() {
+        final String xml =
+                """
+                <bean id="wfsService-2.0" class="org.geoserver.platform.Service"/>
+                <bean id="geoServer" class="org.geoserver.config.impl.GeoServerImpl"/>
+
+                <bean id="wfs20ExceptionHandler" class="org.geoserver.wfs.response.Wfs2ExceptionHandler">
+                    <constructor-arg>
+                        <ref bean="wfsService-2.0"/>
+                    </constructor-arg>
+                    <constructor-arg ref="geoServer"/>
+                    <property name="useServiceVersion" value="true"/>
+                </bean>
+                """;
+
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.wfs.response.Wfs2ExceptionHandler wfs20ExceptionHandler(
+                    @org.springframework.beans.factory.annotation.Qualifier("wfsService-2.0") org.geoserver.platform.Service wfsService_2_0,
+                    @org.springframework.beans.factory.annotation.Qualifier("geoServer") org.geoserver.config.GeoServer geoServer) {
+                  org.geoserver.wfs.response.Wfs2ExceptionHandler bean = new org.geoserver.wfs.response.Wfs2ExceptionHandler(new java.util.ArrayList<>(java.util.List.of(wfsService_2_0)), geoServer);
+                  bean.setUseServiceVersion(true);
+                  return bean;
+                }
+                """;
+
+        testBeanMethodGeneneration("wfs20ExceptionHandler", xml, expectedJavaCode, true);
+    }
+
+    // Spring calls the constructor closest to the argument types, whatever the reflection order
+    @Test
+    void wcs100ExceptionHandlerCtor() {
+        final String xml =
+                """
+                <bean id="wcsService-1.0.0" class="org.geoserver.platform.Service"/>
+                <bean id="geoServer" class="org.geoserver.config.impl.GeoServerImpl"/>
+
+                <bean id="wcs100ExceptionHandler" class="org.geoserver.wcs.response.LegacyServiceExceptionHandler">
+                    <constructor-arg ref="wcsService-1.0.0"/>
+                    <constructor-arg ref="geoServer"/>
+                    <property name="contentType" value="application/vnd.ogc.se_xml"/>
+                </bean>
+                """;
+
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.wcs.response.LegacyServiceExceptionHandler wcs100ExceptionHandler(
+                    @org.springframework.beans.factory.annotation.Qualifier("wcsService-1.0.0") org.geoserver.platform.Service wcsService_1_0_0,
+                    @org.springframework.beans.factory.annotation.Qualifier("geoServer") org.geoserver.config.GeoServer geoServer) {
+                  org.geoserver.wcs.response.LegacyServiceExceptionHandler bean = new org.geoserver.wcs.response.LegacyServiceExceptionHandler(wcsService_1_0_0, geoServer);
+                  bean.setContentType("application/vnd.ogc.se_xml");
+                  return bean;
+                }
+                """;
+
+        testBeanMethodGeneneration("wcs100ExceptionHandler", xml, expectedJavaCode, true);
+    }
+
+    // a string value goes to the String parameter, not to the Class one
+    @Test
+    void kmlRegionatorCtor() {
+        final String xml =
+                """
+                <bean id="randomRegionator" class="org.geoserver.kml.regionate.ReflectiveRegionatingStrategyFactory">
+                    <constructor-arg value="random" />
+                    <constructor-arg value="org.geoserver.kml.regionate.RandomRegionatingStrategy" />
+                    <constructor-arg ref="geoServer" />
+                </bean>
+                """;
+
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.kml.regionate.ReflectiveRegionatingStrategyFactory randomRegionator(
+                    @org.springframework.beans.factory.annotation.Qualifier("geoServer") org.geoserver.config.GeoServer geoServer) {
+                  return new org.geoserver.kml.regionate.ReflectiveRegionatingStrategyFactory("random", "org.geoserver.kml.regionate.RandomRegionatingStrategy", geoServer);
+                }
+                """;
+
+        testBeanMethodGeneneration("randomRegionator", xml, expectedJavaCode, true);
     }
 
     @Test
@@ -2211,6 +2301,20 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
                 .isInstanceOf(InaccessibleBeanException.class)
                 .hasMessageContaining("'packagePrivateConstructorComponent'")
                 .hasMessageContaining("constructor");
+    }
+
+    // Spring chooses among optional autowired constructors by the beans available at runtime
+    @Test
+    void componentScanTwoAutowiredFails() {
+        String xml =
+                """
+                <context:component-scan base-package="org.geoserver.spring.config.test.ambiguous"/>
+                """;
+
+        assertThatThrownBy(() -> generateComponentScannedBeans(xml))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("TwoAutowiredConstructorsComponent")
+                .hasMessageContaining("@Autowired");
     }
 
     /** Tests that abstract classes and interfaces are excluded from component scan generation. */
