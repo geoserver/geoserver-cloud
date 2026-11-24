@@ -1,0 +1,6 @@
+# Settings of the WMS service, loaded by the wms profile set by WmsApplication
+spring.application.name: wms
+
+geoserver:
+  services: wms
+  base-path: /wms

@@ -7,6 +7,9 @@ services:
     build:
       pull: true
       context: ../src/apps/base-images/jre/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud JRE base image
+        org.opencontainers.image.description: Java runtime with the JVM options and the CA certificates shared by the GeoServer Cloud images
 
   spring-boot:
     extends:
@@ -15,11 +18,6 @@ services:
     image: ${REPOSITORY}/gs-cloud-base-spring-boot:${TAG}
     build:
       context: ../src/apps/base-images/spring-boot/
-
-  geoserver-common:
-    extends:
-      file: templates.yml
-      service: current-platform
-    image: ${REPOSITORY}/gs-cloud-base-geoserver-image:${TAG}
-    build:
-      context: ../src/apps/base-images/geoserver/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud Spring Boot base image
+        org.opencontainers.image.description: Base of the GeoServer Cloud application images, with the default configuration in /etc/geoserver

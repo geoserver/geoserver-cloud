@@ -24,6 +24,12 @@ import org.springframework.context.annotation.Import;
  * {@link EnableAutoConfiguration Auto configuration} to make sure a minimal {@link WebMapService} and the
  * GeoWebCache-specific decorator exist, as expected by {@link GeoServerTileLayer#seedTile}.
  *
+ * <p>Follows {@link ConditionalOnGeoWebCacheEnabled} into every role that hosts GeoWebCache. Seeding is not the only
+ * consumer: the GWC mediator is built with a {@code coalescedRequestSplitter} that renders the non-cached members of a
+ * multi-layer tile request through the {@code wmsGetMap} bean, which this minimal WMS supplies wherever the WMS service
+ * itself is absent. Which roles host GeoWebCache at all is decided by that condition, keeping the WMS beans out of the
+ * roles that never had them.
+ *
  * @since 1.0
  */
 @AutoConfiguration

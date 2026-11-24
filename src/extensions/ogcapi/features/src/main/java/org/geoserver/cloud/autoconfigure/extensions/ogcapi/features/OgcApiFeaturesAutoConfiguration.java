@@ -23,8 +23,16 @@ import org.springframework.context.annotation.Import;
  *   <li>Core configuration class that imports the core applicationContext.xml
  *   <li>REST configuration class that imports the features applicationContext.xml
  * </ul>
+ *
+ * <p>Ordered after Spring Boot's Web MVC auto-configuration, which is what decides who owns Spring MVC in this context.
+ * The OGC API contributes {@code APIConfigurationSupport}, a {@code WebMvcConfigurationSupport} subclass registered as
+ * a plain bean rather than as a configuration class. Reaching the context before Spring Boot's
+ * {@code @ConditionalOnMissingBean(WebMvcConfigurationSupport.class)} is evaluated would make Boot step aside for a
+ * bean that configures nothing, leaving the context without a Spring MVC owner at all.
+ *
+ * <p>The ordering is by name because {@code spring-boot-webmvc} is not a dependency of this module.
  */
-@AutoConfiguration
+@AutoConfiguration(afterName = "org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration")
 @EnableConfigurationProperties(OgcApiFeatureConfigProperties.class)
 @ConditionalOnOgcApiFeatures
 @ConditionalOnGeoServerWFS

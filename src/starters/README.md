@@ -38,12 +38,6 @@ GeoServer Cloud provides various starter modules with specific dependency relati
 ```
 # Starter dependencies
 
-## gs-cloud-starter-webmvc dependencies (web mvc capabilities only)
-gs-cloud-starter-webmvc
-├── gs-cloud-spring-boot-starter
-├── gs-cloud-starter-catalog-backend
-└── gs-cloud-starter-data-formats
-
 ## gs-cloud-spring-cloud-starter dependencies
 gs-cloud-spring-cloud-starter
 ├── Spring Cloud dependencies (consul, config client, etc.)
@@ -79,7 +73,7 @@ This structure allows for selective inclusion of functionality based on service 
 **For GeoServer Services** (wms, wfs, wcs, etc.):
 - `gs-cloud-spring-boot-starter` - Base Spring Boot integration
 - `gs-cloud-spring-cloud-starter` - Spring Cloud capabilities and event bus
-- `gs-cloud-starter-webmvc` - Web MVC functionality (includes dependencies on catalog and data formats)
+- `gs-cloud-starter-catalog-backend` - Catalog and configuration backends (data directory, pgconfig)
 - `gs-cloud-starter-extensions` - All GeoServer extensions (includes security, output formats, etc.)
 
 **For Specific Requirements**:
@@ -102,11 +96,9 @@ A typical GeoServer microservice needs these key starters:
    - Event bus integration
    - Catalog events bridging to Spring Cloud Bus
 
-3. **`gs-cloud-starter-webmvc`**: Provides core web MVC functionality:
-   - Spring Boot web features
-   - GeoServer catalog backend configuration
-   - Data format support
-   - Web related auto-configuration
+3. **`gs-cloud-starter-catalog-backend`**: Provides the catalog and configuration backends:
+   - Data directory backend
+   - pgconfig backend
 
 4. **`gs-cloud-starter-extensions`**: Includes all supported extensions:
    - Security extensions (LDAP, JDBC, Auth Key, Environment Admin, etc.)

@@ -10,9 +10,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Annotation that marks a component to be conditional on the application being a GeoServer WPS (Web Processing Service)
@@ -24,12 +22,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * <ul>
  *   <li>The application has GeoServer core classes ({@link ConditionalOnGeoServer})
  *   <li>The WPS service class is available in the classpath
- *   <li>The {@code geoserver.service.wps.enabled} property is set to {@code true}
+ *   <li>The {@code wps} service is enabled, resolved through {@link ConditionalOnGeoServerService}
  * </ul>
  *
  * <p>This conditional uses a property-based approach rather than bean detection to avoid potential issues with bean
  * initialization order during auto-configuration processing. Each GeoServer service module is responsible for setting
  * its corresponding {@code geoserver.service.[service-name].enabled} property in its bootstrap configuration.
+ *
+ * <p>An earlier revision also required the {@code wpsResourceManager} bean to already exist, as a proxy for "running in
+ * the wps application". The service-flag check above now expresses that directly, and the bean requirement was dropped:
+ * a component that declares this annotation can itself be the one that creates {@code wpsResourceManager}, and a bean
+ * can never exist before the configuration that defines it has run.
  *
  * <p>Usage example:
  *
@@ -55,6 +58,5 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Documented
 @ConditionalOnGeoServer
 @ConditionalOnClass(name = "org.geoserver.wps.DefaultWebProcessingService")
-@ConditionalOnBean(name = "wpsResourceManager")
-@ConditionalOnProperty(name = "geoserver.service.wps.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnGeoServerService("wps")
 public @interface ConditionalOnGeoServerWPS {}

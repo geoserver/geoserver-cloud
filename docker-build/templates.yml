@@ -7,3 +7,13 @@ services:
       args:
         TAG: ${TAG}
         REPOSITORY: ${REPOSITORY}
+      # Labels shared by the images. Each image adds its own title and description: without them it
+      # would show those of its base image. The Makefile and the build workflow set GIT_COMMIT and BUILD_DATE.
+      labels:
+        org.opencontainers.image.version: ${TAG}
+        org.opencontainers.image.revision: ${GIT_COMMIT:-}
+        org.opencontainers.image.created: ${BUILD_DATE:-}
+        org.opencontainers.image.source: https://github.com/geoserver/geoserver-cloud
+        org.opencontainers.image.url: https://geoserver.org/geoserver-cloud
+        org.opencontainers.image.documentation: https://geoserver.org/geoserver-cloud
+        org.opencontainers.image.licenses: GPL-2.0-or-later

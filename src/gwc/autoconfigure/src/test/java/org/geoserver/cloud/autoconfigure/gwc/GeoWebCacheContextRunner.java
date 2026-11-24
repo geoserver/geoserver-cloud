@@ -47,7 +47,11 @@ public class GeoWebCacheContextRunner {
         return newMinimalGeoServerContextRunner(tmpDir)
                 .withConfiguration(AutoConfigurations.of(
                         GeoWebCacheAutoConfiguration.class, DefaultTileLayerCatalogAutoConfiguration.class))
-                .withPropertyValues("gwc.cache-directory=%s".formatted(gwcCacheDir.getAbsolutePath()));
+                // every GeoWebCache auto-configuration honors the roles that host it (OnGeoWebCacheHostingService);
+                // the gwc role is the natural one to test them in, and the tests exercising the web UI components
+                // turn the webui service flag on as well
+                .withPropertyValues(
+                        "gwc.cache-directory=%s".formatted(gwcCacheDir.getAbsolutePath()), "geoserver.services=gwc");
     }
 
     public static WebApplicationContextRunner newMinimalGeoServerContextRunner(File tmpDir) {

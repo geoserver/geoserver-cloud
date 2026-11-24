@@ -21,6 +21,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnDirectWMSIntegrationEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoServerWebUIEnabled;
+import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.autoconfigure.gwc.core.GeoServerIntegrationAutoConfiguration;
 import org.geoserver.gwc.GWC;
@@ -57,6 +58,7 @@ import org.springframework.context.annotation.Import;
  * @since 1.0
  */
 @AutoConfiguration
+@ConditionalOnGeoWebCacheEnabled
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @Import({WMSIntegrationAutoConfiguration.Enabled.class, WMSIntegrationAutoConfiguration.Disabled.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.integration")

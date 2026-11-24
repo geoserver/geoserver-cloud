@@ -49,10 +49,6 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-webmvc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-extensions</artifactId>
     </dependency>
     <dependency>
