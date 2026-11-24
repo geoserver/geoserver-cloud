@@ -22,18 +22,10 @@ ENV DEFAULT_JAVA_TOOL_OPTIONS="\
 -XX:+UseCompressedOops \
 -XX:+UseCompactObjectHeaders \
 -XX:+UseStringDeduplication \
--XX:+IgnoreUnrecognizedVMOptions \
--XX:UseSVE=0 \
--XX:UseAVX=2"
+-XX:+IgnoreUnrecognizedVMOptions"
 
-# -XX:UseSVE=0 disables Scalable Vector Extension (SVE)
-# It is currently the primary workaround for a critical compatibility bug affecting Apple M4 chips running Docker on macOS 15.2+
-#
-# -XX:UseAVX=2 caps x86_64 vector instructions to AVX2 (Haswell, 2013+).
-# This is required so the AOT cache baked into images at build time is portable
-# across amd64 hosts with different CPU feature sets (e.g., GitHub Actions runners
-# rotate across Azure VMs with varying AVX-512 availability, causing SIGILL when
-# an AVX-512-trained cache runs on an AVX2-only host).
+# -XX:+IgnoreUnrecognizedVMOptions lets JAVA_OPTS set flags specific to one CPU architecture,
+# like -XX:UseAVX or -XX:UseSVE, on the images of both.
 
 ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS}"
 ENV JAVA_OPTS=
