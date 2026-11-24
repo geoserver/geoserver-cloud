@@ -5,15 +5,26 @@
 
 package org.geoserver.cloud.gwc.app;
 
+import java.util.List;
 import org.geoserver.cloud.app.GeoServerApplicationLauncher;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.retry.annotation.EnableRetry;
+import org.geoserver.cloud.geoserver.GeoServerApplication;
 
-@SpringBootApplication
-@EnableRetry
+/**
+ * Runs {@link GeoServerApplication} as the GeoWebCache service.
+ *
+ * <p>The {@value #SERVICE} profile loads {@code application-gwc.yml}, with the name, the role and the base path of the
+ * service.
+ */
 public class GeoWebCacheApplication {
 
+    /** The name of the service and of the Spring profile with its settings */
+    public static final String SERVICE = "gwc";
+
+    private GeoWebCacheApplication() {
+        // launcher
+    }
+
     public static void main(String... args) {
-        GeoServerApplicationLauncher.run(GeoWebCacheApplication.class, args);
+        GeoServerApplicationLauncher.run(GeoServerApplication.class, List.of(SERVICE), args);
     }
 }

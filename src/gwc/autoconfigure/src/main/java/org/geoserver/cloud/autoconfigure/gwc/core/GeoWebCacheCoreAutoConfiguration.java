@@ -48,10 +48,12 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 
 /**
@@ -186,9 +188,31 @@ public class GeoWebCacheCoreAutoConfiguration {
         return provider;
     }
 
+    /**
+     * Places {@link GwcRequestPathInfoFilter} ahead of GeoServer's {@code filterChainProxy}, which matches the security
+     * chain patterns that protect {@code /gwc/**} against the servlet path and path info this filter adapts. Running it
+     * afterwards leaves the GWC API's path adaptation broken and unauthenticated.
+     *
+     * <p>Spring Boot registers filter beans that declare no order at {@link Ordered#LOWEST_PRECEDENCE} and breaks ties
+     * by bean definition order, which no configuration should have to reason about. One step ahead of that puts this
+     * filter before every such filter, {@code filterChainProxy} included, while leaving the explicitly ordered filters
+     * of the GeoServer servlet context in front of it.
+     */
+    private static final int GWC_PATH_INFO_FILTER_ORDER = Ordered.LOWEST_PRECEDENCE - 1;
+
     @Bean
     GwcRequestPathInfoFilter setRequestPathInfoFilter() {
         return new GwcRequestPathInfoFilter();
+    }
+
+    /** Registers {@link #setRequestPathInfoFilter()} at {@link #GWC_PATH_INFO_FILTER_ORDER}. */
+    @Bean
+    FilterRegistrationBean<GwcRequestPathInfoFilter> gwcRequestPathInfoFilterRegistration(
+            GwcRequestPathInfoFilter filter) {
+        FilterRegistrationBean<GwcRequestPathInfoFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.addUrlPatterns("/*");
+        registration.setOrder(GWC_PATH_INFO_FILTER_ORDER);
+        return registration;
     }
 
     /**

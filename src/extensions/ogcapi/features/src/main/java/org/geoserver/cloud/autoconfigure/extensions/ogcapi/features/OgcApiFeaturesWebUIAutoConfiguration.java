@@ -11,8 +11,16 @@ import org.geoserver.configuration.extension.ogcapi.features.OgcApiFeaturesWebCo
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-/** @see OgcApiFeaturesWebConfiguration */
-@AutoConfiguration
+/**
+ * Registers the web UI side of the OGC API Features extension.
+ *
+ * <p>Ordered after Spring Boot's Web MVC auto-configuration for the reason given in
+ * {@link OgcApiFeaturesAutoConfiguration}: this chain reaches {@code APIConfigurationSupport} too, and must not
+ * register it before Boot has decided who owns Spring MVC.
+ *
+ * @see OgcApiFeaturesWebConfiguration
+ */
+@AutoConfiguration(afterName = "org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration")
 @ConditionalOnOgcApiFeatures
 @ConditionalOnGeoServerWebUI
 @Import(OgcApiFeaturesWebConfiguration.class)

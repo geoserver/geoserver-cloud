@@ -1,0 +1,6 @@
+# Settings of the WCS service, loaded by the wcs profile set by WcsApplication
+spring.application.name: wcs
+
+geoserver:
+  services: wcs
+  base-path: /wcs

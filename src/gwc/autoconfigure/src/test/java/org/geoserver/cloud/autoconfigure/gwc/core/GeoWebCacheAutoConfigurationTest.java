@@ -16,8 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.common.base.Throwables;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
+import org.geoserver.cloud.autoconfigure.gwc.service.GwcTMSServiceAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.gwc.service.GwcWMSServiceAutoConfiguration;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
 import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
@@ -35,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 /** @since 1.0 */
@@ -111,6 +115,40 @@ class GeoWebCacheAutoConfigurationTest {
                 .hasBean("PNGDecoder")
                 .hasBean("PNGEncoder")
                 .doesNotHaveBean("gwcServiceWMSTarget"));
+    }
+
+    /**
+     * The roles that never shipped GeoWebCache, wfs, wcs and wps, must not run it on the combined application's
+     * classpath either, however {@code gwc.enabled} is set. See {@code OnGeoWebCacheHostingService}.
+     */
+    @Test
+    void disabledInRolesThatDoNotHostGeoWebCache() {
+        runner.withConfiguration(AutoConfigurations.of(
+                        GwcTMSServiceAutoConfiguration.class, GwcWMSServiceAutoConfiguration.class))
+                .withPropertyValues(
+                        "geoserver.services=wfs,wcs,wps",
+                        "gwc.enabled=true",
+                        "gwc.services.tms=true",
+                        "gwc.services.wms=true")
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .doesNotHaveBean(GWC.class)
+                        .doesNotHaveBean("gwcFacade")
+                        .doesNotHaveBean("gwcInitializer")
+                        .doesNotHaveBean("gwcServiceTMSTarget")
+                        .doesNotHaveBean("gwcServiceWMSTarget"));
+    }
+
+    /**
+     * wms and webui host GeoWebCache like gwc does. restconfig hosts it too, but its role condition needs the
+     * gs-restconfig jar, absent here; the combined application's REST configuration tests cover that role.
+     */
+    @Test
+    void enabledInTheOtherHostingRoles() {
+        for (String role : List.of("wms", "webui")) {
+            runner.withPropertyValues("geoserver.services=" + role)
+                    .run(context -> assertThat(context).as(role).hasNotFailed().hasBean("gwcFacade"));
+        }
     }
 
     @Test

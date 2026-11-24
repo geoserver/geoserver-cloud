@@ -11,7 +11,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Annotation that marks a component to be conditional on the application being the GeoServer Web UI application
@@ -25,7 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * <ul>
  *   <li>The presence of GeoServer core classes ({@link ConditionalOnGeoServer})
  *   <li>The presence of the GeoServer Web UI application class
- *   <li>The {@code geoserver.service.webui.enabled} property is set to {@code true}
+ *   <li>The {@code webui} service is enabled, resolved through {@link ConditionalOnGeoServerService}
  * </ul>
  *
  * <p>This conditional uses a property-based approach rather than relying solely on class presence to avoid potential
@@ -53,5 +52,5 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @ConditionalOnGeoServer
 // use string class name for optional dependencies
 @ConditionalOnClass(name = "org.geoserver.web.GeoServerApplication")
-@ConditionalOnProperty(name = "geoserver.service.webui.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnGeoServerService("webui")
 public @interface ConditionalOnGeoServerWebUI {}

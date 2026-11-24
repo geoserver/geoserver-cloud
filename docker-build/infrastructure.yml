@@ -6,6 +6,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-config:${TAG}
     build:
       context: ../src/apps/infrastructure/config/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud config service
+        org.opencontainers.image.description: Spring Cloud Config server with the default configuration of GeoServer Cloud
 
   gateway-webmvc:
     extends:
@@ -14,6 +17,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-gateway:${TAG}
     build:
       context: ../src/apps/infrastructure/gateway-webmvc/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud gateway
+        org.opencontainers.image.description: Spring Cloud Gateway routing the requests to the GeoServer Cloud services
 
   # deprecated webflux SCG
   gateway-webflux:
@@ -23,4 +29,7 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-gateway-webflux:${TAG}
     build:
       context: ../src/apps/infrastructure/gateway-webflux/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud gateway (WebFlux)
+        org.opencontainers.image.description: Deprecated WebFlux-based Spring Cloud Gateway routing the requests to the GeoServer Cloud services
 

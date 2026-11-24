@@ -7,6 +7,10 @@ help: ## Show this help
 
 TAG?=$(shell ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
 
+# Revision and creation date for the labels of the images, read by docker-build/templates.yml
+export GIT_COMMIT ?= $(shell git rev-parse HEAD)
+export BUILD_DATE ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+
 .PHONY: show-version
 show-version: ## Print the project version
 	@echo $(TAG)
@@ -103,7 +107,6 @@ build-image: build-base-images build-image-infrastructure build-image-geoserver 
 build-base-images: package-base-images
 	TAG=$(TAG) docker compose -f docker-build/base-images.yml build jre
 	TAG=$(TAG) docker compose -f docker-build/base-images.yml build spring-boot
-	TAG=$(TAG) docker compose -f docker-build/base-images.yml build geoserver-common
 
 .PHONY: build-image-infrastructure
 build-image-infrastructure: package-infrastructure-images
@@ -112,15 +115,21 @@ build-image-infrastructure: package-infrastructure-images
 # This uses $(MAKECMDGOALS) (all targets specified) and filters out the target itself ($@), passing the rest as arguments. The %: rule tells make to ignore any unrecognized "targets" (which are actually your service names).
 # Then you can call:
 #  make build-image-geoserver wcs wfs
+# The geoserver image is built first because the service images are FROM it. The second build names
+# the service images: a build of the whole file would build the geoserver image again, and the
+# service images would not share its layers.
+GEOSERVER_SERVICE_IMAGES = wfs wms wcs wps restconfig webui gwc
+
 .PHONY: build-image-geoserver
 build-image-geoserver: package-geoserver-images
-	TAG=$(TAG) docker compose -f docker-build/geoserver.yml build $(filter-out $@ build-image,$(MAKECMDGOALS))
+	TAG=$(TAG) docker compose -f docker-build/geoserver.yml build geoserver
+	TAG=$(TAG) docker compose -f docker-build/geoserver.yml build $(or $(filter-out $@ build-image geoserver,$(MAKECMDGOALS)),$(GEOSERVER_SERVICE_IMAGES))
 
 
 .PHONY: package-base-images
 package-base-images:
 ifeq ($(REPACKAGE), true)
-	./mvnw clean package -Dfmt.skip -DskipTests -T1C -ntp -am -pl src/apps/base-images/jre,src/apps/base-images/spring-boot,src/apps/base-images/geoserver
+	./mvnw clean package -Dfmt.skip -DskipTests -T1C -ntp -am -pl src/apps/base-images/jre,src/apps/base-images/spring-boot
 else
 	@echo "Not re-packaging base images, assuming the target/*-bin.jar files exist"
 endif
@@ -136,7 +145,7 @@ endif
 .PHONY: package-geoserver-images
 package-geoserver-images:
 ifeq ($(REPACKAGE), true)
-	./mvnw clean package -Dfmt.skip -DskipTests -T1C -ntp -am -pl src/apps/geoserver/gwc,src/apps/geoserver/restconfig,src/apps/geoserver/wcs,src/apps/geoserver/webui,src/apps/geoserver/wfs,src/apps/geoserver/wms,src/apps/geoserver/wcs,src/apps/geoserver/wps
+	./mvnw clean package -Dfmt.skip -DskipTests -T1C -ntp -am -pl src/apps/geoserver/geoserver,src/apps/geoserver/gwc,src/apps/geoserver/restconfig,src/apps/geoserver/wcs,src/apps/geoserver/webui,src/apps/geoserver/wfs,src/apps/geoserver/wms,src/apps/geoserver/wps
 else
 	@echo "Not re-packaging geoserver images, assuming the target/*-bin.jar files exist"
 endif
@@ -190,6 +199,11 @@ acceptance-tests-datadir: build-acceptance start-acceptance-tests-datadir run-ac
 
 .PHONY: start-acceptance-tests-datadir
 start-acceptance-tests-datadir:
+	@if [ -f compose/catalog-datadir_acceptance/global.xml ]; then \
+	  echo "compose/catalog-datadir_acceptance/ still holds data from a previous run."; \
+	  echo "Run 'make clean-acceptance-tests-datadir' first."; \
+	  exit 1; \
+	fi
 	(cd compose/ && TAG=$(TAG) ./acceptance_datadir up -d)
 
 .PHONY: run-acceptance-tests-datadir
@@ -199,6 +213,7 @@ run-acceptance-tests-datadir:
 .PHONY: clean-acceptance-tests-datadir
 clean-acceptance-tests-datadir: ## Tear down the data directory acceptance composition
 	(cd compose/ && TAG=$(TAG) ./acceptance_datadir down -v --remove-orphans)
+	rm -rf compose/catalog-datadir_acceptance
 
 .PHONY: acceptance-tests-pgconfig
 acceptance-tests-pgconfig: build-acceptance start-acceptance-tests-pgconfig run-acceptance-tests-pgconfig ## Run the acceptance tests on the pgconfig backend

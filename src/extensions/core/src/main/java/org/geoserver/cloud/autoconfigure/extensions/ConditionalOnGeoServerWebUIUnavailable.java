@@ -10,10 +10,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.context.annotation.Conditional;
 
 /**
- * Annotation that marks a component to be conditional on the application NOT being the GeoServer Web UI application.
+ * Annotation that marks a component to be conditional on the {@code webui} service not being enabled in this
+ * application.
  *
  * <p>This is the logical opposite of {@link ConditionalOnGeoServerWebUI} and is used to selectively enable components
  * that should only be active in GeoServer services (like WMS, WFS, etc.) but not in the Web UI application.
@@ -22,7 +23,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClas
  *
  * <ul>
  *   <li>The presence of GeoServer core classes ({@link ConditionalOnGeoServer})
- *   <li>The absence of the GeoServer Web UI application class
+ *   <li>{@link ConditionalOnGeoServerWebUI} not matching, i.e. either the Web UI classes are absent from the classpath
+ *       or the {@code webui} service is not enabled
  * </ul>
  *
  * <p>Usage example:
@@ -43,5 +45,5 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClas
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnGeoServer
-@ConditionalOnMissingClass("org.geoserver.web.GeoServerApplication")
+@Conditional(OnGeoServerWebUIUnavailableCondition.class)
 public @interface ConditionalOnGeoServerWebUIUnavailable {}

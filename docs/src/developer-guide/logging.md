@@ -40,7 +40,7 @@ Since GeoServer Cloud is a Spring Boot application, we explicitly re-add `spring
 
 ## Logging Initialization
 
-The logging bridge configuration is set up by `GeoServerContextInitializer` (`src/starters/webmvc/src/main/java/org/geoserver/cloud/autoconfigure/context/GeoServerContextInitializer.java`), which is an `ApplicationContextInitializer` that runs before Spring beans are loaded.
+The logging bridge configuration is set up by `GeoServerContextInitializer` (`src/main/src/main/java/org/geoserver/cloud/autoconfigure/context/GeoServerContextInitializer.java`), which is an `ApplicationContextInitializer` that runs before Spring beans are loaded.
 
 This initializer replaces upstream GeoServer's `GeoserverInitStartupListener` (a servlet context listener that runs too late in Spring Boot) and configures the following system properties:
 

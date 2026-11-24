@@ -58,7 +58,10 @@ class AzureBlobstoreAutoConfigurationTest {
 
     @Test
     void blobstoreEnabledGeoServerWebUiEnabled() {
-        runner.withPropertyValues("gwc.blobstores.azure=true", "geoserver.web-ui.gwc.enabled=true")
+        runner.withPropertyValues(
+                        "gwc.blobstores.azure=true",
+                        "geoserver.web-ui.gwc.enabled=true",
+                        "geoserver.service.webui.enabled=true")
                 .run(context -> {
                     assertThat(context).hasSingleBean(AzureBlobStoreConfigProvider.class);
                     assertThat(context).hasSingleBean(AzureBlobStoreType.class);

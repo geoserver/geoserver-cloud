@@ -10,6 +10,7 @@
   <packaging>pom</packaging>
   <name>GeoServer microservices</name>
   <modules>
+    <module>geoserver</module>
     <module>wfs</module>
     <module>wms</module>
     <module>wcs</module>
@@ -51,10 +52,23 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-spring-cloud-starter</artifactId>
     </dependency>
-    <!-- Web MVC functionality -->
+    <!-- Catalog and configuration backends -->
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-webmvc</artifactId>
+      <artifactId>gs-cloud-starter-catalog-backend</artifactId>
+    </dependency>
+    <!-- Web MVC functionality -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
     <!-- GeoServer uses AOP in some xml configuration files -->
     <dependency>

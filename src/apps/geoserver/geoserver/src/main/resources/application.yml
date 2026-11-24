@@ -1,0 +1,126 @@
+server:
+  servlet:
+    # empty means root. The docker image sets GEOSERVER_CONTEXT_PATH=/geoserver
+    # for the traditional standalone URL shape; the service images reset it to empty.
+    context-path: ${GEOSERVER_CONTEXT_PATH:}
+    session:
+      tracking-modes: COOKIE
+      cookie:
+        name: JSESSIONID_${spring.application.name}
+        http-only: true
+spring:
+  application.name: geoserver
+  config:
+    name: geoserver # load externalized configuration from geoserver.yml
+    import:
+      - classpath:geoserver_spring_boot_profiles.yml
+      - classpath:geoserver_spring_cloud_profiles.yml
+  # include the per-role settings profile when the externalized config defines one
+  profiles.include: ${spring.application.name}
+  # also ask for geoserver.yml when loading the externalized config through a config-server
+  cloud.config.name: geoserver
+
+geoserver:
+  # which services this instance runs: all, or a comma-separated subset of
+  # wms,wfs,wcs,wps,gwc,restconfig,webui. Fine-grained override:
+  # geoserver.service.<name>.enabled beats this list.
+  services: ${GEOSERVER_SERVICES:all}
+  # no per-service path prefix in the combined application
+  base-path: ""
+  security:
+    # on unless the externalized configuration sets it: the security rules of a layer group
+    # reach its layers through this cache
+    layergroup-containmentcache: true
+  bus:
+    # in-image default: off (single instance needs no event bus). Cloud
+    # deployments enable it through the externalized geoserver.yml.
+    enabled: ${spring.cloud.bus.enabled:false}
+  backend:
+    data-directory:
+      # in-image default backend, self-contained zero-config startup.
+      # The externalized geoserver.yml overrides this for cloud deployments.
+      enabled: ${backend.data-directory:true}
+      location: ${geoserver.datadir:${GEOSERVER_DATA_DIR:/opt/app/data_directory}}
+    # No pgconfig block here: the backend defaults to disabled
+    # (geoserver.backend.pgconfig.enabled) and every other pgconfig property has no
+    # safe jar-wide default (host, port, credentials). A deployment that wants the
+    # pgconfig backend sets geoserver.backend.pgconfig.* directly, through
+    # externalized configuration or environment variables.
+  extension:
+    security:
+      gateway-shared-auth:
+        # MUST stay off without a gateway: client mode trusts x-gsc-* request
+        # headers (authentication bypass) and server mode leaks user/roles in
+        # response headers. Gateway-fronted deployments enable it through the
+        # externalized geoserver.yml.
+        enabled: false
+  styling:
+    css.enabled: true
+  web-ui:
+    file-browser.hide-file-system: true
+    # These are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
+    security.enabled: true
+    wfs.enabled: ${webui.wfs.enabled:true}
+    wms.enabled: ${webui.wms.enabled:true}
+    wcs.enabled: ${webui.wcs.enabled:true}
+    wps.enabled: ${webui.wps.enabled:true}
+    gwc:
+      enabled: ${gwc.enabled:true}
+      capabilities:
+        tms: ${gwc.services.tms:true}
+        wmts: ${gwc.services.wmts:true}
+        wmsc: ${gwc.services.wms:false}
+    extensions:
+      importer.enabled: true
+    demos:
+      enabled: true
+      wps-request-builder: true
+      wcs-request-builder: true
+      demo-requests: true
+      srs-list: true
+      reprojection-console: true
+      layer-preview-page:
+        enabled: true
+        common-formats:
+          open-layers: true
+          gml: true
+          kml: false #kml links are broken
+    tools:
+      enabled: true
+      resource-browser: true
+      catalog-bulk-load: true
+
+gwc:
+  # GeoWebCache runs in the roles that host it: wms, gwc, webui and restconfig.
+  # wfs, wcs and wps never shipped it and ignore this flag.
+  enabled: true
+  # gwc.context.suffix is used by gwc rest controllers
+  # (e.g. @RequestMapping(path = "${gwc.context.suffix:}/rest"))
+  context.suffix: gwc
+  cache-directory: ${GEOWEBCACHE_CACHE_DIR:${geoserver.backend.data-directory.location}/gwc}
+  rest-config: true
+  web-ui: true
+  wms-integration: true
+  services:
+    wmts: true
+    tms: true
+    wms: true
+    kml: false
+    gmaps: false
+    mgmaps: false
+  disk-quota:
+    enabled: false
+
+management:
+  health:
+    rabbit:
+      # a broker is only expected when the bus is on
+      enabled: ${spring.cloud.bus.enabled:false}
+
+---
+spring.config.activate.on-profile: "bootstrap-standalone"
+spring.config.import: ${standalone.config.location:file:/etc/geoserver/geoserver.yml}
+---
+spring.config.activate.on-profile: local
+server.port: 9100
+management.server.port: 8100
