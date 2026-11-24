@@ -17,9 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.lang.model.element.Modifier;
 import org.geoserver.spring.config.transpiler.context.BeanGenerationContext;
 import org.geoserver.spring.config.transpiler.context.TranspilationContext;
+import org.geoserver.spring.config.transpiler.generator.TargetConstructorResolver.ConstructorResolution;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -129,6 +131,7 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
         private final String beanName;
         private final String beanClassName;
         private final Class<?> beanClass;
+        private final ConstructorResolution constructorResolution;
         private final @Nullable Constructor<?> targetConstructor;
 
         public ConstructorBeanMethodGenerator(BeanGenerationContext beanContext) {
@@ -138,8 +141,10 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
             this.beanName = beanContext.getBeanName();
             this.beanClassName = beanDefinition.getBeanClassName();
             this.beanClass = beanContext.getResolvedBeanClass();
-            this.targetConstructor =
-                    Reflections.resolveTargetConstructor(beanClass, beanDefinition.getConstructorArgumentValues());
+            TargetConstructorResolver resolver = TargetConstructorResolver.of(transpilationContext);
+            this.constructorResolution =
+                    resolver.resolve(beanName, beanClass, beanDefinition.getConstructorArgumentValues());
+            this.targetConstructor = constructorResolution.constructor();
             BeanAccessibility.requirePublic(transpilationContext, beanName, beanClass, targetConstructor);
         }
 
@@ -375,18 +380,34 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
 
         private ConstructorParameter beanRefConstructorParameter(int index, RuntimeBeanReference beanRef) {
             String beanRefName = beanRef.getBeanName();
+            Optional<Class<?>> wrappedBeanType = constructorResolution.wrappedBeanType(index);
+            if (wrappedBeanType.isPresent()) {
+                return singleBeanListParameter(index, beanRefName, wrappedBeanType.get());
+            }
 
-            // Use enhanced type inference from base class
-            ClassName paramType = resolveParameterTypeWithInference(
-                    beanRefName,
-                    beanClassName,
-                    index,
-                    null,
-                    beanDefinition.getConstructorArgumentValues(),
-                    transpilationContext);
-
+            ClassName paramType = ClassName.get(getConstructorParameterType(index));
             return new ConstructorParameter(
                     index, sanitizeBeanName(beanRefName), paramType, ParameterType.BEAN_REFERENCE, null, beanRefName);
+        }
+
+        /**
+         * A method parameter typed as the referenced bean, passed to the constructor inside a list. A method parameter
+         * typed as the collection would get an empty list from Spring, as no collection bean has that name.
+         */
+        private ConstructorParameter singleBeanListParameter(int index, String beanRefName, Class<?> beanType) {
+            Class<?> parameterType = getConstructorParameterType(index);
+            if (!parameterType.isAssignableFrom(ArrayList.class)) {
+                throw new UnsupportedOperationException(
+                        "Bean '%s' gives the single bean '%s' to constructor parameter %d, of type %s. Only List and Collection parameters can take a single bean."
+                                .formatted(beanName, beanRefName, index, parameterType.getName()));
+            }
+            return new ConstructorParameter(
+                    index,
+                    sanitizeBeanName(beanRefName),
+                    ClassName.get(beanType),
+                    ParameterType.BEAN_REFERENCE_AS_LIST,
+                    null,
+                    beanRefName);
         }
 
         /**
@@ -441,7 +462,7 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
         private void addMethodParameters(
                 MethodSpec.Builder methodBuilder, List<ConstructorParameter> constructorParams) {
             for (ConstructorParameter param : constructorParams) {
-                if (param.type == ParameterType.BEAN_REFERENCE) {
+                if (param.type == ParameterType.BEAN_REFERENCE || param.type == ParameterType.BEAN_REFERENCE_AS_LIST) {
                     // Explicit bean reference with @Qualifier
                     ParameterSpec.Builder paramBuilder = ParameterSpec.builder(param.paramType, param.name)
                             .addAnnotation(AnnotationSpec.builder(Qualifier.class)
@@ -532,6 +553,9 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
                 switch (param.type) {
                     case BEAN_REFERENCE:
                         constructorArgs.add(param.name);
+                        break;
+                    case BEAN_REFERENCE_AS_LIST:
+                        constructorArgs.add("new java.util.ArrayList<>(java.util.List.of(" + param.name + "))");
                         break;
                     case STRING_LITERAL:
                         constructorArgs.add("\"" + param.name + "\"");
@@ -713,8 +737,7 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
                 int index = entry.getKey();
                 Object value = entry.getValue().getValue();
 
-                collectConstructorArguments(
-                        index, value, constructorArgs, beanRefToTypeMap, sanitizedToOriginalNameMap);
+                collectConstructorArguments(index, value, beanRefToTypeMap, sanitizedToOriginalNameMap);
             }
 
             // Also check generic (non-indexed) constructor arguments
@@ -723,21 +746,18 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
                 ConstructorArgumentValues.ValueHolder holder = genericArgs.get(index);
                 Object value = holder.getValue();
 
-                collectConstructorArguments(
-                        index, value, constructorArgs, beanRefToTypeMap, sanitizedToOriginalNameMap);
+                collectConstructorArguments(index, value, beanRefToTypeMap, sanitizedToOriginalNameMap);
             }
         }
 
         private void collectConstructorArguments(
                 int index,
                 Object value,
-                ConstructorArgumentValues constructorArgs,
                 Map<String, ClassName> beanRefToTypeMap,
                 Map<String, String> sanitizedToOriginalNameMap) {
             if (value instanceof ManagedList<?> managedList) {
                 // Get the generic element type for this list parameter
-                int argumentCount = constructorArgs.getArgumentCount();
-                ClassName elementType = Reflections.getGenericCollectionElementType(index, beanClass, argumentCount);
+                ClassName elementType = Reflections.getGenericCollectionElementType(targetConstructor, index);
                 if (elementType != null) {
                     // Apply the generic element type to all bean references in this list
                     for (Object listItem : managedList) {
@@ -833,6 +853,7 @@ public class ConstructorBasedBeanMethodGenerator extends AbstractBeanMethodGener
         STRING_LITERAL,
         CLASS_LITERAL,
         BEAN_REFERENCE,
+        BEAN_REFERENCE_AS_LIST,
         CONSTRUCTOR_CALL,
         SPEL_EXPRESSION,
         IMPLICIT_AUTOWIRED,

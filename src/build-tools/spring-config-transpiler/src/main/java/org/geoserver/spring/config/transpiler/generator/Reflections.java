@@ -8,12 +8,9 @@ import com.palantir.javapoet.ClassName;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
 
 @UtilityClass
 public class Reflections {
@@ -98,30 +95,20 @@ public class Reflections {
     }
 
     /**
-     * Get the generic element type for a collection constructor parameter. For example, if the constructor parameter is
-     * List&lt;Service&gt;, this returns Service.
+     * The element type of a collection parameter of a constructor: {@code Service} for {@code List<Service>}. Null
+     * without a constructor, and for a parameter without a class as its type argument.
      */
-    public ClassName getGenericCollectionElementType(int paramIndex, Class<?> beanClass, int argCount) {
-
-        Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-
-        // Find constructor with matching parameter count
-        for (Constructor<?> constructor : constructors) {
-            if (constructor.getParameterCount() == argCount && paramIndex < constructor.getParameterCount()) {
-                Type genericType = constructor.getGenericParameterTypes()[paramIndex];
-
-                // Check if it's a parameterized type (e.g., List<Service>)
-                if (genericType instanceof ParameterizedType parameterizedType) {
-                    Type[] typeArguments = parameterizedType.getActualTypeArguments();
-                    if (typeArguments.length > 0 && typeArguments[0] instanceof Class<?> elementClass) {
-                        return ClassName.get(elementClass);
-                    }
-                }
-                break;
+    public @Nullable ClassName getGenericCollectionElementType(@Nullable Constructor<?> constructor, int paramIndex) {
+        if (constructor == null || paramIndex >= constructor.getParameterCount()) {
+            return null;
+        }
+        Type genericType = constructor.getGenericParameterTypes()[paramIndex];
+        if (genericType instanceof ParameterizedType parameterizedType) {
+            Type[] typeArguments = parameterizedType.getActualTypeArguments();
+            if (typeArguments.length > 0 && typeArguments[0] instanceof Class<?> elementClass) {
+                return ClassName.get(elementClass);
             }
         }
-
-        // Fall back to null if we can't determine the generic type
         return null;
     }
 
@@ -188,50 +175,17 @@ public class Reflections {
         return runtimeClassName.toString();
     }
 
-    public Optional<Constructor<?>> findPublicConstructorWithArgCount(
-            List<Constructor<?>> constructors, int paramCount) {
-
-        return findConstructorsWithArgCount(constructors, paramCount)
-                .filter(Reflections::isPublic)
-                .findFirst();
-    }
-
-    public Stream<Constructor<?>> findConstructorsWithArgCount(List<Constructor<?>> constructors, int paramCount) {
-        return constructors.stream().filter(c -> c.getParameterCount() == paramCount);
-    }
-
     /**
-     * Resolve the target constructor for a bean following Spring conventions.
-     *
-     * <ul>
-     *   <li>If constructor args are present: find constructor by arg count (public preferred), fail if not found
-     *   <li>If no constructor args: try no-arg constructor, then single-constructor autowiring
-     * </ul>
-     *
-     * @return the resolved constructor, or {@code null} if the bean has a no-arg constructor and no autowiring
-     *     candidate
+     * The constructor of a bean without constructor arguments, as Spring finds it: the no-arg constructor, else the
+     * single constructor to autowire. Null when there is neither.
      */
     @SuppressWarnings("java:S1452") // wildcard in return type
-    public static @Nullable Constructor<?> resolveTargetConstructor(
-            Class<?> beanClass, @Nullable ConstructorArgumentValues args) {
-
-        int argCount = (args == null || args.isEmpty()) ? 0 : args.getArgumentCount();
-
-        if (argCount == 0) {
-            try {
-                return beanClass.getDeclaredConstructor();
-            } catch (NoSuchMethodException _) {
-                // No no-arg constructor — try single-constructor autowiring
-                return resolveAutowiredConstructor(beanClass);
-            }
+    public static @Nullable Constructor<?> resolveImplicitConstructor(Class<?> beanClass) {
+        try {
+            return beanClass.getDeclaredConstructor();
+        } catch (NoSuchMethodException _) {
+            return resolveAutowiredConstructor(beanClass);
         }
-
-        // Explicit args: find constructor by arg count, prefer public
-        List<Constructor<?>> all = List.of(beanClass.getDeclaredConstructors());
-        return findPublicConstructorWithArgCount(all, argCount)
-                .or(() -> findConstructorsWithArgCount(all, argCount).findFirst())
-                .orElseThrow(() -> new IllegalStateException(
-                        "No constructor with %d args found in %s".formatted(argCount, beanClass.getName())));
     }
 
     /**
