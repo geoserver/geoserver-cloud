@@ -1,0 +1,3 @@
+# local profile, used for development only
+server.port: 9102
+management.server.port: 8102

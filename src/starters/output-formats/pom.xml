@@ -10,12 +10,6 @@
   <packaging>jar</packaging>
   <description>Spring Boot starter for GeoServer Cloud output format extensions</description>
   <dependencies>
-    <!-- Base dependencies -->
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-webmvc</artifactId>
-    </dependency>
-
     <!-- Output format extensions -->
     <dependency>
       <groupId>org.geoserver.cloud.extensions</groupId>

@@ -32,13 +32,13 @@ ENV CONFIG_NATIVE_PATH=/etc/geoserver
 
 # Config for the 'git' profile
 # Uses the default sample git repository to download the services configuration from
-ENV CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
+ENV CONFIG_GIT_URI=https://github.com/geoserver/geoserver-cloud-config.git
 # Override to get the config from the appropriate release TAG or branch
-ENV SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: master
+ENV SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL=master
 # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
-ENV CONFIG_GIT_BASEDIR: /tmp/git_config
+ENV CONFIG_GIT_BASEDIR=/tmp/git_config
 # avoid stack trace due to jgit not being able of creating a .config dir at $HOME
-ENV XDG_CONFIG_HOME: /tmp
+ENV XDG_CONFIG_HOME=/tmp
 
 # AOT training run for faster startup (each arch builds natively, no QEMU)
 RUN java -XX:AOTCacheOutput=app.aot -Dspring.context.exit=onRefresh \

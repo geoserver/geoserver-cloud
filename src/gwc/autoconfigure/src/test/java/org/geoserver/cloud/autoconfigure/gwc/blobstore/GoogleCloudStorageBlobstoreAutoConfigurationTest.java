@@ -58,7 +58,10 @@ class GoogleCloudStorageBlobstoreAutoConfigurationTest {
 
     @Test
     void blobstoreEnabledGeoServerWebUiEnabled() {
-        runner.withPropertyValues("gwc.blobstores.gcs=true", "geoserver.web-ui.gwc.enabled=true")
+        runner.withPropertyValues(
+                        "gwc.blobstores.gcs=true",
+                        "geoserver.web-ui.gwc.enabled=true",
+                        "geoserver.service.webui.enabled=true")
                 .run(context -> {
                     assertThat(context).hasSingleBean(GoogleCloudStorageConfigProvider.class);
                     assertThat(context).hasSingleBean(GcsBlobStoreType.class);

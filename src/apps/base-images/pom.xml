@@ -11,6 +11,5 @@
   <modules>
     <module>jre</module>
     <module>spring-boot</module>
-    <module>geoserver</module>
   </modules>
 </project>

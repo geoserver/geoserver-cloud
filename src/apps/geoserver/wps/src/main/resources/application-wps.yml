@@ -1,0 +1,6 @@
+# Settings of the WPS service, loaded by the wps profile set by WpsApplication
+spring.application.name: wps
+
+geoserver:
+  services: wps
+  base-path: /wps

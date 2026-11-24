@@ -5,21 +5,26 @@
 
 package org.geoserver.cloud.restconfig;
 
+import java.util.List;
 import org.geoserver.cloud.app.GeoServerApplicationLauncher;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.retry.annotation.EnableRetry;
+import org.geoserver.cloud.geoserver.GeoServerApplication;
 
 /**
- * Main entry point for the GeoServer Cloud REST configuration microservice.
+ * Runs {@link GeoServerApplication} as the REST configuration service.
  *
- * <p>This application provides the GeoServer REST API, allowing for programmatic management of the GeoServer catalog
- * and configuration in a cloud-native environment.
+ * <p>The {@value #SERVICE} profile loads {@code application-restconfig.yml}, with the name, the role and the base path
+ * of the service.
  */
-@SpringBootApplication
-@EnableRetry
 public class RestConfigApplication {
 
+    /** The name of the service and of the Spring profile with its settings */
+    public static final String SERVICE = "restconfig";
+
+    private RestConfigApplication() {
+        // launcher
+    }
+
     public static void main(String... args) {
-        GeoServerApplicationLauncher.run(RestConfigApplication.class, args);
+        GeoServerApplicationLauncher.run(GeoServerApplication.class, List.of(SERVICE), args);
     }
 }

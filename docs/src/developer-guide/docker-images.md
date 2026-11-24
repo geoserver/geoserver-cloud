@@ -10,7 +10,7 @@ GeoServer Cloud uses a layered base image strategy to maximize layer sharing acr
 graph TD
     A[eclipse-temurin:25-jre] --> B[gs-cloud-base-jre]
     B --> C[gs-cloud-base-spring-boot]
-    C --> D[gs-cloud-base-geoserver-image]
+    C --> D[geoserver]
     D --> E[wfs]
     D --> F[wms]
     D --> G[wcs]
@@ -28,11 +28,12 @@ graph TD
 |-------|----------|------|
 | `gs-cloud-base-jre` | `eclipse-temurin:25-jre` | JVM options (`--add-opens`, heap settings), system CA certificates |
 | `gs-cloud-base-spring-boot` | `gs-cloud-base-jre` | Spring Boot layered JAR structure, curl for health checks, default config |
-| `gs-cloud-base-geoserver-image` | `gs-cloud-base-spring-boot` | Fonts (DejaVu, Noto, Roboto, etc.), GeoServer common dependencies, DuckDB extensions |
 
-### Service Images
+### GeoServer Images
 
-All GeoServer OWS services (WFS, WMS, WCS, WPS, GWC, REST, WebUI) extend `gs-cloud-base-geoserver-image`, adding only their service-specific application code.
+The `geoserver` image extends `gs-cloud-base-spring-boot` with the fonts (DejaVu, Noto, Roboto, etc.), the GeoServer application with all its services, the DuckDB extensions and the JVM AOT cache.
+
+The GeoServer service images (WFS, WMS, WCS, WPS, GWC, REST, WebUI) are built from the `geoserver` image. Each adds only what makes the container run as that service.
 
 Infrastructure services (Config, Gateway) extend `gs-cloud-base-spring-boot` directly since they don't need GeoServer dependencies.
 
@@ -40,29 +41,17 @@ Consul uses the official `hashicorp/consul` image and is not part of this intern
 
 ## Layer Sharing
 
-The layered architecture ensures that all GeoServer microservices share ~908MB of common layers. Each service adds only 2-22MB of unique application code.
-
-**Example: GeoServer services layer analysis**
-
-| Image | Display Size | Shared  | Unique |
-|-------|-------------|---------|--------|
-| wcs   | 909MB       | 907.8MB | 1.7MB  |
-| wps   | 910MB       | 907.8MB | 2.3MB  |
-| wfs   | 916MB       | 907.8MB | 8.2MB  |
-| rest  | 918MB       | 907.8MB | 10.4MB |
-| wms   | 923MB       | 907.8MB | 14.8MB |
-| gwc   | 922MB       | 907.8MB | 14.2MB |
-| webui | 929MB       | 907.8MB | 21.5MB |
+The GeoServer service images share the layers of the `geoserver` image, about 1.84GB. Each adds about 50kB.
 
 **Actual disk usage for all 7 GeoServer services:**
 
 ```
-907.8MB (shared once) + 73MB (sum of unique) = ~981MB
+1.84GB (shared once) + 7 × 50kB = ~1.84GB
 ```
 
-Instead of 7 × 920MB = 6.4GB apparent.
+Instead of 7 × 1.84GB = 12.9GB apparent.
 
-This means deploying all 7 GeoServer services uses less than 1GB of actual disk space, not 6.4GB as the individual image sizes might suggest.
+This means deploying all 7 GeoServer services uses less than 2GB of actual disk space, not 12.9GB as the individual image sizes might suggest.
 
 ## Analyzing Layer Sharing
 
@@ -78,8 +67,8 @@ Example output:
 
 ```
 REPOSITORY                                     TAG              IMAGE ID       SIZE      SHARED SIZE   UNIQUE SIZE
-geoservercloud/geoserver-cloud-wfs             3.1.0-SNAPSHOT   12cee949a17d   916MB     907.8MB       8.163MB
-geoservercloud/geoserver-cloud-wms             3.1.0-SNAPSHOT   919b96914846   923MB     907.8MB       14.78MB
+geoservercloud/geoserver-cloud-wfs             3.1.0-SNAPSHOT   7f150cae2d24   1.84GB    1.838GB       50.16kB
+geoservercloud/geoserver-cloud-wms             3.1.0-SNAPSHOT   85790c8e2daf   1.84GB    1.838GB       50.16kB
 ...
 ```
 
@@ -94,7 +83,7 @@ for img in geoservercloud/geoserver-cloud-{wms,wfs,wcs,wps,gwc,webui,rest}:3.1.0
 done | sort | uniq -c | sort -rn
 ```
 
-Layers appearing 7 times are shared across all services (the base image layers). Layers appearing once are unique to each service.
+Layers appearing 7 times are shared across all services (the layers of the `geoserver` image). Layers appearing once are unique to each service.
 
 ### Count Total vs Unique Layers
 
@@ -109,9 +98,21 @@ echo "Total layer references: $(wc -l < /tmp/all-layers.txt)"
 echo "Unique layers: $(sort -u /tmp/all-layers.txt | wc -l)"
 ```
 
+## Labels
+
+The images describe themselves with the [OCI image labels](https://github.com/opencontainers/image-spec/blob/main/annotations.md): title, description, version, revision (the git commit of the build), creation date, source repository, documentation and license.
+
+```bash
+docker inspect geoservercloud/geoserver:3.1.0-SNAPSHOT --format '{{json .Config.Labels}}'
+```
+
+`docker-build/templates.yml` sets the labels shared by the images. Each image sets its title and description in its build file. An image without them shows those of its base image.
+
+`make build-image` fills the revision and the creation date. A direct `docker compose build` reads them from the `GIT_COMMIT` and `BUILD_DATE` environment variables, and leaves them empty when the variables are not set.
+
 ## Best Practices
 
 1. **Always build base images first** - The Makefile enforces this with dependencies
-2. **Don't skip base image rebuilds** - When dependencies change, rebuild from `gs-cloud-base-geoserver-image` down
-3. **Use `make build-image-geoserver <service>`** - During development, rebuild only the service you're working on
+2. **Don't skip base image rebuilds** - When dependencies change, rebuild from the `geoserver` image down
+3. **Use `make build-image-geoserver <service>`** - During development, rebuild the `geoserver` image and only the service you're working on
 4. **Check layer sharing periodically** - Ensure changes don't accidentally break layer sharing
