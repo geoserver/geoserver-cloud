@@ -29,7 +29,6 @@ import org.springframework.beans.PropertyValue;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.ManagedList;
@@ -550,34 +549,22 @@ public abstract class AbstractBeanMethodGenerator implements BeanMethodGenerator
      * find the most appropriate parameter type:
      *
      * <ul>
-     *   <li>1. Constructor parameter type (if paramIndex provided and beanClassName available)
-     *   <li>2. Property setter parameter type (if propertyName provided and beanClassName available)
-     *   <li>3. Fallback to referenced bean's type
+     *   <li>1. Property setter parameter type (if propertyName provided and beanClassName available)
+     *   <li>2. Fallback to referenced bean's type
      * </ul>
+     *
+     * <p>Constructor parameters take the types of the chosen constructor, see {@link TargetConstructorResolver}.
      *
      * @param beanName the name of the referenced bean
      * @param beanClassName the class name of the bean being created (for reflection)
-     * @param paramIndex optional constructor parameter index (for constructor injection)
      * @param propertyName optional property name (for setter injection)
-     * @param constructorArgs optional constructor arguments (for parameter count validation)
      * @param transpilationContext the transpilation context
      * @return the resolved parameter type
      */
     protected ClassName resolveParameterTypeWithInference(
-            String beanName,
-            String beanClassName,
-            Integer paramIndex,
-            String propertyName,
-            ConstructorArgumentValues constructorArgs,
-            TranspilationContext transpilationContext) {
+            String beanName, String beanClassName, String propertyName, TranspilationContext transpilationContext) {
 
-        // Strategy 1: Constructor parameter type inference
-        if (paramIndex != null && beanClassName != null) {
-            Class<?> expectedType = getConstructorParameterType(paramIndex, beanClassName, constructorArgs);
-            return ClassName.get(expectedType);
-        }
-
-        // Strategy 2: Property setter parameter type inference
+        // Strategy 1: Property setter parameter type inference
         if (propertyName != null && beanClassName != null) {
             Class<?> setterParamType = getPropertyType(propertyName, beanClassName);
             if (setterParamType != null) {
@@ -585,20 +572,8 @@ public abstract class AbstractBeanMethodGenerator implements BeanMethodGenerator
             }
         }
 
-        // Strategy 3: Fallback to referenced bean type
+        // Strategy 2: Fallback to referenced bean type
         return resolveParameterType(beanName, transpilationContext);
-    }
-
-    /** Get constructor parameter type using reflection. */
-    protected Class<?> getConstructorParameterType(
-            int paramIndex, String beanClassName, ConstructorArgumentValues constructorArgs) {
-
-        Class<?> beanClass = Reflections.convertToRuntimeClass(beanClassName);
-        Constructor<?> constructor = Reflections.resolveTargetConstructor(beanClass, constructorArgs);
-        if (constructor != null && paramIndex < constructor.getParameterCount()) {
-            return constructor.getParameterTypes()[paramIndex];
-        }
-        throw new IllegalStateException("Unable to resolve constructor parameter type for index " + paramIndex);
     }
 
     /**

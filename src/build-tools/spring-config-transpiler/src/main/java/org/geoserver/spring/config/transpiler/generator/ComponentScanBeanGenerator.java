@@ -14,6 +14,7 @@ import com.palantir.javapoet.TypeSpec;
 import java.beans.Introspector;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Set;
 import org.geoserver.spring.config.transpiler.context.ComponentScanInfo;
 import org.geoserver.spring.config.transpiler.context.TranspilationContext;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -242,13 +244,20 @@ public class ComponentScanBeanGenerator {
      *   <li>No-arg constructor
      *   <li>Single-constructor autowiring (the only declared constructor with parameters)
      * </ol>
+     *
+     * <p>Two {@code @Autowired} constructors fail the transpilation. Spring chooses among them by the beans available
+     * when it creates the component, and the transpiler cannot know them.
      */
     private @Nullable Constructor<?> resolveConstructor(Class<?> beanClass) {
         // 1. Look for @Autowired-annotated constructor
-        for (Constructor<?> ctor : beanClass.getDeclaredConstructors()) {
-            if (ctor.isAnnotationPresent(org.springframework.beans.factory.annotation.Autowired.class)) {
-                return ctor;
-            }
+        List<Constructor<?>> autowired = autowiredConstructors(beanClass);
+        if (autowired.size() > 1) {
+            throw new IllegalStateException(
+                    "Component %s has %d constructors with @Autowired, and the transpiler cannot choose among them. Exclude it from the scan and declare it by hand."
+                            .formatted(beanClass.getName(), autowired.size()));
+        }
+        if (autowired.size() == 1) {
+            return autowired.get(0);
         }
         // 2. Try no-arg constructor
         try {
@@ -257,6 +266,12 @@ public class ComponentScanBeanGenerator {
             // 3. Single-constructor autowiring
             return Reflections.resolveAutowiredConstructor(beanClass);
         }
+    }
+
+    private static List<Constructor<?>> autowiredConstructors(Class<?> beanClass) {
+        return Arrays.stream(beanClass.getDeclaredConstructors())
+                .filter(constructor -> constructor.isAnnotationPresent(Autowired.class))
+                .toList();
     }
 
     private void addConstructorParameters(MethodSpec.Builder methodBuilder, Constructor<?> constructor) {

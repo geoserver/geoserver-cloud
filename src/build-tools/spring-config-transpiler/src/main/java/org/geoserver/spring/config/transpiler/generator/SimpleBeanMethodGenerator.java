@@ -121,7 +121,7 @@ public class SimpleBeanMethodGenerator extends AbstractBeanMethodGenerator {
             TranspilationContext transpilationContext) {
 
         Class<?> beanClass = beanContext.getResolvedBeanClass();
-        Constructor<?> constructor = Reflections.resolveTargetConstructor(beanClass, null);
+        Constructor<?> constructor = Reflections.resolveImplicitConstructor(beanClass);
         BeanAccessibility.requirePublic(transpilationContext, beanContext.getBeanName(), beanClass, constructor);
 
         addExceptionsFromConstructor(methodBuilder, constructor);
@@ -152,7 +152,7 @@ public class SimpleBeanMethodGenerator extends AbstractBeanMethodGenerator {
 
                 // Use enhanced type inference from base class
                 ClassName paramType = resolveParameterTypeWithInference(
-                        originalBeanRef, beanClassName, null, propertyName, null, transpilationContext);
+                        originalBeanRef, beanClassName, propertyName, transpilationContext);
 
                 ParameterSpec.Builder paramBuilder = ParameterSpec.builder(paramType, sanitizedBeanRef)
                         .addAnnotation(AnnotationSpec.builder(Qualifier.class)
