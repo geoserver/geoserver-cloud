@@ -107,6 +107,13 @@ jobs:
       run: |
         make run-acceptance-tests-${{ matrix.catalog }}
 
+    - name: Print the state of the containers
+      if: always()
+      # a container killed for exceeding its memory limit shows OOMKilled=true
+      run: |
+        docker ps --all --quiet | xargs -r docker inspect \
+          --format '{{.Name}} {{.State.Status}} exit={{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}'
+
     - name: Print docker compose logs
       if: always()
       run: (cd compose && c2cciutils-docker-logs)
