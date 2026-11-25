@@ -309,6 +309,7 @@ geotools:
       
       # Vector format configuration (DataAccessFactory implementations)
       vector-formats:
+        "[DuckDB]": false
         "[PostGIS]": true
         "[Shapefile]": true
         "[GeoPackage]": true
@@ -326,6 +327,8 @@ geotools:
         "[ImagePyramid]": false
         # Add more raster format entries as needed
 ```
+
+A vector format missing from the map is enabled. The default configuration disables the `DuckDB` data store. It comes with the GeoParquet module and is not a supported GeoServer Cloud data store: a DuckDB database is a file, or lives in the memory of one process, and its use by several pods is not verified. Set `"[DuckDB]": true` to enable it.
 
 ### Format names
 
