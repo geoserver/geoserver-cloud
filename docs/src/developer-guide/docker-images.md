@@ -100,7 +100,7 @@ echo "Unique layers: $(sort -u /tmp/all-layers.txt | wc -l)"
 
 ## Labels
 
-The images describe themselves with the [OCI image labels](https://github.com/opencontainers/image-spec/blob/main/annotations.md): title, description, version, revision (the git commit of the build), creation date, source repository, documentation and license.
+The images describe themselves with the [OCI image labels](https://github.com/opencontainers/image-spec/blob/main/annotations.md): title, description, version, revision (the git commit of the build), creation date, source repository, documentation, license, vendor and authors.
 
 ```bash
 docker inspect geoservercloud/geoserver:3.1.0-SNAPSHOT --format '{{json .Config.Labels}}'
