@@ -1,0 +1,19 @@
+apiVersion: v2
+appVersion: '1.0'
+description: Example for geoserver-cloud with pgconfig
+name: gs-cloud-pgconfig
+version: 0.1.0
+dependencies:
+  - name: 'geoservercloud'
+    repository: https://camptocamp.github.io/helm-geoserver-cloud
+    version: 3.0.0-rc
+  # The official Bitnami chart repository no longer publishes free images;
+  # mirror and bitnamilegacy images are used via GeOrchestra's OCI registry.
+  - name: 'rabbitmq'
+    version: 14.4.0
+    repository: 'oci://ghcr.io/georchestra/bitnami-helm-charts'
+    condition: rabbitmq.enabled
+  - name: 'postgresql'
+    version: 15.5.2
+    repository: 'oci://ghcr.io/georchestra/bitnami-helm-charts'
+    condition: postgresql.enabled
