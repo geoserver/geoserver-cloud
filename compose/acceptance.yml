@@ -81,12 +81,14 @@ services:
         limits:
           cpus: "1.0"
           memory: 256M
+  # A GeoServer service uses about 350 MB outside of the Java heap. With a limit too low for the heap
+  # and that memory, the kernel kills the container when the heap grows.
   wms:
     deploy:
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 2G
     healthcheck:
       retries: 20
   wfs:
@@ -94,7 +96,7 @@ services:
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 2G
     healthcheck:
       retries: 20
   restconfig:
@@ -102,7 +104,7 @@ services:
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 2G
     healthcheck:
       retries: 20
   gwc:
@@ -110,7 +112,7 @@ services:
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 2G
     healthcheck:
       retries: 20
   webui:
@@ -119,18 +121,18 @@ services:
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 2G
   wps:
     deploy:
       replicas: 0
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 2G
   wcs:
     deploy:
       replicas: 0
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 2G
