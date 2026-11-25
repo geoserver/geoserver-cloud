@@ -1,7 +1,7 @@
 [submodule "config"]
 	path = config
 	url = https://github.com/geoserver/geoserver-cloud-config
-	branch = master
+	branch = release/3.0.x
 [submodule "geoserver"]
 	path = geoserver_submodule/geoserver
 	url = https://github.com/camptocamp/geoserver.git
