@@ -15,7 +15,7 @@ ENV DEFAULT_JAVA_TOOL_OPTIONS="\
 --add-opens=java.net.http/jdk.internal.net.http=ALL-UNNAMED \
 --enable-native-access=ALL-UNNAMED \
 -Djava.awt.headless=true \
--XX:MaxRAMPercentage=80 \
+-XX:MaxRAMPercentage=70 \
 -XX:InitialRAMPercentage=30 \
 -XX:+UseCompressedOops \
 -XX:+UseCompactObjectHeaders \
