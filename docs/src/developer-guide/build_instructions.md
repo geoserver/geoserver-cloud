@@ -102,6 +102,18 @@ docker buildx stop gscloud-builder
 docker buildx rm gscloud-builder
 ```
 
+### Image labels
+
+The images describe themselves with the [OCI image labels](https://github.com/opencontainers/image-spec/blob/main/annotations.md): title, description, version, revision (the git commit of the build), creation date, source repository, documentation, license, vendor and authors.
+
+```bash
+docker inspect geoservercloud/geoserver-cloud-wms:2.28.7-SNAPSHOT --format '{{json .Config.Labels}}'
+```
+
+`docker-build/templates.yml` sets the labels shared by the images. Each image sets its title and description in its build files. An image without them shows those of its base image.
+
+`make build-image` and `make build-image-multiplatform` fill the revision and the creation date. A direct `docker compose build` reads them from the `GIT_COMMIT` and `BUILD_DATE` environment variables, and leaves them empty when the variables are not set.
+
 ### Note on custom upstream GeoServer version
 
 *GeoServer Cloud* depends on a custom GeoServer branch, `gscloud/gs_version/integration`, which contains patches to upstream GeoServer that have not yet been integrated into the mainstream `main` branch.

@@ -7,6 +7,10 @@ help: ## Show this help
 
 TAG?=$(shell ./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
 
+# Revision and creation date for the labels of the images, read by docker-build/templates.yml
+export GIT_COMMIT ?= $(shell git rev-parse HEAD)
+export BUILD_DATE ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+
 COSIGN_PASSWORD := $(COSIGN_PASSWORD)
 
 
