@@ -6,6 +6,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-discovery:${TAG}
     build:
       context: ../src/apps/infrastructure/discovery/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud discovery service
+        org.opencontainers.image.description: Eureka service registry of GeoServer Cloud
 
   config:
     extends:
@@ -14,6 +17,9 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-config:${TAG}
     build:
       context: ../src/apps/infrastructure/config/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud config service
+        org.opencontainers.image.description: Spring Cloud Config server with the default configuration of GeoServer Cloud
 
   gateway:
     extends:
@@ -22,3 +28,6 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-gateway:${TAG}
     build:
       context: ../src/apps/infrastructure/gateway/
+      labels:
+        org.opencontainers.image.title: GeoServer Cloud gateway
+        org.opencontainers.image.description: Spring Cloud Gateway routing the requests to the GeoServer Cloud services

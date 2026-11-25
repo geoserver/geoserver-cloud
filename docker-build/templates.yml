@@ -1,3 +1,16 @@
+# Labels shared by the images. Each image adds its own title and description: without them it
+# would show those of its base image. The Makefile sets GIT_COMMIT and BUILD_DATE.
+x-labels: &labels
+  org.opencontainers.image.version: ${TAG}
+  org.opencontainers.image.revision: ${GIT_COMMIT:-}
+  org.opencontainers.image.created: ${BUILD_DATE:-}
+  org.opencontainers.image.source: https://github.com/geoserver/geoserver-cloud
+  org.opencontainers.image.url: https://geoserver.org/geoserver-cloud
+  org.opencontainers.image.documentation: https://geoserver.org/geoserver-cloud
+  org.opencontainers.image.licenses: GPL-2.0-or-later
+  org.opencontainers.image.vendor: GeoServer Project Steering Committee
+  org.opencontainers.image.authors: GeoServer Cloud contributors (https://geoserver.org/geoserver-cloud/community/contributors/)
+
 services:
   current-platform:
     build:
@@ -7,6 +20,7 @@ services:
       args:
         TAG: ${TAG}
         REPOSITORY: ${REPOSITORY}
+      labels: *labels
 
   multi-platform:
     build:
@@ -19,4 +33,4 @@ services:
       args:
         TAG: ${TAG}
         REPOSITORY: ${REPOSITORY}
-        
+      labels: *labels
