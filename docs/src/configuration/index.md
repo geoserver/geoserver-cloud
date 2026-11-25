@@ -273,6 +273,14 @@ Tomcat gives each request a worker thread before control-flow sees it, and keeps
 
 When the CPU request of a container is far below its limit, `cpu.cores` counts CPU not guaranteed to the container. Set the request equal to the limit, or pass the cores to size for: `JAVA_OPTS=-Dcpu.cores=2`.
 
+## Memory of a service container
+
+The Java heap of a service takes 70% of the memory of its container. The rest is for the memory used outside of the heap. An idle GeoServer service uses about 350 MB of it, mostly for the classes and the compiled code. The Parquet data stores allocate more of it when they read data.
+
+Give the container of a GeoServer service 1.5 GB or more: it then keeps 460 MB outside of the heap. With too little memory, the kernel kills the container when the heap grows. The logs show no Java error, and the container runtime reports the container as `OOMKilled`.
+
+`JAVA_OPTS=-XX:MaxRAMPercentage=60` changes the share of the heap on a container.
+
 ## Use GeoServer ACL
 
 To use GeoServer ACL with GeoServer Cloud, you need to do the following steps:
