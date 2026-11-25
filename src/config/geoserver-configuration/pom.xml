@@ -252,6 +252,16 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-sec-oidc-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-sec-oidc-web</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.community</groupId>
       <artifactId>gs-geoparquet</artifactId>
       <optional>true</optional>
@@ -496,6 +506,18 @@
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-authkey</artifactId>
+            </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-sec-oidc-core</artifactId>
+            </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-sec-oidc-web</artifactId>
+            </path>
+            <path>
+              <groupId>org.springframework.security</groupId>
+              <artifactId>spring-security-config</artifactId>
             </path>
             <path>
               <groupId>org.geoserver.extension</groupId>

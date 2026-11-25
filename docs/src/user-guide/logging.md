@@ -43,6 +43,7 @@ names:
 | `GEOSERVER_DEVELOPER_LOGGING` | All messages of GeoServer |
 | `GEOTOOLS_DEVELOPER_LOGGING` | All messages of GeoTools |
 | `QUIET_LOGGING` | No messages at all |
+| `OIDC_LOGGING` | All messages of the OpenID Connect extension and debug messages of Spring Security, warnings and errors of the rest of GeoServer and GeoTools |
 
 It also defines profiles to debug one part of GeoServer Cloud:
 

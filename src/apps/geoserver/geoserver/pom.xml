@@ -177,6 +177,10 @@
       <artifactId>gs-web-sec-ldap</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-sec-oidc-web</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-wms</artifactId>
     </dependency>
@@ -209,6 +213,23 @@
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-tester</artifactId>
       <version>${wicket.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.dasniko</groupId>
+      <artifactId>testcontainers-keycloak</artifactId>
+      <version>3.8.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!--
+      The OIDC auth provider's onApplicationEvent path calls LoggingUtils.checkBuiltInLoggingConfiguration,
+      which references org.apache.logging.log4j.core.* classes in LoggingUtilsDelegate. Cloud runs on Logback
+      at runtime; test-scope log4j-core lets the class load cleanly so the IT does not trip on
+      NoClassDefFoundError before the OIDC wiring is even exercised.
+    -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

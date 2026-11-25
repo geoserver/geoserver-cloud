@@ -292,6 +292,10 @@ To use GeoServer ACL with GeoServer Cloud, you need to do the following steps:
 
 You can enable OAuth authentication by replacing the default `gateway` image by the geOrchestra gateway (for example `georchestra/gateway:23.1-RC1`).
 
+## Use OpenID Connect authentication
+
+The OpenID Connect extension is enabled by default. Administrators configure the providers in the web UI, and `geoserver.extension.security.oidc.enabled=false` turns the extension off. See [OpenID Connect login and Bearer tokens](../user-guide/openid-connect.md).
+
 ## Filter vector and raster data formats
 
 GeoServer Cloud provides the ability to filter which GeoTools DataAccessFactory (vector) and GridFormatFactorySpi (raster) implementations are available in the application. This allows you to customize each deployment to only include the formats you need, improving security, reducing the attack surface, and potentially improving startup time.

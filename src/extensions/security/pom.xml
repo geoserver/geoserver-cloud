@@ -16,5 +16,6 @@
     <module>geoserver-acl</module>
     <module>jdbc</module>
     <module>ldap</module>
+    <module>oidc</module>
   </modules>
 </project>

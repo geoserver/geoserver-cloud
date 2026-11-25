@@ -117,6 +117,7 @@ nav:
     - Overview: user-guide/index.md
     - Additional libraries and fonts: user-guide/additional-libs-and-fonts.md
     - Logging: user-guide/logging.md
+    - OpenID Connect login and Bearer tokens: user-guide/openid-connect.md
     - ImageMosaics through the REST API: user-guide/imagemosaic-rest-api.md
     - GeoParquet through the REST API: user-guide/geoparquet-rest-api.md
     - GeoParquet and Arrow IPC over WFS: user-guide/wfs-geoparquet-arrow-ipc.md

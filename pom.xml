@@ -85,6 +85,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-security-oidc</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
         <artifactId>gs-cloud-extension-security-geoserver-acl</artifactId>
         <version>${project.version}</version>
       </dependency>
