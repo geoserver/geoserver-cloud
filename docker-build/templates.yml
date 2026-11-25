@@ -17,3 +17,5 @@ services:
         org.opencontainers.image.url: https://geoserver.org/geoserver-cloud
         org.opencontainers.image.documentation: https://geoserver.org/geoserver-cloud
         org.opencontainers.image.licenses: GPL-2.0-or-later
+        org.opencontainers.image.vendor: GeoServer Project Steering Committee
+        org.opencontainers.image.authors: GeoServer Cloud contributors (https://geoserver.org/geoserver-cloud/community/contributors/)
