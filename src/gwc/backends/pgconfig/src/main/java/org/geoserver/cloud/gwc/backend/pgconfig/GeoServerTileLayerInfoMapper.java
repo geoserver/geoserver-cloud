@@ -51,6 +51,8 @@ interface GeoServerTileLayerInfoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", ignore = true)
     @Mapping(target = "autoCacheStyles", ignore = true)
+    // GeoServerTileLayerInfoImpl keeps memoryCached null until set, and its equals() tells null from false
+    @Mapping(target = "memoryCached", conditionExpression = "java(info.isMemoryCached())")
     // watch out GeoServerTileLayerInfoImpl.setMetaTilingX/Y asserts the arg is > 0
     @Mapping(target = "metaTilingX", conditionExpression = "java(info.getMetaTilingX() > 0)")
     @Mapping(target = "metaTilingY", conditionExpression = "java(info.getMetaTilingY() > 0)")

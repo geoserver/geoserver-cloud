@@ -26,6 +26,8 @@ public class TileLayerInfo {
 
     private String blobStoreId;
 
+    private boolean memoryCached;
+
     private Set<String> mimeFormats = Set.of();
 
     private Set<GridSubset> gridSubsets = Set.of();
