@@ -96,6 +96,13 @@ class GeoServerTileLayerInfoMapperTest {
     }
 
     @Test
+    void testMemoryCached() {
+        info.setMemoryCached(true);
+        GeoServerTileLayerInfoImpl roundtripped = roundtripTest();
+        assertThat(roundtripped.isMemoryCached()).isTrue();
+    }
+
+    @Test
     void testRegexParameterFilter() {
         testParameterFilters(Set.of(regexParameterFilter()));
     }

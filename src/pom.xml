@@ -38,7 +38,7 @@
     <tileverse-geoserver.version>3.1-SNAPSHOT</tileverse-geoserver.version>
     <tileverse.version>2.1.2</tileverse.version>
     <jackson.version>3.3.0</jackson.version>
-    <jackson2.version>2.22.4</jackson2.version>
+    <jackson2.version>2.23.0</jackson2.version>
 
     <!-- default target java version, submodules may override -->
     <java.version>25</java.version>
@@ -1141,15 +1141,6 @@
           </dependency>
           <dependency>
             <!--
-No enforcer error justifies this override. The protobuf-bom imported through cloud-dependencies-bom manages
-protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps the GeoServer version.
--->
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>4.36.2</version>
-          </dependency>
-          <dependency>
-            <!--
 [ERROR] +-org.geoserver.cloud.apps:gs-cloud-wms:jar:3.1.0-SNAPSHOT
 [ERROR]   +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-starter:jar:3.1.0-SNAPSHOT:compile
 [ERROR]     +-org.geoserver.cloud.gwc:gwc-cloud-spring-boot-autoconfigure:jar:3.1.0-SNAPSHOT:compile
@@ -1276,10 +1267,22 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
             <version>4.0.5</version>
           </dependency>
           <dependency>
+            <!-- match upstream geoserver -->
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.6.1</version>
+          </dependency>
+          <dependency>
             <!-- match jaxb-core and txw2 from spring-boot-dependencies -->
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
             <version>4.0.9</version>
+          </dependency>
+          <dependency>
+            <!-- declared by tileverse, parquetry and geoserver-acl; spring-boot-dependencies manages 3.2.4 -->
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.3.1</version>
           </dependency>
           <dependency>
             <!--
@@ -1297,12 +1300,6 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-core</artifactId>
             <version>${wicket.version}</version>
-          </dependency>
-          <dependency>
-            <!-- match wicket.version, GeoServer manages 10.11.0 -->
-            <groupId>org.wicketstuff</groupId>
-            <artifactId>wicketstuff-select2</artifactId>
-            <version>10.12.0</version>
           </dependency>
           <dependency>
             <!-- version required by httpclient5 -->
@@ -1427,6 +1424,24 @@ protobuf-java at 4.35.1, and GeoServer manages it at 4.36.2. The override keeps 
             <groupId>com.google.flatbuffers</groupId>
             <artifactId>flatbuffers-java</artifactId>
             <version>25.2.10</version>
+          </dependency>
+          <dependency>
+            <!--
+[ERROR] Dependency convergence error for ar.com.hjg:pngj:jar:2.0.1. Paths to dependency are:
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver:gs-gwc:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-org.geoserver:gs-wms-core:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-it.geosolutions.imageio-ext:imageio-ext-png:jar:2.1-SNAPSHOT:compile
+[ERROR]         +-ar.com.hjg:pngj:jar:2.0.1:compile
+[ERROR] and
+[ERROR] +-org.geoserver.cloud.gwc:gwc-cloud-core:jar:3.1.0-SNAPSHOT
+[ERROR]   +-org.geoserver:gs-gwc:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]     +-org.geoserver:gs-wms-core:jar:3.1.0-CLOUD-SNAPSHOT:compile
+[ERROR]       +-ar.com.hjg:pngj:jar:2.1.0:compile
+-->
+            <groupId>ar.com.hjg</groupId>
+            <artifactId>pngj</artifactId>
+            <version>2.1.0</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
